@@ -33,15 +33,24 @@ function SetSingletonAttribute(element, container, attribute)
    element.attr(attribute, "");
 }
 
-function CreateLogger(consoleLog)
+function CreateLogger(consoleLog, maxMessages, maxBuffer)
 {
    //This will be captured... ummm I hope.
    var messages = [];
+   maxBuffer = maxBuffer || 0;
    
    var log = function(message, level)
    {
-      if(consoleLog) console.log("[" + level + "] " + message);
-      LogRaw(message, level, messages);
+      if(consoleLog) 
+         console.log("[" + level + "] " + message);
+
+      messages.push({message: message, level: level, time: new Date()});
+
+      if(messages.length > maxMessages)
+      {
+         console.log("SLICIGN");
+         messages = messages.slice(-(maxMessages - maxBuffer));
+      }
    };
 
    return {
@@ -53,11 +62,6 @@ function CreateLogger(consoleLog)
       Error : function(message) { log(message, "error"); },
       LogRaw : function(message, level) { log(message, level); }
    };
-}
-
-function LogRaw(message, level, messages)
-{
-   messages.push({message: message, level: level, time: new Date()});
 }
 
 function LogMessagesHtml(messages)

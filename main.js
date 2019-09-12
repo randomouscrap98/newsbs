@@ -3,11 +3,12 @@
 
 var CONST =
 {
-   Active : "data-active"
+   Active : "data-active",
+   MaxLogMessages : 5000
 };
 
 var EMain = false;
-var Log = CreateLogger(true);
+var Log = CreateLogger(true, CONST.MaxLogMessages, CONST.MaxLogMessages / 10);
 
 $( document ).ready(function()
 {
@@ -37,6 +38,8 @@ $( document ).ready(function()
    {
       Log.Error("Could not setup website: " + ex);
    }
+
+   Log.Info("Website loaded (pending content)");
 });
 
 function SetDisplayedContent(content)
@@ -75,7 +78,8 @@ function CreateHome()
       "open to suggestions, but I'm trying to avoid feature creep so unless it's " +
       "super pressing, I might hold off on it. Yes, the website database gets " +
       "reset every time I publish; when the website WORKS I will stop doing " +
-      "that.");
+      "that.\n\n\nOh one more thing: this is running off a junky little " +
+      "laptop at home with bad internet. Sorry if at any point it's bad.");
    main.append(header);
    main.append(about);
    main.append(explain);
