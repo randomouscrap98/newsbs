@@ -15,21 +15,72 @@ div
    margin: 0;
 }
 
-/* Panes and Scrollers ARE containers */
-.container, .scroller, .pane
+.fill
+{
+   width: 100%;
+   height: 100%;
+}
+
+/* Panes and Scrollers and controlboxes ARE containers */
+.container, .scroller, .pane, .controlbox
 {
    padding: 0;
    box-sizing: border-box;
 }
 
+/* Panes take up the whole available height */
 .pane
 {
-   height: 100vh;
+   height: 100%;
 }
 
+/* Scrollers auto-scroll the y direction overflow */
 .scroller
 {
    overflow-y: auto;
+}
+
+/* control boxes are made to hold nicely-formatted controls */
+.controlbox
+{
+   display: flex; /* you may want to have good backups for non-flex systems */
+}
+
+/* We assume iconbuttons ARE hover animations */
+.hover, .iconbutton
+{
+   filter: saturate(10%) /*brightness(120%) opacity(75%)*/;
+   transition: 0.1s;
+   box-sizing: border-box;
+}
+
+.hover:hover, .iconbutton:hover
+{
+   filter: saturate(70%) /*brightness(100%) opacity(100%)*/;
+}
+
+.hover[data-active], .iconbutton[data-active]
+{
+   filter: saturate(100%) /*brightness(100%) opacity(100%)*/;
+   opacity: 1;
+   border: 0.5em solid #000;
+}
+
+/* We assume controls ARE icon buttons */
+.iconbutton, .controlbox .control
+{
+   background-repeat: no-repeat;
+   background-position: center center;
+   background-size: contain;
+   border: 0;
+   cursor: pointer;
+}
+
+.controlbox .control
+{
+   height: 100%;
+   flex-grow: 1;
+   margin: 0;
 }
 
 .content
@@ -58,21 +109,17 @@ div
 
 #leftscroller
 {
-   width: 100%;
-   height: 100vh; /* This can change with textbox */
 }
 
 #rightscroller
 {
-   width: 100%;
-   height: 100vh;
    padding-bottom: 2em; /* Enough for userlink */
 }
 
-#userlink
+#smallnav
 {
    /* background-color: #77DDAA; */
-   background-color: #CCC;
+   background-color: #DDD;
    position: absolute;
    right: 0;
    bottom: 0;
