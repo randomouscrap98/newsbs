@@ -56,8 +56,29 @@ function CreateHome()
 
    var main = MakeContent("");
    var header = $("<h1>SmileBASIC Source</h1>");
+   var about = $("<p></p>");
+   about.text("One day, this might become something??? I've said that about " +
+      "quite a few projects though... none of which went anywhere");
+   var explain = $("<p></p>");
+   explain.text("Some things: Yes, the sidebar will be collapsible and maybe " +
+      "even resizable. No, nothing is final. No, I'm not focusing on ultra-old " +
+      "devices first, although I am looking for it to be stable on at least " +
+      "sort-of old things. Yes, I'm really using jquery, it's here to stay. " +
+      "No, I'm not going to use 1 million libraries; just jquery and MAYBE one " +
+      "or two other things. I'm trying to make the underlying html and css as " +
+      "simple as possible to both understand and manipulate... I don't want to have a mess " +
+      "just as much as anybody else trying to manipulate this crap.\n\nYes, I'm " +
+      "trying to fit the entire website into one window. Yes, everything will " +
+      "be AJAX and done through jquery (sorry non-js people). Yes, IF I get time, " +
+      "I still plan on an 'ultra low-end no js' version of the website, but that's " +
+      "only if people still need that after I'm finished with this one. Yes I'm " +
+      "open to suggestions, but I'm trying to avoid feature creep so unless it's " +
+      "super pressing, I might hold off on it. Yes, the website database gets " +
+      "reset every time I publish; when the website WORKS I will stop doing " +
+      "that.");
    main.append(header);
-
+   main.append(about);
+   main.append(explain);
 
    return main;
 }
