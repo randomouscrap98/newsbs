@@ -46,26 +46,6 @@ div
    display: flex; /* you may want to have good backups for non-flex systems */
 }
 
-/* We assume iconbuttons ARE hover animations */
-.hover, .iconbutton
-{
-   filter: saturate(10%) /*brightness(120%) opacity(75%)*/;
-   transition: 0.1s;
-   box-sizing: border-box;
-}
-
-.hover:hover, .iconbutton:hover
-{
-   filter: saturate(70%) /*brightness(100%) opacity(100%)*/;
-}
-
-.hover[data-active], .iconbutton[data-active]
-{
-   filter: saturate(100%) /*brightness(100%) opacity(100%)*/;
-   opacity: 1;
-   border: 0.5em solid #000;
-}
-
 /* We assume controls ARE icon buttons */
 .iconbutton, .controlbox .control
 {
@@ -74,6 +54,25 @@ div
    background-size: contain;
    border: 0;
    cursor: pointer;
+}
+
+/* We assume iconbuttons ARE hover animations */
+.hover, .iconbutton
+{
+   filter: saturate(10%) opacity(75%);
+   transition: 0.1s;
+   box-sizing: border-box;
+}
+
+.hover:hover, .iconbutton:hover
+{
+   filter: saturate(70%) opacity(100%);
+}
+
+.hover[data-active], .iconbutton[data-active]
+{
+   filter: saturate(100%) opacity(100%);
+   opacity: 1;
 }
 
 .controlbox .control
@@ -86,9 +85,24 @@ div
 .content
 {
    white-space: pre-wrap;
-   padding: 0.5em;
+   padding: 0.8em;
    font-size: 1em;
 }
+
+.meta
+{
+   float: right;
+   font-size: 0.8em;
+   padding-left: 1em;
+}
+
+/* Some slightly more specific stuff*/
+.log { font-family: monospace; }
+.log .info { color: #555; }
+.log .warn { color: #DA0; }
+.log .error { color: #D51; font-weight: bold; }
+.log .debug { color: #AAA; }
+.log .content { padding: 0.1em 0.5em; }
 
 #leftpane
 {
