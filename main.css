@@ -6,22 +6,60 @@ body
    margin: 0;
    border: none;
    position: relative;
+   color: #222226;
    font-family: "Trebuchet Ms", sans-serif;
 }
 
-div
+/* Some decent margins on headers */
+h1, h2, h3
+{
+   margin: 0.3em 0;
+}
+
+/* Everything that I want sized WITHOUT borders/padding (most things) */
+form, div, input, button
+{
+   box-sizing: border-box;
+}
+
+/* Everything that has a border that SHOULDN'T */
+button, input, textarea
+{
+   border: 0;
+}
+
+/* Just some general styling for every type of thing */
+form, div
 {
    display: block;
    margin: 0;
 }
 
+/* I want all inputs with text to have a little padding */
+form input[type="text"], form input[type="password"], form textarea,
+form input[type="email"]
+{
+   padding: 0.25em;
+}
+
+/* All buttons and submits (they're buttons) should look the same */
+button, input[type="submit"]
+{
+   cursor: pointer;
+   padding: 0.5em;
+   font-weight: bold; /* Is it gonna be ok to make every button bold text??? */
+   background-color: rgba(0,0,10,0.1);
+}
+
+/* Completely fill the parent */
 .fill
 {
    width: 100%;
    height: 100%;
 }
 
-/* Panes and Scrollers and controlboxes ARE containers */
+/* Panes and Scrollers and controlboxes ARE containers, meaning they should not
+ * constrain the content within (no padding/etc). */
 .container, .scroller, .pane, .controlbox
 {
    padding: 0;
@@ -46,35 +84,7 @@ div
    display: flex; /* you may want to have good backups for non-flex systems */
 }
 
-/* We assume controls ARE icon buttons */
-.iconbutton, .controlbox .control
-{
-   background-repeat: no-repeat;
-   background-position: center center;
-   background-size: contain;
-   border: 0;
-   cursor: pointer;
-}
-
-/* We assume iconbuttons ARE hover animations */
-.hover, .iconbutton
-{
-   filter: saturate(10%) opacity(75%);
-   transition: 0.1s;
-   box-sizing: border-box;
-}
-
-.hover:hover, .iconbutton:hover
-{
-   filter: saturate(70%) opacity(100%);
-}
-
-.hover[data-active], .iconbutton[data-active]
-{
-   filter: saturate(100%) opacity(100%);
-   opacity: 1;
-}
-
+/* Controls within a controlbox need that formatting */
 .controlbox .control
 {
    height: 100%;
@@ -82,10 +92,39 @@ div
    margin: 0;
 }
 
-.content
+/* Iconbuttons have this nice icon in the back that's centered/etc. */
+.iconbutton
+{
+   background-repeat: no-repeat;
+   background-position: center center;
+   background-size: contain;
+   cursor: pointer;
+}
+
+/* If you are a "hover" class, you have some fancy coloring/transitions applied */
+.hover
+{
+   filter: saturate(10%) opacity(75%);
+   transition: 0.1s;
+   box-sizing: border-box;
+}
+
+.hover:hover
+{
+   filter: saturate(70%) opacity(100%);
+}
+
+.hover[data-active]
+{
+   filter: saturate(100%) opacity(100%);
+   opacity: 1;
+}
+
+/* lists ARE content */
+.content, .list
 {
    white-space: pre-wrap;
-   padding: 0.8em;
+   padding: 0.5em;
    font-size: 1em;
 }
 
@@ -96,7 +135,7 @@ div
    padding-left: 1em;
 }
 
-/* Some slightly more specific stuff*/
+/* Logging style */
 .log { font-family: monospace; }
 .log .info { color: #555; }
 .log .warn { color: #DA0; }
@@ -104,13 +143,35 @@ div
 .log .debug { color: #AAA; }
 .log .content { padding: 0.1em 0.5em; }
 
+/* How to style the standalone form */
+form.standalone
+{
+   width: 100%;
+   max-width: 20em;
+   background-color: #DDDDDF;
+   padding: 1em;
+   margin: 1em auto;
+}
+
+form.standalone input
+{
+   width: 100%;
+   font-size: 1em;
+   margin: 0.25em 0;
+}
+
+.formalstandalone .header
+{
+   text-align: center;
+}
+
 #leftpane
 {
    position: absolute;
    left: 0;
    width: 100%;
    padding-right: 12rem; /* same as right pane */
-   background-color: #FCFCFC;
+   background-color: #FCFCFD;
 }
 
 #rightpane
@@ -118,7 +179,7 @@ div
    position: absolute;
    right: 0;
    width: 12rem;
-   background-color: #F0F0F0;
+   background-color: #F0F0F2;
 }
 
 #leftscroller
@@ -132,8 +193,7 @@ div
 
 #smallnav
 {
-   /* background-color: #77DDAA; */
-   background-color: #DDD;
+   background-color: #DDDDDF;
    position: absolute;
    right: 0;
    bottom: 0;

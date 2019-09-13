@@ -91,11 +91,37 @@ function CreateLogin()
 {
    Log.Debug("Creating Login/Register page");
 
-   var main = MakeContent("");
-   var header = $("<h2>Login</h2>");
-   main.append(header);
+   var main = MakeContent();
+   main.append(CreateLoginForm());
+   main.append(CreateRegisterForm());
+   main.append(CreateRegisterConfirmForm());
 
    return main;
+}
+
+function CreateLoginForm()
+{
+   var form = MakeFormalStandaloneForm("Login", "Login"); //, Log, function() { } );
+   AddBeforeSubmit(MakeInput("username", "text", "Username/Email"), form);
+   AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
+   return form;
+}
+
+function CreateRegisterForm()
+{
+   var form = MakeFormalStandaloneForm("Register", "Register"); //, Log, function() { } );
+   AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
+   AddBeforeSubmit(MakeInput("username", "text", "Username"), form);
+   AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
+   AddBeforeSubmit(MakeInput("confirmpassword", "password", "Confirm Password"), form);
+   return form;
+}
+
+function CreateRegisterConfirmForm()
+{
+   var form = MakeFormalStandaloneForm("Confirm Registration", "Confirm"); //, Log, function() { } );
+   AddBeforeSubmit(MakeInput("code", "text", "Email Code"), form);
+   return form;
 }
 
 // ****************************************

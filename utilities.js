@@ -21,10 +21,83 @@ function MakeIconButton(image, color, func)
    var button = $("<button></button>"); 
    button.addClass("control");
    button.addClass("iconbutton");
+   button.addClass("hover"); 
+   //NOTE: I can't think of any iconbuttons that WON'T be fancy but you never know
    button.css("background-image", "url(" + image + ")");
    button.css("background-color", color);
    button.click(function(){func(button);});
    return button;
+}
+
+function MakeStandardForm(name, submitText) //, logger, submit)
+{
+   var form = $("<form></form>");
+   var errorSection = $("<div></div>");
+   var submit = $("<input type='submit'/>")
+
+   form.attr("name", name);
+   errorSection.addClass("list");
+   submit.val(submitText);
+   submit.addClass("hover");
+
+   form.append(errorSection);
+   form.append(submit);
+   errorSection.hide();
+
+   //form.submit(function()
+   //{
+   //   try
+   //   {
+   //      logger.Info("Submitting form " + name);
+   //      submit.attr("data-running", "");
+   //      submit(form);
+   //   }
+   //   catch(ex)
+   //   {
+   //      submit.removeAttr("data-running");
+   //      logger.Error("Error in form " + name + ": " + ex);
+   //   }
+
+   //   return false;
+   //});
+
+   return form;
+}
+
+function MakeStandaloneForm(name, submitText)
+{
+   var form = MakeStandardForm(name, submitText);
+   form.addClass("standalone");
+   return form;
+}
+
+function MakeFormalStandaloneForm(name, submitText)
+{
+   var form = MakeStandaloneForm(name, submitText);
+   var container = MakeContent();
+   var header = $("<h2></h2>");
+   header.addClass("header");
+   header.text(name);
+   container.addClass("formalstandalone");
+   container.append(header);
+   container.append(form);
+   return container;
+}
+
+function MakeInput(name, type, placeholder)
+{
+   var input = $("<input/>");
+   input.attr("type", type);
+   input.attr("name", name);
+   input.attr("required", "");
+   if(placeholder)
+      input.attr("placeholder", placeholder);
+   return input;
+}
+
+function AddBeforeSubmit(input, form)
+{
+   input.insertBefore(form.find("input[type='submit']"));
 }
 
 function SetSingletonAttribute(element, container, attribute)
@@ -47,10 +120,7 @@ function CreateLogger(consoleLog, maxMessages, maxBuffer)
       messages.push({message: message, level: level, time: new Date()});
 
       if(messages.length > maxMessages)
-      {
-         console.log("SLICIGN");
          messages = messages.slice(-(maxMessages - maxBuffer));
-      }
    };
 
    return {
