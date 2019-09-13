@@ -160,8 +160,9 @@ form.standalone input
    margin: 0.25em 0;
 }
 
-.formalstandalone .header
+form.standalone .header
 {
+   margin-top: 0;
    text-align: center;
 }
 

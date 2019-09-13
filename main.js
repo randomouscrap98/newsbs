@@ -101,7 +101,7 @@ function CreateLogin()
 
 function CreateLoginForm()
 {
-   var form = MakeFormalStandaloneForm("Login", "Login"); //, Log, function() { } );
+   var form = MakeStandaloneForm("Login", "Login"); //, Log, function() { } );
    AddBeforeSubmit(MakeInput("username", "text", "Username/Email"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
    return form;
@@ -109,7 +109,7 @@ function CreateLoginForm()
 
 function CreateRegisterForm()
 {
-   var form = MakeFormalStandaloneForm("Register", "Register"); //, Log, function() { } );
+   var form = MakeStandaloneForm("Register", "Register"); //, Log, function() { } );
    AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
    AddBeforeSubmit(MakeInput("username", "text", "Username"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
@@ -119,7 +119,7 @@ function CreateRegisterForm()
 
 function CreateRegisterConfirmForm()
 {
-   var form = MakeFormalStandaloneForm("Confirm Registration", "Confirm"); //, Log, function() { } );
+   var form = MakeStandaloneForm("Confirm Registration", "Confirm"); //, Log, function() { } );
    AddBeforeSubmit(MakeInput("code", "text", "Email Code"), form);
    return form;
 }
