@@ -29,8 +29,10 @@ function MakeIconButton(image, color, func)
    return button;
 }
 
-function MakeStandardForm(name, submitText) //, logger, submit)
+function MakeStandardForm(name, submitText)
 {
+   submitText = submitText || name;
+
    var form = $("<form></form>");
    var errorSection = $("<div></div>");
    var submit = $("<input type='submit'/>")
@@ -43,6 +45,9 @@ function MakeStandardForm(name, submitText) //, logger, submit)
    form.append(errorSection);
    form.append(submit);
    errorSection.hide();
+
+   return form;
+}
 
    //form.submit(function()
    //{
@@ -61,8 +66,6 @@ function MakeStandardForm(name, submitText) //, logger, submit)
    //   return false;
    //});
 
-   return form;
-}
 
 function MakeStandaloneForm(name, submitText)
 {
@@ -74,19 +77,6 @@ function MakeStandaloneForm(name, submitText)
    form.prepend(header);
    return form;
 }
-
-//function MakeFormalStandaloneForm(name, submitText)
-//{
-//   var form = MakeStandaloneForm(name, submitText);
-//   //var container = MakeContent();
-//   var header = $("<h2></h2>");
-//   header.addClass("header");
-//   header.text(name);
-//   container.addClass("formalstandalone");
-//   container.append(header);
-//   container.append(form);
-//   return container;
-//}
 
 function MakeInput(name, type, placeholder)
 {

@@ -4,11 +4,13 @@
 var CONST =
 {
    Active : "data-active",
-   MaxLogMessages : 5000
+   MaxLogMessages : 5000,
+   LogMessageEraseBuffer : 500,
+   LogConsole : true
 };
 
 var EMain = false;
-var Log = CreateLogger(true, CONST.MaxLogMessages, CONST.MaxLogMessages / 10);
+var Log = CreateLogger(CONST.LogConsole, CONST.MaxLogMessages, CONST.LogMessageEraseBuffer);
 
 $( document ).ready(function()
 {
@@ -25,14 +27,8 @@ $( document ).ready(function()
       
       Log.Debug("Cached all desired elements");
 
-      var landingButton = MakeSmallNavButton("icons/home.png", "#77C877", CreateHome);
-      EMain.SmallNav.append(landingButton);
-      EMain.SmallNav.append(MakeSmallNavButton("icons/debug.png", "#C8A0C8", Log.GetMessagesHtml));
-      EMain.SmallNav.append(MakeSmallNavButton("icons/user.png", "#77AAFF", CreateLogin));
-
-      Log.Debug("Created mini navigation");
-
-      landingButton.click();
+      ResetSmallNav();
+      EMain.SmallNav.children().first().click();
    }
    catch(ex)
    {
@@ -41,17 +37,6 @@ $( document ).ready(function()
 
    Log.Info("Website loaded (pending content)");
 });
-
-function SetDisplayedContent(content)
-{
-   EMain.LeftScroller.empty();
-   EMain.LeftScroller.append(content);
-}
-
-function AppendDisplayedContent(content)
-{
-   EMain.LeftScroller.append(content);
-}
 
 function CreateHome()
 {
@@ -101,7 +86,7 @@ function CreateLogin()
 
 function CreateLoginForm()
 {
-   var form = MakeStandaloneForm("Login", "Login"); //, Log, function() { } );
+   var form = MakeStandaloneForm("Login");
    AddBeforeSubmit(MakeInput("username", "text", "Username/Email"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
    return form;
@@ -109,7 +94,7 @@ function CreateLoginForm()
 
 function CreateRegisterForm()
 {
-   var form = MakeStandaloneForm("Register", "Register"); //, Log, function() { } );
+   var form = MakeStandaloneForm("Register");
    AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
    AddBeforeSubmit(MakeInput("username", "text", "Username"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
@@ -119,7 +104,7 @@ function CreateRegisterForm()
 
 function CreateRegisterConfirmForm()
 {
-   var form = MakeStandaloneForm("Confirm Registration", "Confirm"); //, Log, function() { } );
+   var form = MakeStandaloneForm("Confirm Registration", "Confirm");
    AddBeforeSubmit(MakeInput("code", "text", "Email Code"), form);
    return form;
 }
@@ -153,3 +138,26 @@ function MakeSmallNavButton(icon, color, contentFunc)
       }
    });
 }
+
+function SetDisplayedContent(content)
+{
+   EMain.LeftScroller.empty();
+   EMain.LeftScroller.append(content);
+}
+
+function AppendDisplayedContent(content)
+{
+   EMain.LeftScroller.append(content);
+}
+
+function ResetSmallNav()
+{
+   EMain.SmallNav.empty();
+
+   EMain.SmallNav.append(MakeSmallNavButton("icons/home.png", "#77C877", CreateHome));
+   EMain.SmallNav.append(MakeSmallNavButton("icons/debug.png", "#C8A0C8", Log.GetMessagesHtml));
+   EMain.SmallNav.append(MakeSmallNavButton("icons/user.png", "#77AAFF", CreateLogin));
+
+   Log.Debug("Reset mini navigation");
+}
+
