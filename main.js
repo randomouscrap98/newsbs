@@ -86,8 +86,16 @@ function CreateLogin()
    Log.Debug("Creating Login/Register page");
 
    var main = MakeContent();
+   var registerNotes = MakeContent("Registering is a bit of a hassle right now " + 
+      "sorry. You must first use the register form to make your account. You will " +
+      "only know it succeeded because there's a green checkmark. Then you must " +
+      "send the confirmation email. Again, a green checkmark. NEXT, you get the " +
+      "code from the email and put it in the 'Confirm' form. If you get another " +
+      "green checkbox, hey, now you can login!");
    main.append(CreateLoginForm());
+   main.append(registerNotes);
    main.append(CreateRegisterForm());
+   main.append(CreateEmailSendForm());
    main.append(CreateRegisterConfirmForm());
 
    return main;
@@ -109,7 +117,15 @@ function CreateRegisterForm()
    AddBeforeSubmit(MakeInput("username", "text", "Username"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
    AddBeforeSubmit(MakeInput("confirmpassword", "password", "Confirm Password"), form);
-   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues);
+   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues, SingleUseFormSuccess);
+   return form;
+}
+
+function CreateEmailSendForm()
+{
+   var form = MakeStandaloneForm("Send Confirmation Email", "send");
+   AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
+   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -117,7 +133,7 @@ function CreateRegisterConfirmForm()
 {
    var form = MakeStandaloneForm("Confirm Registration", "Confirm");
    AddBeforeSubmit(MakeInput("code", "text", "Email Code"), form);
-   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues);
+   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -165,7 +181,9 @@ function SetupFormAjax(form, url, dataConverter, success)
       {
          startRunning();
          var ajax = RunBasicAjax(url, dataConverter(form));
-         ajax.always(stopRunning).done(success);
+         ajax.always(stopRunning);
+         if(success) 
+            ajaxdone(function(data, status, xhr){success(form,data,status,xhr);});
          ajax.fail(function(data){SetFormResponseError(form, data)});
       }
       catch(ex)

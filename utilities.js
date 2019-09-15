@@ -89,7 +89,7 @@ function MakeIconButton(image, color, func)
    //NOTE: I can't think of any iconbuttons that WON'T be fancy but you never know
    button.css("background-image", "url(" + image + ")");
    button.css("background-color", color);
-   button.click(function(){func(button);});
+   if(func) button.click(function(){func(button);});
    return button;
 }
 
@@ -189,6 +189,21 @@ function GatherLoginValues(form)
 
 function GetFormSubmit(form) { return form.find("input[type='submit']"); }
 function AddBeforeSubmit(input, form) { input.insertBefore(GetFormSubmit(form)); }
+
+function MakeSuccessImage()
+{
+   var image = $("<img/>");
+   image.addClass("success");
+   image.prop("src", "icons/success.png");
+   return image;
+}
+
+function SingleUseFormSuccess(form, data)
+{
+   //Remove the form submission button
+   GetFormSubmit(form).remove();
+   formappend(MakeSuccessImage());
+}
 
 function SetSingletonAttribute(element, container, attribute)
 {
