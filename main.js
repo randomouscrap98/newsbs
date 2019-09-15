@@ -134,7 +134,7 @@ function CreateEmailSendForm()
 function CreateRegisterConfirmForm()
 {
    var form = MakeStandaloneForm("Confirm Registration", "Confirm");
-   AddBeforeSubmit(MakeInput("code", "text", "Email Code"), form);
+   AddBeforeSubmit(MakeInput("confirmationKey", "text", "Email Code"), form);
    SetupFormAjax(form, CONST.Api.ConfirmEmail, GatherFormValues, SingleUseFormSuccess);
    return form;
 }
