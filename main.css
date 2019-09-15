@@ -28,11 +28,23 @@ button, input, textarea
    border: 0;
 }
 
+button:disabled, input:disabled, textarea:disabled
+{
+   opacity: 0.5;
+}
+
 /* Just some general styling for every type of thing */
-form, div
+form, div, p
 {
    display: block;
    margin: 0;
+}
+
+/* ALL things with user text will need hidden overflow */
+.content, .error, .meta
+{
+   text-overflow: ellipsis;
+   overflow-x: hidden;
 }
 
 /* I want all inputs with text to have a little padding */
@@ -135,11 +147,13 @@ button, input[type="submit"]
    padding-left: 1em;
 }
 
+.warn { color: #DA0; }
+.error { color: #C33; }
+
 /* Logging style */
 .log { font-family: monospace; }
 .log .info { color: #555; }
-.log .warn { color: #DA0; }
-.log .error { color: #D51; font-weight: bold; }
+.log .error { font-weight: bold; }
 .log .debug { color: #AAA; }
 .log .content { padding: 0.1em 0.5em; }
 

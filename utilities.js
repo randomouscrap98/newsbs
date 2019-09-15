@@ -8,10 +8,54 @@
 // These have no dependencies; all required data should be passed in through
 // parameters or whatever. If you need namespacing UGH maybe later
 
+var CLASSES = {
+   Content : "content",
+   Error : "error",
+   Errors : "errors",
+   List : "list",
+   Hover : "hover",
+   Control : "control",
+   IconButton : "iconbutton",
+   Header : "header",
+   Standalone : "standalone",
+   Meta : "meta"
+};
+
+function GetAjaxSettings(url, data)
+{
+   var settings = {
+      url : url,
+      contentType: 'application/json',
+      dataType: 'json',
+      beforeSend : function(xhr)
+      {
+         var auth = GetAuthToken();
+
+         if(auth)
+            xhr.setRequestHeader("Authorization", "Bearer " + auth);
+      }
+   };
+
+   if(data !== undefined)
+   {
+      settings.method = "POST";
+      settings.data = JSON.stringify(data);
+   }
+   else
+   {
+      settings.method = "GET";
+   }
+
+   return settings;
+}
+
+function GetAuthToken() { return localStorage.getItem("auth"); }
+function SetAuthToken(token) { localStorage.setItem("auth", token); }
+
 function MakeContent(text)
 {
    var content = $("<div></div>");
-   content.addClass("content");
+   content.addClass(CLASSES.Content);
    if(text) content.text(text);
    return content;
 }
@@ -19,9 +63,9 @@ function MakeContent(text)
 function MakeIconButton(image, color, func)
 {
    var button = $("<button></button>"); 
-   button.addClass("control");
-   button.addClass("iconbutton");
-   button.addClass("hover"); 
+   button.addClass(CLASSES.Control);
+   button.addClass(CLASSES.IconButton);
+   button.addClass(CLASSES.Hover); 
    //NOTE: I can't think of any iconbuttons that WON'T be fancy but you never know
    button.css("background-image", "url(" + image + ")");
    button.css("background-color", color);
@@ -38,9 +82,9 @@ function MakeStandardForm(name, submitText)
    var submit = $("<input type='submit'/>")
 
    form.attr("name", name);
-   errorSection.addClass("list");
+   errorSection.addClass(CLASSES.List + " " + CLASSES.Errors);
    submit.val(submitText);
-   submit.addClass("hover");
+   submit.addClass(CLASSES.Hover);
 
    form.append(errorSection);
    form.append(submit);
@@ -49,31 +93,13 @@ function MakeStandardForm(name, submitText)
    return form;
 }
 
-   //form.submit(function()
-   //{
-   //   try
-   //   {
-   //      logger.Info("Submitting form " + name);
-   //      submit.attr("data-running", "");
-   //      submit(form);
-   //   }
-   //   catch(ex)
-   //   {
-   //      submit.removeAttr("data-running");
-   //      logger.Error("Error in form " + name + ": " + ex);
-   //   }
-
-   //   return false;
-   //});
-
-
 function MakeStandaloneForm(name, submitText)
 {
    var form = MakeStandardForm(name, submitText);
    var header = $("<h2></h2>");
-   header.addClass("header");
+   header.addClass(CLASSES.Header);
    header.text(name);
-   form.addClass("standalone");
+   form.addClass(CLASSES.Standalone);
    form.prepend(header);
    return form;
 }
@@ -87,6 +113,44 @@ function MakeInput(name, type, placeholder)
    if(placeholder)
       input.attr("placeholder", placeholder);
    return input;
+}
+
+function AddFormError(form, error)
+{
+   var errorElement = $("<p></p>");
+   errorElement.addClass(CLASSES.Error);
+   errorElement.text(error);
+   form.find("." + CLASSES.Errors).show().append(errorElement);
+}
+
+function ClearFormErrors(form)
+{
+   form.find("." + CLASSES.Errors).hide().empty();
+}
+
+function SetFormError(form, error)
+{
+   ClearFormErrors(form);
+   AddFormError(form, error);
+}
+
+function GatherFormValues(form)
+{
+   var inputs = form.find("input, textarea");
+   var values = {};
+   inputs.each(function() { values[this.name] = $(this).val()});
+   return values;
+}
+
+function GatherLoginValues(form)
+{
+   var values = GatherFormValues(form);
+   if(values["username"].indexOf("@") >= 0)
+   {
+      values["email"] = values["username"];
+      values["username"] = undefined;
+   }
+   return values;
 }
 
 function AddBeforeSubmit(input, form)
@@ -131,7 +195,7 @@ function CreateLogger(consoleLog, maxMessages, maxBuffer)
 function LogMessagesHtml(messages)
 {
    var container = $("<div></div>");
-   container.addClass("content");
+   container.addClass(CLASSES.Content);
    container.addClass("log");
 
    for(var i = 0; i < messages.length; i++)
@@ -140,7 +204,7 @@ function LogMessagesHtml(messages)
       var time = $("<time></time>");
       var messageText = $("<span></span>")
       time.text(messages[i].time.toLocaleTimeString());
-      time.addClass("meta");
+      time.addClass(CLASSES.Meta);
       messageText.text(messages[i].message);
       message.addClass(messages[i].level);
       message.append(time);

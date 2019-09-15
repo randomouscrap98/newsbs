@@ -4,10 +4,17 @@
 var CONST =
 {
    Active : "data-active",
+   Running : "data-running",
    MaxLogMessages : 5000,
    LogMessageEraseBuffer : 500,
-   LogConsole : true
+   LogConsole : true,
+   Api : "/api/"
 };
+
+CONST.UsersApi = CONST.Api + "users/";
+CONST.AuthorizeApi = CONST.UsersApi + "authenticate/";
+CONST.CategoriesApi = CONST.Api + "categories/";
+CONST.ContentApi = CONST.Api + "content/";
 
 var EMain = false;
 var Log = CreateLogger(CONST.LogConsole, CONST.MaxLogMessages, CONST.LogMessageEraseBuffer);
@@ -29,6 +36,7 @@ $( document ).ready(function()
 
       ResetSmallNav();
       EMain.SmallNav.children().first().click();
+      RunBasicAjax(CONST.UsersApi);
    }
    catch(ex)
    {
@@ -89,6 +97,7 @@ function CreateLoginForm()
    var form = MakeStandaloneForm("Login");
    AddBeforeSubmit(MakeInput("username", "text", "Username/Email"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
+   SetupFormAjax(form, CONST.AuthorizeApi, GatherLoginValues);
    return form;
 }
 
@@ -99,6 +108,7 @@ function CreateRegisterForm()
    AddBeforeSubmit(MakeInput("username", "text", "Username"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
    AddBeforeSubmit(MakeInput("confirmpassword", "password", "Confirm Password"), form);
+   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues);
    return form;
 }
 
@@ -106,6 +116,7 @@ function CreateRegisterConfirmForm()
 {
    var form = MakeStandaloneForm("Confirm Registration", "Confirm");
    AddBeforeSubmit(MakeInput("code", "text", "Email Code"), form);
+   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues);
    return form;
 }
 
@@ -115,6 +126,58 @@ function CreateRegisterConfirmForm()
 //
 // These are essentially scripts
  
+function RunBasicAjax(url, data)
+{
+   return $.ajax(GetAjaxSettings(url, data)).done(function(data)
+   {
+      Log.Debug(url + " SUCCESS: " + JSON.stringify(data));
+   }).fail(function(data)
+   {
+      Log.Error(url + " FAIL: " + JSON.stringify(data));
+   });
+}
+
+function SetupFormAjax(form, url, dataConverter, success)
+{
+   var inputs = form.find("input, button, textarea");
+   var submit = form.find("input[type='submit']");
+   var startRunning = function() 
+   { 
+      inputs.prop('disabled', true);
+      submit.attr(CONST.Running, ""); 
+   };
+   var stopRunning = function() 
+   { 
+      inputs.prop('disabled', false);
+      submit.removeAttr(CONST.Running); 
+   };
+
+   if(!submit)
+   {
+      Log.Error("No 'submit' input on form for " + url);
+      return;
+   }
+
+   form.submit(function()
+   {
+      try
+      {
+         startRunning();
+         var ajax = RunBasicAjax(url, dataConverter(form));
+         ajax.always(stopRunning);
+         ajax.fail(function(data){SetFormError(form, data.responseText)});
+         ajax.done(success);
+      }
+      catch(ex)
+      {
+         stopRunning();
+         Log.Error("Exception during form submit:" + ex.message);
+         SetFormError(form, ex.message);
+      }
+      return false;
+   });
+}
+
 //Setting active CONTENT will update the left pane. Anything can be content...
 function SetActiveContent(element, content)
 {
