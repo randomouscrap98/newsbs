@@ -8,14 +8,18 @@ var CONST =
    MaxLogMessages : 5000,
    LogMessageEraseBuffer : 500,
    LogConsole : true,
-   Api : "/api/",
+   Api : {
+      Root: "/api/"
+   },
    Inputs : "input, button, textarea"
 };
 
-CONST.UsersApi = CONST.Api + "users/";
-CONST.AuthorizeApi = CONST.UsersApi + "authenticate/";
-CONST.CategoriesApi = CONST.Api + "categories/";
-CONST.ContentApi = CONST.Api + "content/";
+CONST.Api.Users = CONST.Api.Root + "users/";
+CONST.Api.Authorize = CONST.Api.Users + "authenticate/";
+CONST.Api.SendEmail = CONST.Api.Users + "sendemail/";
+CONST.Api.ConfirmEmail = CONST.Api.Users + "confirm/";
+CONST.Api.Categories = CONST.Api.Root + "categories/";
+CONST.Api.Content = CONST.Api.Root + "content/";
 
 var EMain = false;
 var Log = CreateLogger(CONST.LogConsole, CONST.MaxLogMessages, CONST.LogMessageEraseBuffer);
@@ -37,7 +41,6 @@ $( document ).ready(function()
 
       ResetSmallNav();
       EMain.SmallNav.children().first().click();
-      //RunBasicAjax(CONST.UsersApi);
    }
    catch(ex)
    {
@@ -106,7 +109,7 @@ function CreateLoginForm()
    var form = MakeStandaloneForm("Login");
    AddBeforeSubmit(MakeInput("username", "text", "Username/Email"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
-   SetupFormAjax(form, CONST.AuthorizeApi, GatherLoginValues);
+   SetupFormAjax(form, CONST.Api.Authorize, GatherLoginValues);
    return form;
 }
 
@@ -115,17 +118,16 @@ function CreateRegisterForm()
    var form = MakeStandaloneForm("Register");
    AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
    AddBeforeSubmit(MakeInput("username", "text", "Username"), form);
-   AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
-   AddBeforeSubmit(MakeInput("confirmpassword", "password", "Confirm Password"), form);
-   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues, SingleUseFormSuccess);
+   AddPasswordConfirm(form);
+   SetupFormAjax(form, CONST.Api.Users, GatherPasswordConfirmValues, SingleUseFormSuccess);
    return form;
 }
 
 function CreateEmailSendForm()
 {
-   var form = MakeStandaloneForm("Send Confirmation Email", "send");
+   var form = MakeStandaloneForm("Send Confirmation Email", "Send");
    AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
-   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues, SingleUseFormSuccess);
+   SetupFormAjax(form, CONST.Api.SendEmail, GatherFormValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -133,7 +135,7 @@ function CreateRegisterConfirmForm()
 {
    var form = MakeStandaloneForm("Confirm Registration", "Confirm");
    AddBeforeSubmit(MakeInput("code", "text", "Email Code"), form);
-   SetupFormAjax(form, CONST.AuthorizeApi, GatherFormValues, SingleUseFormSuccess);
+   SetupFormAjax(form, CONST.Api.ConfirmEmail, GatherFormValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -183,14 +185,14 @@ function SetupFormAjax(form, url, dataConverter, success)
          var ajax = RunBasicAjax(url, dataConverter(form));
          ajax.always(stopRunning);
          if(success) 
-            ajaxdone(function(data, status, xhr){success(form,data,status,xhr);});
+            ajax.done(function(data, status, xhr){success(form,data,status,xhr);});
          ajax.fail(function(data){SetFormResponseError(form, data)});
       }
       catch(ex)
       {
          stopRunning();
-         Log.Error("Exception during form submit:" + ex.message);
-         SetFormError(form, ex.message);
+         Log.Error("Exception during form submit:" + ex);
+         SetFormError(form, ex);
       }
       return false;
    });
