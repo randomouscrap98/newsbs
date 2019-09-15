@@ -49,6 +49,26 @@ function GetAjaxSettings(url, data)
    return settings;
 }
 
+function GetResponseErrors(response)
+{
+   var errors = [];
+
+   if(response.responseJSON && response.responseJSON.errors)
+   {
+      var rErrors = response.responseJSON.errors;
+
+      for(var k in rErrors) 
+         if(rErrors.hasOwnProperty(k))
+            errors = errors.concat(rErrors[k]);
+   }
+   else
+   {
+      errors.push(response.responseText);
+   }
+
+   return errors;
+}
+
 function GetAuthToken() { return localStorage.getItem("auth"); }
 function SetAuthToken(token) { localStorage.setItem("auth", token); }
 
@@ -117,10 +137,19 @@ function MakeInput(name, type, placeholder)
 
 function AddFormError(form, error)
 {
-   var errorElement = $("<p></p>");
-   errorElement.addClass(CLASSES.Error);
-   errorElement.text(error);
-   form.find("." + CLASSES.Errors).show().append(errorElement);
+   if(!error.length)
+      error = [ error ];
+
+   var errors = form.find("." + CLASSES.Errors);
+   errors.show()
+
+   for(var i = 0; i < error.length; i++)
+   {
+      var errorElement = $("<p></p>");
+      errorElement.addClass(CLASSES.Error);
+      errorElement.text(error[i]);
+      errors.append(errorElement);
+   }
 }
 
 function ClearFormErrors(form)
@@ -132,6 +161,11 @@ function SetFormError(form, error)
 {
    ClearFormErrors(form);
    AddFormError(form, error);
+}
+
+function SetFormResponseError(form, response)
+{
+   SetFormError(form, GetResponseErrors(response));
 }
 
 function GatherFormValues(form)
@@ -153,10 +187,8 @@ function GatherLoginValues(form)
    return values;
 }
 
-function AddBeforeSubmit(input, form)
-{
-   input.insertBefore(form.find("input[type='submit']"));
-}
+function GetFormSubmit(form) { return form.find("input[type='submit']"); }
+function AddBeforeSubmit(input, form) { input.insertBefore(GetFormSubmit(form)); }
 
 function SetSingletonAttribute(element, container, attribute)
 {

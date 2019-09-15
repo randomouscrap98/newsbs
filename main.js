@@ -8,7 +8,8 @@ var CONST =
    MaxLogMessages : 5000,
    LogMessageEraseBuffer : 500,
    LogConsole : true,
-   Api : "/api/"
+   Api : "/api/",
+   Inputs : "input, button, textarea"
 };
 
 CONST.UsersApi = CONST.Api + "users/";
@@ -36,7 +37,7 @@ $( document ).ready(function()
 
       ResetSmallNav();
       EMain.SmallNav.children().first().click();
-      RunBasicAjax(CONST.UsersApi);
+      //RunBasicAjax(CONST.UsersApi);
    }
    catch(ex)
    {
@@ -133,14 +134,14 @@ function RunBasicAjax(url, data)
       Log.Debug(url + " SUCCESS: " + JSON.stringify(data));
    }).fail(function(data)
    {
-      Log.Error(url + " FAIL: " + JSON.stringify(data));
+      Log.Warn(url + " FAIL: " + JSON.stringify(data));
    });
 }
 
 function SetupFormAjax(form, url, dataConverter, success)
 {
-   var inputs = form.find("input, button, textarea");
-   var submit = form.find("input[type='submit']");
+   var inputs = form.find(CONST.Inputs);
+   var submit = GetFormSubmit(form);
    var startRunning = function() 
    { 
       inputs.prop('disabled', true);
@@ -164,9 +165,8 @@ function SetupFormAjax(form, url, dataConverter, success)
       {
          startRunning();
          var ajax = RunBasicAjax(url, dataConverter(form));
-         ajax.always(stopRunning);
-         ajax.fail(function(data){SetFormError(form, data.responseText)});
-         ajax.done(success);
+         ajax.always(stopRunning).done(success);
+         ajax.fail(function(data){SetFormResponseError(form, data)});
       }
       catch(ex)
       {
