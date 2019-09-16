@@ -34,7 +34,7 @@ button:disabled, input:disabled, textarea:disabled
 }
 
 /* Just some general styling for every type of thing */
-form, div, p
+form, div
 {
    display: block;
    margin: 0;
@@ -47,11 +47,13 @@ form, div, p
    overflow-x: hidden;
 }
 
-/* I want all inputs with text to have a little padding */
+/* I want all inputs with text to have a little padding (and the same color) */
 form input[type="text"], form input[type="password"], form textarea,
 form input[type="email"]
 {
    padding: 0.25em;
+   background-color: #FDFDFD;
+   -webkit-box-shadow: 0 0 0 4em #FDFDFD inset; /* A disgusting hack for autofill */
 }
 
 /* All buttons and submits (they're buttons) should look the same */
@@ -68,6 +70,12 @@ button, input[type="submit"]
 {
    width: 100%;
    height: 100%;
+}
+
+/* Clickable should have a pointer (and maybe other things?) */
+.clickable
+{
+   cursor: pointer;
 }
 
 /* Panes and Scrollers and controlboxes ARE containers, meaning they should not
@@ -104,21 +112,19 @@ button, input[type="submit"]
    margin: 0;
 }
 
-/* Iconbuttons have this nice icon in the back that's centered/etc. */
-.iconbutton
+.icon
 {
    background-repeat: no-repeat;
    background-position: center center;
    background-size: contain;
-   cursor: pointer;
 }
 
+/* Iconbuttons have this nice icon in the back that's centered/etc. */
 /* If you are a "hover" class, you have some fancy coloring/transitions applied */
 .hover
 {
    filter: saturate(10%) opacity(75%);
    transition: 0.1s;
-   box-sizing: border-box;
 }
 
 .hover:hover
@@ -138,6 +144,11 @@ button, input[type="submit"]
    white-space: pre-wrap;
    padding: 0.5em;
    font-size: 1em;
+}
+
+.list p
+{
+   margin: 0.1em 0;
 }
 
 .meta
@@ -172,6 +183,7 @@ form.standalone input
    width: 100%;
    font-size: 1em;
    margin: 0.25em 0;
+   transition: opacity 0.3s;
 }
 
 form.standalone .header
@@ -180,11 +192,22 @@ form.standalone .header
    text-align: center;
 }
 
-form.standalone .success
+/* If you have a "submit" that is NOW an icon, get rid of text and fix it up. 
+ * If you DON'T want this implicit, add another class just for this! */
+input[type="submit"].icon
 {
-   display: block;
-   margin: auto;
-   width: 2.5em;
+
+   background-color: transparent;
+   color: transparent;
+   opacity: 1;
+   filter: none;
+   cursor: default;
+   pointer-events: none;
+}
+
+#cache
+{
+   display: none;
 }
 
 #leftpane

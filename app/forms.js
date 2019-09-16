@@ -46,7 +46,11 @@ function GatherFormValues(form)
 {
    var inputs = form.find("input, textarea");
    var values = {};
-   inputs.each(function() { values[this.name] = $(this).val()});
+   inputs.each(function() 
+   { 
+      if(this.name)
+         values[this.name] = $(this).val()
+   });
    return values;
 }
 
@@ -74,8 +78,7 @@ function AddBeforeSubmit(input, form) { input.insertBefore(GetFormSubmit(form));
 
 function SingleUseFormSuccess(form, data)
 {
-   //Remove the form submission button
-   GetFormSubmit(form).remove();
-   form.append(MakeSuccessImage());
+   var submit = GetFormSubmit(form);
+   SetElementIcon(submit, IMAGES.Success);
 }
 

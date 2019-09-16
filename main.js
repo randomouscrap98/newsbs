@@ -18,11 +18,23 @@ $( document ).ready(function()
 
    try
    {
+      var cache = $("#cache");
+
+      //Before doing ANYTHING, start preloading images. 
+      for(var key in IMAGES)
+      {
+         if(IMAGES.hasOwnProperty(key) && key.indexOf("Root") < 0)
+            $("<img/>").attr("src", IMAGES[key]).appendTo(cache);
+      }
+
+      Log.Debug("Preloading images");
+
       EMain = {
          LeftPane : $("#leftpane"),
          LeftScroller : $("#leftscroller"),
          RightPane : $("#rightpane"),
-         SmallNav : $("#smallnav")
+         SmallNav : $("#smallnav"),
+         Cache : cache
       };
       
       Log.Debug("Cached all desired elements");
@@ -140,6 +152,8 @@ function RunBasicAjax(url, data)
       Log.Debug(url + " SUCCESS: " + JSON.stringify(data));
    }).fail(function(data)
    {
+      if(data && data.responseText && data.responseJSON)
+         data.responseText = undefined;
       Log.Warn(url + " FAIL: " + JSON.stringify(data));
    });
 }
@@ -151,8 +165,8 @@ function SetupFormAjax(form, url, dataConverter, success)
    var startRunning = function() 
    { 
       inputs.prop('disabled', true);
-      ClearFormErrors(form);
       submit.attr(ATTRIBUTES.Running, ""); 
+      ClearFormErrors(form); //Assume that if you're RUNNING, it's a "new slate" so forget old errors
    };
    var stopRunning = function() 
    { 
@@ -173,9 +187,14 @@ function SetupFormAjax(form, url, dataConverter, success)
          startRunning();
          var ajax = RunBasicAjax(url, dataConverter(form));
          ajax.always(stopRunning);
-         if(success) 
-            ajax.done(function(data, status, xhr){success(form,data,status,xhr);});
-         ajax.fail(function(data){SetFormResponseError(form, data)});
+         ajax.done(function(data, status, xhr)
+         {
+            if(success) success(form,data,status,xhr);
+         });
+         ajax.fail(function(data)
+         {
+            SetFormResponseError(form, data);
+         });
       }
       catch(ex)
       {

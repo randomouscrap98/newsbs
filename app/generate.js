@@ -14,11 +14,11 @@ function MakeIconButton(image, color, func)
 {
    var button = $("<button></button>"); 
    button.addClass(CLASSES.Control);
-   button.addClass(CLASSES.IconButton);
+   button.addClass(CLASSES.Clickable);
    button.addClass(CLASSES.Hover); 
    //NOTE: I can't think of any iconbuttons that WON'T be fancy but you never know
-   button.css("background-image", "url(" + image + ")");
    button.css("background-color", color);
+   SetElementIcon(button, image);
    if(func) button.click(function(){func(button);});
    return button;
 }
@@ -36,8 +36,8 @@ function MakeStandardForm(name, submitText)
    submit.val(submitText);
    submit.addClass(CLASSES.Hover);
 
-   form.append(errorSection);
    form.append(submit);
+   form.append(errorSection);
    errorSection.hide();
 
    return form;
@@ -82,3 +82,8 @@ function SetSingletonAttribute(element, container, attribute)
    element.attr(attribute, "");
 }
 
+function SetElementIcon(element, image)
+{
+   element.addClass(CLASSES.Icon);
+   element.css("background-image", "url(" + image + ")");
+}

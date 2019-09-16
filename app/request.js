@@ -11,14 +11,14 @@ function GetAjaxSettings(url, data)
       url : url,
       contentType: 'application/json',
       dataType: 'json',
-      beforeSend : function(xhr)
-      {
-         var auth = GetAuthToken();
-
-         if(auth)
-            xhr.setRequestHeader("Authorization", "Bearer " + auth);
+      headers: {
+         "Accept" : "application/json" //WE only accept json. The endpoint should provide this...
       }
    };
+
+   var auth = GetAuthToken();
+   if(auth) 
+      settings.headers["Authorization"] = "Bearer " + auth;
 
    if(data !== undefined)
    {

@@ -9,13 +9,23 @@ var CLASSES = {
    List : "list",
    Hover : "hover",
    Control : "control",
-   IconButton : "iconbutton",
+   Icon : "icon",
+   Clickable : "clickable",
    Header : "header",
    Standalone : "standalone",
    Meta : "meta",
    Success : "success",
    Log : "log"
 };
+
+var IMAGES = {
+   IconRoot : "icons/",
+};
+
+IMAGES.Success = IMAGES.IconRoot + "success.png";
+IMAGES.Home = IMAGES.IconRoot + "home.png";
+IMAGES.Debug = IMAGES.IconRoot + "debug.png";
+IMAGES.User = IMAGES.IconRoot + "user.png";
 
 var NAMES = {
    Password : "password",
