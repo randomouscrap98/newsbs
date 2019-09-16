@@ -22,3 +22,18 @@ var NAMES = {
    PasswordConfirm : "passwordconfirm"
 };
 
+var ATTRIBUTES = {
+   Active : "data-active",
+   Running : "data-running"
+};
+
+var API = {
+   Root: "/api/"
+};
+
+API.Users = API.Root + "users/";
+API.Authorize = API.Users + "authenticate/";
+API.SendEmail = API.Users + "sendemail/";
+API.ConfirmEmail = API.Users + "confirm/";
+API.Categories = API.Root + "categories/";
+API.Content = API.Root + "content/";

@@ -1,6 +1,6 @@
 //Carlos Sanchez
 //9-15-2019
-//Deps: jquery, utils.constants
+//Deps: jquery, constants
 
 function MakeContent(text)
 {

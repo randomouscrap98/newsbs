@@ -42,6 +42,10 @@ function GetResponseErrors(response)
          if(rErrors.hasOwnProperty(k))
             errors = errors.concat(rErrors[k]);
    }
+   else if(response.responseJSON && $.type(response.responseJSON) === "string")
+   {
+      errors.push(response.responseJSON);
+   }
    else
    {
       errors.push(response.responseText);

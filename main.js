@@ -3,23 +3,11 @@
 
 var CONST =
 {
-   Active : "data-active",
-   Running : "data-running",
    MaxLogMessages : 5000,
    LogMessageEraseBuffer : 500,
    LogConsole : true,
-   Api : {
-      Root: "/api/"
-   },
    Inputs : "input, button, textarea"
 };
-
-CONST.Api.Users = CONST.Api.Root + "users/";
-CONST.Api.Authorize = CONST.Api.Users + "authenticate/";
-CONST.Api.SendEmail = CONST.Api.Users + "sendemail/";
-CONST.Api.ConfirmEmail = CONST.Api.Users + "confirm/";
-CONST.Api.Categories = CONST.Api.Root + "categories/";
-CONST.Api.Content = CONST.Api.Root + "content/";
 
 var EMain = false;
 var Log = CreateLogger(CONST.LogConsole, CONST.MaxLogMessages, CONST.LogMessageEraseBuffer);
@@ -109,7 +97,7 @@ function CreateLoginForm()
    var form = MakeStandaloneForm("Login");
    AddBeforeSubmit(MakeInput("username", "text", "Username/Email"), form);
    AddBeforeSubmit(MakeInput("password", "password", "Password"), form);
-   SetupFormAjax(form, CONST.Api.Authorize, GatherLoginValues);
+   SetupFormAjax(form, API.Authorize, GatherLoginValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -119,7 +107,7 @@ function CreateRegisterForm()
    AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
    AddBeforeSubmit(MakeInput("username", "text", "Username"), form);
    AddPasswordConfirm(form);
-   SetupFormAjax(form, CONST.Api.Users, GatherPasswordConfirmValues, SingleUseFormSuccess);
+   SetupFormAjax(form, API.Users, GatherPasswordConfirmValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -127,7 +115,7 @@ function CreateEmailSendForm()
 {
    var form = MakeStandaloneForm("Send Confirmation Email", "Send");
    AddBeforeSubmit(MakeInput("email", "email", "Email"), form);
-   SetupFormAjax(form, CONST.Api.SendEmail, GatherFormValues, SingleUseFormSuccess);
+   SetupFormAjax(form, API.SendEmail, GatherFormValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -135,7 +123,7 @@ function CreateRegisterConfirmForm()
 {
    var form = MakeStandaloneForm("Confirm Registration", "Confirm");
    AddBeforeSubmit(MakeInput("confirmationKey", "text", "Email Code"), form);
-   SetupFormAjax(form, CONST.Api.ConfirmEmail, GatherFormValues, SingleUseFormSuccess);
+   SetupFormAjax(form, API.ConfirmEmail, GatherFormValues, SingleUseFormSuccess);
    return form;
 }
 
@@ -163,12 +151,13 @@ function SetupFormAjax(form, url, dataConverter, success)
    var startRunning = function() 
    { 
       inputs.prop('disabled', true);
-      submit.attr(CONST.Running, ""); 
+      ClearFormErrors(form);
+      submit.attr(ATTRIBUTES.Running, ""); 
    };
    var stopRunning = function() 
    { 
       inputs.prop('disabled', false);
-      submit.removeAttr(CONST.Running); 
+      submit.removeAttr(ATTRIBUTES.Running); 
    };
 
    if(!submit)
@@ -203,7 +192,7 @@ function SetActiveContent(element, content)
 {
    //One day this may also need to disable background ajax or whatever. It'll
    //need to do MORE than just set a singleton attribute for the entire right pane.
-   SetSingletonAttribute(element, EMain.RightPane, CONST.Active);
+   SetSingletonAttribute(element, EMain.RightPane, ATTRIBUTES.Active);
    SetDisplayedContent(content);
 }
 

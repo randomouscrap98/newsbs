@@ -1,6 +1,6 @@
 //Carlos Sanchez
 //9-15-2019
-//Deps: jquery, constants
+//Deps: jquery, constants, generate
 
 function AddFormError(form, error)
 {
@@ -76,6 +76,6 @@ function SingleUseFormSuccess(form, data)
 {
    //Remove the form submission button
    GetFormSubmit(form).remove();
-   formappend(MakeSuccessImage());
+   form.append(MakeSuccessImage());
 }
 

@@ -180,6 +180,13 @@ form.standalone .header
    text-align: center;
 }
 
+form.standalone .success
+{
+   display: block;
+   margin: auto;
+   width: 2.5em;
+}
+
 #leftpane
 {
    position: absolute;
