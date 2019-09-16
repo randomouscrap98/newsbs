@@ -73,3 +73,12 @@ function MakeSuccessImage()
    return image;
 }
 
+
+//TODO: Should these types of generic things go in generate???
+
+function SetSingletonAttribute(element, container, attribute)
+{
+   container.find("*").removeAttr(attribute);
+   element.attr(attribute, "");
+}
+

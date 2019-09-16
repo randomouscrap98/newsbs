@@ -2,6 +2,9 @@
 //9-15-2019
 //Deps: jquery 
 
+function GetAuthToken() { return localStorage.getItem("auth"); }
+function SetAuthToken(token) { localStorage.setItem("auth", token); }
+
 function GetAjaxSettings(url, data)
 {
    var settings = {

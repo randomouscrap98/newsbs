@@ -1,0 +1,7 @@
+9-15-2019
+-Remove secrets from configs for production (use secret keeper? or maybe just a file lol)
+-Set up database migrations (including in the publish scripts) so the database
+ isn't lost in production
+-Store authentication on login and make user page reflect storage. Add logout
+ to user page (delete)
+-Make function (js) for building category tree + display tree in sidepane

@@ -162,7 +162,7 @@ form.standalone
 {
    width: 100%;
    max-width: 20em;
-   background-color: #DDDDDF;
+   background-color: #E9E9EA; /*#DDDDDF;*/
    padding: 1em;
    margin: 1em auto;
 }
