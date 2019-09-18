@@ -10,6 +10,13 @@ function MakeContent(text)
    return content;
 }
 
+function MakeSection()
+{
+   var section = $("<div></div>");
+   section.addClass(CLASSES.Section);
+   return section;
+}
+
 function MakeIconButton(image, color, func)
 {
    var button = $("<button></button>"); 

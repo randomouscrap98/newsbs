@@ -41,7 +41,7 @@ form, div
 }
 
 /* ALL things with user text will need hidden overflow */
-.content, .error, .meta
+.content, .error, .meta, .section
 {
    text-overflow: ellipsis;
    overflow-x: hidden;
@@ -79,7 +79,7 @@ button, input[type="submit"]
 }
 
 /* Panes and Scrollers and controlboxes ARE containers, meaning they should not
- * constrain the content within (no padding/etc). */
+ * constrain the content within (no padding/etc). DON'T TOUCH MARGIN THOUGH */
 .container, .scroller, .pane, .controlbox
 {
    padding: 0;
@@ -92,10 +92,11 @@ button, input[type="submit"]
    height: 100%;
 }
 
-/* Scrollers auto-scroll the y direction overflow */
+/* Scrollers auto-scroll the y direction overflow and hide x-overflow */
 .scroller
 {
    overflow-y: auto;
+   overflow-x: hidden;
 }
 
 /* control boxes are made to hold nicely-formatted controls */
@@ -112,6 +113,7 @@ button, input[type="submit"]
    margin: 0;
 }
 
+/* Icons have this nice image in the back that's centered/etc. */
 .icon
 {
    background-repeat: no-repeat;
@@ -119,7 +121,6 @@ button, input[type="submit"]
    background-size: contain;
 }
 
-/* Iconbuttons have this nice icon in the back that's centered/etc. */
 /* If you are a "hover" class, you have some fancy coloring/transitions applied */
 .hover
 {
@@ -127,7 +128,7 @@ button, input[type="submit"]
    transition: 0.1s;
 }
 
-.hover:hover
+.hover:hover, .hover:focus
 {
    filter: saturate(70%) opacity(100%);
 }
@@ -135,20 +136,28 @@ button, input[type="submit"]
 .hover[data-active]
 {
    filter: saturate(100%) opacity(100%);
-   opacity: 1;
 }
 
-/* lists ARE content */
-.content, .list
+/* Sections should have content in them (or something) */
+.section
+{
+   margin: 0.5em 0.8em;
+}
+
+/* Content should have TEXT in it */
+.content
 {
    white-space: pre-wrap;
-   padding: 0.5em;
+   margin: 0.5em 0em;
+   padding: 0.1em;
    font-size: 1em;
 }
 
-.list p
+/* Lists of content have less vertical margin */
+.list > .content
 {
-   margin: 0.1em 0;
+    margin-top: 0.15em;
+    margin-bottom: 0.15em;
 }
 
 .meta
@@ -166,7 +175,6 @@ button, input[type="submit"]
 .log .info { color: #555; }
 .log .error { font-weight: bold; }
 .log .debug { color: #AAA; }
-.log .content { padding: 0.1em 0.5em; }
 
 /* How to style the standalone form */
 form.standalone

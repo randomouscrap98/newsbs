@@ -54,13 +54,11 @@ function CreateHome()
 {
    Log.Debug("Creating Homepage");
 
-   var main = MakeContent("");
+   var main = MakeSection();
    var header = $("<h1>SmileBASIC Source</h1>");
-   var about = $("<p></p>");
-   about.text("One day, this might become something??? I've said that about " +
+   var about = MakeContent("One day, this might become something??? I've said that about " +
       "quite a few projects though... none of which went anywhere");
-   var explain = $("<p></p>");
-   explain.text("Some things: Yes, the sidebar will be collapsible and maybe " +
+   var explain = MakeContent("Some things: Yes, the sidebar will be collapsible and maybe " +
       "even resizable. No, nothing is final. No, I'm not focusing on ultra-old " +
       "devices first, although I am looking for it to be stable on at least " +
       "sort-of old things. Yes, I'm really using jquery, it's here to stay. " +
@@ -88,7 +86,7 @@ function CreateLogin()
 {
    Log.Debug("Creating Login/Register page");
 
-   var main = MakeContent();
+   var main = MakeSection();
    var registerNotes = MakeContent("Registering is a bit of a hassle right now " + 
       "sorry. You must first use the register form to make your account. You will " +
       "only know it succeeded because there's a green checkmark. Then you must " +

@@ -4,6 +4,7 @@
 
 var CLASSES = {
    Content : "content",
+   Section : "section",
    Error : "error",
    Errors : "errors",
    List : "list",

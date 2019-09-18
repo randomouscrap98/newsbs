@@ -1,6 +1,6 @@
 //Carlos Sanchez
 //9-15-2019
-//Deps: jquery, constants
+//Deps: jquery, constants, generate
 
 function CreateLogger(consoleLog, maxMessages, maxBuffer)
 {
@@ -32,9 +32,9 @@ function CreateLogger(consoleLog, maxMessages, maxBuffer)
 
 function LogMessagesHtml(messages)
 {
-   var container = $("<div></div>");
-   container.addClass(CLASSES.Content);
+   var container = MakeSection();
    container.addClass(CLASSES.Log);
+   container.addClass(CLASSES.List);
 
    for(var i = 0; i < messages.length; i++)
    {
