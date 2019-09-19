@@ -2,22 +2,41 @@
 //9-15-2019
 //Deps: jquery, constants
 
-function MakeContent(text)
+//NOTE: NOTHING in this file should depend on languages or settings or
+//whatever. This should ALL be GENERIC generation!
+
+function Generate() { }
+
+//TODO: Are these acceptable to put in "generate"?
+Generate.prototype.SetSingletonAttribute = function(element, container, attribute)
+{
+   container.find("*").removeAttr(attribute);
+   element.attr(attribute, "");
+};
+
+Generate.prototype.SetElementIcon = function(element, image)
+{
+   element.addClass(CLASSES.Icon);
+   element.css("background-image", "url(" + image + ")");
+};
+
+//The REST of these are probably fine for generate (they're all "MAKE")
+Generate.prototype.MakeContent = function(text)
 {
    var content = $("<div></div>");
    content.addClass(CLASSES.Content);
    if(text) content.text(text);
    return content;
-}
+};
 
-function MakeSection()
+Generate.prototype.MakeSection = function()
 {
    var section = $("<div></div>");
    section.addClass(CLASSES.Section);
    return section;
-}
+};
 
-function MakeIconButton(image, color, func)
+Generate.prototype.MakeIconButton = function(image, color, func)
 {
    var button = $("<button></button>"); 
    button.addClass(CLASSES.Control);
@@ -25,12 +44,27 @@ function MakeIconButton(image, color, func)
    button.addClass(CLASSES.Hover); 
    //NOTE: I can't think of any iconbuttons that WON'T be fancy but you never know
    button.css("background-color", color);
-   SetElementIcon(button, image);
+   this.SetElementIcon(button, image);
    if(func) button.click(function(){func(button);});
    return button;
-}
+};
 
-function MakeStandardForm(name, submitText)
+Generate.prototype.MakeSuccessImage = function()
+{
+   var image = $("<img/>");
+   image.addClass(CLASSES.Success);
+   image.prop("src", IMAGES.Success);
+   return image;
+};
+
+
+// **************
+// * FORM STUFF *
+// **************
+
+function FormGenerate() { }
+
+FormGenerate.prototype.MakeStandard = function(name, submitText)
 {
    submitText = submitText || name;
 
@@ -48,20 +82,20 @@ function MakeStandardForm(name, submitText)
    errorSection.hide();
 
    return form;
-}
+};
 
-function MakeStandaloneForm(name, submitText)
+FormGenerate.prototype.MakeStandalone = function(name, submitText)
 {
-   var form = MakeStandardForm(name, submitText);
+   var form = this.MakeStandardForm(name, submitText);
    var header = $("<h2></h2>");
    header.addClass(CLASSES.Header);
    header.text(name);
    form.addClass(CLASSES.Standalone);
    form.prepend(header);
    return form;
-}
+};
 
-function MakeInput(name, type, placeholder)
+FormGenerate.prototype.MakeInput = function(name, type, placeholder)
 {
    var input = $("<input/>");
    input.attr("type", type);
@@ -70,27 +104,72 @@ function MakeInput(name, type, placeholder)
    if(placeholder)
       input.attr("placeholder", placeholder);
    return input;
-}
+};
 
-function MakeSuccessImage()
+//Since we GENERATED the dang thing, we're the only one that can FIND stuff in it.
+FormGenerate.prototype.GetSubmit = function(form) { return form.find(SELECTORS.Submit); };
+FormGenerate.prototype.GetErrors = function(form) { return form.find("." + CLASSES.Errors); };
+FormGenerate.prototype.GetInputs = function(form) { return form.find(SELECTORS.Inputs); };
+FormGenerate.prototype.GetInteractables = function(form) { return form.find(SELECTORS.AllInteract); };
+
+FormGenerate.prototype.GatherValues = function(form)
 {
-   var image = $("<img/>");
-   image.addClass("success");
-   image.prop("src", "icons/success.png");
-   return image;
-}
+   var inputs = form.find(SELECTORS.Inputs);
+   var values = {};
+   inputs.each(function() 
+   { 
+      if(this.name)
+         values[this.name] = $(this).val()
+   });
+   return values;
+};
 
+//Stuff to MANIPULATE a form (do I really want this stuff here?)
+FormGenerate.prototype.AddBeforeSubmit = function(form, input) { input.insertBefore(this.GetSubmit(form)); };
+FormGenerate.prototype.ClearErrors = function (form) { this.GetErrors(form).hide().empty(); };
 
-//TODO: Should these types of generic things go in generate???
-
-function SetSingletonAttribute(element, container, attribute)
+FormGenerate.prototype.AddError = function(form, error)
 {
-   container.find("*").removeAttr(attribute);
-   element.attr(attribute, "");
-}
+   if(!$.isArray(error))
+      error = [ error ];
 
-function SetElementIcon(element, image)
+   var errors = this.GetErrors(form);
+   errors.show()
+
+   for(var i = 0; i < error.length; i++)
+   {
+      //this.Log.Warn("Adding error to form " + this.form.attr("name") + ": " + error[i]);
+      var errorElement = $("<p></p>");
+      errorElement.addClass(CLASSES.Error);
+      errorElement.text(error[i]);
+      errors.append(errorElement);
+   }
+};
+
+FormGenerate.prototype.SetError = function (form, error)
 {
-   element.addClass(CLASSES.Icon);
-   element.css("background-image", "url(" + image + ")");
-}
+   this.ClearErrors(form);
+   this.AddError(form, error);
+};
+
+FormGenerate.prototype.SetRunningState = function(form, running)
+{
+   var inputs = form.find(SELECTORS.AllInteract);
+   var submit = this.GetSubmit(form);
+
+   inputs.prop('disabled', running);
+
+   if(running)
+   {
+      submit.attr(ATTRIBUTES.Running, ""); 
+      this.ClearErrors(form); //Assume that if you're RUNNING, it's a "new slate" so forget old errors
+   }
+   else
+   {
+      submit.removeAttr(ATTRIBUTES.Running); 
+   }
+};
+
+FormGenerate.prototype.SetRunning = function(form) { this.SetRunningState(form, true); };
+FormGenerate.prototype.ClearRunning = function(form) { this.SetRunningState(form, false); };
+

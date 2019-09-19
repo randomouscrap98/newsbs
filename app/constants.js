@@ -19,6 +19,12 @@ var CLASSES = {
    Log : "log"
 };
 
+SELECTORS= {
+   Submit : "input[type='submit']",
+   Inputs : "input, textarea",
+   AllInterract : "input, button, textarea"
+};
+
 var IMAGES = {
    IconRoot : "icons/",
 };
@@ -30,7 +36,9 @@ IMAGES.User = IMAGES.IconRoot + "user.png";
 
 var NAMES = {
    Password : "password",
-   PasswordConfirm : "passwordconfirm"
+   PasswordConfirm : "passwordconfirm",
+   Username : "username",
+   Email : "email"
 };
 
 var ATTRIBUTES = {

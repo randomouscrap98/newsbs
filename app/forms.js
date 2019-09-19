@@ -1,84 +1,61 @@
 //Carlos Sanchez
 //9-15-2019
-//Deps: jquery, constants, generate
+//Deps: jquery, constants
 
-function AddFormError(form, error)
-{
-   if(!$.isArray(error))
-      error = [ error ];
+//Lots of dependencies
+//function MyForm(form, request, generate, logger)
+//{
+//   this.form = form;
+//   this.request = request;
+//   this.generate = generate;
+//   this.Log = logger;
+//}
 
-   var errors = form.find("." + CLASSES.Errors);
-   errors.show()
+//MyForm.prototype.SetResponseError = function(response)
+//{
+//   this.SetError(this.request.GetResponseErrors(response));
+//};
 
-   for(var i = 0; i < error.length; i++)
-   {
-      var errorElement = $("<p></p>");
-      errorElement.addClass(CLASSES.Error);
-      errorElement.text(error[i]);
-      errors.append(errorElement);
-   }
-}
+//MyForm.prototype.SingleUseSuccess = function(data)
+//{
+//   var submit = this.GetSubmit();
+//   this.generate.SetElementIcon(submit, IMAGES.Success);
+//};
 
-function ClearFormErrors(form)
-{
-   form.find("." + CLASSES.Errors).hide().empty();
-}
-
-function SetFormError(form, error)
-{
-   ClearFormErrors(form);
-   AddFormError(form, error);
-}
-
-function SetFormResponseError(form, response)
-{
-   SetFormError(form, GetResponseErrors(response));
-}
-
-function AddPasswordConfirm(form)
-{
-   AddBeforeSubmit(MakeInput(NAMES.Password, "password", "Password"), form);
-   AddBeforeSubmit(MakeInput(NAMES.PasswordConfirm, "password", "Confirm Password"), form);
-   return form;
-}
-
-function GatherFormValues(form)
-{
-   var inputs = form.find("input, textarea");
-   var values = {};
-   inputs.each(function() 
-   { 
-      if(this.name)
-         values[this.name] = $(this).val()
-   });
-   return values;
-}
-
-function GatherLoginValues(form)
-{
-   var values = GatherFormValues(form);
-   if(values["username"].indexOf("@") >= 0)
-   {
-      values["email"] = values["username"];
-      values["username"] = undefined;
-   }
-   return values;
-}
-
-function GatherPasswordConfirmValues(form)
-{
-   var values = GatherFormValues(form);
-   if(values[NAMES.Password] !== values[NAMES.PasswordConfirm])
-      throw "Passwords don't match!";
-   return values;
-}
-
-function GetFormSubmit(form) { return form.find("input[type='submit']"); }
-function AddBeforeSubmit(input, form) { input.insertBefore(GetFormSubmit(form)); }
-
-function SingleUseFormSuccess(form, data)
-{
-   var submit = GetFormSubmit(form);
-   SetElementIcon(submit, IMAGES.Success);
-}
-
+//MyForm.prototype.SetupAjax = function(url, dataConverter, success)
+//{
+//   var submit = this.GetSubmit();
+//   var me = this;
+//
+//   if(!submit)
+//   {
+//      this.Log.Error("No 'submit' input on form for " + url);
+//      return;
+//   }
+//
+//   this.form.submit(function()
+//   {
+//      try
+//      {
+//         me.SetRunning();
+//         var ajax = me.request.RunBasicAjax(url, dataConverter(me.form));
+//         ajax.always(me.ClearRunning);
+//         ajax.done(function(data, status, xhr)
+//         {
+//            if(success) success(me.form,data,status,xhr);
+//         });
+//         ajax.fail(me.SetResponseError);
+//         //function(data)
+//         //{
+//         //   me.SetResponseError(data);
+//         //});
+//      }
+//      catch(ex)
+//      {
+//         me.Log.Error("EXCEPTION during form submit: " + ex);
+//         me.ClearRunning();
+//         me.SetError(ex);
+//      }
+//      return false;
+//   });
+//};

@@ -1,54 +1,28 @@
 //Carlos Sanchez
 //9-15-2019
-//Deps: jquery, constants, generate
+//No dependencies
 
-function CreateLogger(consoleLog, maxMessages, maxBuffer)
+function Logger()
 {
-   //This will be captured... ummm I hope.
-   var messages = [];
-   maxBuffer = maxBuffer || 0;
-   
-   var log = function(message, level)
-   {
-      if(consoleLog) 
-         console.log("[" + level + "] " + message);
-
-      messages.push({message: message, level: level, time: new Date()});
-
-      if(messages.length > maxMessages)
-         messages = messages.slice(-(maxMessages - maxBuffer));
-   };
-
-   return {
-      GetMessagesRaw: function() { return messages; },
-      GetMessagesHtml: function() { return LogMessagesHtml(messages); },
-      Debug : function(message) { log(message, "debug"); },
-      Info : function(message) { log(message, "info"); },
-      Warn : function(message) { log(message, "warn"); },
-      Error : function(message) { log(message, "error"); },
-      LogRaw : function(message, level) { log(message, level); }
-   };
+   this.messages = [];
+   this.consoleLog = false;
+   this.maxMessages = 1000; 
+   this.maxBuffer = 0;
 }
 
-function LogMessagesHtml(messages)
+Logger.prototype.RawLog = function(message, level)
 {
-   var container = MakeSection();
-   container.addClass(CLASSES.Log);
-   container.addClass(CLASSES.List);
+   if(this.consoleLog) 
+      console.log("[" + level + "] " + message);
 
-   for(var i = 0; i < messages.length; i++)
-   {
-      var message = MakeContent();
-      var time = $("<time></time>");
-      var messageText = $("<span></span>")
-      time.text(messages[i].time.toLocaleTimeString());
-      time.addClass(CLASSES.Meta);
-      messageText.text(messages[i].message);
-      message.addClass(messages[i].level);
-      message.append(time);
-      message.append(messageText);
-      container.append(message);
-   }
+   this.messages.push({message: message, level: level, time: new Date()});
 
-   return container;
-}
+   if(this.messages.length > this.maxMessages)
+      this.messages = this.messages.slice(-(this.maxMessages - this.maxBuffer));
+};
+
+Logger.prototype.Debug = function(message) { this.RawLog(message, "debug"); };
+Logger.prototype.Info = function(message) { this.RawLog(message, "info"); };
+Logger.prototype.Warn = function(message) { this.RawLog(message, "warn"); };
+Logger.prototype.Error = function(message) { this.RawLog(message, "error"); };
+
