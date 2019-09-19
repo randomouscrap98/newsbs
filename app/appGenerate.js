@@ -136,32 +136,62 @@ AppGenerate.prototype.CreateRegisterConfirmForm = function()
    return form;
 };
 
+AppGenerate.prototype.BeginNewContent = function(button, buttonParent, contentParent)
+{
+   this.generate.SetSingletonAttribute(button, buttonParent, ATTRIBUTES.Active);
+   contentParent.empty();
+};
+
+AppGenerate.prototype.InstantContent = function(button, buttonParent, contentParent, contentFunc)
+{
+   try
+   {
+      this.BeginNewContent(button, buttonParent, contentParent);
+      contentParent.append(contentFunc());
+   }
+   catch(ex)
+   {
+      me.Log.Error("Could not setup instant content: " + ex);
+   }
+};
+
+//In this one, contentFunc is a function that takes a callback for deferred
+//content production. The callback expects contentFunc to give it content
+AppGenerate.prototype.LoadedContent = function(button, buttonParent, contentParent, contentFunc)
+{
+   try
+   {
+      this.BeginNewContent(button, buttonParent, contentParent);
+      contentFunc(function(content) { contentParent.append(content); });
+   }
+   catch(ex)
+   {
+      me.Log.Error("Could not setup loaded content: " + ex);
+   }
+};
+
 AppGenerate.prototype.ResetSmallNav = function(container, parent, scroller)
 {
    container.empty();
-   
    var me = this;
-   var navFunc = function(image, color, contentFunc)
+
+   container.append(this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
+      me.InstantContent(b, parent, scroller, me.CreateHome.bind(me)); }));
+   container.append(this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
+      me.InstantContent(b, parent, scroller, me.LogMessages.bind(me)); }));
+   container.append(this.generate.MakeIconButton(IMAGES.User, "#77AAFF", function(b)
    {
-      return me.generate.MakeIconButton(image, color, function(b)
+      me.LoadedContent(b, parent, scroller, function(display)
       {
-         try
+         me.request.GetMe(function(user)
          {
-            me.generate.SetSingletonAttribute(b, parent, ATTRIBUTES.Active);
-            scroller.empty();
-            scroller.append(contentFunc());
-         }
-         catch(ex)
-         {
-            me.Log.Warn("Could not click small nav button: " + ex);
-         }
-
+            if(user)
+               display($("<h1>HOW</h1>"));
+            else
+               display(me.CreateLogin());
+         });
       });
-   };
-
-   container.append(navFunc(IMAGES.Home, "#77C877", me.CreateHome.bind(me)));
-   container.append(navFunc(IMAGES.Debug, "#C8A0C8", me.LogMessages.bind(me)));
-   container.append(navFunc(IMAGES.User, "#77AAFF", me.CreateLogin.bind(me)));
+   }));
 
    Log.Debug("Reset mini navigation");
 };

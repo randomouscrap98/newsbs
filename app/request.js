@@ -86,3 +86,15 @@ Requests.prototype.GetResponseErrors = function(response)
    return errors;
 };
 
+Requests.prototype.GetMe = function(callback)
+{
+   if(!this.GetAuthToken())
+   {
+      callback(null);
+      return;
+   }
+
+   var ajax = this.RunBasicAjax(API.UserMe);
+   ajax.fail(function(){ callback(null); });
+   ajax.done(function(data) { callback(data); });
+};

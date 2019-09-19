@@ -55,5 +55,6 @@ API.Users = API.Root + "users/";
 API.Authorize = API.Users + "authenticate/";
 API.SendEmail = API.Users + "sendemail/";
 API.ConfirmEmail = API.Users + "confirm/";
+API.UserMe = API.Users + "me/";
 API.Categories = API.Root + "categories/";
 API.Content = API.Root + "content/";
