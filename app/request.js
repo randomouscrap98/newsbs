@@ -2,6 +2,7 @@
 //9-15-2019
 //Deps: jquery, constants
 
+
 //You must pass a logger, or else provide a garbage object with empty
 //functions.
 function Requests(logger)
@@ -48,14 +49,15 @@ Requests.prototype.GetAjaxSettings = function(url, data)
 //whatever else EVERY request should do
 Requests.prototype.RunBasicAjax = function(url, data)
 {
-   return $.ajax(GetAjaxSettings(url, data)).done(function(data)
+   var me = this;
+   return $.ajax(this.GetAjaxSettings(url, data)).done(function(data)
    {
-      this.Log.Debug(url + " SUCCESS: " + JSON.stringify(data));
+      me.Log.Debug(url + " SUCCESS: " + JSON.stringify(data));
    }).fail(function(data)
    {
       if(data && data.responseText && data.responseJSON)
          data.responseText = undefined;
-      this.Log.Warn(url + " FAIL: " + JSON.stringify(data));
+      me.Log.Warn(url + " FAIL: " + JSON.stringify(data));
    });
 };
 

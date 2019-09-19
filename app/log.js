@@ -2,12 +2,13 @@
 //9-15-2019
 //No dependencies
 
-function Logger()
+
+function Logger(consoleLog, maxMessages, maxBuffer)
 {
    this.messages = [];
-   this.consoleLog = false;
-   this.maxMessages = 1000; 
-   this.maxBuffer = 0;
+   this.consoleLog = consoleLog;
+   this.maxMessages = maxMessages || 1000; 
+   this.maxBuffer = maxBuffer || 0;
 }
 
 Logger.prototype.RawLog = function(message, level)

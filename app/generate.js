@@ -5,6 +5,7 @@
 //NOTE: NOTHING in this file should depend on languages or settings or
 //whatever. This should ALL be GENERIC generation!
 
+
 function Generate() { }
 
 //TODO: Are these acceptable to put in "generate"?
@@ -86,7 +87,7 @@ FormGenerate.prototype.MakeStandard = function(name, submitText)
 
 FormGenerate.prototype.MakeStandalone = function(name, submitText)
 {
-   var form = this.MakeStandardForm(name, submitText);
+   var form = this.MakeStandard(name, submitText);
    var header = $("<h2></h2>");
    header.addClass(CLASSES.Header);
    header.text(name);

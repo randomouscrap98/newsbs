@@ -1,6 +1,7 @@
 //Carlos Sanchez
 //9-15-2019
-//Deps: jquery, generate
+//Deps: jquery, constants
+
 
 //TODO: This will eventually need to accept languages and whatever
 function ComplexFormGenerate(logger, request)
@@ -71,7 +72,7 @@ ComplexFormGenerate.prototype.SetupAjax = function(form, url, dataConverter, suc
          });
          ajax.fail(function(data)
          {
-            me.SetError(form, me.response.GetResponseErrors(data));
+            me.SetError(form, me.request.GetResponseErrors(data));
          });
       }
       catch(ex)

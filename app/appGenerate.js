@@ -8,7 +8,7 @@ function AppGenerate(logger, request, generate, formGenerate)
 {
    this.Log = logger;
    this.request = request;
-   this.generate = formGenerate;
+   this.generate = generate;
    this.formGenerate = formGenerate;
 }
 
@@ -101,39 +101,68 @@ AppGenerate.prototype.CreateLogin = function()
 AppGenerate.prototype.CreateLoginForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandaloneForm("Login");
+   var form = fg.MakeStandalone("Login");
    fg.AddLogin(form);
-   fg.SetupAjax(form, API.Authorize, fg.GatherLoginValues, this.SingleUseSuccess);
+   fg.SetupAjax(form, API.Authorize, fg.GatherLoginValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    return form;
 };
 
 AppGenerate.prototype.CreateRegisterForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandaloneForm("Register");
+   var form = fg.MakeStandalone("Register");
    fg.AddBeforeSubmit(form, fg.MakeInput("email", "email", "Email"));
    fg.AddBeforeSubmit(form, fg.MakeInput("username", "text", "Username"));
    fg.AddPasswordConfirm(form);
-   fg.SetupAjax(form, API.Users, fg.GatherPasswordConfirmValues, this.SingleUseSuccess);
-   return forms;
+   fg.SetupAjax(form, API.Users, fg.GatherPasswordConfirmValues.bind(fg), this.SingleUseFormSuccess.bind(this));
+   return form;
 };
 
 AppGenerate.prototype.CreateEmailSendForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandaloneForm("Send Confirmation Email", "Send");
+   var form = fg.MakeStandalone("Send Confirmation Email", "Send");
    fg.AddBeforeSubmit(form, fg.MakeInput("email", "email", "Email"));
-   fg.SetupAjax(form, API.SendEmail, fg.GatherValues, this.SingleUseSuccess);
+   fg.SetupAjax(form, API.SendEmail, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    return form;
 };
 
 AppGenerate.prototype.CreateRegisterConfirmForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandaloneForm("Confirm Registration", "Confirm");
+   var form = fg.MakeStandalone("Confirm Registration", "Confirm");
    fg.AddBeforeSubmit(form, fg.MakeInput("confirmationKey", "text", "Email Code"));
-   fg.SetupAjax(form, API.ConfirmEmail, fg.GatherValues, this.SingleUseSuccess);
+   fg.SetupAjax(form, API.ConfirmEmail, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    return form;
 };
 
+AppGenerate.prototype.ResetSmallNav = function(container, parent, scroller)
+{
+   container.empty();
+   
+   var me = this;
+   var navFunc = function(image, color, contentFunc)
+   {
+      return me.generate.MakeIconButton(image, color, function(b)
+      {
+         try
+         {
+            me.generate.SetSingletonAttribute(b, parent, ATTRIBUTES.Active);
+            scroller.empty();
+            scroller.append(contentFunc());
+         }
+         catch(ex)
+         {
+            me.Log.Warn("Could not click small nav button: " + ex);
+         }
+
+      });
+   };
+
+   container.append(navFunc(IMAGES.Home, "#77C877", me.CreateHome.bind(me)));
+   container.append(navFunc(IMAGES.Debug, "#C8A0C8", me.LogMessages.bind(me)));
+   container.append(navFunc(IMAGES.User, "#77AAFF", me.CreateLogin.bind(me)));
+
+   Log.Debug("Reset mini navigation");
+};
 
