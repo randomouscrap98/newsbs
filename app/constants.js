@@ -20,7 +20,7 @@ var CLASSES = {
    Log : "log"
 };
 
-SELECTORS= {
+var SELECTORS = {
    Submit : "input[type='submit']",
    Inputs : "input, textarea",
    AllInterract : "input, button, textarea"

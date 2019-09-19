@@ -15,15 +15,15 @@ $( document ).ready(function()
 {
    Log.Info("Document ready: loading website");
 
-   var gen = new Generate();
-   var request = new Requests(Log);
-   var formGenerate = new ComplexFormGenerate(Log, request);
-   var generate = new AppGenerate(Log, request, gen, formGenerate);
-
-   Log.Debug("Setup all services");
-
    try
    {
+      var gen = new Generate();
+      var request = new Requests(Log);
+      var formGenerate = new ComplexFormGenerate(Log, request);
+      var generate = new AppGenerate(Log, request, gen, formGenerate);
+
+      Log.Debug("Setup all services");
+
       var EMain = {
          LeftPane : $("#leftpane"),
          LeftScroller : $("#leftscroller"),
