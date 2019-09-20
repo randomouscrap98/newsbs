@@ -166,6 +166,7 @@ button, input[type="submit"]
    margin: 0.5em 0em;
    padding: 0.1em;
    font-size: 1em;
+   line-height: 1.25em;
 }
 
 /* Lists of content have less vertical margin */

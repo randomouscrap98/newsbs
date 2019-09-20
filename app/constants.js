@@ -37,6 +37,7 @@ IMAGES.Home = IMAGES.IconRoot + "home.png";
 IMAGES.Debug = IMAGES.IconRoot + "debug.png";
 IMAGES.User = IMAGES.IconRoot + "user.png";
 IMAGES.Logout = IMAGES.IconRoot + "logout.png";
+IMAGES.TempAvatar = IMAGES.IconRoot + "tempAvatar.png";
 
 var NAMES = {
    Password : "password",
