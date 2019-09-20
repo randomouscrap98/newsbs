@@ -23,6 +23,9 @@ AppGenerate.prototype.SingleUseFormSuccess = function(form, data)
 AppGenerate.prototype.RefreshCurrentContent = function()
 {
    this.Log.Debug("Refreshing current content");
+   var selected = this.elements.SelectContainer.find("[" + ATTRIBUTES.Active + "]");
+   console.log(selected.length);
+   selected.click();
 };
 
 AppGenerate.prototype.CreateHome = function()
@@ -180,6 +183,8 @@ AppGenerate.prototype.ResetSmallNav = function()
    this.RefreshMe();
 
    Log.Debug("Reset mini navigation");
+
+   return this.elements.SmallNav;
 };
 
 AppGenerate.prototype.RefreshMe = function(userFunc)

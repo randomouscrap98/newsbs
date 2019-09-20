@@ -48,7 +48,9 @@ var IDS = {
    NavDebug : "navdebug",
    NavUser : "navuser",
    Cache : "cache",
-   SmallNav : "smallnav"
+   SmallNav : "smallnav",
+   LeftScroller : "leftscroller",
+   RightPane : "rightpane"
 };
 
 var ATTRIBUTES = {

@@ -119,6 +119,8 @@ button, input[type="submit"]
    background-repeat: no-repeat;
    background-position: center center;
    background-size: contain;
+   width: 3em;
+   height: 2em;
 }
 
 /* If you are a "hover" class, you have some fancy coloring/transitions applied */

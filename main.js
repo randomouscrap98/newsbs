@@ -23,24 +23,21 @@ $( document ).ready(function()
       var generate = new AppGenerate(Log, request, gen, formGenerate);
 
       generate.elements = {
-         ContentContainer : $("#leftscroller"),
-         SelectContainer : $("#rightpane"),
+         ContentContainer : $("#" + IDS.LeftScroller),
+         SelectContainer : $("#" + IDS.RightPane),
          SmallNav : $("#" + IDS.SmallNav)
       };
 
       Log.Debug("Setup all services");
 
-      //Before doing ANYTHING, start preloading images. 
+      //Preload images
       for(var key in IMAGES)
-      {
          if(IMAGES.hasOwnProperty(key) && key.indexOf("Root") < 0)
             $("<img/>").attr("src", IMAGES[key]).appendTo($("#" + IDS.Cache));
-      }
 
       Log.Debug("Preloading images");
 
-      generate.ResetSmallNav();
-      generate.elements.SmallNav.children().first().click();
+      generate.ResetSmallNav().children().first().click();
    }
    catch(ex)
    {
