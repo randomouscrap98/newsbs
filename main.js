@@ -17,34 +17,30 @@ $( document ).ready(function()
 
    try
    {
-      var gen = new Generate();
       var request = new Requests(Log);
+      var gen = new ComplexGenerate(Log);
       var formGenerate = new ComplexFormGenerate(Log, request);
       var generate = new AppGenerate(Log, request, gen, formGenerate);
 
-      Log.Debug("Setup all services");
-
-      var EMain = {
-         LeftPane : $("#leftpane"),
-         LeftScroller : $("#leftscroller"),
-         RightPane : $("#rightpane"),
-         SmallNav : $("#smallnav"),
-         Cache : $("#cache") 
+      generate.elements = {
+         ContentContainer : $("#leftscroller"),
+         SelectContainer : $("#rightpane"),
+         SmallNav : $("#" + IDS.SmallNav)
       };
 
-      Log.Debug("Cached all desired elements");
+      Log.Debug("Setup all services");
 
       //Before doing ANYTHING, start preloading images. 
       for(var key in IMAGES)
       {
          if(IMAGES.hasOwnProperty(key) && key.indexOf("Root") < 0)
-            $("<img/>").attr("src", IMAGES[key]).appendTo(EMain.Cache);
+            $("<img/>").attr("src", IMAGES[key]).appendTo($("#" + IDS.Cache));
       }
 
       Log.Debug("Preloading images");
 
-      generate.ResetSmallNav(EMain.SmallNav, EMain.RightPane, EMain.LeftScroller);
-      EMain.SmallNav.children().first().click();
+      generate.ResetSmallNav();
+      generate.elements.SmallNav.children().first().click();
    }
    catch(ex)
    {

@@ -10,40 +10,19 @@ function AppGenerate(logger, request, generate, formGenerate)
    this.request = request;
    this.generate = generate;
    this.formGenerate = formGenerate;
+
+   this.elements = { };
 }
-
-AppGenerate.prototype.LogMessages = function()
-{
-   var container = this.generate.MakeSection();
-   container.addClass(CLASSES.Log);
-   container.addClass(CLASSES.List);
-
-   for(var i = 0; i < this.Log.messages.length; i++)
-   {
-      var message = this.Log.messages[i];
-
-      var messageElement = this.generate.MakeContent();
-      var time = $("<time></time>");
-      var messageText = $("<span></span>")
-
-      messageText.text(message.message);
-      time.text(message.time.toLocaleTimeString());
-      time.addClass(CLASSES.Meta);
-
-      messageElement.addClass(message.level);
-      messageElement.append(time);
-      messageElement.append(messageText);
-
-      container.append(messageElement);
-   }
-
-   return container;
-};
 
 AppGenerate.prototype.SingleUseFormSuccess = function(form, data)
 {
    var submit = this.formGenerate.GetSubmit(form);
    this.generate.SetElementIcon(submit, IMAGES.Success);
+};
+
+AppGenerate.prototype.RefreshCurrentContent = function()
+{
+   this.Log.Debug("Refreshing current content");
 };
 
 AppGenerate.prototype.CreateHome = function()
@@ -102,8 +81,14 @@ AppGenerate.prototype.CreateLoginForm = function()
 {
    var fg = this.formGenerate;
    var form = fg.MakeStandalone("Login");
+   var me = this;
    fg.AddLogin(form);
-   fg.SetupAjax(form, API.Authorize, fg.GatherLoginValues.bind(fg), this.SingleUseFormSuccess.bind(this));
+   fg.SetupAjax(form, API.Authorize, fg.GatherLoginValues.bind(fg), function(form, data)
+   {
+      me.request.SetAuthToken(data);
+      me.RefreshCurrentContent();
+      me.RefreshMe(); //go get the new user data and update buttons/whatever
+   });
    return form;
 };
 
@@ -136,63 +121,81 @@ AppGenerate.prototype.CreateRegisterConfirmForm = function()
    return form;
 };
 
-AppGenerate.prototype.BeginNewContent = function(button, buttonParent, contentParent)
+AppGenerate.prototype.CreateUserHome = function(user)
 {
-   this.generate.SetSingletonAttribute(button, buttonParent, ATTRIBUTES.Active);
-   contentParent.empty();
+   var section = this.generate.MakeSection();
+   var content = this.generate.MakeContent();
+   var header = $("<h1></h1>");
+   var me = this;
+   header.text(user.username);
+   var icon = this.generate.MakeIconButton(IMAGES.Logout, "#FF4400", function(b)
+   {
+      me.request.RemoveAuthToken();
+      me.RefreshCurrentContent();
+      me.RefreshMe(); //go get the new user data and update buttons/whatever
+   });
+
+   content.append(icon);
+   section.append(header);
+   section.append(content);
+
+   return section;
 };
 
-AppGenerate.prototype.InstantContent = function(button, buttonParent, contentParent, contentFunc)
+AppGenerate.prototype.ResetSmallNav = function()
 {
-   try
-   {
-      this.BeginNewContent(button, buttonParent, contentParent);
-      contentParent.append(contentFunc());
-   }
-   catch(ex)
-   {
-      me.Log.Error("Could not setup instant content: " + ex);
-   }
-};
-
-//In this one, contentFunc is a function that takes a callback for deferred
-//content production. The callback expects contentFunc to give it content
-AppGenerate.prototype.LoadedContent = function(button, buttonParent, contentParent, contentFunc)
-{
-   try
-   {
-      this.BeginNewContent(button, buttonParent, contentParent);
-      contentFunc(function(content) { contentParent.append(content); });
-   }
-   catch(ex)
-   {
-      me.Log.Error("Could not setup loaded content: " + ex);
-   }
-};
-
-AppGenerate.prototype.ResetSmallNav = function(container, parent, scroller)
-{
-   container.empty();
+   this.elements.SmallNav.empty();
    var me = this;
 
-   container.append(this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
-      me.InstantContent(b, parent, scroller, me.CreateHome.bind(me)); }));
-   container.append(this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
-      me.InstantContent(b, parent, scroller, me.LogMessages.bind(me)); }));
-   container.append(this.generate.MakeIconButton(IMAGES.User, "#77AAFF", function(b)
+   var home = this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
+      me.generate.InstantContent(b, me.elements.SelectContainer, 
+      me.elements.ContentContainer, me.CreateHome.bind(me)); });
+   var debug = this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
+      me.generate.InstantContent(b, me.elements.SelectContainer, 
+      me.elements.ContentContainer, me.generate.LogMessages.bind(me.generate)); });
+   var user = this.generate.MakeIconButton(IMAGES.User, "#77AAFF", function(b)
    {
-      me.LoadedContent(b, parent, scroller, function(display)
-      {
-         me.request.GetMe(function(user)
+      me.generate.LoadedContent(b, me.elements.SelectContainer, me.elements.ContentContainer, 
+         function(display)
          {
-            if(user)
-               display($("<h1>HOW</h1>"));
-            else
-               display(me.CreateLogin());
+            me.RefreshMe(function(user)
+            {
+               if(user)
+                  display(me.CreateUserHome(user));
+               else
+                  display(me.CreateLogin());
+            });
          });
-      });
-   }));
+   });
+
+   home.prop("id", IDS.NavHome);
+   debug.prop("id", IDS.NavDebug);
+   user.prop("id", IDS.NavUser);
+
+   this.elements.SmallNav.append(home);
+   this.elements.SmallNav.append(debug);
+   this.elements.SmallNav.append(user);
+   this.elements.UserNav = user;
+
+   this.RefreshMe();
 
    Log.Debug("Reset mini navigation");
 };
 
+AppGenerate.prototype.RefreshMe = function(userFunc)
+{
+   var me = this;
+   this.request.GetMe(function(userData)
+   {
+      me.UpdateUserButton(userData);
+      if(userFunc) userFunc(userData);
+   });
+};
+
+AppGenerate.prototype.UpdateUserButton = function(user)
+{
+   if(!user)
+      this.elements.UserNav.text("");
+   else
+      this.elements.UserNav.text(user.id);
+};

@@ -34,12 +34,21 @@ IMAGES.Success = IMAGES.IconRoot + "success.png";
 IMAGES.Home = IMAGES.IconRoot + "home.png";
 IMAGES.Debug = IMAGES.IconRoot + "debug.png";
 IMAGES.User = IMAGES.IconRoot + "user.png";
+IMAGES.Logout = IMAGES.IconRoot + "logout.png";
 
 var NAMES = {
    Password : "password",
    PasswordConfirm : "passwordconfirm",
    Username : "username",
    Email : "email"
+};
+
+var IDS = {
+   NavHome : "navhome",
+   NavDebug : "navdebug",
+   NavUser : "navuser",
+   Cache : "cache",
+   SmallNav : "smallnav"
 };
 
 var ATTRIBUTES = {

@@ -85,3 +85,72 @@ ComplexFormGenerate.prototype.SetupAjax = function(form, url, dataConverter, suc
    });
 };
 
+function ComplexGenerate(logger)
+{
+   Generate.call(this);
+   this.Log = logger;
+}
+
+ComplexGenerate.prototype = Object.create(Generate.prototype);
+
+ComplexGenerate.prototype.BeginNewContent = function(button, buttonParent, contentParent)
+{
+   this.SetSingletonAttribute(button, buttonParent, ATTRIBUTES.Active);
+   contentParent.empty();
+};
+
+ComplexGenerate.prototype.InstantContent = function(button, buttonParent, contentParent, contentFunc)
+{
+   try
+   {
+      this.BeginNewContent(button, buttonParent, contentParent);
+      contentParent.append(contentFunc());
+   }
+   catch(ex)
+   {
+      this.Log.Error("Could not setup instant content: " + ex);
+   }
+};
+
+//In this one, contentFunc is a function that takes a callback for deferred
+//content production. The callback expects contentFunc to give it content
+ComplexGenerate.prototype.LoadedContent = function(button, buttonParent, contentParent, contentFunc)
+{
+   try
+   {
+      this.BeginNewContent(button, buttonParent, contentParent);
+      contentFunc(function(content) { contentParent.append(content); });
+   }
+   catch(ex)
+   {
+      this.Log.Error("Could not setup loaded content: " + ex);
+   }
+};
+
+ComplexGenerate.prototype.LogMessages = function()
+{
+   var container = this.MakeSection();
+   container.addClass(CLASSES.Log);
+   container.addClass(CLASSES.List);
+
+   for(var i = 0; i < this.Log.messages.length; i++)
+   {
+      var message = this.Log.messages[i];
+
+      var messageElement = this.MakeContent();
+      var time = $("<time></time>");
+      var messageText = $("<span></span>")
+
+      messageText.text(message.message);
+      time.text(message.time.toLocaleTimeString());
+      time.addClass(CLASSES.Meta);
+
+      messageElement.addClass(message.level);
+      messageElement.append(time);
+      messageElement.append(messageText);
+
+      container.append(messageElement);
+   }
+
+   return container;
+};
