@@ -23,7 +23,7 @@ var CLASSES = {
 var SELECTORS = {
    Submit : "input[type='submit']",
    Inputs : "input, textarea",
-   AllInterract : "input, button, textarea"
+   AllInteract : "input, button, textarea"
 };
 
 var IMAGES = {

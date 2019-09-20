@@ -85,6 +85,11 @@ ComplexFormGenerate.prototype.SetupAjax = function(form, url, dataConverter, suc
    });
 };
 
+
+// ********************
+// * COMPLEX GENERATE *
+// ********************
+
 function ComplexGenerate(logger)
 {
    Generate.call(this);

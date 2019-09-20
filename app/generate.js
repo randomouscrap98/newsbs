@@ -155,6 +155,7 @@ FormGenerate.prototype.SetError = function (form, error)
 
 FormGenerate.prototype.SetRunningState = function(form, running)
 {
+   console.log("Set running state: " + running);
    var inputs = form.find(SELECTORS.AllInteract);
    var submit = this.GetSubmit(form);
 
