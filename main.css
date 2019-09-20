@@ -119,15 +119,28 @@ button, input[type="submit"]
    background-repeat: no-repeat;
    background-position: center center;
    background-size: contain;
-   width: 3em;
-   height: 2em;
+   /*width: 3em;
+   height: 2em;*/
+}
+
+/* If something is marked as DEFINITELY A CONTAINER FOR AN IMAGE, don't let
+ * there be any padding. Just don't. */
+.imageicon
+{
+   padding: 0;
+}
+
+.imageicon img
+{
+   max-width: 100%;
+   max-height: 100%;
 }
 
 /* If you are a "hover" class, you have some fancy coloring/transitions applied */
 .hover
 {
    filter: saturate(10%) opacity(75%);
-   transition: 0.1s;
+   transition: 0.15s;
 }
 
 .hover:hover, .hover:focus
@@ -206,7 +219,6 @@ form.standalone .header
  * If you DON'T want this implicit, add another class just for this! */
 input[type="submit"].icon
 {
-
    background-color: transparent;
    color: transparent;
    opacity: 1;

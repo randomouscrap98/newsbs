@@ -192,15 +192,8 @@ AppGenerate.prototype.RefreshMe = function(userFunc)
    var me = this;
    this.request.GetMe(function(userData)
    {
-      me.UpdateUserButton(userData);
+      me.generate.UpdateUserButton(userData, me.elements.UserNav);
       if(userFunc) userFunc(userData);
    });
 };
 
-AppGenerate.prototype.UpdateUserButton = function(user)
-{
-   if(!user)
-      this.elements.UserNav.text("");
-   else
-      this.elements.UserNav.text(user.id);
-};

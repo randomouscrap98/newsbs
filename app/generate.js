@@ -21,6 +21,20 @@ Generate.prototype.SetElementIcon = function(element, image)
    element.css("background-image", "url(" + image + ")");
 };
 
+Generate.prototype.SetElementImageIcon = function(element, image)
+{
+   var imageElement = element.find("img").first();
+
+   if(!imageElement.length)
+   {
+      imageElement = $("<img/>");
+      element.append(imageElement);
+   }
+
+   imageElement.prop("src", image);
+   element.addClass(CLASSES.ImageIcon);
+};
+
 //The REST of these are probably fine for generate (they're all "MAKE")
 Generate.prototype.MakeContent = function(text)
 {
@@ -45,7 +59,8 @@ Generate.prototype.MakeIconButton = function(image, color, func)
    button.addClass(CLASSES.Hover); 
    //NOTE: I can't think of any iconbuttons that WON'T be fancy but you never know
    button.css("background-color", color);
-   this.SetElementIcon(button, image);
+   this.SetElementImageIcon(button, image);
+   //this.SetElementIcon(button, image);
    if(func) button.click(function(){func(button);});
    return button;
 };

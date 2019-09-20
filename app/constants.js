@@ -17,7 +17,9 @@ var CLASSES = {
    Standalone : "standalone",
    Meta : "meta",
    Success : "success",
-   Log : "log"
+   Log : "log",
+   Avatar: "avatar",
+   ImageIcon : "imageicon"
 };
 
 var SELECTORS = {
