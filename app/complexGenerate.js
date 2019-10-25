@@ -32,7 +32,7 @@ ComplexFormGenerate.prototype.GatherLoginValues = function(form)
    var values = this.GatherValues(form);
    if(values[NAMES.Username].indexOf("@") >= 0)
    {
-      values[NAMES.email] = values[NAMES.Username];
+      values[NAMES.Email] = values[NAMES.Username];
       values[NAMES.Username] = undefined;
    }
    return values;

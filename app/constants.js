@@ -66,6 +66,7 @@ var API = {
 };
 
 API.Users = API.Root + "users/";
+API.Credentials = API.Users + "credentials/";
 API.Authorize = API.Users + "authenticate/";
 API.SendEmail = API.Users + "sendemail/";
 API.ConfirmEmail = API.Users + "confirm/";

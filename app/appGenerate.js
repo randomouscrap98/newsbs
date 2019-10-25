@@ -102,7 +102,7 @@ AppGenerate.prototype.CreateRegisterForm = function()
    fg.AddBeforeSubmit(form, fg.MakeInput("email", "email", "Email"));
    fg.AddBeforeSubmit(form, fg.MakeInput("username", "text", "Username"));
    fg.AddPasswordConfirm(form);
-   fg.SetupAjax(form, API.Users, fg.GatherPasswordConfirmValues.bind(fg), this.SingleUseFormSuccess.bind(this));
+   fg.SetupAjax(form, API.Credentials, fg.GatherPasswordConfirmValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    return form;
 };
 
