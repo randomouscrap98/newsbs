@@ -34,6 +34,7 @@ var IMAGES = {
 
 IMAGES.Success = IMAGES.IconRoot + "success.png";
 IMAGES.Home = IMAGES.IconRoot + "home.png";
+IMAGES.Test = IMAGES.IconRoot + "test.png";
 IMAGES.Debug = IMAGES.IconRoot + "debug.png";
 IMAGES.User = IMAGES.IconRoot + "user.png";
 IMAGES.Logout = IMAGES.IconRoot + "logout.png";

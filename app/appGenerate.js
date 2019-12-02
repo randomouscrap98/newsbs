@@ -60,6 +60,19 @@ AppGenerate.prototype.CreateHome = function()
    return main;
 };
 
+AppGenerate.prototype.CreateTestArea = function()
+{
+   this.Log.Debug("Creating Test Area");
+
+   var main = this.generate.MakeSection();
+   var header = $("<h1>Test Area</h1>");
+
+   main.append(header);
+   main.append(this.CreateContentForm());
+
+   return main;
+};
+
 AppGenerate.prototype.CreateLogin = function()
 {
    this.Log.Debug("Creating Login/Register page");
@@ -124,6 +137,16 @@ AppGenerate.prototype.CreateRegisterConfirmForm = function()
    return form;
 };
 
+AppGenerate.prototype.CreateContentForm = function()
+{
+   var fg = this.formGenerate;
+   var form = fg.MakeStandalone("New Discussion");
+   fg.AddBeforeSubmit(form, fg.MakeInput("title", "text", "Title"));
+   fg.AddBeforeSubmit(form, fg.MakeInput("content", "textarea", "Content"));
+   fg.SetupAjax(form, API.Credentials, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
+   return form;
+};
+
 AppGenerate.prototype.CreateUserHome = function(user)
 {
    var section = this.generate.MakeSection();
@@ -153,6 +176,9 @@ AppGenerate.prototype.ResetSmallNav = function()
    var home = this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
       me.generate.InstantContent(b, me.elements.SelectContainer, 
       me.elements.ContentContainer, me.CreateHome.bind(me)); });
+   var test = this.generate.MakeIconButton(IMAGES.Test, "rgb(235,190,116)", function(b) {
+      me.generate.InstantContent(b, me.elements.SelectContainer,
+      me.elements.ContentContainer, me.CreateTestArea.bind(me)); });
    var debug = this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
       me.generate.InstantContent(b, me.elements.SelectContainer, 
       me.elements.ContentContainer, me.generate.LogMessages.bind(me.generate)); });
@@ -176,6 +202,7 @@ AppGenerate.prototype.ResetSmallNav = function()
    user.prop("id", IDS.NavUser);
 
    this.elements.SmallNav.append(home);
+   this.elements.SmallNav.append(test);
    this.elements.SmallNav.append(debug);
    this.elements.SmallNav.append(user);
    this.elements.UserNav = user;

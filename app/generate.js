@@ -114,7 +114,10 @@ FormGenerate.prototype.MakeStandalone = function(name, submitText)
 FormGenerate.prototype.MakeInput = function(name, type, placeholder)
 {
    var input = $("<input/>");
-   input.attr("type", type);
+   if(type == "textarea")
+      input = $("<textarea></textarea>");
+   else
+      input.attr("type", type);
    input.attr("name", name);
    input.attr("required", "");
    if(placeholder)
