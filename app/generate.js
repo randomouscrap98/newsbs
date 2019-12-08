@@ -114,6 +114,11 @@ FormGenerate.prototype.MakeStandalone = function(name, submitText)
 FormGenerate.prototype.MakeInput = function(name, type, placeholder)
 {
    var input = $("<input/>");
+   if(type.indexOf("#") == 0)
+   {
+      type = type.slice(1);
+      input.attr(ATTRIBUTES.Number, "");
+   }
    if(type == "textarea")
       input = $("<textarea></textarea>");
    else
@@ -138,7 +143,12 @@ FormGenerate.prototype.GatherValues = function(form)
    inputs.each(function() 
    { 
       if(this.name)
+      {
          values[this.name] = $(this).val()
+
+         if(this.hasAttribute(ATTRIBUTES.Number))
+            values[this.name] = Number(values[this.name])
+      }
    });
    return values;
 };

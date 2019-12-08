@@ -143,7 +143,15 @@ AppGenerate.prototype.CreateContentForm = function()
    var form = fg.MakeStandalone("New Discussion");
    fg.AddBeforeSubmit(form, fg.MakeInput("title", "text", "Title"));
    fg.AddBeforeSubmit(form, fg.MakeInput("content", "textarea", "Content"));
-   fg.SetupAjax(form, API.Credentials, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
+   fg.AddBeforeSubmit(form, fg.MakeInput("type", "hidden").val(CONTENTTYPES.Discussion));
+   fg.AddBeforeSubmit(form, fg.MakeInput("format", "hidden").val(CONTENTFORMATS.Plain));
+   fg.SetupAjax(form, API.Content, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
+   fg.SetRunning(form);
+   this.request.GetMasterCategory(function(data) 
+   { 
+      fg.AddBeforeSubmit(form, fg.MakeInput("categoryId", "#hidden").val(data["id"]));
+      fg.ClearRunning(form);
+   });
    return form;
 };
 

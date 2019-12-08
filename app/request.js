@@ -78,9 +78,16 @@ Requests.prototype.GetResponseErrors = function(response)
    {
       errors.push(response.responseJSON);
    }
-   else
+   else if(response.responseText)
    {
       errors.push(response.responseText);
+   }
+   else if(response.statusText)
+   {
+      var message = response.statusText;
+      if(response.status)
+         message = String(response.status) + ": " + message;
+      errors.push(message);
    }
 
    return errors;
@@ -97,4 +104,41 @@ Requests.prototype.GetMe = function(callback)
    var ajax = this.RunBasicAjax(API.UserMe);
    ajax.fail(function(){ callback(null); });
    ajax.done(function(data) { callback(data); });
+};
+
+Requests.prototype.GetCategories = function(level, callback)
+{
+   var ajax = this.RunBasicAjax(API.Categories + "?parentId=" + level);
+   ajax.fail(function(){ callback(null); }); //This may not be good
+   ajax.done(function(data) { callback(data); });
+};
+
+Requests.prototype.GetMasterCategory = function(callback)
+{
+   var me = this;
+
+   if(me.MasterCategory)
+   {
+      callback(me.MasterCategory);
+      return;
+   }
+   
+   var innerCall = function(data)
+   {
+      var results = data["collection"];
+      for(var i = 0; i < results.length; i++)
+      {
+         if(results[i]["name"] == WEBSITE.MasterCategory)
+         {
+            me.Log.Info("Master category: " + results[i]["name"] + 
+                        " (" + results[i]["id"] + ")");
+            me.MasterCategory = results[i];
+            callback(results[i]);
+            return;
+         }
+      }
+      callback(null); //Is this REEAALLLY ok???
+   };
+
+   me.GetCategories(-1, innerCall);
 };

@@ -16,16 +16,18 @@ h1, h2, h3
    margin: 0.3em 0;
 }
 
-/* Everything that I want sized WITHOUT borders/padding (most things) */
-form, div, input, button
+/* Everything that I want sized WITHOUT borders/padding (most things). */
+form, div, input, button, textarea
 {
    box-sizing: border-box;
 }
 
-/* Everything that has a border that SHOULDN'T */
+/* Everything that has a border that SHOULDN'T (also these need the font
+ * manually applied. */
 button, input, textarea
 {
    border: 0;
+   font-family: "Trebuchet Ms", sans-serif;
 }
 
 button:disabled, input:disabled, textarea:disabled
@@ -202,12 +204,18 @@ form.standalone
    margin: 1em auto;
 }
 
-form.standalone input
+form.standalone input, form.standalone textarea
 {
    width: 100%;
    font-size: 1em;
    margin: 0.25em 0;
    transition: opacity 0.3s;
+}
+
+form.standalone textarea
+{
+   resize: vertical;
+   min-height: 3em;
 }
 
 form.standalone .header

@@ -59,8 +59,32 @@ var IDS = {
 
 var ATTRIBUTES = {
    Active : "data-active",
-   Running : "data-running"
+   Running : "data-running",
+   Number : "data-number"
 };
+
+var CONTENTTYPES = {
+   Discussion : "discussion"
+};
+
+var CONTENTFORMATS = {
+   Plain : "plain"
+};
+
+var WEBSITE = {
+   MasterCategory : "sbs-main"
+};
+
+//Not ready for this kind of stuff yet.
+//var QUERYPARAMS = {
+//   Category : {
+//      ParentId : "parentId"
+//   }
+//};
+//
+//var RESULTFIELDS = {
+//   Collection : "collection"
+//};
 
 var API = {
    Root: "/api/"
