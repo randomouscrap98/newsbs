@@ -72,7 +72,8 @@ var CONTENTFORMATS = {
 };
 
 var WEBSITE = {
-   MasterCategory : "sbs-main"
+   MasterCategory : "sbs-main",
+   DefaultContentAccess : "cr"
 };
 
 //Not ready for this kind of stuff yet.
@@ -87,7 +88,8 @@ var WEBSITE = {
 //};
 
 var API = {
-   Root: "/api/"
+   Root: "/api/",
+   LocalRoot: "https://localhost:5001/api/"
 };
 
 API.Users = API.Root + "users/";
