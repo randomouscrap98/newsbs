@@ -70,6 +70,17 @@ AppGenerate.prototype.CreateTestArea = function()
    main.append(header);
    main.append(this.CreateContentForm());
 
+   var spaThing = new BasicSpa(this.Log);
+   spaThing.Processors.push(new SpaProcessor(
+      function(url) { return url.indexOf('butt')>=0; },
+      function(url) { alert("Found a butt"); }
+   ));
+
+   this.Log.Debug("Doing butts?");
+
+   main.append(spaThing.CreateLink("?butt=yes", "butt"));
+   main.append(spaThing.CreateLink("?no=yes", "not butt"));
+
    return main;
 };
 
@@ -145,6 +156,7 @@ AppGenerate.prototype.CreateContentForm = function()
    fg.AddBeforeSubmit(form, fg.MakeInput("content", "textarea", "Content"));
    fg.AddBeforeSubmit(form, fg.MakeInput("type", "hidden").val(CONTENTTYPES.Discussion));
    fg.AddBeforeSubmit(form, fg.MakeInput("format", "hidden").val(CONTENTFORMATS.Plain));
+   fg.AddBeforeSubmit(form, fg.MakeInput("baseAccess", "hidden").val(WEBSITE.DefaultContentAccess));
    fg.SetupAjax(form, API.Content, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    fg.SetRunning(form);
    this.request.GetMasterCategory(function(data) 
