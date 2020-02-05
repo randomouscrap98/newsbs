@@ -160,14 +160,14 @@ ComplexGenerate.prototype.LogMessages = function()
    return container;
 };
 
-ComplexGenerate.prototype.UpdateUserButton = function(user, button)
-{
-   if(!user)
-   {
-      this.SetElementImageIcon(button, IMAGES.User);
-   }
-   else
-   {
-      this.SetElementImageIcon(button, IMAGES.TempAvatar);
-   }
-};
+//ComplexGenerate.prototype.UpdateUserButton = function(user, button)
+//{
+//   if(!user)
+//   {
+//      this.SetElementImageIcon(button, IMAGES.User);
+//   }
+//   else
+//   {
+//      this.SetElementImageIcon(button, IMAGES.TempAvatar);
+//   }
+//};

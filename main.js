@@ -23,12 +23,99 @@ $( document ).ready(function()
       var formGenerate = new ComplexFormGenerate(Log, request);
       var generate = new AppGenerate(Log, request, gen, formGenerate, spa);
 
+      var contentContainer = $("#" + IDS.LeftScroller);
+      var selectContainer = $("#" + IDS.RightPane);
+      var smallNav = $("#" + IDS.SmallNav);
+
+      //An easy function for setting up the given page content while
+      //activating the given element (basically the element was supposed to
+      //have generated the content)
+      //var sidePaneContent = function(page, element)
+      //{
+      //   try
+      //   {
+      //      //Set the given element active for the entire side container thing
+      //      gen.SetSingletonAttribute(element, selectContainer, ATTRIBUTES.Active);
+      //      contentContainer.empty(); //Turn this into a loading screen?
+      //      if(!$.isFunction(page)) 
+      //      {
+      //         var content = page;
+      //         page = function(fc) { fc(content); };
+      //      }
+      //      page(function(content) { contentContainer.append(content); });
+      //   }
+      //   catch(ex)
+      //   {
+      //      this.Log.Error("Could not setup loaded content: " + ex);
+      //   }
+      //};
+
+      var pRoutes = { };
+
+      var createNavItem = function(name, image, color, pageFunc)
+      {
+         var element = generate.CreateSpaIcon(name ? "?p=" + name : "", image, color);
+         element.prop("id", "nav" + (name || "home"));
+         //Either we HAVE content RIGHT NOW (meaning func is actually content) or we'll 
+         //GIVE you the function necessary to append your content when you're ready.
+         if(!$.isFunction(pageFunc)) 
+         {
+            var content = pageFunc;
+            pageFunc = function(fc) { fc(content); };
+         }
+         pRoutes[name] = function(url)  //What happens when we activate the route
+         { 
+            gen.SetSingletonAttribute(element, selectContainer, ATTRIBUTES.Active);
+            contentContainer.empty(); //Turn this into a loading screen?
+            pageFunc(function(content) { contentContainer.append(content); }, element);
+         };
+         smallNav.append(element);
+         return element;
+      };
+
+      var userButton = false;
+      var refreshMe = function(userFunc)
+      {
+         request.GetMe(function(userData)
+         {
+            //Update the user icon whenever we refresh our "me" status.
+            if(userData)
+               gen.SetElementImageIcon(userButton, IMAGES.TempAvatar);
+            else
+               gen.SetElementImageIcon(userButton, IMAGES.User);
+
+            if(userFunc) 
+               userFunc(userData);
+         });
+      };
+
+      createNavItem("", IMAGES.Home, "#77C877", generate.CreateHome());
+      createNavItem("test", IMAGES.Test, "rgb(235, 190, 116)", generate.CreateTestArea());
+      createNavItem("debug", IMAGES.Debug, "#C8A0C8", function(fc) { fc(gen.LogMessages()) });
+      userButton = createNavItem("me", IMAGES.User, "#77AAFF", function(fc)
+      {
+         //Instantly refresh "me" when we go to this page. Also load
+         //content based on whether "me" exists.
+         refreshMe(function(user)
+         {
+            if(user)
+               fc(generate.CreateUserHome(user));
+            else
+               fc(generate.CreateLogin());
+         });
+      });
+      
+      var pRouter = function(url)
+      {
+         //Figure out the p
+         var params = new URLSearchParams(url.split("?")[1]);
+         var pVal = params.get("p") || ""; //Safe for now.
+         return pRoutes[pVal];
+      };
+
       //We're the only ones with enough knowledge about how to route. 
       var routes = [
-         new SpaProcessor(
-            function(url) { return url.indexOf('butt')>=0; },
-            function(url) { alert("Found a butt"); }
-         )
+         new SpaProcessor(pRouter, function(url) { pRouter(url)(url); })
       ];
 
       for(var i = 0; i < routes.length; i++)
@@ -40,11 +127,11 @@ $( document ).ready(function()
          spa.ProcessLink(document.location.href);
       };
 
-      generate.elements = {
-         ContentContainer : $("#" + IDS.LeftScroller),
-         SelectContainer : $("#" + IDS.RightPane),
-         SmallNav : $("#" + IDS.SmallNav)
-      };
+      //generate.elements = {
+      //   ContentContainer : $("#" + IDS.LeftScroller),
+      //   SelectContainer : $("#" + IDS.RightPane),
+      //   SmallNav : $("#" + IDS.SmallNav)
+      //};
 
       Log.Debug("Setup all services");
 
@@ -55,8 +142,10 @@ $( document ).ready(function()
 
       Log.Debug("Preloading images");
 
-      generate.ResetSmallNav(); //.children().first().click();
+      //generate.ResetSmallNav();
+      refreshMe();
       spa.ProcessLink(document.location.href);
+      //request.RefreshMe();
    }
    catch(ex)
    {

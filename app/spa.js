@@ -47,19 +47,27 @@ function BasicSpa(logger)
    this.Processors = [];
 }
 
-BasicSpa.prototype.ProcessLink = function(url)
+BasicSpa.prototype.ProcessLink = function(url) //, element)
 {
    this.Log.Debug("Processing link " + url);
 
    for(var i = 0; i < this.Processors.length; i++)
    {
-      if(this.Processors[i].Check(url))
+      if(this.Processors[i].Check(url)) //, element))
       {
-         this.Processors[i].Process(url);
+         try
+         {
+            this.Processors[i].Process(url); //, element);
+         }
+         catch(ex)
+         {
+            this.Log.Error("Could not process link " + url + ": " + ex);
+         }
          return true;
       }
    }
 
+   this.Log.Warn("Nothing processed link " + url);
    return false;
 };
 
@@ -81,7 +89,7 @@ BasicSpa.prototype.SetupClickable = function(element, url)
    element.click(function(event)
    {
       event.preventDefault();
-      me.ProcessLink(url);
+      me.ProcessLink(url); //, element);
       history.pushState({"url" : url}, url, url);
    });
    return element;

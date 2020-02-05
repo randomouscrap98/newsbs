@@ -12,7 +12,7 @@ function AppGenerate(logger, request, generate, formGenerate, spa)
    this.formGenerate = formGenerate;
    this.spa = spa;
 
-   this.elements = { };
+   //this.elements = { };
 }
 
 AppGenerate.prototype.SingleUseFormSuccess = function(form, data)
@@ -24,9 +24,10 @@ AppGenerate.prototype.SingleUseFormSuccess = function(form, data)
 AppGenerate.prototype.RefreshCurrentContent = function()
 {
    this.Log.Debug("Refreshing current content");
-   var selected = this.elements.SelectContainer.find("[" + ATTRIBUTES.Active + "]");
-   console.log(selected.length);
-   selected.click();
+   this.spa.ProcessLink(document.location.href);
+   //var selected = this.elements.SelectContainer.find("[" + ATTRIBUTES.Active + "]");
+   //console.log(selected.length);
+   //selected.click();
 };
 
 AppGenerate.prototype.CreateHome = function()
@@ -107,7 +108,7 @@ AppGenerate.prototype.CreateLoginForm = function()
    {
       me.request.SetAuthToken(data);
       me.RefreshCurrentContent();
-      me.RefreshMe(); //go get the new user data and update buttons/whatever
+      //me.RefreshMe(); //go get the new user data and update buttons/whatever
    });
    return form;
 };
@@ -171,7 +172,7 @@ AppGenerate.prototype.CreateUserHome = function(user)
    {
       me.request.RemoveAuthToken();
       me.RefreshCurrentContent();
-      me.RefreshMe(); //go get the new user data and update buttons/whatever
+      //me.RefreshMe(); //go get the new user data and update buttons/whatever
    });
 
    content.append(icon);
@@ -191,64 +192,64 @@ AppGenerate.prototype.CreateSpaIcon = function(url, image, color)
    return icon;
 };
 
-AppGenerate.prototype.ResetSmallNav = function()
-{
-   this.elements.SmallNav.empty();
-   var me = this;
+//AppGenerate.prototype.ResetSmallNav = function()
+//{
+//   this.elements.SmallNav.empty();
+//   var me = this;
+//
+//
+//   //var home = this.CreateSpaIcon("", IMAGES.Home, "#77C877");
+//   //var test = this.CreateSpaIcon("?p=test", IMAGES.Test, "rgb(235, 190, 116)");
+//   //var debug = this.CreateSpaIcon("?p=debug", IMAGES.Debug, "#C8A0C8");
+//   //var user = this.CreateSpaIcon("?p=me", IMAGES.User, "#77AAFF");
+//   //var home = this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
+//   //   me.generate.InstantContent(b, me.elements.SelectContainer, 
+//   //   me.elements.ContentContainer, me.CreateHome.bind(me)); });
+//   //var test = this.generate.MakeIconButton(IMAGES.Test, "rgb(235,190,116)", function(b) {
+//   //   me.generate.InstantContent(b, me.elements.SelectContainer,
+//   //   me.elements.ContentContainer, me.CreateTestArea.bind(me)); });
+//   //var debug = this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
+//   //   me.generate.InstantContent(b, me.elements.SelectContainer, 
+//   //   me.elements.ContentContainer, me.generate.LogMessages.bind(me.generate)); });
+//   //var user = this.generate.MakeIconButton(IMAGES.User, "#77AAFF", function(b)
+//   //{
+//   //   me.generate.LoadedContent(b, me.elements.SelectContainer, me.elements.ContentContainer, 
+//   //      function(display)
+//   //      {
+//   //         me.RefreshMe(function(user)
+//   //         {
+//   //            if(user)
+//   //               display(me.CreateUserHome(user));
+//   //            else
+//   //               display(me.CreateLogin());
+//   //         });
+//   //      });
+//   //});
+//
+//   //home.prop("id", IDS.NavHome);
+//   //debug.prop("id", IDS.NavDebug);
+//   //user.prop("id", IDS.NavUser);
+//
+//   //this.elements.SmallNav.append(home);
+//   //this.elements.SmallNav.append(test);
+//   //this.elements.SmallNav.append(debug);
+//   //this.elements.SmallNav.append(user);
+//   //this.elements.UserNav = user;
+//
+//   this.RefreshMe();
+//
+//   Log.Debug("Reset mini navigation");
+//
+//   return this.elements.SmallNav;
+//};
 
-
-   var home = this.CreateSpaIcon("", IMAGES.Home, "#77C877");
-   var test = this.CreateSpaIcon("?p=test", IMAGES.Test, "rgb(235, 190, 116)");
-   var debug = this.CreateSpaIcon("?p=debug", IMAGES.Debug, "#C8A0C8");
-   var user = this.CreateSpaIcon("?p=me", IMAGES.User, "#77AAFF");
-   //var home = this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
-   //   me.generate.InstantContent(b, me.elements.SelectContainer, 
-   //   me.elements.ContentContainer, me.CreateHome.bind(me)); });
-   //var test = this.generate.MakeIconButton(IMAGES.Test, "rgb(235,190,116)", function(b) {
-   //   me.generate.InstantContent(b, me.elements.SelectContainer,
-   //   me.elements.ContentContainer, me.CreateTestArea.bind(me)); });
-   //var debug = this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
-   //   me.generate.InstantContent(b, me.elements.SelectContainer, 
-   //   me.elements.ContentContainer, me.generate.LogMessages.bind(me.generate)); });
-   //var user = this.generate.MakeIconButton(IMAGES.User, "#77AAFF", function(b)
-   //{
-   //   me.generate.LoadedContent(b, me.elements.SelectContainer, me.elements.ContentContainer, 
-   //      function(display)
-   //      {
-   //         me.RefreshMe(function(user)
-   //         {
-   //            if(user)
-   //               display(me.CreateUserHome(user));
-   //            else
-   //               display(me.CreateLogin());
-   //         });
-   //      });
-   //});
-
-   home.prop("id", IDS.NavHome);
-   debug.prop("id", IDS.NavDebug);
-   user.prop("id", IDS.NavUser);
-
-   this.elements.SmallNav.append(home);
-   this.elements.SmallNav.append(test);
-   this.elements.SmallNav.append(debug);
-   this.elements.SmallNav.append(user);
-   this.elements.UserNav = user;
-
-   this.RefreshMe();
-
-   Log.Debug("Reset mini navigation");
-
-   return this.elements.SmallNav;
-};
-
-AppGenerate.prototype.RefreshMe = function(userFunc)
-{
-   var me = this;
-   this.request.GetMe(function(userData)
-   {
-      me.generate.UpdateUserButton(userData, me.elements.UserNav);
-      if(userFunc) userFunc(userData);
-   });
-};
+//AppGenerate.prototype.RefreshMe = function(userFunc)
+//{
+//   var me = this;
+//   this.request.GetMe(function(userData)
+//   {
+//      me.generate.UpdateUserButton(userData, me.elements.UserNav);
+//      if(userFunc) userFunc(userData);
+//   });
+//};
 
