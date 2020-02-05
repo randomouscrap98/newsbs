@@ -13,6 +13,7 @@ Generate.prototype.SetSingletonAttribute = function(element, container, attribut
 {
    container.find("*").removeAttr(attribute);
    element.attr(attribute, "");
+   element.focus();
 };
 
 Generate.prototype.SetElementIcon = function(element, image)

@@ -89,8 +89,9 @@ BasicSpa.prototype.SetupClickable = function(element, url)
    element.click(function(event)
    {
       event.preventDefault();
-      me.ProcessLink(url); //, element);
-      history.pushState({"url" : url}, url, url);
+      if(url !== document.location.href)
+         if(me.ProcessLink(url))
+            history.pushState({"url" : url}, url, url);
    });
    return element;
 };
