@@ -121,6 +121,7 @@ button, input[type="submit"]
    background-repeat: no-repeat;
    background-position: center center;
    background-size: contain;
+   text-align: center;
    /*width: 3em;
    height: 2em;*/
 }

@@ -4,12 +4,13 @@
 
 
 //Lots of dependencies since this basically MAKES the app.
-function AppGenerate(logger, request, generate, formGenerate) 
+function AppGenerate(logger, request, generate, formGenerate, spa) 
 {
    this.Log = logger;
    this.request = request;
    this.generate = generate;
    this.formGenerate = formGenerate;
+   this.spa = spa;
 
    this.elements = { };
 }
@@ -70,16 +71,8 @@ AppGenerate.prototype.CreateTestArea = function()
    main.append(header);
    main.append(this.CreateContentForm());
 
-   var spaThing = new BasicSpa(this.Log);
-   spaThing.Processors.push(new SpaProcessor(
-      function(url) { return url.indexOf('butt')>=0; },
-      function(url) { alert("Found a butt"); }
-   ));
-
-   this.Log.Debug("Doing butts?");
-
-   main.append(spaThing.CreateLink("?butt=yes", "butt"));
-   main.append(spaThing.CreateLink("?no=yes", "not butt"));
+   //main.append(this.spa.CreateLink("?butt=yes", "butt"));
+   //main.append(this.spa.CreateLink("?no=yes", "not butt"));
 
    return main;
 };
@@ -188,34 +181,49 @@ AppGenerate.prototype.CreateUserHome = function(user)
    return section;
 };
 
+AppGenerate.prototype.CreateSpaIcon = function(url, image, color)
+{
+   url = window.location.href.split('?')[0] + url;
+   var icon = $("<a></a>");
+   this.generate.SetupIcon(icon, image, color);
+   this.spa.SetupClickable(icon, url);
+   icon.attr("href", url);
+   return icon;
+};
+
 AppGenerate.prototype.ResetSmallNav = function()
 {
    this.elements.SmallNav.empty();
    var me = this;
 
-   var home = this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
-      me.generate.InstantContent(b, me.elements.SelectContainer, 
-      me.elements.ContentContainer, me.CreateHome.bind(me)); });
-   var test = this.generate.MakeIconButton(IMAGES.Test, "rgb(235,190,116)", function(b) {
-      me.generate.InstantContent(b, me.elements.SelectContainer,
-      me.elements.ContentContainer, me.CreateTestArea.bind(me)); });
-   var debug = this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
-      me.generate.InstantContent(b, me.elements.SelectContainer, 
-      me.elements.ContentContainer, me.generate.LogMessages.bind(me.generate)); });
-   var user = this.generate.MakeIconButton(IMAGES.User, "#77AAFF", function(b)
-   {
-      me.generate.LoadedContent(b, me.elements.SelectContainer, me.elements.ContentContainer, 
-         function(display)
-         {
-            me.RefreshMe(function(user)
-            {
-               if(user)
-                  display(me.CreateUserHome(user));
-               else
-                  display(me.CreateLogin());
-            });
-         });
-   });
+
+   var home = this.CreateSpaIcon("", IMAGES.Home, "#77C877");
+   var test = this.CreateSpaIcon("?p=test", IMAGES.Test, "rgb(235, 190, 116)");
+   var debug = this.CreateSpaIcon("?p=debug", IMAGES.Debug, "#C8A0C8");
+   var user = this.CreateSpaIcon("?p=me", IMAGES.User, "#77AAFF");
+   //var home = this.generate.MakeIconButton(IMAGES.Home, "#77C877", function(b) { 
+   //   me.generate.InstantContent(b, me.elements.SelectContainer, 
+   //   me.elements.ContentContainer, me.CreateHome.bind(me)); });
+   //var test = this.generate.MakeIconButton(IMAGES.Test, "rgb(235,190,116)", function(b) {
+   //   me.generate.InstantContent(b, me.elements.SelectContainer,
+   //   me.elements.ContentContainer, me.CreateTestArea.bind(me)); });
+   //var debug = this.generate.MakeIconButton(IMAGES.Debug, "#C8A0C8", function(b) { 
+   //   me.generate.InstantContent(b, me.elements.SelectContainer, 
+   //   me.elements.ContentContainer, me.generate.LogMessages.bind(me.generate)); });
+   //var user = this.generate.MakeIconButton(IMAGES.User, "#77AAFF", function(b)
+   //{
+   //   me.generate.LoadedContent(b, me.elements.SelectContainer, me.elements.ContentContainer, 
+   //      function(display)
+   //      {
+   //         me.RefreshMe(function(user)
+   //         {
+   //            if(user)
+   //               display(me.CreateUserHome(user));
+   //            else
+   //               display(me.CreateLogin());
+   //         });
+   //      });
+   //});
 
    home.prop("id", IDS.NavHome);
    debug.prop("id", IDS.NavDebug);

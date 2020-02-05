@@ -32,6 +32,7 @@ Generate.prototype.SetElementImageIcon = function(element, image)
    }
 
    imageElement.prop("src", image);
+   element.addClass(CLASSES.Icon); //Still an icon
    element.addClass(CLASSES.ImageIcon);
 };
 
@@ -54,15 +55,19 @@ Generate.prototype.MakeSection = function()
 Generate.prototype.MakeIconButton = function(image, color, func)
 {
    var button = $("<button></button>"); 
-   button.addClass(CLASSES.Control);
-   button.addClass(CLASSES.Clickable);
-   button.addClass(CLASSES.Hover); 
-   //NOTE: I can't think of any iconbuttons that WON'T be fancy but you never know
-   button.css("background-color", color);
-   this.SetElementImageIcon(button, image);
-   //this.SetElementIcon(button, image);
+   this.SetupIcon(button, image, color);
    if(func) button.click(function(){func(button);});
    return button;
+};
+
+Generate.prototype.SetupIcon = function(element, image, color)
+{
+   element.addClass(CLASSES.Control);
+   element.addClass(CLASSES.Clickable);
+   element.addClass(CLASSES.Hover); 
+   element.css("background-color", color);
+   this.SetElementImageIcon(element, image);
+   return element;
 };
 
 Generate.prototype.MakeSuccessImage = function()

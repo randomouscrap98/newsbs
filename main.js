@@ -17,10 +17,28 @@ $( document ).ready(function()
 
    try
    {
+      var spa = new BasicSpa(Log);
       var request = new Requests(Log);
       var gen = new ComplexGenerate(Log);
       var formGenerate = new ComplexFormGenerate(Log, request);
-      var generate = new AppGenerate(Log, request, gen, formGenerate);
+      var generate = new AppGenerate(Log, request, gen, formGenerate, spa);
+
+      //We're the only ones with enough knowledge about how to route. 
+      var routes = [
+         new SpaProcessor(
+            function(url) { return url.indexOf('butt')>=0; },
+            function(url) { alert("Found a butt"); }
+         )
+      ];
+
+      for(var i = 0; i < routes.length; i++)
+         spa.Processors.push(routes[i]);
+
+      window.onpopstate = function(event)
+      {
+         Log.Debug("User browser navigated back/forward to " + document.location.href);
+         spa.ProcessLink(document.location.href);
+      };
 
       generate.elements = {
          ContentContainer : $("#" + IDS.LeftScroller),
@@ -37,7 +55,8 @@ $( document ).ready(function()
 
       Log.Debug("Preloading images");
 
-      generate.ResetSmallNav().children().first().click();
+      generate.ResetSmallNav(); //.children().first().click();
+      spa.ProcessLink(document.location.href);
    }
    catch(ex)
    {

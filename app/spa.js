@@ -63,19 +63,19 @@ BasicSpa.prototype.ProcessLink = function(url)
    return false;
 };
 
-BasicSpa.prototype.CreateLink = function(url, text)
-{
-   //Assume url is partial: only the spa part?
-   url = window.location.href.split('?')[0] + url;
-   var element = $("<a></a>");
-   element.attr("href", url);
-   if(text) element.html(text);
-   return this.CreateClickable(element, url);
-};
+//BasicSpa.prototype.CreateLink = function(url, text)
+//{
+//   //Assume url is partial: only the spa part?
+//   url = window.location.href.split('?')[0] + url;
+//   var element = $("<a></a>");
+//   element.attr("href", url);
+//   if(text) element.html(text);
+//   return this.SetupClickable(element, url);
+//};
 
 //Create a clickable element that "brings you" to the given url. Also changes
 //the url on the webpage (careful)
-BasicSpa.prototype.CreateClickable = function(element, url)
+BasicSpa.prototype.SetupClickable = function(element, url)
 {
    var me = this;
    element.click(function(event)
