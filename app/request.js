@@ -106,6 +106,7 @@ Requests.prototype.GetMe = function(callback)
    ajax.done(function(data) { callback(data); });
 };
 
+//TODO: THIS ALL NEEDS URL ENCODING!!!
 Requests.prototype.GetCategories = function(level, callback)
 {
    var ajax = this.RunBasicAjax(API.Categories + "?parentId=" + level);
@@ -113,6 +114,15 @@ Requests.prototype.GetCategories = function(level, callback)
    ajax.done(function(data) { callback(data); });
 };
 
+Requests.prototype.GetContent = function(category, type, callback)
+{
+   type = type || CONTENTTYPES.Discussion;
+   var ajax = this.RunBasicAjax(API.Content + "?categoryId=" + category);
+   ajax.fail(function(){ callback(null); }); //This may not be good
+   ajax.done(function(data) { callback(data); });
+};
+
+//Since master category won't change, cache it.
 Requests.prototype.GetMasterCategory = function(callback)
 {
    var me = this;

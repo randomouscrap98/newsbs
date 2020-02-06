@@ -1,38 +1,6 @@
 //Carlos Sanchez
 //11-9-2019
 
-/*function SpaAction(checker, action)
-{
-   this.Checker = checker;
-   this.Action = action;
-}
-
-function Spa(logger)
-{
-   this.Log = logger;
-   this.Actions = [];
-}
-
-Spa.prototype.GetSearch = function(url) 
-{ 
-   var link = $('<a>', { href: url});
-   var query = link.prop('search');
-   if(query)
-      return new URLSearchParams(query);
-   return null;
-};
-
-Spa.prototype.GetAction = function(url)
-{
-   for(var i = 0; i < this.Actions.length; i++)
-   {
-      var action = this.Actions[i];
-      if(action.Checker(url))
-         return action.Action;
-   }
-   return null;
-};*/
-
 function SpaProcessor(check, process) 
 { 
    this.Check = check;
@@ -71,24 +39,16 @@ BasicSpa.prototype.ProcessLink = function(url) //, element)
    return false;
 };
 
-//BasicSpa.prototype.CreateLink = function(url, text)
-//{
-//   //Assume url is partial: only the spa part?
-//   url = window.location.href.split('?')[0] + url;
-//   var element = $("<a></a>");
-//   element.attr("href", url);
-//   if(text) element.html(text);
-//   return this.SetupClickable(element, url);
-//};
-
 //Create a clickable element that "brings you" to the given url. Also changes
 //the url on the webpage (careful)
 BasicSpa.prototype.SetupClickable = function(element, url)
 {
+   //console.log("SETTING UP CLICKABLE TO " + url);
    var me = this;
    element.click(function(event)
    {
       event.preventDefault();
+      //alert("PREVENTED DEFUlAT");
       if(url !== document.location.href)
          if(me.ProcessLink(url))
             history.pushState({"url" : url}, url, url);

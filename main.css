@@ -43,7 +43,7 @@ form, div
 }
 
 /* ALL things with user text will need hidden overflow */
-.content, .error, .meta, .section
+.content, .error, .meta, .section, .contentlink
 {
    text-overflow: ellipsis;
    overflow-x: hidden;
@@ -170,6 +170,11 @@ button, input[type="submit"]
    padding: 0.1em;
    font-size: 1em;
    line-height: 1.25em;
+}
+
+.contentlink
+{
+   display: block;
 }
 
 /* Lists of content have less vertical margin */

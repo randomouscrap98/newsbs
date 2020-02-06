@@ -59,8 +59,9 @@ ComplexFormGenerate.prototype.SetupAjax = function(form, url, dataConverter, suc
       return;
    }
 
-   form.submit(function()
+   form.submit(function(event)
    {
+      event.preventDefault();
       try
       {
          startRunning();
@@ -160,14 +161,3 @@ ComplexGenerate.prototype.LogMessages = function()
    return container;
 };
 
-//ComplexGenerate.prototype.UpdateUserButton = function(user, button)
-//{
-//   if(!user)
-//   {
-//      this.SetElementImageIcon(button, IMAGES.User);
-//   }
-//   else
-//   {
-//      this.SetElementImageIcon(button, IMAGES.TempAvatar);
-//   }
-//};

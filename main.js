@@ -27,29 +27,6 @@ $( document ).ready(function()
       var selectContainer = $("#" + IDS.RightPane);
       var smallNav = $("#" + IDS.SmallNav);
 
-      //An easy function for setting up the given page content while
-      //activating the given element (basically the element was supposed to
-      //have generated the content)
-      //var sidePaneContent = function(page, element)
-      //{
-      //   try
-      //   {
-      //      //Set the given element active for the entire side container thing
-      //      gen.SetSingletonAttribute(element, selectContainer, ATTRIBUTES.Active);
-      //      contentContainer.empty(); //Turn this into a loading screen?
-      //      if(!$.isFunction(page)) 
-      //      {
-      //         var content = page;
-      //         page = function(fc) { fc(content); };
-      //      }
-      //      page(function(content) { contentContainer.append(content); });
-      //   }
-      //   catch(ex)
-      //   {
-      //      this.Log.Error("Could not setup loaded content: " + ex);
-      //   }
-      //};
-
       var pRoutes = { };
 
       var createNavItem = function(name, image, color, pageFunc)
@@ -89,9 +66,9 @@ $( document ).ready(function()
          });
       };
 
-      createNavItem("", IMAGES.Home, "#77C877", generate.CreateHome());
-      createNavItem("test", IMAGES.Test, "rgb(235, 190, 116)", generate.CreateTestArea());
-      createNavItem("debug", IMAGES.Debug, "#C8A0C8", function(fc) { fc(gen.LogMessages()) });
+      createNavItem("", IMAGES.Home, "#77C877", function(fc) { fc(generate.CreateHome()); });
+      createNavItem("test", IMAGES.Test, "rgb(235, 190, 116)", function(fc) { fc(generate.CreateTestArea()); });
+      createNavItem("debug", IMAGES.Debug, "#C8A0C8", function(fc) { fc(gen.LogMessages()); });
       userButton = createNavItem("me", IMAGES.User, "#77AAFF", function(fc)
       {
          //Instantly refresh "me" when we go to this page. Also load
@@ -127,12 +104,6 @@ $( document ).ready(function()
          spa.ProcessLink(document.location.href);
       };
 
-      //generate.elements = {
-      //   ContentContainer : $("#" + IDS.LeftScroller),
-      //   SelectContainer : $("#" + IDS.RightPane),
-      //   SmallNav : $("#" + IDS.SmallNav)
-      //};
-
       Log.Debug("Setup all services");
 
       //Preload images
@@ -142,10 +113,8 @@ $( document ).ready(function()
 
       Log.Debug("Preloading images");
 
-      //generate.ResetSmallNav();
       refreshMe();
       spa.ProcessLink(document.location.href);
-      //request.RefreshMe();
    }
    catch(ex)
    {
