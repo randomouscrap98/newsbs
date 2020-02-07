@@ -70,7 +70,7 @@ AppGenerate.prototype.CreateTestArea = function()
 
    me.request.GetMasterCategory(function(ctg)
    {
-      me.request.GetContent(ctg["id"], CONTENTTYPES.Discussion, function(data)
+      me.request.GetAllContent(ctg["id"], CONTENTTYPES.Discussion, function(data)
       {
          var contents = data["collection"];
          var content = me.generate.MakeContent();

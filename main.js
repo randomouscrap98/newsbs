@@ -1,6 +1,10 @@
 //Carlos Sanchez
 //9-11-2019
 
+//TODO: THIS IS ALL AWFUL! Separate important things, create ACTUALLY
+//meaningful services with MINIMAL dependencies (unlike now), and get this crap
+//cleaned up!!!
+
 var CONST =
 {
    MaxLogMessages : 5000,
@@ -82,17 +86,40 @@ $( document ).ready(function()
          });
       });
       
+      var getParams = function(url)
+      {
+         return new URLSearchParams(url.split("?")[1]);
+      };
+
       var pRouter = function(url)
       {
          //Figure out the p
-         var params = new URLSearchParams(url.split("?")[1]);
-         var pVal = params.get("p") || ""; //Safe for now.
+         var pVal = getParams(url).get("p") || ""; //Safe for now.
          return pRoutes[pVal];
       };
 
+
       //We're the only ones with enough knowledge about how to route. 
       var routes = [
-         new SpaProcessor(pRouter, function(url) { pRouter(url)(url); })
+         new SpaProcessor(pRouter, function(url) { pRouter(url)(url); }),
+         new SpaProcessor(function(url) { return Number(getParams(url).get("p")); }, 
+            function(url)
+            {
+               var id = Number(getParams(url).get("p"));
+               contentContainer.empty(); //Turn this into a loading screen?
+               request.GetContent(id, function(data)
+               {
+                  var section = gen.MakeSection();
+                  var header = $("<h1></h1>");
+                  header.text(data.title);
+                  var content = gen.MakeContent();
+                  content.text(data.content);
+                  section.append(header);
+                  section.append(content);
+                  contentContainer.append(section);
+               });
+               //pageFunc(function(content) { contentContainer.append(content); }, element);
+            })
       ];
 
       for(var i = 0; i < routes.length; i++)

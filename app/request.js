@@ -114,10 +114,17 @@ Requests.prototype.GetCategories = function(level, callback)
    ajax.done(function(data) { callback(data); });
 };
 
-Requests.prototype.GetContent = function(category, type, callback)
+Requests.prototype.GetAllContent = function(category, type, callback)
 {
    type = type || CONTENTTYPES.Discussion;
    var ajax = this.RunBasicAjax(API.Content + "?categoryId=" + category);
+   ajax.fail(function(){ callback(null); }); //This may not be good
+   ajax.done(function(data) { callback(data); });
+};
+
+Requests.prototype.GetContent = function(id, callback)
+{
+   var ajax = this.RunBasicAjax(API.Content +  id);
    ajax.fail(function(){ callback(null); }); //This may not be good
    ajax.done(function(data) { callback(data); });
 };
