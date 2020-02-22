@@ -97,7 +97,7 @@ $( document ).ready(function()
       
       var getParams = function(url)
       {
-         return new URLSearchParams(url.split("?")[1].split("#")[0]);
+         return new URLSearchParams((url.split("?")[1] || "").split("#")[0]);
       };
 
       var pRouter = function(url)

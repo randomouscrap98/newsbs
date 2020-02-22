@@ -12,56 +12,6 @@
 
 function FormGenerate() { }
 
-/*FormGenerate.prototype.MakeStandard = function(name, submitText)
-{
-   submitText = submitText || name;
-
-   var form = $("<form></form>");
-   var errorSection = $("<div></div>");
-   var submit = $("<input type='submit'/>")
-
-   form.attr("name", name);
-   errorSection.addClass(CLASSES.List + " " + CLASSES.Errors);
-   submit.val(submitText);
-   submit.addClass(CLASSES.Hover);
-
-   form.append(submit);
-   form.append(errorSection);
-   errorSection.hide();
-
-   return form;
-};
-
-FormGenerate.prototype.MakeStandalone = function(name, submitText)
-{
-   var form = this.MakeStandard(name, submitText);
-   var header = $("<h2></h2>");
-   header.addClass(CLASSES.Header);
-   header.text(name);
-   form.addClass(CLASSES.Standalone);
-   form.prepend(header);
-   return form;
-};
-
-FormGenerate.prototype.MakeInput = function(name, type, placeholder)
-{
-   var input = $("<input/>");
-   if(type.indexOf("#") == 0)
-   {
-      type = type.slice(1);
-      input.attr(ATTRIBUTES.Number, "");
-   }
-   if(type == "textarea")
-      input = $("<textarea></textarea>");
-   else
-      input.attr("type", type);
-   input.attr("name", name);
-   input.attr("required", "");
-   if(placeholder)
-      input.attr("placeholder", placeholder);
-   return input;
-};*/
-
 //Since we GENERATED the dang thing, we're the only one that can FIND stuff in it.
 FormGenerate.prototype.GetSubmit = function(form) { return form.find(SELECTORS.Submit); };
 FormGenerate.prototype.GetErrors = function(form) { return form.find("." + CLASSES.Errors); };
@@ -146,24 +96,20 @@ function ComplexFormGenerate(logger, request, template)
 
 ComplexFormGenerate.prototype = Object.create(FormGenerate.prototype);
 
-ComplexFormGenerate.prototype.GetLogin = function() //form)
+ComplexFormGenerate.prototype.GetLogin = function()
 {
    return [
       { name: NAMES.Username, type: "text", text: "Username/Email" }, 
       { name: NAMES.Password, type: "password", text: "Password" }
    ];
-   //MakeInput(NAMES.Username, "text", "Username/Email"));
-   //this.AddBeforeSubmit(form, this.MakeInput(NAMES.Password, "password", "Password"));
 };
 
-ComplexFormGenerate.prototype.GetPasswordConfirm = function() //form)
+ComplexFormGenerate.prototype.GetPasswordConfirm = function()
 {
    return [
       { name: NAMES.Password, type: "password", text: "Password" },
       { name: NAMES.PasswordConfirm, type: "password", text: "Confirm Password" }
    ];
-   //this.AddBeforeSubmit(form, this.MakeInput(NAMES.Password, "password", "Password"));
-   //this.AddBeforeSubmit(form, this.MakeInput(NAMES.PasswordConfirm, "password", "Confirm Password"));
 };
 
 //This is a VERY SPECIFIC thing and assume that the login is a multi-use thingy
