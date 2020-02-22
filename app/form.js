@@ -10,7 +10,13 @@
 // * FORM STUFF *
 // **************
 
-function FormGenerate() { }
+//TODO: This will eventually need to accept languages and whatever
+function FormGenerate(logger, request, template)
+{
+   this.Log = logger;
+   this.request = request;
+   this.template = template;
+}
 
 //Since we GENERATED the dang thing, we're the only one that can FIND stuff in it.
 FormGenerate.prototype.GetSubmit = function(form) { return form.find(SELECTORS.Submit); };
@@ -85,18 +91,9 @@ FormGenerate.prototype.SetRunning = function(form) { this.SetRunningState(form, 
 FormGenerate.prototype.ClearRunning = function(form) { this.SetRunningState(form, false); };
 
 
-//TODO: This will eventually need to accept languages and whatever
-function ComplexFormGenerate(logger, request, template)
-{
-   FormGenerate.call(this);
-   this.Log = logger;
-   this.request = request;
-   this.template = template;
-}
 
-ComplexFormGenerate.prototype = Object.create(FormGenerate.prototype);
-
-ComplexFormGenerate.prototype.GetLogin = function()
+//These WERE the "advanced" (complex) form generate
+FormGenerate.prototype.GetLogin = function()
 {
    return [
       { name: NAMES.Username, type: "text", text: "Username/Email" }, 
@@ -104,7 +101,7 @@ ComplexFormGenerate.prototype.GetLogin = function()
    ];
 };
 
-ComplexFormGenerate.prototype.GetPasswordConfirm = function()
+FormGenerate.prototype.GetPasswordConfirm = function()
 {
    return [
       { name: NAMES.Password, type: "password", text: "Password" },
@@ -114,7 +111,7 @@ ComplexFormGenerate.prototype.GetPasswordConfirm = function()
 
 //This is a VERY SPECIFIC thing and assume that the login is a multi-use thingy
 //that accepts both email/username AND that the API endpoint does so too.
-ComplexFormGenerate.prototype.GatherLoginValues = function(form)
+FormGenerate.prototype.GatherLoginValues = function(form)
 {
    var values = this.GatherValues(form);
    if(values[NAMES.Username].indexOf("@") >= 0)
@@ -125,7 +122,7 @@ ComplexFormGenerate.prototype.GatherLoginValues = function(form)
    return values;
 };
 
-ComplexFormGenerate.prototype.GatherPasswordConfirmValues = function(form)
+FormGenerate.prototype.GatherPasswordConfirmValues = function(form)
 {
    var values = this.GatherValues(form);
    if(values[NAMES.Password] !== values[NAMES.PasswordConfirm])
@@ -133,7 +130,7 @@ ComplexFormGenerate.prototype.GatherPasswordConfirmValues = function(form)
    return values;
 };
 
-ComplexFormGenerate.prototype.SetupAjax = function(form, url, dataConverter, success)
+FormGenerate.prototype.SetupAjax = function(form, url, dataConverter, success)
 {
    var submit = this.GetSubmit(form);
    var me = this;

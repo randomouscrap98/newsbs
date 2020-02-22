@@ -25,7 +25,7 @@ $( document ).ready(function()
       var request = new Requests(Log);
       var template = new Templating(Log);
       var htmlUtil = new HtmlUtilities(Log);
-      var formGenerate = new ComplexFormGenerate(Log, request, template);
+      var formGenerate = new FormGenerate(Log, request, template);
       var generate = new AppGenerate(Log, request, htmlUtil, formGenerate, spa, template);
 
       var contentContainer = $("#" + IDS.LeftScroller);
