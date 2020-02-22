@@ -17,7 +17,7 @@ function AppGenerate(logger, request, generate, formGenerate, spa, template)
 AppGenerate.prototype.SingleUseFormSuccess = function(form, data)
 {
    var submit = this.formGenerate.GetSubmit(form);
-   this.generate.SetElementIcon(submit, IMAGES.Success);
+   //this.generate.SetElementIcon(submit, IMAGES.Success);
 };
 
 AppGenerate.prototype.RefreshCurrentContent = function()
@@ -63,7 +63,7 @@ AppGenerate.prototype.CreateTestArea = function()
 {
    this.Log.Debug("Creating Test Area");
 
-   var main = this.generate.MakeSection();
+   var main = this.template.RenderElement("section");
    var header = $("<h1>Test Area</h1>");
    var me = this;
 
@@ -75,7 +75,7 @@ AppGenerate.prototype.CreateTestArea = function()
       me.request.GetAllContent(ctg["id"], CONTENTTYPES.Discussion, function(data)
       {
          var contents = data["collection"];
-         var content = me.generate.MakeContent();
+         //var content = me.generate.MakeContent();
 
          /*for(var i = 0; i < contents.length; i++)
          {
@@ -85,7 +85,7 @@ AppGenerate.prototype.CreateTestArea = function()
             content.append(link);
          }*/
 
-         main.append(content);
+         //main.append(content);
       });
    });
 
@@ -96,8 +96,8 @@ AppGenerate.prototype.CreateLogin = function()
 {
    this.Log.Debug("Creating Login/Register page");
 
-   var main = this.generate.MakeSection();
-   var registerNotes = this.generate.MakeContent("Registering is a bit of a hassle right now " + 
+   var main = this.template.RenderElement("section");
+   var registerNotes = this.generate.RenderElement("content", "Registering is a bit of a hassle right now " + 
       "sorry. You must first use the register form to make your account. You will " +
       "only know it succeeded because there's a green checkmark. Then you must " +
       "send the confirmation email. Again, a green checkmark. NEXT, you get the " +
@@ -177,19 +177,19 @@ AppGenerate.prototype.CreateContentForm = function()
 
 AppGenerate.prototype.CreateUserHome = function(user)
 {
-   var section = this.generate.MakeSection();
-   var content = this.generate.MakeContent();
+   var section = this.template.RenderElement("section"); //generate.MakeSection();
+   var content = this.template.RenderElement("content"); //generate.MakeContent();
    var header = $("<h1></h1>");
    var me = this;
    header.text(user.username);
-   var icon = this.generate.MakeIconButton(IMAGES.Logout, "#FF4400", function(b)
-   {
-      me.request.RemoveAuthToken();
-      me.RefreshCurrentContent();
-      //me.RefreshMe(); //go get the new user data and update buttons/whatever
-   });
+   //var icon = this.generate.MakeIconButton(IMAGES.Logout, "#FF4400", function(b)
+   //{
+   //   me.request.RemoveAuthToken();
+   //   me.RefreshCurrentContent();
+   //   //me.RefreshMe(); //go get the new user data and update buttons/whatever
+   //});
 
-   content.append(icon);
+   //content.append(icon);
    section.append(header);
    section.append(content);
 

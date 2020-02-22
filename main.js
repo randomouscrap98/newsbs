@@ -44,7 +44,6 @@ $( document ).ready(function()
             color: color
          }));
          element.click(spa.ClickFunction(url));
-         //var element = generate.CreateSpaIcon(name ? "?p=" + name : "", image, color);
          element.prop("id", "nav" + (name || "home"));
          //Either we HAVE content RIGHT NOW (meaning func is actually content) or we'll 
          //GIVE you the function necessary to append your content when you're ready.

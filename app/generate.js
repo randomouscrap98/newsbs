@@ -16,14 +16,6 @@ Generate.prototype.SetSingletonAttribute = function(element, container, attribut
    element.focus();
 };
 
-Generate.prototype.MakeSuccessImage = function()
-{
-   var image = $("<img/>");
-   image.addClass(CLASSES.Success);
-   image.prop("src", IMAGES.Success);
-   return image;
-};
-
 
 // **************
 // * FORM STUFF *
