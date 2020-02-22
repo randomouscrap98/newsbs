@@ -115,9 +115,14 @@ AppGenerate.prototype.CreateLogin = function()
 AppGenerate.prototype.CreateLoginForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandalone("Login");
+   var form = this.template.RenderElement("form", 
+   {
+      standalone: true,
+      name: "Login",
+      inputs: fg.GetLogin()
+   });
    var me = this;
-   fg.AddLogin(form);
+   //fg.AddLogin(form);
    fg.SetupAjax(form, API.Authorize, fg.GatherLoginValues.bind(fg), function(form, data)
    {
       me.request.SetAuthToken(data);
@@ -130,10 +135,17 @@ AppGenerate.prototype.CreateLoginForm = function()
 AppGenerate.prototype.CreateRegisterForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandalone("Register");
-   fg.AddBeforeSubmit(form, fg.MakeInput("email", "email", "Email"));
-   fg.AddBeforeSubmit(form, fg.MakeInput("username", "text", "Username"));
-   fg.AddPasswordConfirm(form);
+   var formData = {
+      standalone: true,
+      name: "Register",
+      inputs: [
+         { name: "email", type: "email", text: "Email" },
+         { name: "username", type: "text", text: "Username" },
+      ]
+   };
+   formData.inputs = formData.inputs.concat(fg.GetPasswordConfirm());
+   var form = this.template.RenderElement("form", formData);
+   //fg.AddPasswordConfirm(form);
    fg.SetupAjax(form, API.Credentials, fg.GatherPasswordConfirmValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    return form;
 };
@@ -141,8 +153,15 @@ AppGenerate.prototype.CreateRegisterForm = function()
 AppGenerate.prototype.CreateEmailSendForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandalone("Send Confirmation Email", "Send");
-   fg.AddBeforeSubmit(form, fg.MakeInput("email", "email", "Email"));
+   var form = this.template.RenderElement("form",
+   {
+      standalone: true,
+      name: "Send Confirmation Email",
+      submit: "Send",
+      inputs: [
+         { name: "email", type: "email", text: "Email" }
+      ]
+   });
    fg.SetupAjax(form, API.SendEmail, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    return form;
 };
@@ -150,8 +169,15 @@ AppGenerate.prototype.CreateEmailSendForm = function()
 AppGenerate.prototype.CreateRegisterConfirmForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandalone("Confirm Registration", "Confirm");
-   fg.AddBeforeSubmit(form, fg.MakeInput("confirmationKey", "text", "Email Code"));
+   var form = this.template.RenderElement("form",
+   {
+      standalone: true,
+      name: "Confirm Registration",
+      submit: "Confirm",
+      inputs: [
+         { name: "confirmationKey", type: "text", text: "Email Code" }
+      ]
+   });
    fg.SetupAjax(form, API.ConfirmEmail, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    return form;
 };
@@ -159,17 +185,24 @@ AppGenerate.prototype.CreateRegisterConfirmForm = function()
 AppGenerate.prototype.CreateContentForm = function()
 {
    var fg = this.formGenerate;
-   var form = fg.MakeStandalone("New Discussion");
-   fg.AddBeforeSubmit(form, fg.MakeInput("title", "text", "Title"));
-   fg.AddBeforeSubmit(form, fg.MakeInput("content", "textarea", "Content"));
-   fg.AddBeforeSubmit(form, fg.MakeInput("type", "hidden").val(CONTENTTYPES.Discussion));
-   fg.AddBeforeSubmit(form, fg.MakeInput("format", "hidden").val(CONTENTFORMATS.Plain));
-   fg.AddBeforeSubmit(form, fg.MakeInput("baseAccess", "hidden").val(WEBSITE.DefaultContentAccess));
+   var form = this.template.RenderElement("form",
+   {
+      standalone: true,
+      name: "New Discussion",
+      inputs: [
+         { name: "title", type: "text", text: "Title" },
+         { name: "content", textarea: "true", text: "Content" },
+         { name: "type", type: "hidden", value: CONTENTTYPES.Discussion },
+         { name: "format", type: "hidden", value: CONTENTFORMATS.Plain },
+         { name: "baseAccess", type: "hidden", value: WEBSITE.DefaultContentAccess },
+         { name: "categoryId", type: "hidden", number: true }
+      ]
+   });
    fg.SetupAjax(form, API.Content, fg.GatherValues.bind(fg), this.SingleUseFormSuccess.bind(this));
    fg.SetRunning(form);
    this.request.GetMasterCategory(function(data) 
    { 
-      fg.AddBeforeSubmit(form, fg.MakeInput("categoryId", "#hidden").val(data["id"]));
+      form.find('[name="categoryId"]').val(data["id"]);
       fg.ClearRunning(form);
    });
    return form;
@@ -182,6 +215,13 @@ AppGenerate.prototype.CreateUserHome = function(user)
    var header = $("<h1></h1>");
    var me = this;
    header.text(user.username);
+   var logout = $('<a href="#">logout</a>');
+   logout.click(function(event)
+   {
+      event.preventDefault();
+      me.request.RemoveAuthToken();
+      me.RefreshCurrentContent();
+   });
    //var icon = this.generate.MakeIconButton(IMAGES.Logout, "#FF4400", function(b)
    //{
    //   me.request.RemoveAuthToken();
@@ -189,7 +229,7 @@ AppGenerate.prototype.CreateUserHome = function(user)
    //   //me.RefreshMe(); //go get the new user data and update buttons/whatever
    //});
 
-   //content.append(icon);
+   content.append(logout);
    section.append(header);
    section.append(content);
 

@@ -12,7 +12,7 @@
 
 function FormGenerate() { }
 
-FormGenerate.prototype.MakeStandard = function(name, submitText)
+/*FormGenerate.prototype.MakeStandard = function(name, submitText)
 {
    submitText = submitText || name;
 
@@ -60,7 +60,7 @@ FormGenerate.prototype.MakeInput = function(name, type, placeholder)
    if(placeholder)
       input.attr("placeholder", placeholder);
    return input;
-};
+};*/
 
 //Since we GENERATED the dang thing, we're the only one that can FIND stuff in it.
 FormGenerate.prototype.GetSubmit = function(form) { return form.find(SELECTORS.Submit); };
@@ -136,25 +136,34 @@ FormGenerate.prototype.ClearRunning = function(form) { this.SetRunningState(form
 
 
 //TODO: This will eventually need to accept languages and whatever
-function ComplexFormGenerate(logger, request)
+function ComplexFormGenerate(logger, request, template)
 {
    FormGenerate.call(this);
    this.Log = logger;
    this.request = request;
+   this.template = template;
 }
 
 ComplexFormGenerate.prototype = Object.create(FormGenerate.prototype);
 
-ComplexFormGenerate.prototype.AddLogin = function(form)
+ComplexFormGenerate.prototype.GetLogin = function() //form)
 {
-   this.AddBeforeSubmit(form, this.MakeInput(NAMES.Username, "text", "Username/Email"));
-   this.AddBeforeSubmit(form, this.MakeInput(NAMES.Password, "password", "Password"));
+   return [
+      { name: NAMES.Username, type: "text", text: "Username/Email" }, 
+      { name: NAMES.Password, type: "password", text: "Password" }
+   ];
+   //MakeInput(NAMES.Username, "text", "Username/Email"));
+   //this.AddBeforeSubmit(form, this.MakeInput(NAMES.Password, "password", "Password"));
 };
 
-ComplexFormGenerate.prototype.AddPasswordConfirm = function(form)
+ComplexFormGenerate.prototype.GetPasswordConfirm = function() //form)
 {
-   this.AddBeforeSubmit(form, this.MakeInput(NAMES.Password, "password", "Password"));
-   this.AddBeforeSubmit(form, this.MakeInput(NAMES.PasswordConfirm, "password", "Confirm Password"));
+   return [
+      { name: NAMES.Password, type: "password", text: "Password" },
+      { name: NAMES.PasswordConfirm, type: "password", text: "Confirm Password" }
+   ];
+   //this.AddBeforeSubmit(form, this.MakeInput(NAMES.Password, "password", "Password"));
+   //this.AddBeforeSubmit(form, this.MakeInput(NAMES.PasswordConfirm, "password", "Confirm Password"));
 };
 
 //This is a VERY SPECIFIC thing and assume that the login is a multi-use thingy

@@ -25,7 +25,7 @@ $( document ).ready(function()
       var request = new Requests(Log);
       var template = new Templating(Log);
       var htmlUtil = new HtmlUtilities(Log);
-      var formGenerate = new ComplexFormGenerate(Log, request);
+      var formGenerate = new ComplexFormGenerate(Log, request, template);
       var generate = new AppGenerate(Log, request, htmlUtil, formGenerate, spa, template);
 
       var contentContainer = $("#" + IDS.LeftScroller);
@@ -97,7 +97,7 @@ $( document ).ready(function()
       
       var getParams = function(url)
       {
-         return new URLSearchParams(url.split("?")[1]);
+         return new URLSearchParams(url.split("?")[1].split("#")[0]);
       };
 
       var pRouter = function(url)

@@ -12,6 +12,9 @@ var _templates =
    listClass: "list",
    logClass: "log",
    metaClass: "meta",
+   errorsClass: "errors",
+   standaloneClass: "standalone",
+   headerClass: "header",
 
    //Links
    apiLink: "",
@@ -32,12 +35,36 @@ var _templates =
    log:
 `<div class="{{>sectionClass}} {{>listClass}} {{>logClass}}">
    {{#messages}}
-   <div class="{{>contentClassf}} {{level}}">
+   <div class="{{level}}">
       <time class="{{>metaClass}}">{{time}}</time>
       <span class="{{>contentClass}}">{{message}}</span>
    </div>
    {{/messages}}
-</div>`
+</div>`,
+   form:
+`<form name="{{name}}" action="javascript:void(0);"
+  class="{{#standalone}}{{>standaloneClass}}{{/standalone}}">
+   {{! You can mark a form as standalone, adds header/class}}
+   {{#standalone}}  
+   <h2 class="{{>headerClass}}">{{name}}</h2>
+   {{/standalone}}
+   {{! Assume a form is full of inputs. Manually add raw html, don't put in template}}
+   {{#inputs}}      
+   <label>
+   {{#text}}<span>{{text}}:</span>{{/text}}
+   {{#textarea}}{{>textarea}}{{/textarea}}
+   {{^textarea}}{{>input}}{{/textarea}}
+   </label>
+   {{/inputs}}
+   <input type="submit" class="{{>>hoverClass}}" 
+    value="{{#submit}}{{submit}}{{/submit}}{{^submit}}{{name}}{{/submit}}">
+   <div class="{{>listClass}} {{>errorsClass}}"></div>
+</form>`,
+   inputGeneral: 
+`name="{{name}}" {{#required}}required=""{{/required}} {{#number}}data-number=""{{/number}}
+ placeholder="{{#placeholder}}{{placeholder}}{{/placeholder}}"`,
+   input: `<input type="{{type}}" {{>inputGeneral}} {{#value}}value="{{value}}"{{/value}}>`,
+   textarea: `<textarea {{>inputGeneral}}>{{#value}}{{value}}{{/value}}</textarea>`
 
 };
 
