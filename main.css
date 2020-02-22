@@ -46,7 +46,7 @@ form, div
 .content, .error, .meta, .section, .contentlink
 {
    text-overflow: ellipsis;
-   overflow-x: hidden;
+   overflow: hidden;
 }
 
 /* I want all inputs with text to have a little padding (and the same color) */
@@ -180,7 +180,7 @@ img.icon
 }
 
 /* Lists of content have less vertical margin */
-.list > .content
+.list > * /*.content*/
 {
     margin-top: 0.15em;
     margin-bottom: 0.15em;
@@ -196,7 +196,7 @@ img.icon
 .warn { color: #DA0; }
 .error { color: #C33; }
 
-/* Logging style */
+/* Debug style */
 .log { font-family: monospace; }
 .log .info { color: #555; }
 .log .error { font-weight: bold; }

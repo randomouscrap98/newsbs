@@ -23,10 +23,10 @@ $( document ).ready(function()
    {
       var spa = new BasicSpa(Log);
       var request = new Requests(Log);
-      var gen = new ComplexGenerate(Log);
-      var formGenerate = new ComplexFormGenerate(Log, request);
-      var generate = new AppGenerate(Log, request, gen, formGenerate, spa);
       var template = new Templating(Log);
+      var gen = new Generate(Log);
+      var formGenerate = new ComplexFormGenerate(Log, request);
+      var generate = new AppGenerate(Log, request, gen, formGenerate, spa, template);
 
       var contentContainer = $("#" + IDS.LeftScroller);
       var selectContainer = $("#" + IDS.RightPane);
@@ -68,11 +68,12 @@ $( document ).ready(function()
       {
          request.GetMe(function(userData)
          {
+            var img = userButton.find("img");
             //Update the user icon whenever we refresh our "me" status.
             if(userData)
-               gen.SetElementImageIcon(userButton, IMAGES.TempAvatar);
+               img.attr("src", IMAGES.TempAvatar);
             else
-               gen.SetElementImageIcon(userButton, IMAGES.User);
+               img.attr("src", IMAGES.User);
 
             if(userFunc) 
                userFunc(userData);
@@ -81,7 +82,7 @@ $( document ).ready(function()
 
       createNavItem("", IMAGES.Home, "#77C877", function(fc) { fc(generate.CreateHome()); });
       createNavItem("test", IMAGES.Test, "rgb(235, 190, 116)", function(fc) { fc(generate.CreateTestArea()); });
-      createNavItem("debug", IMAGES.Debug, "#C8A0C8", function(fc) { fc(gen.LogMessages()); });
+      createNavItem("debug", IMAGES.Debug, "#C8A0C8", function(fc) { fc(template.Render("log", Log)); });
       userButton = createNavItem("me", IMAGES.User, "#77AAFF", function(fc)
       {
          //Instantly refresh "me" when we go to this page. Also load

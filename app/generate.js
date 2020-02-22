@@ -16,61 +16,6 @@ Generate.prototype.SetSingletonAttribute = function(element, container, attribut
    element.focus();
 };
 
-Generate.prototype.SetElementIcon = function(element, image)
-{
-   element.addClass(CLASSES.Icon);
-   element.css("background-image", "url(" + image + ")");
-};
-
-Generate.prototype.SetElementImageIcon = function(element, image)
-{
-   var imageElement = element.find("img").first();
-
-   if(!imageElement.length)
-   {
-      imageElement = $("<img/>");
-      element.append(imageElement);
-   }
-
-   imageElement.prop("src", image);
-   element.addClass(CLASSES.Icon); //Still an icon
-   element.addClass(CLASSES.ImageIcon);
-};
-
-//The REST of these are probably fine for generate (they're all "MAKE")
-Generate.prototype.MakeContent = function(text)
-{
-   var content = $("<div></div>");
-   content.addClass(CLASSES.Content);
-   if(text) content.text(text);
-   return content;
-};
-
-Generate.prototype.MakeSection = function()
-{
-   var section = $("<div></div>");
-   section.addClass(CLASSES.Section);
-   return section;
-};
-
-Generate.prototype.MakeIconButton = function(image, color, func)
-{
-   var button = $("<button></button>"); 
-   this.SetupIcon(button, image, color);
-   if(func) button.click(function(){func(button);});
-   return button;
-};
-
-Generate.prototype.SetupIcon = function(element, image, color)
-{
-   element.addClass(CLASSES.Control);
-   element.addClass(CLASSES.Clickable);
-   element.addClass(CLASSES.Hover); 
-   element.css("background-color", color);
-   this.SetElementImageIcon(element, image);
-   return element;
-};
-
 Generate.prototype.MakeSuccessImage = function()
 {
    var image = $("<img/>");

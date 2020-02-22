@@ -51,20 +51,3 @@ BasicSpa.prototype.ClickFunction = function(url)
             history.pushState({"url" : url}, url, url);
    };
 };
-
-//Create a clickable element that "brings you" to the given url. Also changes
-//the url on the webpage (careful)
-/*BasicSpa.prototype.SetupClickable = function(element, url)
-{
-   //console.log("SETTING UP CLICKABLE TO " + url);
-   var me = this;
-   element.click(function(event)
-   {
-      event.preventDefault();
-      //alert("PREVENTED DEFUlAT");
-      if(url !== document.location.href)
-         if(me.ProcessLink(url))
-            history.pushState({"url" : url}, url, url);
-   });
-   return element;
-};*/

@@ -4,13 +4,14 @@
 
 
 //Lots of dependencies since this basically MAKES the app.
-function AppGenerate(logger, request, generate, formGenerate, spa) 
+function AppGenerate(logger, request, generate, formGenerate, spa, template) 
 {
    this.Log = logger;
    this.request = request;
    this.generate = generate;
    this.formGenerate = formGenerate;
    this.spa = spa;
+   this.template = template;
 }
 
 AppGenerate.prototype.SingleUseFormSuccess = function(form, data)
@@ -29,11 +30,12 @@ AppGenerate.prototype.CreateHome = function()
 {
    this.Log.Debug("Creating Homepage");
 
-   var main = this.generate.MakeSection();
+   var main = this.template.RenderElement("section");
+
    var header = $("<h1>SmileBASIC Source</h1>");
-   var about = this.generate.MakeContent("One day, this might become something??? I've said that about " +
+   var about = this.template.RenderElement("content", "One day, this might become something??? I've said that about " +
       "quite a few projects though... none of which went anywhere");
-   var explain = this.generate.MakeContent("Some things: Yes, the sidebar will be collapsible and maybe " +
+   var explain = this.template.RenderElement("content", "Some things: Yes, the sidebar will be collapsible and maybe " +
       "even resizable. No, nothing is final. No, I'm not focusing on ultra-old " +
       "devices first, although I am looking for it to be stable on at least " +
       "sort-of old things. Yes, I'm really using jquery, it's here to stay. " +

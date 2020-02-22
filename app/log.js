@@ -16,7 +16,9 @@ Logger.prototype.RawLog = function(message, level)
    if(this.consoleLog) 
       console.log("[" + level + "] " + message);
 
-   this.messages.push({message: message, level: level, time: new Date()});
+   var messageObject = {message: message, level: level, rawTime: new Date()};
+   messageObject.time = messageObject.rawTime.toLocaleTimeString();
+   this.messages.push(messageObject);
 
    if(this.messages.length > this.maxMessages)
       this.messages = this.messages.slice(-(this.maxMessages - this.maxBuffer));

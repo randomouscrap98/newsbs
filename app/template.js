@@ -9,14 +9,18 @@ var _templates =
    clickableClass: "clickable",
    hoverClass: "hover",
    iconClass: "icon",
+   listClass: "list",
+   logClass: "log",
+   metaClass: "meta",
 
    //Links
-   baseLink: "",
+   apiLink: "",
    iconLink: "icons/",
 
    //Images
    homeImage: "{{>iconLink}}home.png",
-   
+   successImage: "{>>iconLink}}success.png",
+
    //Actual templates
    content: `<div class="{{>contentClass}}">{{.}}</div>`,
    section: `<div class="{{>sectionClass}}">{{{.}}}</div>`,
@@ -24,7 +28,16 @@ var _templates =
 `<a href="{{{link}}}" class="{{>controlClass}} {{>clickableClass}} {{>hoverClass}}"
    style="{{#color}}background-color: {{color}};{{/color}}">
    <img class="{{>iconClass}}" src="{{{image}}}">
-</a>`
+</a>`,
+   log:
+`<div class="{{>sectionClass}} {{>listClass}} {{>logClass}}">
+   {{#messages}}
+   <div class="{{>contentClassf}} {{level}}">
+      <time class="{{>metaClass}}">{{time}}</time>
+      <span class="{{>contentClass}}">{{message}}</span>
+   </div>
+   {{/messages}}
+</div>`
 
 };
 
@@ -47,4 +60,9 @@ Templating.prototype.Render = function(name, data)
 {
    this.logger.Debug("Rendering template " + name);
    return Mustache.render(_templates[name], data || "", _templates);
+};
+
+Templating.prototype.RenderElement = function(name, data)
+{
+   return $(this.Render(name, data));
 };
