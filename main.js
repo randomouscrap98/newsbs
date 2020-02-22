@@ -26,6 +26,7 @@ $( document ).ready(function()
       var gen = new ComplexGenerate(Log);
       var formGenerate = new ComplexFormGenerate(Log, request);
       var generate = new AppGenerate(Log, request, gen, formGenerate, spa);
+      var template = new Templating(Log);
 
       var contentContainer = $("#" + IDS.LeftScroller);
       var selectContainer = $("#" + IDS.RightPane);
@@ -35,7 +36,15 @@ $( document ).ready(function()
 
       var createNavItem = function(name, image, color, pageFunc)
       {
-         var element = generate.CreateSpaIcon(name ? "?p=" + name : "", image, color);
+         var url = window.location.href.split('?')[0] + (name ? "?p=" + name : "");
+         var element = $(template.Render("tab", 
+         {
+            link: url,
+            image: image,
+            color: color
+         }));
+         element.click(spa.ClickFunction(url));
+         //var element = generate.CreateSpaIcon(name ? "?p=" + name : "", image, color);
          element.prop("id", "nav" + (name || "home"));
          //Either we HAVE content RIGHT NOW (meaning func is actually content) or we'll 
          //GIVE you the function necessary to append your content when you're ready.

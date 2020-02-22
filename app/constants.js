@@ -92,7 +92,7 @@ var API = {
    LocalRoot: "https://localhost:5001/api/"
 };
 
-API.Root = API.LocalRoot;
+//API.Root = API.LocalRoot;
 
 API.Users = API.Root + "users/";
 API.Credentials = API.Users + "credentials/";

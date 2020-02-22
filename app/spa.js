@@ -15,17 +15,17 @@ function BasicSpa(logger)
    this.Processors = [];
 }
 
-BasicSpa.prototype.ProcessLink = function(url) //, element)
+BasicSpa.prototype.ProcessLink = function(url)
 {
    this.Log.Debug("Processing link " + url);
 
    for(var i = 0; i < this.Processors.length; i++)
    {
-      if(this.Processors[i].Check(url)) //, element))
+      if(this.Processors[i].Check(url))
       {
          try
          {
-            this.Processors[i].Process(url); //, element);
+            this.Processors[i].Process(url);
          }
          catch(ex)
          {
@@ -39,9 +39,22 @@ BasicSpa.prototype.ProcessLink = function(url) //, element)
    return false;
 };
 
+//Generate the click function for the given URL
+BasicSpa.prototype.ClickFunction = function(url)
+{
+   var me = this;
+   return function(event)
+   {
+      event.preventDefault();
+      if(url !== document.location.href)
+         if(me.ProcessLink(url))
+            history.pushState({"url" : url}, url, url);
+   };
+};
+
 //Create a clickable element that "brings you" to the given url. Also changes
 //the url on the webpage (careful)
-BasicSpa.prototype.SetupClickable = function(element, url)
+/*BasicSpa.prototype.SetupClickable = function(element, url)
 {
    //console.log("SETTING UP CLICKABLE TO " + url);
    var me = this;
@@ -54,4 +67,4 @@ BasicSpa.prototype.SetupClickable = function(element, url)
             history.pushState({"url" : url}, url, url);
    });
    return element;
-};
+};*/

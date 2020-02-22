@@ -75,13 +75,13 @@ AppGenerate.prototype.CreateTestArea = function()
          var contents = data["collection"];
          var content = me.generate.MakeContent();
 
-         for(var i = 0; i < contents.length; i++)
+         /*for(var i = 0; i < contents.length; i++)
          {
             var link = me.CreateSpaLink("?p=" + contents[i]["id"]);
             link.addClass("contentlink");
             link.text(contents[i]["title"]);
             content.append(link);
-         }
+         }*/
 
          main.append(content);
       });
@@ -194,7 +194,7 @@ AppGenerate.prototype.CreateUserHome = function(user)
    return section;
 };
 
-AppGenerate.prototype.CreateSpaLink = function(url)
+/*AppGenerate.prototype.CreateSpaLink = function(url)
 {
    url = window.location.href.split('?')[0] + url;
    var link = $("<a></a>");
@@ -202,12 +202,12 @@ AppGenerate.prototype.CreateSpaLink = function(url)
    this.spa.SetupClickable(link, url);
    link.attr("href", url);
    return link;
-};
+};*/
 
-AppGenerate.prototype.CreateSpaIcon = function(url, image, color)
+/*AppGenerate.prototype.CreateSpaIcon = function(url, image, color)
 {
    var icon = this.CreateSpaLink(url);
    this.generate.SetupIcon(icon, image, color);
    return icon;
-};
+};*/
 
