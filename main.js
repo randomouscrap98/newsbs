@@ -24,9 +24,9 @@ $( document ).ready(function()
       var spa = new BasicSpa(Log);
       var request = new Requests(Log);
       var template = new Templating(Log);
-      var gen = new Generate(Log);
+      var htmlUtil = new HtmlUtilities(Log);
       var formGenerate = new ComplexFormGenerate(Log, request);
-      var generate = new AppGenerate(Log, request, gen, formGenerate, spa, template);
+      var generate = new AppGenerate(Log, request, htmlUtil, formGenerate, spa, template);
 
       var contentContainer = $("#" + IDS.LeftScroller);
       var selectContainer = $("#" + IDS.RightPane);
@@ -54,7 +54,7 @@ $( document ).ready(function()
          }
          pRoutes[name] = function(url)  //What happens when we activate the route
          { 
-            gen.SetSingletonAttribute(element, selectContainer, ATTRIBUTES.Active);
+            htmlUtil.SetSingletonAttribute(element, selectContainer, ATTRIBUTES.Active);
             contentContainer.empty(); //Turn this into a loading screen?
             pageFunc(function(content) { contentContainer.append(content); }, element);
          };
@@ -118,10 +118,10 @@ $( document ).ready(function()
                contentContainer.empty(); //Turn this into a loading screen?
                request.GetContent(id, function(data)
                {
-                  var section = gen.MakeSection();
+                  var section = template.RenderElement("section");
                   var header = $("<h1></h1>");
                   header.text(data.title);
-                  var content = gen.MakeContent();
+                  var content = template.RenderElement("content");
                   content.text(data.content);
                   section.append(header);
                   section.append(content);

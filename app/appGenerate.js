@@ -4,11 +4,11 @@
 
 
 //Lots of dependencies since this basically MAKES the app.
-function AppGenerate(logger, request, generate, formGenerate, spa, template) 
+function AppGenerate(logger, request, htmlUtils, formGenerate, spa, template) 
 {
    this.Log = logger;
    this.request = request;
-   this.generate = generate;
+   this.htmlUtils = htmlUtils;
    this.formGenerate = formGenerate;
    this.spa = spa;
    this.template = template;
@@ -97,7 +97,7 @@ AppGenerate.prototype.CreateLogin = function()
    this.Log.Debug("Creating Login/Register page");
 
    var main = this.template.RenderElement("section");
-   var registerNotes = this.generate.RenderElement("content", "Registering is a bit of a hassle right now " + 
+   var registerNotes = this.template.RenderElement("content", "Registering is a bit of a hassle right now " + 
       "sorry. You must first use the register form to make your account. You will " +
       "only know it succeeded because there's a green checkmark. Then you must " +
       "send the confirmation email. Again, a green checkmark. NEXT, you get the " +
