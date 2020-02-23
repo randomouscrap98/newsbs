@@ -20,7 +20,7 @@ function FormGenerate(logger, request, template)
 
 //Since we GENERATED the dang thing, we're the only one that can FIND stuff in it.
 FormGenerate.prototype.GetSubmit = function(form) { return form.find(SELECTORS.Submit); };
-FormGenerate.prototype.GetErrors = function(form) { return form.find("." + CLASSES.Errors); };
+FormGenerate.prototype.GetErrors = function(form) { return form.find("." + this.template.Render("errorsClass")); };
 FormGenerate.prototype.GetInputs = function(form) { return form.find(SELECTORS.Inputs); };
 FormGenerate.prototype.GetInteractables = function(form) { return form.find(SELECTORS.AllInteract); };
 
@@ -54,13 +54,7 @@ FormGenerate.prototype.AddError = function(form, error)
    errors.show()
 
    for(var i = 0; i < error.length; i++)
-   {
-      //this.Log.Warn("Adding error to form " + this.form.attr("name") + ": " + error[i]);
-      var errorElement = $("<p></p>");
-      errorElement.addClass(CLASSES.Error);
-      errorElement.text(error[i]);
-      errors.append(errorElement);
-   }
+      errors.append(this.template.RenderElement("error", error[i]));
 };
 
 FormGenerate.prototype.SetError = function (form, error)

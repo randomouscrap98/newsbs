@@ -13,16 +13,9 @@ var _templates =
    logClass: "log",
    metaClass: "meta",
    errorsClass: "errors",
+   errorClass: "error",
    standaloneClass: "standalone",
    headerClass: "header",
-
-   //Links
-   apiLink: "",
-   iconLink: "icons/",
-
-   //Images
-   homeImage: "{{>iconLink}}home.png",
-   successImage: "{>>iconLink}}success.png",
 
    //Actual templates
    content: `<div class="{{>contentClass}}">{{.}}</div>`,
@@ -64,7 +57,8 @@ var _templates =
 `name="{{name}}" {{#required}}required=""{{/required}} {{#number}}data-number=""{{/number}}
  placeholder="{{#placeholder}}{{placeholder}}{{/placeholder}}"`,
    input: `<input type="{{type}}" {{>inputGeneral}} {{#value}}value="{{value}}"{{/value}}>`,
-   textarea: `<textarea {{>inputGeneral}}>{{#value}}{{value}}{{/value}}</textarea>`
+   textarea: `<textarea {{>inputGeneral}}>{{#value}}{{value}}{{/value}}</textarea>`,
+   error: `<p class="{{>errorClass}}">{{.}}</p>`
 
 };
 

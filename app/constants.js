@@ -3,25 +3,6 @@
 //Deps: none
 
 
-var CLASSES = {
-   Content : "content",
-   Section : "section",
-   Error : "error",
-   Errors : "errors",
-   List : "list",
-   Hover : "hover",
-   Control : "control",
-   Icon : "icon",
-   Clickable : "clickable",
-   Header : "header",
-   Standalone : "standalone",
-   Meta : "meta",
-   Success : "success",
-   Log : "log",
-   Avatar: "avatar",
-   ImageIcon : "imageicon"
-};
-
 var SELECTORS = {
    Submit : "input[type='submit']",
    Inputs : "input, textarea",
