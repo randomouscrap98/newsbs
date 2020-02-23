@@ -83,3 +83,14 @@ BasicSpa.prototype.ClickFunction = function(url)
             history.pushState({"url" : url}, url, url);
    };
 };
+
+//Set this object (us) to handle the window pop state (back/forward) 
+BasicSpa.prototype.SetHandlePopState = function()
+{
+   var me = this;
+   window.onpopstate = function(event)
+   {
+      me.logger.Debug("User browser navigated back/forward to " + document.location.href);
+      me.ProcessLink(document.location.href);
+   };
+};

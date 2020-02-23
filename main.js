@@ -37,12 +37,12 @@ $( document ).ready(function()
       var createNavItem = function(name, image, color, pageFunc)
       {
          var url = window.location.href.split('?')[0] + (name ? "?p=" + name : "");
-         var element = $(template.Render("tab", 
+         var element = template.RenderElement("tab", 
          {
             link: url,
             image: image,
             color: color
-         }));
+         });
          element.click(spa.ClickFunction(url));
          element.prop("id", "nav" + (name || "home"));
          //Either we HAVE content RIGHT NOW (meaning func is actually content) or we'll 
@@ -134,20 +134,11 @@ $( document ).ready(function()
       for(var i = 0; i < routes.length; i++)
          spa.Processors.push(routes[i]);
 
-      window.onpopstate = function(event)
-      {
-         Log.Debug("User browser navigated back/forward to " + document.location.href);
-         spa.ProcessLink(document.location.href);
-      };
+      spa.SetHandlePopState();
 
       Log.Debug("Setup all services");
 
-      //Preload images
-      for(var key in IMAGES)
-         if(IMAGES.hasOwnProperty(key) && key.indexOf("Root") < 0)
-            $("<img/>").attr("src", IMAGES[key]).appendTo($("#" + IDS.Cache));
-
-      Log.Debug("Preloading images");
+      htmlUtil.PreloadImages(Object.values(IMAGES));
 
       refreshMe();
       spa.ProcessLink(document.location.href);
@@ -155,8 +146,8 @@ $( document ).ready(function()
    catch(ex)
    {
       Log.Error("Could not setup website: " + ex);
+      throw ex;
    }
 
    Log.Info("Website loaded (pending content)");
 });
-

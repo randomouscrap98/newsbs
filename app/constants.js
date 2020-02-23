@@ -9,17 +9,17 @@ var SELECTORS = {
    AllInteract : "input, button, textarea"
 };
 
+var ICONROOT = "icons/";
 var IMAGES = {
-   IconRoot : "icons/",
+   Success : ICONROOT + "success.png",
+   Home : ICONROOT + "home.png",
+   Test : ICONROOT + "test.png",
+   Debug : ICONROOT + "debug.png",
+   User : ICONROOT + "user.png",
+   Logout : ICONROOT + "logout.png",
+   TempAvatar : ICONROOT + "tempAvatar.png"
 };
 
-IMAGES.Success = IMAGES.IconRoot + "success.png";
-IMAGES.Home = IMAGES.IconRoot + "home.png";
-IMAGES.Test = IMAGES.IconRoot + "test.png";
-IMAGES.Debug = IMAGES.IconRoot + "debug.png";
-IMAGES.User = IMAGES.IconRoot + "user.png";
-IMAGES.Logout = IMAGES.IconRoot + "logout.png";
-IMAGES.TempAvatar = IMAGES.IconRoot + "tempAvatar.png";
 
 var NAMES = {
    Password : "password",
@@ -32,7 +32,6 @@ var IDS = {
    NavHome : "navhome",
    NavDebug : "navdebug",
    NavUser : "navuser",
-   Cache : "cache",
    SmallNav : "smallnav",
    LeftScroller : "leftscroller",
    RightPane : "rightpane"
