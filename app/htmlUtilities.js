@@ -39,3 +39,8 @@ HtmlUtilities.prototype.PreloadImages = function(images)
    images.forEach(img => $("<img/>").attr("src", img).appendTo(container));
    this.logger.Debug("Preloading images");
 };
+
+HtmlUtilities.prototype.GetParams = function(url)
+{
+   return new URLSearchParams((url.split("?")[1] || "").split("#")[0]);
+};

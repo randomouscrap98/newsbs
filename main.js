@@ -36,7 +36,7 @@ $( document ).ready(function()
 
       var createNavItem = function(name, image, color, pageFunc)
       {
-         var url = window.location.href.split('?')[0] + (name ? "?p=" + name : "");
+         var url = generate.GetSpaUrl(name ? "?p=" + name : "");
          var element = template.RenderElement("tab", 
          {
             link: url,
@@ -95,15 +95,10 @@ $( document ).ready(function()
          });
       });
       
-      var getParams = function(url)
-      {
-         return new URLSearchParams((url.split("?")[1] || "").split("#")[0]);
-      };
-
       var pRouter = function(url)
       {
          //Figure out the p
-         var pVal = getParams(url).get("p") || ""; //Safe for now.
+         var pVal = htmlUtil.GetParams(url).get("p") || ""; //Safe for now.
          return pRoutes[pVal];
       };
 
@@ -111,10 +106,10 @@ $( document ).ready(function()
       //We're the only ones with enough knowledge about how to route. 
       var routes = [
          new SpaProcessor(pRouter, function(url) { pRouter(url)(url); }),
-         new SpaProcessor(function(url) { return Number(getParams(url).get("p")); }, 
+         new SpaProcessor(function(url) { return Number(htmlUtil.GetParams(url).get("p")); }, 
             function(url)
             {
-               var id = Number(getParams(url).get("p"));
+               var id = Number(htmlUtil.GetParams(url).get("p"));
                contentContainer.empty(); //Turn this into a loading screen?
                request.GetContent(id, function(data)
                {

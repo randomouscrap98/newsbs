@@ -75,17 +75,21 @@ AppGenerate.prototype.CreateTestArea = function()
       me.request.GetAllContent(ctg["id"], CONTENTTYPES.Discussion, function(data)
       {
          var contents = data["collection"];
-         //var content = me.generate.MakeContent();
+         var content = me.template.RenderElement("content");
 
-         /*for(var i = 0; i < contents.length; i++)
+         for(var i = 0; i < contents.length; i++)
          {
-            var link = me.CreateSpaLink("?p=" + contents[i]["id"]);
-            link.addClass("contentlink");
-            link.text(contents[i]["title"]);
-            content.append(link);
-         }*/
+            var url = me.GetSpaUrl("?p=" + contents[i]["id"])
+            var lnk = me.template.RenderElement("contentLink",
+            {
+               text: contents[i]["title"],
+               link: url
+            });
+            lnk.click(me.spa.ClickFunction(url));
+            content.append(lnk);
+         }
 
-         //main.append(content);
+         main.append(content);
       });
    });
 
@@ -235,6 +239,18 @@ AppGenerate.prototype.CreateUserHome = function(user)
 
    return section;
 };
+
+AppGenerate.prototype.GetSpaUrl = function(url)
+{
+   //This is the WRONG way to do this.
+   return window.location.href.split('?')[0] + url;
+};
+
+/*AppGenerate.prototype.QuickSpaElement = function(element, url)
+{
+   url = this.GetSpaUrl(url);
+   element.click(this.spa.ClickFunction(url));
+};*/
 
 /*AppGenerate.prototype.CreateSpaLink = function(url)
 {

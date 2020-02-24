@@ -58,7 +58,8 @@ var _templates =
  placeholder="{{#placeholder}}{{placeholder}}{{/placeholder}}"`,
    input: `<input type="{{type}}" {{>inputGeneral}} {{#value}}value="{{value}}"{{/value}}>`,
    textarea: `<textarea {{>inputGeneral}}>{{#value}}{{value}}{{/value}}</textarea>`,
-   error: `<p class="{{>errorClass}}">{{.}}</p>`
+   error: `<p class="{{>errorClass}}">{{.}}</p>`,
+   contentLink: `<a href="{{{link}}}" class="contentLink">{{text}}</a>`
 
 };
 
