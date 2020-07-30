@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+   <!-- LOC:HEAD -->
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width"><!--,maximum-scale=1">-->
+      <meta name="rating" content="general">
+      <meta name="description" content="New SmileBASIC Source">
+<!-- LOC:STYLE -->
+<style>
+body {
+   margin: 0;
+   padding: 0;
+   position: relative;
+   font-size: 0;
+   background: pink;
+   font-family: sans-serif;
+   height: 100vh;
+   width: 100vw;
+}
+div {
+   margin: 0;
+   padding: 0;
+   display: block;
+}
+img {
+   max-width: 100%;
+   max-height: 100%;
+}
+.clickable {
+   cursor: pointer;
+}
+.clickable:hover {
+   filter: invert(0.1);
+}
+.horizontalresize {
+   position: absolute;
+   width: 2rem;
+   height: 100%;
+   top: 0;
+   left: 0;
+   cursor: ew-resize;
+   transform: translate(-50%, 0);
+}
+.horizontalresize:hover {
+   background-color: rgb(0,0,0,0.1);
+}
+.container, .layer {
+   width: 100%;
+   height: 100%;
+   position: relative;
+   overflow: hidden;
+}
+.layer {
+   position: absolute;
+   left: 0;
+   top: 0;
+}
+.windowbar {
+   height: %windowbar.height%;
+   background-color: %windowbar.bgcolor%;
+}
+#topbar {
+   z-index: 100; /* Top bar goes on top of everything */
+}
+#mainicon {
+   width: %windowbar.height%;
+   height: %windowbar.height%;
+   float: right;
+}
+#main {
+   padding-top: %windowbar.height%;
+}
+/* The main pane styling */
+#leftpane {
+}
+#rightpane {
+   width: 20rem;
+   background-color: %pullout.bgcolor%;
+   right: 0;
+   left: unset;
+}
+#posttext {
+   width: 100%;
+   box-sizing: border-box;
+}
+</style>
+<!-- LOC:SCRIPT -->
+<script>
+</script>
+   </head>
+   <!-- LOC:BODY -->
+   <body>
+      <div id="website" class="container">
+         <!-- LOC:TOPBAR -->
+         <div id="topbar" class="layer windowbar">
+            <div id="mainicon">
+               <img src="tempicon.png" class="clickable">
+            </div>
+         </div>
+         <div id="main" class="layer">
+            <div id="panes" class="container">
+               <!-- LOC:LEFTPANE -->
+               <div id="leftpane" class="layer">
+                  <div class="scroller">
+                     <div id="maincontent">
+                     </div>
+                  </div>
+                  <!-- LOC:POSTING -->
+                  <div id="posting">
+                     <textarea id="posttext"></textarea>
+                  </div>
+               </div>
+               <!-- LOC:RIGHTPANE -->
+               <div id="rightpane" class="layer">
+                  <div id="paneresizer" class="horizontalresize"></div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>

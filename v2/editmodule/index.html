@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <title>New SBS Module Editor</title>
+      <script src="../../ace-builds/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+      <script>
+function modend(url)
+{
+   return url + "/module";
+}
+
+window.onload = function()
+{
+   var params = new URLSearchParams(location.search.substring(1));
+
+   var editor = ace.edit("editor");
+   editor.setTheme("ace/theme/" + (params.get("theme") || "chrome"));
+   editor.session.setMode("ace/mode/lua");
+   editor.setOptions({
+      showPrintMargin: false
+   });
+
+   if(params.get("keyboard"))
+      editor.setKeyboardHandler("ace/keyboard/" + params.get('keyboard'));
+
+   var editorelement = document.getElementById("editor");
+   var endpoint = document.getElementById("endpoint");
+   var token = document.getElementById("token");
+   var modulename = document.getElementById("modulename");
+   var loadbutton = document.getElementById("loadbutton");
+   var savebutton = document.getElementById("savebutton");
+   var commandbutton = document.getElementById("commandbutton");
+   var commandname = document.getElementById("commandname");
+   var commanddata = document.getElementById("commanddata");
+   var debugbutton = document.getElementById("debugbutton");
+   var debugoutput = document.getElementById("debugoutput");
+
+   var saveInputs = function()
+   {
+      var data = {
+         "endpoint" : endpoint.value,
+         "modulename" : modulename.value,
+         "token" : token.value
+      };
+      console.log("Caching inputs");
+      window.localStorage.setItem("inputs", JSON.stringify(data));
+      return data;
+   };
+
+   var loadInputs = function()
+   {
+      var data = window.localStorage.getItem("inputs");
+      if(!data) return;
+      console.log("Loading inputs from cache");
+      data = JSON.parse(data);
+      endpoint.value = data.endpoint;
+      modulename.value = data.modulename;
+      token.value = data.token;
+   };
+
+   //Load inputs
+   loadInputs();
+
+   loadbutton.addEventListener("click", function()
+   {
+      var data = saveInputs();
+      var url = modend(data.endpoint) + "?names=" + data.modulename;
+      if(confirm("You will lose saved data. Are you sure you want to load from " + url))
+      {
+         quickAJAX(url, data.token, function(d) 
+         { 
+            if(d.length) 
+               editor.setValue(d[0].code); 
+            else
+               alert("Couldn't find any module named " + data.modulename);
+         });
+      }
+   });
+   savebutton.addEventListener("click", function()
+   {
+      var data = saveInputs();
+      var url = modend(data.endpoint) + "/" + data.modulename;
+      if(confirm("You will overwrite the module on the server. Are you sure you want to write " + 
+                  data.modulename + " to " + url))
+      {
+         quickAJAX(url, data.token, null, null, { "name" : data.modulename, "code" : editor.getValue() });
+      }
+   });
+   commandbutton.addEventListener("click", function()
+   {
+      var data = saveInputs();
+      var url = modend(data.endpoint) + "/" + data.modulename + "/" + commandname.value;
+      quickAJAX(url, data.token, function(d) 
+      { 
+         commandname.value = "";
+         commanddata.value = "";
+         console.log(d); 
+         debugbutton.click();
+      }, null, commanddata.value || " ");
+   });
+   debugbutton.addEventListener("click", function()
+   {
+      var data = saveInputs();
+      var url = modend(data.endpoint) + "/debug/" + data.modulename;
+      quickAJAX(url, data.token, function(d)
+      {
+         console.log("loaded debug");
+         debugoutput.innerHTML = "";
+         for(var i = 0; i < d.length; i++)
+         {
+            var dbg = document.createElement("div");
+            dbg.className = "messagecontent";
+            dbg.textContent = d[i];
+            debugoutput.appendChild(dbg);
+         }
+      });
+   });
+
+   var data = saveInputs();
+   nextListen(data.endpoint, data.token, {"lastId": 0}, document.getElementById("moduleoutput"));
+};
+
+function findUsername(users, uid)
+{
+   for(var i = 0; i < users.length; i++)
+      if(users[i].id == uid)
+         return users[i].username;
+      
+   return "???";
+}
+
+function nextListen(baseUrl, token, result, outputElement)
+{
+   //console.log(result);
+   if(result && result.chains && result.chains.modulemessage)
+   {
+      console.log("Got module messages");
+      for(var i = 0; i < result.chains.modulemessage.length; i++)
+      {
+         var m = result.chains.modulemessage[i];
+         var elem = document.createElement("div");
+         elem.className = "modulemessage";
+         var elemmod = document.createElement("span");
+         elemmod.className = "messagemodule";
+         elemmod.textContent = "[" + m.module + "]";
+         var elemmsg = document.createElement("span");
+         elemmsg.className = "messagecontent";
+         var msg = m.message;
+         //This is BAD replacement: it will replace usernames with %id% repeatedly
+         for(var j = 0; j < result.chains.user.length; j++)
+            msg = msg.replace(new RegExp("%" + result.chains.user[j].id + "%","g"), result.chains.user[j].username);
+         elemmsg.innerHTML = msg;
+         var elemusr = document.createElement("span");
+         elemusr.className = "messageuser";
+         elemusr.textContent = "(" + findUsername(result.chains.user, m.sendUserId) + "->" + m.receiveUserId + ")";
+         elem.appendChild(elemmod);
+         elem.appendChild(elemmsg);
+         elem.appendChild(elemusr);
+         outputElement.insertBefore(elem, outputElement.childNodes[0]);
+      }
+      
+      result.chains = false; //clear out the data for the next call
+   }
+   else
+   {
+      console.log("Module message timeout or re-call, polling again");
+   }
+
+   var moduleListen = { "lastId" : result.lastId, "chains" :
+      ["modulemessage.0id", "user.1usersInMessage.1sendUserId.1receiveUserId"]};
+   var nextCall = function(r) { nextListen(baseUrl, token, r || result, outputElement); };
+   quickAJAX(baseUrl + "/read/listen?actions="+encodeURIComponent(JSON.stringify(moduleListen)), 
+      token, nextCall, function(e)
+      {
+         console.log("something errored out: ", e);
+         setTimeout(nextCall, 5000);
+      });
+}
+
+function quickAJAX(url, token, callback, error, postData)
+{
+   error = error || function(e) { alert("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
+   var req = new XMLHttpRequest();
+   req.addEventListener("loadend", function()
+   {
+      if(req.status <= 299 && req.status >= 200)
+      {
+         if(callback)
+            callback(req.responseText ? JSON.parse(req.responseText) : null);
+         else
+            alert("Success: " + req.status + " - " + req.responseText);
+      }
+      else
+      {
+         error(req);
+      }
+   });
+   req.open(postData ? "POST" : "GET", url);
+   req.setRequestHeader("accept", "application/json");
+   req.setRequestHeader("Authorization", "Bearer " + token);
+   req.setRequestHeader("Content-Type", "application/json");
+   if(postData)
+      req.send(JSON.stringify(postData));
+   else
+      req.send();
+}
+      </script>
+      <style type="text/css">
+.expandowidth
+{
+   width: 100%;
+   max-width: 80rem;
+   box-sizing: border-box;
+}
+#editor
+{
+   height: 70vh; /*50em;*/
+   min-height: 30em;
+   border: 1px solid rgba(0,0,50,0.1);
+}
+#moduleoutput
+{
+   margin-top: 0.2em;
+   background-color: #EEE;
+}
+.messagebox
+{
+   padding: 0.3em 0.5em;
+   font-family: monospace;
+   height: 6em;
+   overflow-y: scroll;
+   overflow-x: auto;
+}
+.messagecontent
+{
+   white-space: pre-wrap;
+}
+.messagemodule
+{
+   color: #05F;
+   margin-right: 0.5em;
+}
+.messageuser
+{
+   float: right;
+   font-size: 0.8em;
+   color: #777;
+}
+.annotation
+{
+   font-size: 0.75em;
+   color: #777;
+   margin: 0 0.5em;
+}
+#moduledebug
+{
+   position:relative;
+   background-color: #444;
+   color: #AAA;
+   font-size: 0.8em;
+
+}
+#debugbutton
+{
+   position: absolute;
+   right: 0;
+   top: 0;
+}
+#debugoutput
+{
+   position: absolute;
+   left: 0;
+   top: 0;
+}
+      </style>
+   </head>
+   <body>
+      <div id="editor" class="expandowidth">--Modules are written in Lua
+
+--An example command. Commands must start with command_
+--Commands are given the sender uid and string data (perhaps arguments/whatever)
+function command_echo(uid, data)
+    sendmessage(uid, data) --sendmessage is a builtin, sends message to given uid
+end
+      
+--Send to uid 0 to broadcast to everyone. There may be a rate limit
+function command_broadcast(uid, data)
+    sendmessage(0, "The test module is broadcasting!")
+end
+
+--To read and write persistent data, use setdata and getdata
+function command_store(uid, data)
+   setdata("somekey", data)
+   sendmessage(uid, "Stored " .. data .. " in 'somekey'") -- .. is string concat
+end
+
+function command_read(uid, data)
+   sendmessage(uid, "You stored: " .. getdata("somekey"))
+end
+
+--You have no access to usernames or any user data. However, %UID% will be 
+--captured, and the listener endpoint can chain against the field called
+--"usersInMessage". The listener must manually replace the UIDs though
+--(this is done to allow many types of configuration, such as nicknames, 
+-- titles, special formatting (like links to usernames), etc. I'm sorry
+-- it's more work, but I think it's neat if usernames could be linked 
+-- in module messages, and manual replacement allows that)
+function command_getuid(uid, data)
+   sendmessage(uid, "UID " .. data .. " is %" .. data .. "%")
+end
+
+--Any string you return from a function will be given as the result
+--text when POSTing the command. It should not be used to send messages
+function command_alert(uid, data)
+   sendmessage(uid, "Returned data in the response")
+   return "The data was: " .. data
+end
+
+--You can log debug messages, which are viewable from /api/module/debug/{modname}
+function command_debug(uid, data)
+   prntdbg("This should show the user, command, and data")
+   sendmessage(uid, "Check the debug logs!")
+end
+
+--You can define your own functions as long as they don't start with command_
+function whatever()
+   return 4
+end
+
+
+--Extra information:
+
+-- Module endpoint is /api/module. Modules are standard objects like
+-- content/etc, except there are no permissions. You can search for modules to get
+-- the code, POST modules if you're a super user, and delete them (if you're super).
+-- You can also POST data to a command endpoint. To post a command such as:
+--   cgame draw 500
+-- you would POST to endpoint (with body set to "500"):
+--  /api/module/cgame/draw
+-- If a command has no extra arguments, you can simply post an empty body (I think)
+
+-- Module activity shows up in regular activity, you can chain to "module" to 
+-- get the name/etc. Modules have associated values which can be read IN the
+-- module itself, you can use these as constants to tweak your code without having
+-- to actually change the code (think a config etc). Use "getvalue" to get
+-- strings, you can use lua to convert to numbers etc.
+
+-- Module messages are stored in the database and are part of the chainer. They
+-- share the id space with comments. As such, you can chain "modulemessage" to
+-- your actions listener to also get module messages. Modules send messages
+-- directly to users or to everyone with uid = 0. They have no concept of rooms,
+-- it's up to you to figure out where when and how you want to display them. Since
+-- they share the id space with all other actions, you can continue using lastId
+-- as usual. You may want to chain users to various fields in the module messages.
+-- Example:
+--   { "lastId" : 0, "chains" : ["modulemessage.0id", "user.1usersInMessage.1sendUserId" ] }
+-- "usersInMessage" will be all the parsed %UID% found in the message, and you 
+-- can also chain against "sendUserId" and "receiveUserId" (note that chaining
+-- against 0 for broadcast messages shouldn't match anything... but I'm not sure)
+
+
+-- Add "keyboard=vim" to set keybindings to vim. There may be other options
+-- too, lookup the ace editor for more details
+-- Add "theme=monokai" for a dark theme. There are other options (ace editor)
+
+   </div>
+   </body>
+   <div id="controls">
+      <div id="endpointcontrols">
+         <input id="endpoint" placeholder="API Endpoint">
+         <input id="token" placeholder="API token" type="password">
+         <span class="annotation">Set/Edit = restart required (sorry)</span>
+      </div>
+      <div id="loadsavecontrols">
+         <input id="modulename" placeholder="Module name">
+         <button id="loadbutton">Load</button>
+         <button id="savebutton">Save</button>
+      </div>
+      <div id="commandcontrols">
+         <input id="commandname" placeholder="command">
+         <input id="commanddata" placeholder="data">
+         <button id="commandbutton">Send</button>
+      </div>
+   </div>
+   <div id="moduleoutput" class="messagebox expandowidth">
+   </div>
+   <div id="moduledebug" class="messagebox expandowidth">
+      <button id="debugbutton">Reload</button>
+      <div id="debugoutput">
+      </div>
+   </div>
+</html>

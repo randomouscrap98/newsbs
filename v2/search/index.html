@@ -1,0 +1,65 @@
+<html>
+   <head>
+<script>
+window.onload = function(loadevent)
+{
+   searchsubmit.onclick = function()
+   {
+      if(!searchtext.value)
+      {
+         alert("Must provide a search");
+         return;
+      }
+      var url = endpoint.value + "/comment?contentlike=" + encodeURIComponent(searchtext.value);
+      quickAJAX(url, token.value, function(data){displayComments(data, searchresults)});
+   };
+};
+
+function displayComments(comments, element)
+{
+   element.innerHTML = "";
+}
+
+function quickAJAX(url, token, callback, error, postData)
+{
+   error = error || function(e) { alert("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
+   var req = new XMLHttpRequest();
+   req.addEventListener("loadend", function()
+   {
+      if(req.status <= 299 && req.status >= 200)
+      {
+         if(callback)
+            callback(req.responseText ? JSON.parse(req.responseText) : null);
+         else
+            alert("Success: " + req.status + " - " + req.responseText);
+      }
+      else
+      {
+         error(req);
+      }
+   });
+   req.open(postData ? "POST" : "GET", url);
+   req.setRequestHeader("accept", "application/json");
+   if(token) req.setRequestHeader("Authorization", "Bearer " + token);
+   req.setRequestHeader("Content-Type", "application/json");
+   if(postData)
+      req.send(JSON.stringify(postData));
+   else
+      req.send();
+}
+</script>
+   </head>
+   <body>
+      <div id="endpointconfig">
+         <input id="endpoint" placeholder="API endpoint" value="https://newdev.smilebasicsource.com/api"></input>
+         <input id="token" placeholder="Token (optional)"></input>
+      </div>
+      <div id="search">
+         <h3>Comment Search</h3>
+         <input placeholder="search" id="searchtext">
+         <button id="searchsubmit">Search</button>
+         <div id="searchresults">
+         </div>
+      </div>
+   </body>
+</html>
