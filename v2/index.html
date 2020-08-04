@@ -11,6 +11,33 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:STYLE -->
+<style>
+/*#website { background-color: blue; }*/
+/*#main-window { background-color: pink; }*/
+#top-nav
+{
+   background-color: #555;
+   height: 2.5em;
+}
+#left-pane
+{
+   /*background-color: green;*/
+}
+#right-pane
+{
+   background-color: #F7F7F7;
+}
+#pane-resizer
+{
+   background-color: gray;
+   width: 20em;
+   resize: horizontal;
+   transform: scalex(-1);
+   overflow: hidden;
+   max-width: calc(100vw - 1px);
+   min-width: 10em;
+}
+</style>
       <!--<link rel="stylesheet" href="index.css?v=1596144144">-->
       <!-- LOC:SCRIPT -->
       <!--<script src="index.js?v=123"></script>-->
@@ -26,7 +53,26 @@ function addthing()
    </head>
    <!-- LOC:BODY -->
    <body>
-      <div id="website" class="container">
+      <div id="website" class="uk-height-viewport uk-flex uk-flex-column">
+         <div id="top-nav" class="uk-flex">
+            <div id="top-nav-user" class="">
+            </div>
+            <!-- Just a spacer for now, probably breadcrumbs -->
+            <div class="uk-flex-1">
+            </div> 
+            <a href="#" uk-toggle="target: #right-pane"><img data-src="tempicon.png" uk-img></a>
+         </div>
+         <div id="main-window" class="uk-flex-1 uk-grid-collapse" uk-grid>
+            <div id="left-pane" class="uk-width-expand">
+            </div>
+            <div id="right-pane" class="uk-width-auto">
+               <div id="pane-resizer">resize</div>
+            </div>
+         </div>
+      </div>
+
+
+      <div style="display:none" id="NOTwebsite" class="container">
          <!-- LOC:TOPBAR -->
          <div id="topbar" class="layer windowbar">
             <div id="mainicon">
