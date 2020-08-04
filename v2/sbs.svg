@@ -1,0 +1,17 @@
+<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="rgb(0,150,136)"> <!-- CIRCLE -->
+	 <line x1="7.5" y1="7.5" x2="8.5" y2="8.5" stroke-width="15" stroke-linecap="round" opacity="0.33" /> <!-- side -->
+	 <circle cx="7.5" cy="7.5" r="6.5" fill="black" stroke-width="2" /> <!-- circle -->
+  </g>
+  <g stroke-width="2" stroke="black" stroke-linejoin="round">
+		<path d="M5 6 v-.5 l-1 -.5 h-1 l-1 1 v1 l1 1 h1 v1 h-1 l-1 -0 v.5 l1 .5 h1 l1 -1 v-1 l-1 -1 h-1 v-1 h1 z" /> <!-- S -->
+		<path d="M6 5 v5 h2 l1 -1 v-1 l-1 -0.5 l1 -0.5 v-1 l-1 -1 z m1 1 h1 v1 h-1 z m0 2 h1 v1 h-1 z" /> <!-- B -->
+		<path d="M13 6 v-.5 l-1 -.5 h-1 l-1 1 v1 l1 1 h1 v1 h-1 l-1 -0 v.5 l1 .5 h1 l1 -1 v-1 l-1 -1 h-1 v-1 h1 z" /> <!-- S -->
+  </g>
+
+  <g fill="white">
+  	 <path d="M5 6 v-.5 l-1 -.5 h-1 l-1 1 v1 l1 1 h1 v1 h-1 l-1 -0 v.5 l1 .5 h1 l1 -1 v-1 l-1 -1 h-1 v-1 h1 z" /> <!-- S -->
+	 <path d="M6 5 v5 h2 l1 -1 v-1 l-1 -0.5 l1 -0.5 v-1 l-1 -1 z m1 1 h1 v1 h-1 z m0 2 h1 v1 h-1 z" /> <!-- B -->
+	 <path d="M13 6 v-.5 l-1 -.5 h-1 l-1 1 v1 l1 1 h1 v1 h-1 l-1 -0 v.5 l1 .5 h1 l1 -1 v-1 l-1 -1 h-1 v-1 h1 z" /> <!-- S -->
+  </g>
+</svg>

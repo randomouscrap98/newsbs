@@ -16,8 +16,12 @@
 /*#main-window { background-color: pink; }*/
 #top-nav
 {
-   background-color: #555;
-   height: 2.5em;
+   background-color: #444;
+   color: #AAA;
+}
+#top-nav a:hover
+{
+   color: #CCC;
 }
 #left-pane
 {
@@ -42,61 +46,35 @@
       <!-- LOC:SCRIPT -->
       <!--<script src="index.js?v=123"></script>-->
 <script>
-function addthing()
-{
-   var a = document.createElement("div");
-   a.setAttribute("uk-alert", "");
-   a.innerHTML = '<a class="uk-alert-close" uk-close></a> <h3>Notice</h3> <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>';
-   leftpane.appendChild(a);
-}
 </script>
    </head>
    <!-- LOC:BODY -->
    <body>
       <div id="website" class="uk-height-viewport uk-flex uk-flex-column">
-         <div id="top-nav" class="uk-flex">
-            <div id="top-nav-user" class="">
-            </div>
+         <!-- LOC:TOPNAV -->
+         <div id="top-nav" class="uk-flex-middle" uk-navbar>
+            <a href="." uk-icon="ratio: 2">
+               <!--<img data-src="tempicon.png" width="" height="" uk-img>-->
+            <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
+            </a>
             <!-- Just a spacer for now, probably breadcrumbs -->
             <div class="uk-flex-1">
             </div> 
-            <a href="#" uk-toggle="target: #right-pane"><img data-src="tempicon.png" uk-img></a>
+            <!-- -->
+            <div id="top-nav-user" class="">
+            </div>
+            <a uk-icon="icon: menu; ratio: 2" href="#" uk-toggle="target: #right-pane"></a>
+            <!--<a href="#" uk-toggle="target: #right-pane"><img
+               data-src="tempicon.png" uk-img></a>-->
          </div>
+         <!-- LOC:MAINWINDOW -->
          <div id="main-window" class="uk-flex-1 uk-grid-collapse" uk-grid>
+            <!-- LOC:LEFTPANE -->
             <div id="left-pane" class="uk-width-expand">
             </div>
+            <!-- LOC:RIGHTPANE -->
             <div id="right-pane" class="uk-width-auto">
                <div id="pane-resizer">resize</div>
-            </div>
-         </div>
-      </div>
-
-
-      <div style="display:none" id="NOTwebsite" class="container">
-         <!-- LOC:TOPBAR -->
-         <div id="topbar" class="layer windowbar">
-            <div id="mainicon">
-               <img src="tempicon.png" class="clickable">
-            </div>
-         </div>
-         <div id="main" class="layer">
-            <div id="panes" class="container">
-               <!-- LOC:LEFTPANE -->
-               <div id="leftpane" class="layer">
-                  <div class="scroller">
-                     <div id="maincontent">
-                     </div>
-                  </div>
-                  <!-- LOC:POSTING -->
-                  <div id="posting">
-                     <textarea id="posttext"></textarea>
-                  </div>
-                  <button onclick="addthing()">add thing</button>
-               </div>
-               <!-- LOC:RIGHTPANE -->
-               <div id="rightpane" class="layer">
-                  <div id="paneresizer" class="horizontalresize"></div>
-               </div>
             </div>
          </div>
       </div>
