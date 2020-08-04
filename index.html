@@ -12,8 +12,14 @@
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:STYLE -->
 <style>
-/*#website { background-color: blue; }*/
-/*#main-window { background-color: pink; }*/
+body
+{
+   position: absolute;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   right: 0;
+}
 #top-nav
 {
    background-color: #444;
@@ -25,7 +31,7 @@
 }
 #left-pane
 {
-   /*background-color: green;*/
+   /*background-color: lime;*/
 }
 #right-pane
 {
@@ -36,26 +42,23 @@
    background-color: gray;
    width: 20em;
    resize: horizontal;
-   transform: scalex(-1);
+   transform: scale(-1,1);
    overflow: hidden;
    max-width: calc(100vw - 1px);
    min-width: 10em;
 }
 </style>
-      <!--<link rel="stylesheet" href="index.css?v=1596144144">-->
       <!-- LOC:SCRIPT -->
-      <!--<script src="index.js?v=123"></script>-->
 <script>
 </script>
    </head>
    <!-- LOC:BODY -->
    <body>
-      <div id="website" class="uk-height-viewport uk-flex uk-flex-column">
+      <div id="website" class="uk-flex uk-flex-column uk-height-1-1">
          <!-- LOC:TOPNAV -->
          <div id="top-nav" class="uk-flex-middle" uk-navbar>
             <a href="." uk-icon="ratio: 2">
-               <!--<img data-src="tempicon.png" width="" height="" uk-img>-->
-            <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
+               <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
             </a>
             <!-- Just a spacer for now, probably breadcrumbs -->
             <div class="uk-flex-1">
@@ -63,14 +66,16 @@
             <!-- -->
             <div id="top-nav-user" class="">
             </div>
-            <a uk-icon="icon: menu; ratio: 2" href="#" uk-toggle="target: #right-pane"></a>
-            <!--<a href="#" uk-toggle="target: #right-pane"><img
-               data-src="tempicon.png" uk-img></a>-->
+            <a uk-icon="icon: menu; ratio: 2" href="#" 
+               uk-toggle="target: #right-pane; mode: click, media; media: @m"></a>
          </div>
          <!-- LOC:MAINWINDOW -->
          <div id="main-window" class="uk-flex-1 uk-grid-collapse" uk-grid>
             <!-- LOC:LEFTPANE -->
             <div id="left-pane" class="uk-width-expand">
+               <p>This is a lot of text. i am hoping it will continue so long
+               and long and long that it will eventually wrap or something,
+               showing you exactly wehre the pane ends</p>
             </div>
             <!-- LOC:RIGHTPANE -->
             <div id="right-pane" class="uk-width-auto">
