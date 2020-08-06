@@ -38,20 +38,25 @@ a:hover { color: inherit; }
 {
    background-color: rgba(128,128,128,0.05);
    border-left: 2px solid rgba(128,128,128,0.1);
+   width: 30em;
+   max-width: calc(100vw - 1px);
+   min-width: 10em;
 }
-#pane-resizer
+/*#pane-resizer
 {
    background-color: gray;
    width: 30em;
    resize: horizontal;
    transform: scale(-1,1);
    overflow: hidden;
-   max-width: calc(100vw - 1px);
-   min-width: 10em;
 }
 #pane-resizer > *
 {
    transform: scale(-1,1);
+}*/
+#nav-user-avatar
+{
+   border-radius: 50rem;
 }
 #right-pane-nav
 {
@@ -70,6 +75,10 @@ a:hover { color: inherit; }
    font-family: monospace;
    font-size: 0.9em;
 }
+.tabnav > div
+{
+   padding: 0.1em 0;
+}
 </style>
       <!-- LOC:SCRIPT -->
 <script>
@@ -80,9 +89,11 @@ a:hover { color: inherit; }
       <div id="website" class="uk-flex uk-flex-column uk-height-1-1">
          <!-- LOC:TOPNAV -->
          <div id="top-nav" class="uk-flex-middle" uk-navbar>
-            <a href="." uk-icon="ratio: 2">
-               <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
-            </a>
+            <ul class="uk-breadcrumb uk-margin-remove-bottom">
+               <li><a href=".">
+                  <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
+               </a></li>
+            </ul>
             <!-- Just a spacer for now, probably breadcrumbs -->
             <div class="uk-flex-1">
             </div> 
@@ -108,22 +119,25 @@ a:hover { color: inherit; }
                 uk-switcher>
    <!-- Shifted over for convenience, want to fit on one line please -->
    <div><a href="" class="uk-width-1-1" uk-icon="icon: user; ratio: 2"></a></div>
-   <div><a href="" class="uk-width-1-1" uk-icon="icon: server; ratio: 2"></a></div>
+   <div><a href="" class="uk-width-1-1"><img id="nav-user-avatar" 
+          data-src="tempicon.png" width="40" height="40" uk-img></img></a></div>
+   <div><a href="" class="uk-width-1-1" uk-icon="icon: list; ratio: 2"></a></div>
    <div><a href="" class="uk-width-1-1" uk-icon="icon: heart; ratio: 2"></a></div>
+   <div><a href="" class="uk-width-1-1" uk-icon="icon: server; ratio: 2"></a></div>
                </div>
                <!-- LOC:RIGHTPANECONTENT -->
                <ul id="right-pane-content" class="uk-switcher uk-flex-1" uk-overflow-auto>
                   <li>User</li>
+                  <li>User-logged-in</li>
+                  <li>list</li>
+                  <li>heart</li>
                   <li>
                      <ul id="logs" class="uk-list uk-list-striped uk-list-collapse">
                         <li>Log begin (document initialize, no javascript yet)</li>
                      </ul>
                   </li>
-                  <li>heart</li>
                </ul>
-               <div id="pane-resizer">
-                  <span>resize</span>
-               </div>
+               <!--<div id="pane-resizer"><span>resize</span></div>-->
             </div>
          </div>
       </div>
