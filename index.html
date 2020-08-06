@@ -104,12 +104,15 @@ a:hover { color: inherit; }
                uk-toggle="target: #right-pane; mode: click, media; media: @m"></a>
          </div>
          <!-- LOC:MAINWINDOW -->
-         <div id="main-window" class="uk-flex-1 uk-grid-collapse" uk-grid>
+         <div id="main-window" class="uk-flex-1 uk-grid-collapse uk-overflow-hidden" uk-grid>
             <!-- LOC:LEFTPANE -->
-            <div id="left-pane" class="uk-width-expand">
+            <div id="left-pane" class="uk-width-expand uk-overflow-hidden">
                <p>This is a lot of text. i am hoping it will continue so long
                and long and long that it will eventually wrap or something,
                showing you exactly wehre the pane ends</p>
+                  <button uk-toggle="target: .tabnav > div" type="button" 
+      onclick="document.querySelector('#right-pane-nav > [hidden] a').click()">
+                     wow</button>
             </div>
             <!-- LOC:RIGHTPANE -->
             <div id="right-pane" class="uk-width-auto uk-flex uk-flex-column uk-height-1-1">
@@ -119,15 +122,38 @@ a:hover { color: inherit; }
                 uk-switcher>
    <!-- Shifted over for convenience, want to fit on one line please -->
    <div><a href="" class="uk-width-1-1" uk-icon="icon: user; ratio: 2"></a></div>
-   <div><a href="" class="uk-width-1-1"><img id="nav-user-avatar" 
+   <div hidden><a href="" class="uk-width-1-1"><img id="nav-user-avatar" 
           data-src="tempicon.png" width="40" height="40" uk-img></img></a></div>
-   <div><a href="" class="uk-width-1-1" uk-icon="icon: list; ratio: 2"></a></div>
-   <div><a href="" class="uk-width-1-1" uk-icon="icon: heart; ratio: 2"></a></div>
+   <div hidden><a href="" class="uk-width-1-1" uk-icon="icon: list; ratio: 2"></a></div>
+   <div hidden><a href="" class="uk-width-1-1" uk-icon="icon: heart; ratio: 2"></a></div>
    <div><a href="" class="uk-width-1-1" uk-icon="icon: server; ratio: 2"></a></div>
                </div>
                <!-- LOC:RIGHTPANECONTENT -->
                <ul id="right-pane-content" class="uk-switcher uk-flex-1" uk-overflow-auto>
-                  <li>User</li>
+                  <li>
+                     <div class="uk-container" uk-margin>
+                        <form id="login-form" class="uk-padding-small" onsubmit="return false">
+                           <fieldset class="uk-fieldset" uk-margin>
+                              <legend class="uk-legend">Login</legend>
+      <!-- Once again shifted over for convenience -->
+      <input class="uk-input" name="username" type="text" placeholder="Username">
+      <input class="uk-input" name="password" type="password" placeholder="Password">
+      <input type="submit" value="Login" class="uk-button uk-button-primary">
+                           </fieldset>
+                        </form>
+                        <form id="register-form" class="uk-padding-small" onsubmit="return false">
+                           <fieldset class="uk-fieldset" uk-margin>
+                              <legend class="uk-legend">Register</legend>
+      <!-- Once again shifted over for convenience -->
+      <input class="uk-input" name="username" type="text" placeholder="Username">
+      <input class="uk-input" name="email" type="email" placeholder="Email">
+      <input class="uk-input" name="password" type="password" placeholder="Password">
+      <input class="uk-input" name="password2" type="password" placeholder="Confirm Password">
+      <input type="submit" value="Register" class="uk-button uk-button-primary">
+                           </fieldset>
+                        </form>
+                     </div>
+                  </li>
                   <li>User-logged-in</li>
                   <li>list</li>
                   <li>heart</li>
