@@ -42,18 +42,6 @@ a:hover { color: inherit; }
    max-width: calc(100vw - 1px);
    min-width: 10em;
 }
-/*#pane-resizer
-{
-   background-color: gray;
-   width: 30em;
-   resize: horizontal;
-   transform: scale(-1,1);
-   overflow: hidden;
-}
-#pane-resizer > *
-{
-   transform: scale(-1,1);
-}*/
 #nav-user-avatar
 {
    border-radius: 50rem;
@@ -79,9 +67,33 @@ a:hover { color: inherit; }
 {
    padding: 0.1em 0;
 }
+#post-area
+{
+   height: 5em;
+   background-color: rgba(128,128,128,0.05);
+   border-top: 2px solid rgba(128,128,128,0.1);
+   padding-bottom: 1px;
+}
+#post-area textarea
+{
+   resize: none;
+}
 </style>
       <!-- LOC:SCRIPT -->
 <script>
+function window_width(){ return window.innerWidth || 
+   document.documentElement.clientWidth || document.body.clientWidth || 0; }
+function window_height(){ return window.innerHeight || 
+   document.documentElement.clientHeight || document.body.clientHeight || 0; }
+function convert_rem(x){ return x / parseFloat(getComputedStyle(document.body)["font-size"]); }
+
+window.onload = function()
+{
+   var ww = convert_rem(window_width());
+   console.log(ww);
+   if(ww >= 60) //window_width() >= 720)
+      window['right-pane-toggle'].click();
+};
 </script>
    </head>
    <!-- LOC:BODY -->
@@ -89,47 +101,58 @@ a:hover { color: inherit; }
       <div id="website" class="uk-flex uk-flex-column uk-height-1-1">
          <!-- LOC:TOPNAV -->
          <div id="top-nav" class="uk-flex-middle" uk-navbar>
+            <!-- LOC:BREADCRUMBS -->
             <ul class="uk-breadcrumb uk-margin-remove-bottom">
                <li><a href=".">
                   <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
                </a></li>
             </ul>
-            <!-- Just a spacer for now, probably breadcrumbs -->
+            <!-- Just a spacer for now... maybe something will go here -->
             <div class="uk-flex-1">
             </div> 
-            <!-- -->
-            <div id="top-nav-user" class="">
-            </div>
-            <a uk-icon="icon: menu; ratio: 2" href="#" 
-               uk-toggle="target: #right-pane; mode: click, media; media: @m"></a>
+            <!-- The burger side-menu thing-->
+            <a id="right-pane-toggle" uk-icon="icon: menu; ratio: 2" href="#"
+               uk-toggle="target: #right-pane; mode: click;"></a>
          </div>
          <!-- LOC:MAINWINDOW -->
          <div id="main-window" class="uk-flex-1 uk-grid-collapse uk-overflow-hidden" uk-grid>
             <!-- LOC:LEFTPANE -->
-            <div id="left-pane" class="uk-width-expand uk-overflow-hidden">
-               <p>This is a lot of text. i am hoping it will continue so long
-               and long and long that it will eventually wrap or something,
-               showing you exactly wehre the pane ends</p>
-                  <button uk-toggle="target: .tabnav > div" type="button" 
-      onclick="document.querySelector('#right-pane-nav > [hidden] a').click()">
-                     wow</button>
+            <div id="left-pane" class=
+              "uk-width-expand uk-flex uk-flex-column uk-height-1-1 uk-overflow-hidden">
+               <!-- LOC:MAINCONTENT -->
+               <div id="main-content" class="uk-flex-1" uk-overflow-auto>
+                  <p>This is a lot of text. i am hoping it will continue so long
+                  and long and long that it will eventually wrap or something,
+                  showing you exactly wehre the pane ends</p>
+                     <button uk-toggle="target: [data-utgl]" type="button" 
+         onclick="document.querySelector('#right-pane-nav > [hidden] a').click()">
+                        wow</button>
+               </div>
+               <div id="post-area" class="uk-flex" data-utgl hidden>
+                  <textarea class="uk-flex-1 uk-textarea"></textarea>
+               </div>
             </div>
             <!-- LOC:RIGHTPANE -->
-            <div id="right-pane" class="uk-width-auto uk-flex uk-flex-column uk-height-1-1">
+            <div id="right-pane" class="uk-width-auto uk-flex uk-flex-column uk-height-1-1" hidden>
                <!-- LOC:RIGHTPANENAV -->
                <div id="right-pane-nav" class="tabnav uk-grid uk-grid-collapse 
                    uk-child-width-expand uk-text-center" 
-                uk-switcher>
-   <!-- Shifted over for convenience, want to fit on one line please -->
-   <div><a href="" class="uk-width-1-1" uk-icon="icon: user; ratio: 2"></a></div>
-   <div hidden><a href="" class="uk-width-1-1"><img id="nav-user-avatar" 
-          data-src="tempicon.png" width="40" height="40" uk-img></img></a></div>
-   <div hidden><a href="" class="uk-width-1-1" uk-icon="icon: list; ratio: 2"></a></div>
-   <div hidden><a href="" class="uk-width-1-1" uk-icon="icon: heart; ratio: 2"></a></div>
-   <div><a href="" class="uk-width-1-1" uk-icon="icon: server; ratio: 2"></a></div>
+                uk-switcher="swiping: false;">
+      <!-- Shifted over for convenience, want to fit on one line please -->
+      <div data-utgl><a href="" class="uk-width-1-1" 
+            uk-icon="icon: user; ratio: 2"></a></div>
+      <div data-utgl hidden><a href="" class="uk-width-1-1"><img id="nav-user-avatar" 
+            data-src="tempicon.png" width="40" height="40" uk-img></img></a></div>
+      <div data-utgl hidden><a href="" class="uk-width-1-1" 
+            uk-icon="icon: list; ratio: 2"></a></div>
+      <div data-utgl hidden><a href="" class="uk-width-1-1" 
+            uk-icon="icon: heart; ratio: 2"></a></div>
+      <div><a href="" class="uk-width-1-1" 
+            uk-icon="icon: server; ratio: 2"></a></div>
                </div>
                <!-- LOC:RIGHTPANECONTENT -->
                <ul id="right-pane-content" class="uk-switcher uk-flex-1" uk-overflow-auto>
+                  <!-- LOC:USERLOGIN -->
                   <li>
                      <div class="uk-container" uk-margin>
                         <form id="login-form" class="uk-padding-small" onsubmit="return false">
@@ -154,16 +177,19 @@ a:hover { color: inherit; }
                         </form>
                      </div>
                   </li>
+                  <!-- LOC:USER -->
                   <li>User-logged-in</li>
+                  <!-- LOC:ACTIVITY -->
                   <li>list</li>
+                  <!-- LOC:WATCHES -->
                   <li>heart</li>
+                  <!-- LOC:LOGS -->
                   <li>
                      <ul id="logs" class="uk-list uk-list-striped uk-list-collapse">
                         <li>Log begin (document initialize, no javascript yet)</li>
                      </ul>
                   </li>
                </ul>
-               <!--<div id="pane-resizer"><span>resize</span></div>-->
             </div>
          </div>
       </div>
