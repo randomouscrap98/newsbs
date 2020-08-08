@@ -10,90 +10,112 @@
       <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css" />
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
+      <!-- LOC:MYSCRIPTS -->
+      <script src="libbo.js"></script>
       <!-- LOC:STYLE -->
 <style>
-body
-{
+body {
    position: absolute;
    top: 0;
    bottom: 0;
    left: 0;
    right: 0;
 }
-#top-nav
-{
+#top-nav {
    background-color: #444;
    color: #AAA;
 }
-a:hover { color: inherit; }
-#top-nav a:hover
-{
+a:hover { 
+   color: inherit; 
+}
+#top-nav a:hover {
    color: #CCC;
 }
-#left-pane
-{
+#left-pane {
    /*background-color: lime;*/
 }
-#right-pane
-{
+#right-pane {
    background-color: rgba(128,128,128,0.05);
    border-left: 2px solid rgba(128,128,128,0.1);
    width: 30em;
    max-width: calc(100vw - 1px);
    min-width: 10em;
 }
-#nav-user-avatar
-{
+#nav-user-avatar {
    border-radius: 50rem;
 }
-#right-pane-nav
-{
+#right-pane-nav {
    background-color: rgba(128,128,128,0.1);
 }
-#right-pane-nav a:hover
-{
+#right-pane-nav a:hover {
    background-color: rgba(128,255,240,0.1);
 }
-#right-pane-nav .uk-active
-{  /* Special styling JUST for the sidbar nav */
+/* Special styling JUST for the sidbar nav */
+#right-pane-nav .uk-active {  
    background-color: rgba(128,255,240,0.4);
 }
-#logs
-{
+#logs {
    font-family: monospace;
-   font-size: 0.9em;
+   font-size: 0.8em;
 }
-.tabnav > div
-{
+#logs time { 
+   font-size: 0.8em; 
+   margin: 0.15em;
+   opacity: 0.6;
+}
+.log_debug { color: #BBB; }
+.log_error { color: #C42; }
+.log_warn { color: #DA6; }
+.tabnav > div {
    padding: 0.1em 0;
 }
-#post-area
-{
+#post-area {
    height: 5em;
    background-color: rgba(128,128,128,0.05);
    border-top: 2px solid rgba(128,128,128,0.1);
    padding-bottom: 1px;
 }
-#post-area textarea
-{
+#post-area textarea {
    resize: none;
 }
 </style>
       <!-- LOC:SCRIPT -->
 <script>
-function window_width(){ return window.innerWidth || 
-   document.documentElement.clientWidth || document.body.clientWidth || 0; }
-function window_height(){ return window.innerHeight || 
-   document.documentElement.clientHeight || document.body.clientHeight || 0; }
-function convert_rem(x){ return x / parseFloat(getComputedStyle(document.body)["font-size"]); }
-
 window.onload = function()
 {
-   var ww = convert_rem(window_width());
-   console.log(ww);
-   if(ww >= 60) //window_width() >= 720)
+   log.Info("Window load event");
+
+   var ww = Utilities.ConvertRem(Utilities.WindowWidth());
+   log.Debug("Width REM: " + ww);
+
+   if(ww >= 60)
       window['right-pane-toggle'].click();
+
+   setupDebugLog();
 };
+
+function setupDebugLog()
+{
+   UIkit.util.on('#logs-parent', 'show', function () {
+      //Find the last id, only display new ones.
+      log.Debug("Debug log shown, rendering new messages");
+      var lastId = (logs.lastElementChild ?  Number(logs.lastElementChild.dataset.id) : 0);
+      var msgBase = document.querySelector("#templates [data-log]");
+      for(var i = 0; i < log.messages.length; i++)
+      {
+         if(log.messages[i].id > lastId)
+         {
+            var logMessage = msgBase.cloneNode(true);
+            logMessage.innerHTML = logMessage.innerHTML
+               .replace("%message%", log.messages[i].message)
+               .replace("%level%", log.messages[i].level)
+               .replace("%time%", log.messages[i].time);
+            logMessage.setAttribute("data-id", log.messages[i].id);
+            logs.appendChild(logMessage);
+         }
+      }
+   });
+}
 </script>
    </head>
    <!-- LOC:BODY -->
@@ -164,6 +186,7 @@ window.onload = function()
       <input type="submit" value="Login" class="uk-button uk-button-primary">
                            </fieldset>
                         </form>
+                        <hr>
                         <form id="register-form" class="uk-padding-small" onsubmit="return false">
                            <fieldset class="uk-fieldset" uk-margin>
                               <legend class="uk-legend">Register</legend>
@@ -175,6 +198,22 @@ window.onload = function()
       <input type="submit" value="Register" class="uk-button uk-button-primary">
                            </fieldset>
                         </form>
+                        <form id="resend-email-form" class="uk-padding-small" onsubmit="return false">
+                           <fieldset class="uk-fieldset" uk-margin>
+                              <legend class="uk-legend">Resend Confirmation</legend>
+      <!-- Once again shifted over for convenience -->
+      <input class="uk-input" name="email" type="email" placeholder="Email">
+      <input type="submit" value="Resend email" class="uk-button uk-button-primary">
+                           </fieldset>
+                        </form>
+                        <form id="confirm-email-form" class="uk-padding-small" onsubmit="return false">
+                           <fieldset class="uk-fieldset" uk-margin>
+                              <legend class="uk-legend">Confirm Account</legend>
+      <!-- Once again shifted over for convenience -->
+      <input class="uk-input" name="username" type="text" placeholder="Confirmation Code">
+      <input type="submit" value="Confirm Account" class="uk-button uk-button-primary">
+                           </fieldset>
+                        </form>
                      </div>
                   </li>
                   <!-- LOC:USER -->
@@ -184,14 +223,19 @@ window.onload = function()
                   <!-- LOC:WATCHES -->
                   <li>heart</li>
                   <!-- LOC:LOGS -->
-                  <li>
-                     <ul id="logs" class="uk-list uk-list-striped uk-list-collapse">
-                        <li>Log begin (document initialize, no javascript yet)</li>
-                     </ul>
+                  <li id="logs-parent">
+                     <ul id="logs" class="uk-list uk-list-striped uk-list-collapse"></ul>
                   </li>
                </ul>
             </div>
          </div>
+      </div>
+      <!-- LOC:TEMPLATES -->
+      <div id="templates" style="display: none">
+         <li data-log data-id="1" class="uk-flex">
+            <span class="log_%level% uk-width-expand">%message%</span>
+            <time class="">%time%</time>
+         </li>
       </div>
    </body>
 </html>
