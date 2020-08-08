@@ -21,7 +21,7 @@ body {
    left: 0;
    right: 0;
 }
-#top-nav {
+.databar {
    background-color: #444;
    color: #AAA;
 }
@@ -40,6 +40,10 @@ a:hover {
    width: 30em;
    max-width: calc(100vw - 1px);
    min-width: 10em;
+}
+#right-pane-footer {
+   font-size: 0.7em;
+   padding: 0 1em;
 }
 #nav-user-avatar {
    border-radius: 50rem;
@@ -122,7 +126,7 @@ function setupDebugLog()
    <body>
       <div id="website" class="uk-flex uk-flex-column uk-height-1-1">
          <!-- LOC:TOPNAV -->
-         <div id="top-nav" class="uk-flex-middle" uk-navbar>
+         <div id="top-nav" class="databar uk-flex-middle" uk-navbar>
             <!-- LOC:BREADCRUMBS -->
             <ul class="uk-breadcrumb uk-margin-remove-bottom">
                <li><a href=".">
@@ -227,6 +231,56 @@ function setupDebugLog()
                      <ul id="logs" class="uk-list uk-list-striped uk-list-collapse"></ul>
                   </li>
                </ul>
+               <div id="right-pane-footer" class="databar uk-flex">
+                  <span class="uk-width-expand">SmileBASIC Source - 2020</span>
+                  <a href="" uk-toggle="target: #about-privacy">About/Privacy</a>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- LOC:MODALS -->
+      <div id="modals">
+         <div id="about-privacy" uk-modal>
+            <div class="uk-modal-dialog" uk-overflow-auto>
+               <button class="uk-modal-close-default" type="button" uk-close></button>
+               <div class="uk-modal-header">
+                  <h2 class="uk-modal-title">
+                     <img uk-svg="ratio: 2.5" data-src="sbs.svg" class="uk-margin-small-right">
+                     SmileBASIC Source
+                  </h2>
+               </div>
+               <div class="uk-modal-body">
+                  <p>
+   SmileBASIC Source is a fan website for the SmileBASIC applications made by 
+   <a target="_blank" href="https://smileboom.com/en/">SmileBoom</a>. These 
+   applications are available on the Nintendo 3ds, Wii U, and Switch, and 
+   allow you to create programs in BASIC on those systems. Our main focus is 
+   <a target="_blank" href="https://www.petc4.smilebasic.com/?lang=en">SmileBasic 4</a> 
+   on Switch.
+                  </p>
+                  <h3 class="uk-heading-divider"><span>Privacy</span></h3>
+                  <p>
+   We collect your email ONLY for the purposes of identification. We do not
+   share any of your information with ANY outside party and do not use it
+   ourselves other than for identification. Your avatars are publicly visible
+   to anyone, as is your username/nickname, but this is true of all websites
+   with public access. Nobody can view your email other than you.
+                  </p>
+                  <p>
+   We track the pages you visit on this website only for your benefit. We do
+   not use cookies to track or to sell your usage to outside parties. The
+   tracking is mostly for easy access to pages you've previously visited.
+                  </p>
+                  <h3 class="uk-heading-divider"><span>Technology/Credits</span></h3>
+                  <p><a target="_blank" href="https://getuikit.com/">UIkit</a></p>
+                  <p><a target="_blank" href="https://docs.microsoft.com/en-us/aspnet/core/">ASP.NET Core</a></p>
+                  <p>And a big thank you to: Yttria, 12me21, MasterR3C0RD, many
+                  more (please let me know if you want to be in this list)</p>
+                  <h3 class="uk-heading-divider"><span>Contact</span></h3>
+                  <h4>General contact:</h4>smilebasicsource@gmail.com
+                  <h4>Domain holder / Website Admin:</h4> Carlos Sanchez / randomous
+                  </p>
+               </div>
             </div>
          </div>
       </div>
