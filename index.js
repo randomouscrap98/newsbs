@@ -130,6 +130,13 @@ function makeError(message)
    return error;
 }
 
+function makeSuccess(message)
+{
+   var success = cloneTemplate("success");
+   success.innerHTML = success.innerHTML.replace("%message%", message);
+   return success;
+}
+
 // *************
 // ---- API ----
 // *************

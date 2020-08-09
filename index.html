@@ -11,10 +11,10 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=123"></script>
-      <script src="index.js?v=123"></script>
+      <script src="libbo.js?v=1597008659"></script>
+      <script src="index.js?v=1597008659"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=123" />
+      <link rel="stylesheet" href="index.css?v=1597008659" />
    </head>
    <!-- LOC:BODY -->
    <body>
@@ -79,8 +79,8 @@
                            <fieldset class="uk-fieldset" uk-margin>
                               <legend class="uk-legend">Login</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="username" type="text" placeholder="Username">
-      <input class="uk-input" name="password" type="password" placeholder="Password">
+      <input class="uk-input" name="username" type="text" placeholder="Username" required>
+      <input class="uk-input" name="password" type="password" placeholder="Password" required>
       <div class="uk-inline">
       <input type="submit" value="Login" class="uk-button uk-button-primary">
       </div>
@@ -176,6 +176,8 @@
                   <h3 class="uk-heading-divider"><span>Technology/Credits</span></h3>
    <p><a target="_blank" href="https://getuikit.com/">UIkit</a></p>
    <p><a target="_blank" href="https://docs.microsoft.com/en-us/aspnet/core/">ASP.NET Core</a></p>
+   <p><a target="_blank" href="https://docs.microsoft.com/en-us/ef/">Entity Framework Core</a></p>
+   <p><a target="_blank" href="https://swagger.io/">Swagger</a></p>
    <p><a target="_blank" href="https://github.com/randomouscrap98/newsbs">Frontend Repo</a></p>
    <p><a target="_blank" href="https://github.com/randomouscrap98/contentapi">API Repo</a></p>
    <p>And a big thank you to: Yttria, 12me21, MasterR3C0RD, many
@@ -205,6 +207,10 @@
             <time class="">%time%</time>
          </li>
          <div data-error class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p>%message%</p>
+         </div>
+         <div data-success class="uk-alert-success" uk-alert>
             <a class="uk-alert-close" uk-close></a>
             <p>%message%</p>
          </div>
