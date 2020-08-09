@@ -29,34 +29,34 @@ body {
 a:hover { 
    color: inherit; 
 }
-#top-nav a:hover {
+#topnav a:hover {
    color: #CCC;
 }
-#left-pane {
+#leftpane {
    /*background-color: lime;*/
 }
-#right-pane {
+#rightpane {
    background-color: rgba(128,128,128,0.05);
    border-left: 2px solid rgba(128,128,128,0.1);
    width: 30em;
    max-width: calc(100vw - 1px);
    min-width: 10em;
 }
-#right-pane-footer {
+#rightpanefooter {
    font-size: 0.7em;
    padding: 0 0.5em;
 }
-#nav-user-avatar {
+#navuseravatar {
    border-radius: 50rem;
 }
-#right-pane-nav {
+#rightpanenav {
    background-color: rgba(128,128,128,0.1);
 }
-#right-pane-nav a:hover {
+#rightpanenav a:hover {
    background-color: rgba(128,255,240,0.1);
 }
 /* Special styling JUST for the sidbar nav */
-#right-pane-nav .uk-active {  
+#rightpanenav .uk-active {  
    background-color: rgba(128,255,240,0.4);
 }
 #logs {
@@ -74,18 +74,21 @@ a:hover {
 .tabnav > div {
    padding: 0.1em 0;
 }
-#post-area {
+#postarea {
    height: 5em;
    background-color: rgba(128,128,128,0.05);
    border-top: 2px solid rgba(128,128,128,0.1);
    padding-bottom: 1px;
 }
-#post-area textarea {
+#postarea textarea {
    resize: none;
 }
 </style>
       <!-- LOC:SCRIPT -->
 <script>
+
+var apiroot = "https://newdev.smilebasicsource.com/api";
+
 window.onload = function()
 {
    log.Info("Window load event");
@@ -94,14 +97,20 @@ window.onload = function()
    log.Debug("Width REM: " + ww);
 
    if(ww >= 60)
-      window['right-pane-toggle'].click();
+      rightpanetoggle.click();
 
    setupDebugLog();
+   setupTechnicalInfo();
+   setupUserForms();
 };
+
+// ********************
+// ---- SETUP CODE ----
+// ********************
 
 function setupDebugLog()
 {
-   UIkit.util.on('#logs-parent', 'show', function () {
+   UIkit.util.on('#logsparent', 'show', function () {
       //Find the last id, only display new ones.
       log.Debug("Debug log shown, rendering new messages");
       var lastId = (logs.lastElementChild ?  Number(logs.lastElementChild.dataset.id) : 0);
@@ -121,13 +130,147 @@ function setupDebugLog()
       }
    });
 }
+
+function setupTechnicalInfo()
+{
+   quickApi("test/info", function(data)
+   {
+      technicalinfo.innerHTML = technicalinfo.innerHTML
+         .replace("%apiroot%", apiroot)
+         .replace("%apiversion%", data.versions.contentapi)
+         .replace("%entitysystemversion%", data.versions.entitysystem);
+   });
+}
+
+function setupUserForms()
+{
+   loginform.addEventListener("submit", function(event)
+   {
+      event.preventDefault();
+      formStart(loginform);
+      setTimeout(function()
+      {
+         formEnd(loginform);
+         formError(loginform, "You suck");
+      }, 3000);
+   });
+}
+
+// ***************************
+// ---- GENERAL UTILITIES ----
+// ***************************
+
+function getToken()
+{
+   var token = window.localStorage.getItem("usertoken");
+   if(!token) return undefined;
+   return JSON.parse(token);
+}
+
+function setToken(token)
+{
+   window.localStorage.setItem("usertoken", JSON.stringify(token));
+}
+
+function getFormInputs(form)
+{
+   return form.querySelectorAll("input, textarea, button, select");
+}
+
+function formStart(form)
+{
+   var inputs = getFormInputs(form);
+   for(var i = 0; i < inputs.length; i++)
+      inputs[i].setAttribute("disabled", "");
+   var submit = form.querySelector("[type='submit']");
+   submit.parentNode.appendChild(cloneTemplate("spinner"));
+   var errors = form.querySelectorAll("[data-error]");
+   for(var i = 0; i < errors.length; i++)
+      errors[i].parentNode.removeChild(errors[i]);
+}
+
+function formEnd(form)
+{
+   var inputs = getFormInputs(form);
+   for(var i = 0; i < inputs.length; i++)
+      inputs[i].removeAttribute("disabled");
+   var submit = form.querySelector("[type='submit']");
+   submit.parentNode.removeChild(submit.parentNode.querySelector("[data-spinner]"));
+}
+
+function formError(form, error)
+{
+   form.appendChild(makeError(error));
+}
+
+// ***********************
+// ---- TEMPLATE CRAP ----
+// ***********************
+
+function cloneTemplate(name)
+{
+   return document.querySelector("#templates [data-" + name + "]").cloneNode(true);
+}
+
+function makeError(message)
+{
+   var error = cloneTemplate("error");
+   error.innerHTML = error.innerHTML.replace("%message%", message);
+   return error;
+}
+
+// *************
+// ---- API ----
+// *************
+
+var reqId = 0;
+
+function quickApi(url, callback, error, postData)
+{
+   thisreqid = ++reqId;
+   url = apiroot + "/" + url;
+   error = error || function(e) { alert("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
+
+   var method = postData ? "POST" : "GET";
+   log.Info("[" + thisreqid + "] " + method + ": " + url);
+
+   var req = new XMLHttpRequest();
+   req.addEventListener("loadend", function()
+   {
+      log.Debug("[" + thisreqid + "]: " + req.status);
+      if(req.status <= 299 && req.status >= 200)
+      {
+         if(callback)
+            callback(req.responseText ? JSON.parse(req.responseText) : null);
+         else
+            alert("Success: " + req.status + " - " + req.responseText);
+      }
+      else
+      {
+         error(req);
+      }
+   });
+
+   req.open(method, url);
+   req.setRequestHeader("accept", "application/json");
+   req.setRequestHeader("Content-Type", "application/json");
+
+   var token = getToken(); //Do this as late as possible "just in case" (it makes no difference though)
+   if(token)
+      req.setRequestHeader("Authorization", "Bearer " + token);
+
+   if(postData)
+      req.send(JSON.stringify(postData));
+   else
+      req.send();
+}
 </script>
    </head>
    <!-- LOC:BODY -->
    <body>
       <div id="website" class="uk-flex uk-flex-column uk-height-1-1">
          <!-- LOC:TOPNAV -->
-         <div id="top-nav" class="databar uk-flex-middle" uk-navbar>
+         <div id="topnav" class="databar uk-flex-middle" uk-navbar>
             <!-- LOC:BREADCRUMBS -->
             <ul class="uk-breadcrumb uk-margin-remove-bottom">
                <li><a href=".">
@@ -138,16 +281,16 @@ function setupDebugLog()
             <div class="uk-flex-1">
             </div> 
             <!-- The burger side-menu thing-->
-            <a id="right-pane-toggle" uk-icon="icon: menu; ratio: 2" href="#"
-               uk-toggle="target: #right-pane; mode: click;"></a>
+            <a id="rightpanetoggle" uk-icon="icon: menu; ratio: 2" href="#"
+               uk-toggle="target: #rightpane; mode: click;"></a>
          </div>
          <!-- LOC:MAINWINDOW -->
-         <div id="main-window" class="uk-flex-1 uk-grid-collapse uk-overflow-hidden" uk-grid>
+         <div id="mainwindow" class="uk-flex-1 uk-grid-collapse uk-overflow-hidden" uk-grid>
             <!-- LOC:LEFTPANE -->
-            <div id="left-pane" class=
+            <div id="leftpane" class=
               "uk-width-expand uk-flex uk-flex-column uk-height-1-1 uk-overflow-hidden">
                <!-- LOC:MAINCONTENT -->
-               <div id="main-content" class="uk-flex-1" uk-overflow-auto>
+               <div id="maincontent" class="uk-flex-1" uk-overflow-auto>
                   <p>This is a lot of text. i am hoping it will continue so long
                   and long and long that it will eventually wrap or something,
                   showing you exactly wehre the pane ends</p>
@@ -155,20 +298,20 @@ function setupDebugLog()
          onclick="document.querySelector('#right-pane-nav > [hidden] a').click()">
                         wow</button>
                </div>
-               <div id="post-area" class="uk-flex" data-utgl hidden>
+               <div id="postarea" class="uk-flex" data-utgl hidden>
                   <textarea class="uk-flex-1 uk-textarea"></textarea>
                </div>
             </div>
             <!-- LOC:RIGHTPANE -->
-            <div id="right-pane" class="uk-width-auto uk-flex uk-flex-column uk-height-1-1" hidden>
+            <div id="rightpane" class="uk-width-auto uk-flex uk-flex-column uk-height-1-1" hidden>
                <!-- LOC:RIGHTPANENAV -->
-               <div id="right-pane-nav" class="tabnav uk-grid uk-grid-collapse 
+               <div id="rightpanenav" class="tabnav uk-grid uk-grid-collapse 
                    uk-child-width-expand uk-text-center" 
                 uk-switcher="swiping: false;">
       <!-- Shifted over for convenience, want to fit on one line please -->
       <div data-utgl><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
-      <div data-utgl hidden><a href="" class="uk-display-block"><img id="nav-user-avatar" 
+      <div data-utgl hidden><a href="" class="uk-display-block"><img id="navuseravatar" 
             data-src="tempicon.png" width="40" height="40" uk-img></img></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
@@ -178,21 +321,23 @@ function setupDebugLog()
             uk-icon="icon: server; ratio: 2"></a></div>
                </div>
                <!-- LOC:RIGHTPANECONTENT -->
-               <ul id="right-pane-content" class="uk-switcher uk-flex-1" uk-overflow-auto>
+               <ul id="rightpanecontent" class="uk-switcher uk-flex-1" uk-overflow-auto>
                   <!-- LOC:USERLOGIN -->
                   <li>
                      <div class="uk-container" uk-margin>
-                        <form id="login-form" class="uk-padding-small" onsubmit="return false">
+                        <form id="loginform" class="uk-padding-small" onsubmit="return false">
                            <fieldset class="uk-fieldset" uk-margin>
                               <legend class="uk-legend">Login</legend>
       <!-- Once again shifted over for convenience -->
       <input class="uk-input" name="username" type="text" placeholder="Username">
       <input class="uk-input" name="password" type="password" placeholder="Password">
+      <div class="uk-inline">
       <input type="submit" value="Login" class="uk-button uk-button-primary">
+      </div>
                            </fieldset>
                         </form>
                         <hr>
-                        <form id="register-form" class="uk-padding-small" onsubmit="return false">
+                        <form id="registerform" class="uk-padding-small" onsubmit="return false">
                            <fieldset class="uk-fieldset" uk-margin>
                               <legend class="uk-legend">Register</legend>
       <!-- Once again shifted over for convenience -->
@@ -200,23 +345,29 @@ function setupDebugLog()
       <input class="uk-input" name="email" type="email" placeholder="Email">
       <input class="uk-input" name="password" type="password" placeholder="Password">
       <input class="uk-input" name="password2" type="password" placeholder="Confirm Password">
+      <div class="uk-inline">
       <input type="submit" value="Register" class="uk-button uk-button-primary">
+      </div>
                            </fieldset>
                         </form>
-                        <form id="resend-email-form" class="uk-padding-small" onsubmit="return false">
+                        <form id="resendemailform" class="uk-padding-small" onsubmit="return false">
                            <fieldset class="uk-fieldset" uk-margin>
                               <legend class="uk-legend">Resend Confirmation</legend>
       <!-- Once again shifted over for convenience -->
       <input class="uk-input" name="email" type="email" placeholder="Email">
+      <div class="uk-inline">
       <input type="submit" value="Resend email" class="uk-button uk-button-primary">
+      </div>
                            </fieldset>
                         </form>
-                        <form id="confirm-email-form" class="uk-padding-small" onsubmit="return false">
+                        <form id="confirmemailform" class="uk-padding-small" onsubmit="return false">
                            <fieldset class="uk-fieldset" uk-margin>
                               <legend class="uk-legend">Confirm Account</legend>
       <!-- Once again shifted over for convenience -->
       <input class="uk-input" name="username" type="text" placeholder="Confirmation Code">
+      <div class="uk-inline">
       <input type="submit" value="Confirm Account" class="uk-button uk-button-primary">
+      </div>
                            </fieldset>
                         </form>
                      </div>
@@ -228,20 +379,20 @@ function setupDebugLog()
                   <!-- LOC:WATCHES -->
                   <li>heart</li>
                   <!-- LOC:LOGS -->
-                  <li id="logs-parent">
+                  <li id="logsparent">
                      <ul id="logs" class="uk-list uk-list-striped uk-list-collapse"></ul>
                   </li>
                </ul>
-               <div id="right-pane-footer" class="databar uk-flex">
+               <div id="rightpanefooter" class="databar uk-flex">
                   <span class="uk-width-expand">SmileBASIC Source - 2020</span>
-                  <a href="" uk-toggle="target: #about-privacy">About/Privacy</a>
+                  <a href="" uk-toggle="target: #aboutprivacy">About/Privacy</a>
                </div>
             </div>
          </div>
       </div>
       <!-- LOC:MODALS -->
       <div id="modals">
-         <div id="about-privacy" uk-modal>
+         <div id="aboutprivacy" uk-modal>
             <div class="uk-modal-dialog" uk-overflow-auto>
                <button class="uk-modal-close-default" type="button" uk-close></button>
                <div class="uk-modal-header">
@@ -250,7 +401,7 @@ function setupDebugLog()
                      SmileBASIC Source
                   </h2>
                </div>
-               <div class="uk-modal-body">
+               <div id="aboutprivacybody" class="uk-modal-body">
                   <p>
    SmileBASIC Source is a fan website for the SmileBASIC applications made by 
    <a target="_blank" href="https://smileboom.com/en/">SmileBoom</a>. These 
@@ -279,7 +430,17 @@ function setupDebugLog()
    <p><a target="_blank" href="https://github.com/randomouscrap98/contentapi">API Repo</a></p>
    <p>And a big thank you to: Yttria, 12me21, MasterR3C0RD, many
    more (please let me know if you want to be in this list)</p>
-   <h3 class="uk-heading-divider"><span>Contact</span></h3>
+                  <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
+   <dl id="technicalinfo" class="uk-description-list">
+      <dt>API Version:</dt>
+      <dd>%apiversion%</dd>
+      <dt>EntitySystem Version:</dt>
+      <dd>%entitysystemversion%</dd>
+      <dt>API ROOT:</dt>
+      <dd>%apiroot%</dd>
+   </dl>
+
+                  <h3 class="uk-heading-divider"><span>Contact</span></h3>
    <h4>General contact:</h4>smilebasicsource@gmail.com
    <h4>Domain holder / Website Admin:</h4> Carlos Sanchez / randomous
                   </p>
@@ -293,6 +454,11 @@ function setupDebugLog()
             <span class="log_%level% uk-width-expand">%message%</span>
             <time class="">%time%</time>
          </li>
+         <div data-error class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p>%message%</p>
+         </div>
+         <div data-spinner uk-spinner></div>
       </div>
    </body>
 </html>
