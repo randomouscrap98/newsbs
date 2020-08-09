@@ -1,0 +1,69 @@
+body {
+   position: absolute;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   right: 0;
+}
+.databar {
+   background-color: #444;
+   color: #AAA;
+   padding: 0 0.1em;
+}
+a:hover { 
+   color: inherit; 
+}
+#topnav a:hover {
+   color: #CCC;
+}
+#leftpane {
+   /*background-color: lime;*/
+}
+#rightpane {
+   background-color: rgba(128,128,128,0.05);
+   border-left: 2px solid rgba(128,128,128,0.1);
+   width: 30em;
+   max-width: calc(100vw - 1px);
+   min-width: 10em;
+}
+#rightpanefooter {
+   font-size: 0.7em;
+   padding: 0 0.5em;
+}
+#navuseravatar {
+   border-radius: 50rem;
+}
+#rightpanenav {
+   background-color: rgba(128,128,128,0.1);
+}
+#rightpanenav a:hover {
+   background-color: rgba(128,255,240,0.1);
+}
+/* Special styling JUST for the sidbar nav */
+#rightpanenav .uk-active {  
+   background-color: rgba(128,255,240,0.4);
+}
+#logs {
+   font-family: monospace;
+   font-size: 0.8em;
+}
+#logs time { 
+   font-size: 0.8em; 
+   margin: 0.15em;
+   opacity: 0.6;
+}
+.log_debug { color: #BBB; }
+.log_error { color: #C42; }
+.log_warn { color: #DA6; }
+.tabnav > div {
+   padding: 0.1em 0;
+}
+#postarea {
+   height: 5em;
+   background-color: rgba(128,128,128,0.05);
+   border-top: 2px solid rgba(128,128,128,0.1);
+   padding-bottom: 1px;
+}
+#postarea textarea {
+   resize: none;
+}
