@@ -122,9 +122,13 @@
                   <!-- LOC:USER -->
                   <li>
                      <div class="uk-container" uk-margin>
-                        <div id="userdata" class="uk-padding-small">
-                           <h2 uk-tooltip="" id="userusername"></h2>
-                           <!--<span id="userid" class="uk-label"></span>-->
+                        <div id="userdata" class="uk-padding-small" uk-margin>
+                           <div class="uk-flex uk-flex-bottom">
+                              <h2 id="userusername" class="uk-display-inline uk-width-expand 
+                                      uk-margin-remove"></h2>
+                              <span id="userid" class="uk-text-meta uk-display-block"></span>
+                           </div>
+                           <hr>
                            <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                         </div>
                      </div>
@@ -188,7 +192,7 @@
    <p>And a big thank you to: Yttria, 12me21, MasterR3C0RD, many
    more (please let me know if you want to be in this list)</p>
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
-   <dl id="technicalinfo" class="uk-description-list">
+   <dl id="technicalinfo" class="uk-description-list uk-text-break">
       <dt>API Version:</dt>
       <dd>%apiversion%</dd>
       <dt>EntitySystem Version:</dt>

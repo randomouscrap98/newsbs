@@ -99,7 +99,7 @@ function updateUserData(user)
    //Just username and avatar for now?
    navuseravatar.src = apiroot + "/file/raw/" + user.avatar + "?crop=true&size=80";
    userusername.textContent = user.username;
-   userusername.setAttribute("uk-tooltip", "pos: left; title: " + user.id);
+   userid.textContent = "User ID: " + user.id;
    //Check fields in user for certain special fields like email etc.
 }
 
