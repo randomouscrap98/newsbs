@@ -15,7 +15,10 @@ window.onload = function()
    setupUserForms();
 
    if(getToken())
-      refreshUserFull();
+   {
+      rightpane.style.opacity = 0.2;
+      refreshUserFull(function() { rightpane.style.opacity = 1.0; });
+   }
 };
 
 // ********************
@@ -103,14 +106,14 @@ function updateUserData(user)
    //Check fields in user for certain special fields like email etc.
 }
 
-function refreshUserFull()
+function refreshUserFull(always)
 {
    //Make an API call to /me to get the latest data.
    quickApi("user/me", function(user)
    {
       updateUserData(user);
       setLoginState(true);
-   });
+   }, undefined, undefined, always);
 }
 
 // ***************************
