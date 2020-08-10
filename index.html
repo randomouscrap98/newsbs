@@ -44,9 +44,6 @@
                   <p>This is a lot of text. i am hoping it will continue so long
                   and long and long that it will eventually wrap or something,
                   showing you exactly wehre the pane ends</p>
-                     <button uk-toggle="target: [data-utgl]" type="button" 
-         onclick="document.querySelector('#right-pane-nav > [hidden] a').click()">
-                        wow</button>
                </div>
                <div id="postarea" class="uk-flex" data-utgl hidden>
                   <textarea class="uk-flex-1 uk-textarea"></textarea>
@@ -62,7 +59,7 @@
       <div data-utgl><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block"><img id="navuseravatar" 
-            data-src="tempicon.png" width="40" height="40" uk-img></img></a></div>
+            src="tempicon.png" width="40" height="40" uk-img></img></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
@@ -215,6 +212,12 @@
             <p>%message%</p>
          </div>
          <div data-spinner uk-spinner></div>
+      </div>
+      <!-- LOC:CONTROLS -->
+      <div id="controls" style="display: none">
+         <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
+            onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
+         </button>
       </div>
    </body>
 </html>

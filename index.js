@@ -13,6 +13,9 @@ window.onload = function()
    setupDebugLog();
    setupTechnicalInfo();
    setupUserForms();
+
+   if(getToken())
+      refreshUserFull();
 };
 
 // ********************
@@ -59,11 +62,48 @@ function setupUserForms()
    {
       event.preventDefault();
       formStart(loginform);
-      setTimeout(function()
-      {
-         formEnd(loginform);
-         formError(loginform, "You suck");
-      }, 3000);
+      quickApi("user/authenticate", 
+         function(token) { setToken(token); refreshUserFull(); }, 
+         function(error) { formError(loginform, error.responseText || error.status); }, 
+         formSerialize(loginform), 
+         function(req) { formEnd(loginform); }
+      );
+   });
+}
+
+// **********************
+// ---- Page Modify ----
+// **********************
+
+function setLoginState(loggedIn)
+{
+   //check current login state. User is logged in if first element (the user
+   //login section) is hidden.
+   var currentState = rightpanenav.firstElementChild.hasAttribute("hidden");
+
+   //Force an inverted state if the state isn't the same. Definitely room for
+   //timing errors here but egh whatever, sorry users (for now).
+   if(currentState != loggedIn)
+   {
+      toggleuserstate.click();
+   }
+}
+
+function updateUserData(user)
+{
+   //Just username and avatar for now?
+   navuseravatar.src = apiroot + "/file/raw/" + user.avatar + "?crop=true&size=40";
+
+   //Check fields in user for certain special fields like email etc.
+}
+
+function refreshUserFull()
+{
+   //Make an API call to /me to get the latest data.
+   quickApi("user/me", function(user)
+   {
+      updateUserData(user);
+      setLoginState(true);
    });
 }
 
@@ -114,6 +154,20 @@ function formError(form, error)
    form.appendChild(makeError(error));
 }
 
+function formSerialize(form)
+{
+   //TRY to get inputs by name, get values based on what kind they are.
+   var inputs = form.querySelectorAll("[name]");
+   var result = {};
+   for(var i = 0; i < inputs.length; i++)
+   {
+      var tag = inputs[i].tagName.toLowerCase();
+      if(tag == "input")
+         result[inputs[i].getAttribute("name")] = inputs[i].value;
+   }
+   return result;
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -143,7 +197,7 @@ function makeSuccess(message)
 
 var reqId = 0;
 
-function quickApi(url, callback, error, postData)
+function quickApi(url, callback, error, postData, always)
 {
    thisreqid = ++reqId;
    url = apiroot + "/" + url;
@@ -156,6 +210,8 @@ function quickApi(url, callback, error, postData)
    req.addEventListener("loadend", function()
    {
       log.Debug("[" + thisreqid + "]: " + req.status);
+      if(always) 
+         always(req);
       if(req.status <= 299 && req.status >= 200)
       {
          if(callback)
