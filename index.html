@@ -126,7 +126,7 @@
                            <div class="uk-flex uk-flex-bottom">
                               <h2 id="userusername" class="uk-display-inline uk-width-expand 
                                       uk-margin-remove"></h2>
-                              <span id="userid" class="uk-text-meta uk-display-block"></span>
+                              <span id="userid" data-userid="" class="uk-text-meta uk-display-block"></span>
                            </div>
                            <hr>
                            <a href="" uk-toggle="target: #fileupload" class="uk-display-block">Change Avatar</a>
@@ -152,6 +152,7 @@
       </div>
       <!-- LOC:MODALS -->
       <div id="modals">
+         <!-- LOC:ABOUT -->
          <div id="aboutprivacy" uk-modal>
             <div class="uk-modal-dialog" uk-overflow-auto>
                <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -209,7 +210,8 @@
                </div>
             </div>
          </div>
-         <div id="fileupload" class="fuk-modal-container" uk-modal>
+         <!-- LOC: FILEUPLOAD -->
+         <div id="fileupload" uk-modal>
             <div class="uk-modal-dialog" uk-overflow-auto>
                <button class="uk-modal-close-default" type="button" uk-close></button>
                <div class="uk-modal-header">
@@ -232,25 +234,9 @@
                   <span class="uk-text-meta uk-display-block">After upload, your image will appear below</span>
                   <h3 class="uk-heading-divider"><span>Select</span></h3>
                   <div uk-slideshow uk-margin>
-                     <ul class="uk-slideshow-items">
-                        <li><img data-src="tempicon.png" alt="" uk-cover uk-img></li>
-                        <li><img data-src="https://newdev.smilebasicsource.com/api/file/raw/60" 
-                             alt="" uk-cover uk-img></li>
-                        <li><img data-src="tempicon.png" alt="" uk-cover uk-img></li>
-                     </ul>
-                     <div>
-                        <ul class="uk-thumbnav">
-                           <li uk-slideshow-item="0"><a href="#">
-                              <img data-src="tempicon.png" width="60" alt="" uk-img></a></li>
-                           <li uk-slideshow-item="1"><a href="#">
-                              <img
-                       data-src="https://newdev.smilebasicsource.com/api/file/raw/60?size=60&crop=true" 
-                               width="60" alt="" uk-img></a></li>
-                           <li uk-slideshow-item="2"><a href="#">
-                              <img data-src="tempicon.png" width="60" alt="" uk-img></a></li>
-                        </ul>
-                     </div>
-                     <button class="uk-button uk-button-primary">Select</button>
+                     <ul id="fileuploaditems" class="uk-slideshow-items"></ul>
+                     <div><ul id="fileuploadthumbnails" class="uk-thumbnav"></ul></div>
+                     <button id="fileuploadselect" class="uk-button uk-button-primary">Select</button>
                   </div>
                </div>
             </div>
@@ -271,6 +257,9 @@
             <p>%message%</p>
          </div>
          <div data-spinner uk-spinner></div>
+         <li data-fupmain><img data-src="%link%" alt="" uk-cover uk-img></li>
+         <li data-fupthumb uk-slideshow-item="%num%"><a href="#">
+            <img data-src="%link%?size=60&crop=true" width="60" alt="" uk-img></a></li>
       </div>
       <!-- LOC:CONTROLS -->
       <div id="controls" style="display: none">

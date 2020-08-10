@@ -13,6 +13,7 @@ window.onload = function()
    setupDebugLog();
    setupTechnicalInfo();
    setupUserForms();
+   setupFileUpload();
 
    if(getToken())
    {
@@ -80,6 +81,14 @@ function setupUserForms()
    });
 }
 
+function setupFileUpload()
+{
+   UIkit.util.on('#fileupload', 'beforeshow', function () {
+      log.Debug("File upload shown, refreshing images");
+      setFileUploadList(0);
+   });
+}
+
 // **********************
 // ---- Page Modify ----
 // **********************
@@ -104,6 +113,7 @@ function updateUserData(user)
    navuseravatar.src = apiroot + "/file/raw/" + user.avatar + "?crop=true&size=80";
    userusername.textContent = user.username;
    userid.textContent = "User ID: " + user.id;
+   userid.setAttribute("data-userid", user.id);
    //Check fields in user for certain special fields like email etc.
 }
 
@@ -115,6 +125,31 @@ function refreshUserFull(always)
       updateUserData(user);
       setLoginState(true);
    }, undefined, undefined, always);
+}
+
+var displayLimit = 40;
+
+function setFileUploadList(page)
+{
+   fileuploaditems.innerHTML = "<div uk-spinner='ratio: 3'></div>";
+   fileuploadthumbnails.innerHTML = "";
+
+   quickApi("file?reverse=true&limit=" + displayLimit + "&skip=" + (displayLimit * page) +
+      "&createuserids=" + getUserId(), function(files)
+   {
+      fileuploaditems.innerHTML = "";
+      for(var i = 0; i < files.length; i++)
+      {
+         var link = apiroot + "/file/raw/" + files[i].id;
+         var fItem = cloneTemplate("fupmain");
+         fItem.innerHTML = fItem.innerHTML.replace("%link%", link);
+         var fThumb = cloneTemplate("fupthumb");
+         fThumb.innerHTML = fThumb.innerHTML.replace("%link%", link);
+         fThumb.setAttribute("uk-slideshow-item", i);
+         fileuploaditems.appendChild(fItem);
+         fileuploadthumbnails.appendChild(fThumb);
+      }
+   });
 }
 
 // ***************************
@@ -133,6 +168,11 @@ function setToken(token)
    if(token)
       token = JSON.stringify(token);
    window.localStorage.setItem("usertoken", token);
+}
+
+function getUserId()
+{
+   return userid.dataset.userid;
 }
 
 function getFormInputs(form)
