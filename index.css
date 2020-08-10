@@ -5,6 +5,9 @@ body {
    left: 0;
    right: 0;
 }
+input[type="file"] {
+   cursor: pointer;
+}
 .databar {
    background-color: #444;
    color: #AAA;

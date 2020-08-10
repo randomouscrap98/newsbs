@@ -129,6 +129,7 @@
                               <span id="userid" class="uk-text-meta uk-display-block"></span>
                            </div>
                            <hr>
+                           <a href="" uk-toggle="target: #fileupload" class="uk-display-block">Change Avatar</a>
                            <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                         </div>
                      </div>
@@ -205,6 +206,52 @@
    <h4>General contact:</h4>smilebasicsource@gmail.com
    <h4>Domain holder / Website Admin:</h4> Carlos Sanchez / randomous
                   </p>
+               </div>
+            </div>
+         </div>
+         <div id="fileupload" class="fuk-modal-container" uk-modal>
+            <div class="uk-modal-dialog" uk-overflow-auto>
+               <button class="uk-modal-close-default" type="button" uk-close></button>
+               <div class="uk-modal-header">
+                  <h2 class="uk-modal-title">
+                     <span uk-icon="icon: album; ratio: 2.5" class="uk-margin-small-right"></span>
+                     Image Select
+                  </h2>
+               </div>
+               <div id="fileuploadbody" class="uk-modal-body">
+                  <h3 class="uk-heading-divider"><span>Upload</span></h3>
+                  <div id="fileuploadform" class="uk-placeholder uk-text-center">
+                     <span uk-icon="icon: cloud-upload"></span>
+                     <span class="uk-text-middle">Drop images or</span>
+                     <div uk-form-custom>
+                        <input type="file">
+                        <span class="uk-link">select one</span>
+                     </div>
+                  </div>
+                  <progress id="fileuploadprogress" class="uk-progress" value="0" max="100" hidden></progress>
+                  <span class="uk-text-meta uk-display-block">After upload, your image will appear below</span>
+                  <h3 class="uk-heading-divider"><span>Select</span></h3>
+                  <div uk-slideshow uk-margin>
+                     <ul class="uk-slideshow-items">
+                        <li><img data-src="tempicon.png" alt="" uk-cover uk-img></li>
+                        <li><img data-src="https://newdev.smilebasicsource.com/api/file/raw/60" 
+                             alt="" uk-cover uk-img></li>
+                        <li><img data-src="tempicon.png" alt="" uk-cover uk-img></li>
+                     </ul>
+                     <div>
+                        <ul class="uk-thumbnav">
+                           <li uk-slideshow-item="0"><a href="#">
+                              <img data-src="tempicon.png" width="60" alt="" uk-img></a></li>
+                           <li uk-slideshow-item="1"><a href="#">
+                              <img
+                       data-src="https://newdev.smilebasicsource.com/api/file/raw/60?size=60&crop=true" 
+                               width="60" alt="" uk-img></a></li>
+                           <li uk-slideshow-item="2"><a href="#">
+                              <img data-src="tempicon.png" width="60" alt="" uk-img></a></li>
+                        </ul>
+                     </div>
+                     <button class="uk-button uk-button-primary">Select</button>
+                  </div>
                </div>
             </div>
          </div>

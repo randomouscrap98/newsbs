@@ -16,6 +16,7 @@ window.onload = function()
 
    if(getToken())
    {
+      log.Info("User token found, trying to continue logged in");
       rightpane.style.opacity = 0.2;
       refreshUserFull(function() { rightpane.style.opacity = 1.0; });
    }
@@ -179,6 +180,12 @@ function formSerialize(form)
    return result;
 }
 
+function notifyError(error)
+{
+   log.Error(error);
+   alert(error); //change this at some point?
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -212,7 +219,7 @@ function quickApi(url, callback, error, postData, always)
 {
    thisreqid = ++reqId;
    url = apiroot + "/" + url;
-   error = error || function(e) { alert("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
+   error = error || function(e) { notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
 
    var method = postData ? "POST" : "GET";
    log.Info("[" + thisreqid + "] " + method + ": " + url);
