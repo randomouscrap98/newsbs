@@ -69,6 +69,11 @@ function setupUserForms()
          function(req) { formEnd(loginform); }
       );
    });
+   userlogout.addEventListener("click", function()
+   {
+      setToken(null);
+      setLoginState(false);
+   });
 }
 
 // **********************
@@ -92,8 +97,9 @@ function setLoginState(loggedIn)
 function updateUserData(user)
 {
    //Just username and avatar for now?
-   navuseravatar.src = apiroot + "/file/raw/" + user.avatar + "?crop=true&size=40";
-
+   navuseravatar.src = apiroot + "/file/raw/" + user.avatar + "?crop=true&size=80";
+   userusername.textContent = user.username;
+   userusername.setAttribute("uk-tooltip", "pos: left; title: " + user.id);
    //Check fields in user for certain special fields like email etc.
 }
 
@@ -120,7 +126,9 @@ function getToken()
 
 function setToken(token)
 {
-   window.localStorage.setItem("usertoken", JSON.stringify(token));
+   if(token)
+      token = JSON.stringify(token);
+   window.localStorage.setItem("usertoken", token);
 }
 
 function getFormInputs(form)
