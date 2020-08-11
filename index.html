@@ -129,7 +129,8 @@
                               <span id="userid" data-userid="" class="uk-text-meta uk-display-block"></span>
                            </div>
                            <hr>
-                           <a href="" uk-toggle="target: #fileupload" class="uk-display-block">Change Avatar</a>
+                           <a href="" id="userchangeavatar" uk-toggle="target: #fileupload" 
+                              class="uk-display-block">Change Avatar</a>
                            <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                         </div>
                      </div>
@@ -240,7 +241,8 @@
                         <a id="fileuploadnewer" href="#" hidden>Newer</a>
                         <a id="fileuploadolder" class="uk-align-right" href="#" hidden>Older</a>
                      </div>
-                     <button id="fileuploadselect" class="uk-button uk-button-primary">Select</button>
+                     <button id="fileuploadselect" class="uk-button uk-button-primary"
+                        uk-toggle="#fileupload">Select</button>
                   </div>
                </div>
             </div>

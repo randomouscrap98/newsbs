@@ -79,7 +79,16 @@ function setupUserForms()
       setToken(null);
       setLoginState(false);
    });
+
+   userchangeavatar.addEventListener("click", function() {
+      fileselectcallback = function(id) {
+         quickApi("user/basic", function() { refreshUserFull() }, undefined, 
+            { "avatar" : id }, undefined, "PUT"); 
+      };
+   });
 }
+
+fileselectcallback = false;
 
 function setupFileUpload()
 {
@@ -91,6 +100,20 @@ function setupFileUpload()
    UIkit.util.on("#fileuploadslideshow", "beforeitemshow", function(e) {
       e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src");
       //console.log(e);
+   });
+
+   fileuploadselect.addEventListener("click", function()
+   {
+      //Find the selected image
+      var selectedImage = document.querySelector("#fileuploadthumbnails li.uk-active");
+
+      //Call the "function" (a global variable! yay!)
+      if(fileselectcallback)
+      {
+         //for safety, remove callback
+         fileselectcallback(selectedImage.getAttribute("data-id"));
+         fileselectcallback = false;
+      }
    });
 
    var bar = fileuploadprogress;
@@ -171,7 +194,7 @@ function setFileUploadList(page)
    fileuploadthumbnails.innerHTML = "";
 
    quickApi("file?reverse=true&limit=" + displayLimit + "&skip=" + (displayLimit * page) +
-      "&createuseridsf=" + getUserId(), function(files)
+      "&createuserids=" + getUserId(), function(files)
    {
       fileuploaditems.innerHTML = "";
       for(var i = 0; i < files.length; i++)
@@ -306,13 +329,13 @@ function makeSuccess(message)
 
 var reqId = 0;
 
-function quickApi(url, callback, error, postData, always)
+function quickApi(url, callback, error, postData, always, method)
 {
    thisreqid = ++reqId;
    url = apiroot + "/" + url;
    error = error || function(e) { notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
 
-   var method = postData ? "POST" : "GET";
+   method = method || (postData ? "POST" : "GET");
    log.Info("[" + thisreqid + "] " + method + ": " + url);
 
    var req = new XMLHttpRequest();
