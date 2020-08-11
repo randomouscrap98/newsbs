@@ -88,62 +88,40 @@ function setupFileUpload()
       setFileUploadList(0);
    });
 
+   UIkit.util.on("#fileuploadslideshow", "beforeitemshow", function(e) {
+      e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src");
+      //console.log(e);
+   });
+
    var bar = fileuploadprogress;
+   var generalError = function () {
+      if(typeof arguments[0] == 'XMLHttpRequest')
+         formError(fileuploadform, arguments[0].status + ": " + arguments[0].message);
+      else
+         formError(fileuploadform, arguments[0]);
+      bar.setAttribute('hidden', 'hidden');
+   };
 
    UIkit.upload('#fileuploadform', {
       url: apiroot + '/file',
       multiple: false,
       mime: "image/*",
-      beforeSend: function (e) {
-         e.headers["Authorization"] = "Bearer " + getToken();
-         console.log('beforeSend', arguments);
-      },
-      //beforeAll: function () {
-      //   console.log('beforeAll', arguments);
-      //},
-      //load: function () {
-      //   console.log('load', arguments);
-      //},
-      error: function () {
-         formError(fileuploadform, arguments[0].status + ": " + arguments[0].message);
-         bar.setAttribute('hidden', 'hidden');
-      },
-      complete: function () {
-         console.log('complete', arguments);
-      },
-
-      loadStart: function (e) {
-         console.log('loadStart', arguments);
-
-         bar.removeAttribute('hidden');
-         bar.max = e.total;
-         bar.value = e.loaded;
-      },
-
-      progress: function (e) {
-         console.log('progress', arguments);
-
-         bar.max = e.total;
-         bar.value = e.loaded;
-      },
-
-      loadEnd: function (e) {
-         console.log('loadEnd', arguments);
-
-         bar.max = e.total;
-         bar.value = e.loaded;
-      },
-
+      name: "file",
+      beforeSend: function (e) { e.headers["Authorization"] = "Bearer " + getToken(); },
+      loadStart: function (e) { bar.removeAttribute('hidden'); bar.max = e.total; bar.value = e.loaded; },
+      progress: function (e) { bar.max = e.total; bar.value = e.loaded; },
+      loadEnd: function (e) { bar.max = e.total; bar.value = e.loaded; },
+      error: generalError,
+      fail: generalError,
       completeAll: function () {
-         console.log('completeAll', arguments);
-
-         setTimeout(function () {
-            bar.setAttribute('hidden', 'hidden');
-         }, 1000);
-
-         alert('Upload Completed');
+         console.log(arguments);
+         log.Info("Upload complete");
+         addFileUploadImage(JSON.parse(arguments[0].responseText), fileuploaditems.childElementCount);
+         setTimeout(function () { 
+            bar.setAttribute('hidden', 'hidden'); 
+            fileuploadthumbnails.lastElementChild.firstElementChild.click();
+         }, 200);
       }
-
    });
 }
 
@@ -193,21 +171,35 @@ function setFileUploadList(page)
    fileuploadthumbnails.innerHTML = "";
 
    quickApi("file?reverse=true&limit=" + displayLimit + "&skip=" + (displayLimit * page) +
-      "&createuserids=" + getUserId(), function(files)
+      "&createuseridsf=" + getUserId(), function(files)
    {
       fileuploaditems.innerHTML = "";
       for(var i = 0; i < files.length; i++)
       {
-         var link = apiroot + "/file/raw/" + files[i].id;
-         var fItem = cloneTemplate("fupmain");
-         fItem.innerHTML = fItem.innerHTML.replace("%link%", link);
-         var fThumb = cloneTemplate("fupthumb");
-         fThumb.innerHTML = fThumb.innerHTML.replace("%link%", link);
-         fThumb.setAttribute("uk-slideshow-item", i);
-         fileuploaditems.appendChild(fItem);
-         fileuploadthumbnails.appendChild(fThumb);
+         addFileUploadImage(files[i], i);
       }
+
+      fileuploadnewer.onclick = function(e) { e.preventDefault(); setFileUploadList(page - 1); }
+      fileuploadolder.onclick = function(e) { e.preventDefault(); setFileUploadList(page + 1); }
+
+      if(page > 0) fileuploadnewer.removeAttribute("hidden");
+      else fileuploadnewer.setAttribute("hidden", "");
+      if(files.length == displayLimit) fileuploadolder.removeAttribute("hidden");
+      else fileuploadolder.setAttribute("hidden", "");
    });
+}
+
+function addFileUploadImage(file, num)
+{
+   var link = apiroot + "/file/raw/" + file.id;
+   var fItem = cloneTemplate("fupmain");
+   fItem.innerHTML = fItem.innerHTML.replace("%link%", link);
+   var fThumb = cloneTemplate("fupthumb");
+   fThumb.innerHTML = fThumb.innerHTML.replace("%link%", link);
+   fThumb.setAttribute("uk-slideshow-item", num);
+   fThumb.setAttribute("data-id", file.id);
+   fileuploaditems.appendChild(fItem);
+   fileuploadthumbnails.appendChild(fThumb);
 }
 
 // ***************************

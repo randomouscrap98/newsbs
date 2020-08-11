@@ -233,9 +233,13 @@
                   <progress id="fileuploadprogress" class="uk-progress" value="0" max="100" hidden></progress>
                   <span class="uk-text-meta uk-display-block">After upload, your image will appear below</span>
                   <h3 class="uk-heading-divider"><span>Select</span></h3>
-                  <div uk-slideshow uk-margin>
+                  <div id="fileuploadslideshow" uk-slideshow uk-margin>
                      <ul id="fileuploaditems" class="uk-slideshow-items"></ul>
-                     <div><ul id="fileuploadthumbnails" class="uk-thumbnav"></ul></div>
+                     <div><ul id="fileuploadthumbnails" class="uk-thumbnav" uk-margin></ul></div>
+                     <div uk-margin>
+                        <a id="fileuploadnewer" href="#" hidden>Newer</a>
+                        <a id="fileuploadolder" class="uk-align-right" href="#" hidden>Older</a>
+                     </div>
                      <button id="fileuploadselect" class="uk-button uk-button-primary">Select</button>
                   </div>
                </div>
@@ -257,8 +261,9 @@
             <p>%message%</p>
          </div>
          <div data-spinner uk-spinner></div>
-         <li data-fupmain><img data-src="%link%" alt="" uk-cover uk-img></li>
-         <li data-fupthumb uk-slideshow-item="%num%"><a href="#">
+         <li data-fupmain><img data-src="%link%" width="" height="" alt=""
+            class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
+         <li data-fupthumb data-id="%id%" uk-slideshow-item="%num%"><a href="#">
             <img data-src="%link%?size=60&crop=true" width="60" alt="" uk-img></a></li>
       </div>
       <!-- LOC:CONTROLS -->

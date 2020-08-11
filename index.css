@@ -5,9 +5,11 @@ body {
    left: 0;
    right: 0;
 }
+/* Stuff that should probably be taken over by uikit */
 input[type="file"] {
    cursor: pointer;
 }
+/* The rest */
 .databar {
    background-color: #444;
    color: #AAA;
