@@ -14,6 +14,7 @@ window.onload = function()
    setupTechnicalInfo();
    setupUserForms();
    setupFileUpload();
+   setupAlerts();
 
    if(getToken())
    {
@@ -85,6 +86,25 @@ function setupUserForms()
          quickApi("user/basic", function() { refreshUserFull() }, undefined, 
             { "avatar" : id }, undefined, "PUT"); 
       };
+   });
+}
+
+function setupAlerts()
+{
+   userinvalidatesessions.addEventListener("click", function(e)
+   {
+      e.preventDefault();
+
+      UIkit.modal.confirm("This will force ALL sessions EVERYWHERE to be invalid, " + 
+         "you will need to log back in to ALL devices. This is useful if you believe " +
+         "someone has stolen your session token. Are you SURE you want to do this?").then(function()
+      {
+         quickApi("user/invalidatealltokens", function() 
+         { 
+            setToken(null);
+            location.reload(); 
+         }, undefined, "pleaseinvalidate");
+      }, function() { log.Debug("Cancelled invalidate tokens"); });
    });
 }
 
