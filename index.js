@@ -203,7 +203,13 @@ function refreshUserFull(always)
    {
       updateUserData(user);
       setLoginState(true);
-   }, undefined, undefined, always);
+   }, function(req)
+   {
+      //Assume any failed user refresh means they're logged out
+      log.Error("Couldn't refresh user, deleting cached token");
+      setToken(null);   
+      setLoginState(false);
+   }, undefined, always);
 }
 
 var displayLimit = 40;
@@ -351,7 +357,7 @@ var reqId = 0;
 
 function quickApi(url, callback, error, postData, always, method)
 {
-   thisreqid = ++reqId;
+   let thisreqid = ++reqId;
    url = apiroot + "/" + url;
    error = error || function(e) { notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
 
@@ -361,7 +367,8 @@ function quickApi(url, callback, error, postData, always, method)
    var req = new XMLHttpRequest();
    req.addEventListener("loadend", function()
    {
-      log.Debug("[" + thisreqid + "]: " + req.status);
+      log.Debug("[" + thisreqid + "]: " + req.status + " " + req.statusText + 
+         " (" + req.response.length + "b)");
       if(always) 
          always(req);
       if(req.status <= 299 && req.status >= 200)
