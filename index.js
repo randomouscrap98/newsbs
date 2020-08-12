@@ -76,12 +76,12 @@ function setupUserForms()
    });
    formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", function(result)
    {
-      notify("Password reset code sent!");
+      log.Info("Password reset code sent!");
       passwordresetstep2.click();
    });
    formSetupSubmit(passwordresetconfirmform, "user/passwordreset", function(token)
    {
-      notify("Password reset!");
+      notifySuccess("Password reset!");
       setToken(token); 
       refreshUserFull();
    }, function(formData)
@@ -89,6 +89,29 @@ function setupUserForms()
       if(formData.password != formData.password2)
          return "Passwords don't match!"
       return undefined;
+   });
+   formSetupSubmit(registerform, "user/register", function(token)
+   {
+      log.Info("Registration submitted! Sending email...");
+      quickApi("user/register/sendemail", function()
+      {
+         log.Info("Registration email sent! Check your email");
+      }, function(req)
+      {
+         notifyError("There was a problem sending your email. However, your registration was submitted successfully.");
+      }, {"email" : formSerialize(registerform)["email"] });
+      registrationstep2.click();
+   }, function(formData)
+   {
+      if(formData.password != formData.password2)
+         return "Passwords don't match!"
+      return undefined;
+   });
+   formSetupSubmit(registerconfirmform, "user/register/confirm", function(token)
+   {
+      notifySuccess("Registration complete!");
+      setToken(token); 
+      refreshUserFull();
    });
 
    userchangeavatar.addEventListener("click", function() {
@@ -358,16 +381,23 @@ function formSetupSubmit(form, endpoint, success, validate)
    });
 }
 
+function notifyBase(message, icon, status)
+{
+   UIkit.notification({"message": "<span class='uk-flex uk-flex-middle'><span uk-icon='icon: " +
+      icon + "'></span><span class='uk-flex-1 notification-actual'>" + message + "</span></span>", 
+      "status": status, "pos":"top-right"});
+}
+
 function notifyError(error)
 {
    log.Error(error);
-   UIkit.notification({"message": error, "status": "danger"});
+   notifyBase(error, "close", "danger");
 }
 
-function notify(message)
+function notifySuccess(message)
 {
    log.Info("Notify: " + message);
-   UIkit.notification({"message": "<span uk-icon='icon: check'></span> " + message});
+   notifyBase(message, "check", "success");
 }
 
 // ***********************
@@ -420,7 +450,7 @@ function quickApi(url, callback, error, postData, always, method)
          if(callback)
             callback(req.responseText ? JSON.parse(req.responseText) : null);
          else
-            notify("Success: " + req.status + " - " + req.responseText);
+            notifySuccess("Success: " + req.status + " - " + req.responseText);
       }
       else
       {

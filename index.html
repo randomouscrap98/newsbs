@@ -44,8 +44,10 @@
                   <p>This is a lot of text. i am hoping it will continue so long
                   and long and long that it will eventually wrap or something,
                   showing you exactly wehre the pane ends</p>
-                  <button id="testnotify"
-                     onclick="notify('Oh wow, look at that!')">Notify</button>
+                  <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
+                  <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
+                  <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
+                  <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
                </div>
                <div id="postarea" class="uk-flex" data-utgl hidden>
                   <textarea class="uk-flex-1 uk-textarea"></textarea>
@@ -105,11 +107,11 @@
                               </form>
                            </li>
                            <li>
-                              <form id="confirmemailform" class="uk-padding-small" onsubmit="return false">
+                              <form id="registerconfirmform" class="uk-padding-small" onsubmit="return false">
                                  <fieldset class="uk-fieldset" uk-margin>
                                     <legend class="uk-legend">Confirm Account</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="username" type="text" placeholder="Confirmation Code" required>
+      <input class="uk-input" name="confirmationKey" type="text" placeholder="Confirmation Code" required>
       <span class="uk-text-meta uk-display-block">
          You will receive an email with your confirmation code shortly</span>
       <div class="uk-inline">
@@ -119,7 +121,7 @@
                               </form>
                            </li>
                            <li>
-                              <form id="resendemailform" class="uk-padding-small" onsubmit="return false">
+                              <form id="registerresendform" class="uk-padding-small" onsubmit="return false">
                                  <fieldset class="uk-fieldset" uk-margin>
                                     <legend class="uk-legend">Resend Confirmation</legend>
       <!-- Once again shifted over for convenience -->
@@ -136,9 +138,9 @@
                         <ul class="uk-tab-bottom uk-flex-center"
                            uk-tab="connect: #registrationswitcher; 
                            animation: uk-animation-slide-right-medium, uk-animation-slide-left-medium">
-                           <li><a href="#">Step 1</a></li>
-                           <li><a href="#">Step 2</a></li>
-                           <li><a href="#">Resend Email</a></li>
+                           <li><a id="registrationstep1" href="#">Step 1</a></li>
+                           <li><a id="registrationstep2" href="#">Step 2</a></li>
+                           <li><a id="registrationresend" href="#">Resend Email</a></li>
                         </ul>
                         <!-- LOC:PASSWORDRESET -->
                         <ul id="passwordresetswitcher" class="uk-switcher">

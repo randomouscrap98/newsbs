@@ -76,6 +76,10 @@ a:hover {
    /*background-color: #EEE;*/
    border: 2px solid rgba(128,128,128,0.1);
 }
-.uk-notification-close {
+/*.uk-notification-close {
    display: initial;
+}*/
+.notification-actual {
+   padding-left: 0.5em;
+   padding-right: 0.4em;
 }
