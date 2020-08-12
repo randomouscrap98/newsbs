@@ -72,3 +72,10 @@ a:hover {
 #postarea textarea {
    resize: none;
 }
+.uk-notification-message {
+   /*background-color: #EEE;*/
+   border: 2px solid rgba(128,128,128,0.1);
+}
+.uk-notification-close {
+   display: initial;
+}

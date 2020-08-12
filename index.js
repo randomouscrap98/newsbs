@@ -64,21 +64,31 @@ function setupTechnicalInfo()
 
 function setupUserForms()
 {
-   loginform.addEventListener("submit", function(event)
+   formSetupSubmit(loginform, "user/authenticate", function(token)
    {
-      event.preventDefault();
-      formStart(loginform);
-      quickApi("user/authenticate", 
-         function(token) { setToken(token); refreshUserFull(); }, 
-         function(error) { formError(loginform, error.responseText || error.status); }, 
-         formSerialize(loginform), 
-         function(req) { formEnd(loginform); }
-      );
+      setToken(token); 
+      refreshUserFull();
    });
    userlogout.addEventListener("click", function()
    {
       setToken(null);
       setLoginState(false);
+   });
+   formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", function(result)
+   {
+      notify("Password reset code sent!");
+      passwordresetstep2.click();
+   });
+   formSetupSubmit(passwordresetconfirmform, "user/passwordreset", function(token)
+   {
+      notify("Password reset!");
+      setToken(token); 
+      refreshUserFull();
+   }, function(formData)
+   {
+      if(formData.password != formData.password2)
+         return "Passwords don't match!"
+      return undefined;
    });
 
    userchangeavatar.addEventListener("click", function() {
@@ -117,9 +127,10 @@ function setupFileUpload()
       setFileUploadList(0);
    });
 
+   //this is the "dynamic loading" to save data: only load big images when
+   //users click on them
    UIkit.util.on("#fileuploadslideshow", "beforeitemshow", function(e) {
       e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src");
-      //console.log(e);
    });
 
    fileuploadselect.addEventListener("click", function()
@@ -320,10 +331,43 @@ function formSerialize(form)
    return result;
 }
 
+function formSetupSubmit(form, endpoint, success, validate)
+{
+   form.addEventListener("submit", function(event)
+   {
+      event.preventDefault();
+      formStart(form);
+
+      var formData = formSerialize(form);
+      if(validate) 
+      {
+         var error = validate(formData);
+         if(error) 
+         { 
+            formError(form, error); 
+            formEnd(form);
+            return; 
+         }
+      }
+
+      quickApi(endpoint, success,
+         function(error) { formError(form, error.responseText || error.status); }, 
+         formData,
+         function(req) { formEnd(form); }
+      );
+   });
+}
+
 function notifyError(error)
 {
    log.Error(error);
-   alert(error); //change this at some point?
+   UIkit.notification({"message": error, "status": "danger"});
+}
+
+function notify(message)
+{
+   log.Info("Notify: " + message);
+   UIkit.notification({"message": "<span uk-icon='icon: check'></span> " + message});
 }
 
 // ***********************
@@ -376,7 +420,7 @@ function quickApi(url, callback, error, postData, always, method)
          if(callback)
             callback(req.responseText ? JSON.parse(req.responseText) : null);
          else
-            alert("Success: " + req.status + " - " + req.responseText);
+            notify("Success: " + req.status + " - " + req.responseText);
       }
       else
       {

@@ -44,6 +44,8 @@
                   <p>This is a lot of text. i am hoping it will continue so long
                   and long and long that it will eventually wrap or something,
                   showing you exactly wehre the pane ends</p>
+                  <button id="testnotify"
+                     onclick="notify('Oh wow, look at that!')">Notify</button>
                </div>
                <div id="postarea" class="uk-flex" data-utgl hidden>
                   <textarea class="uk-flex-1 uk-textarea"></textarea>
@@ -92,10 +94,10 @@
                                  <fieldset class="uk-fieldset" uk-margin>
                                     <legend class="uk-legend">Register</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="username" type="text" placeholder="Username">
-      <input class="uk-input" name="email" type="email" placeholder="Email">
-      <input class="uk-input" name="password" type="password" placeholder="Password">
-      <input class="uk-input" name="password2" type="password" placeholder="Confirm Password">
+      <input class="uk-input" name="username" type="text" placeholder="Username" required>
+      <input class="uk-input" name="email" type="email" placeholder="Email" required>
+      <input class="uk-input" name="password" type="password" placeholder="Password" required>
+      <input class="uk-input" name="password2" type="password" placeholder="Confirm Password" required>
       <div class="uk-inline">
       <input type="submit" value="Register" class="uk-button uk-button-primary">
       </div>
@@ -107,7 +109,9 @@
                                  <fieldset class="uk-fieldset" uk-margin>
                                     <legend class="uk-legend">Confirm Account</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="username" type="text" placeholder="Confirmation Code">
+      <input class="uk-input" name="username" type="text" placeholder="Confirmation Code" required>
+      <span class="uk-text-meta uk-display-block">
+         You will receive an email with your confirmation code shortly</span>
       <div class="uk-inline">
       <input type="submit" value="Confirm Account" class="uk-button uk-button-primary">
       </div>
@@ -119,7 +123,9 @@
                                  <fieldset class="uk-fieldset" uk-margin>
                                     <legend class="uk-legend">Resend Confirmation</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="email" type="email" placeholder="Email">
+      <input class="uk-input" name="email" type="email" placeholder="Email" required>
+      <span class="uk-text-meta uk-display-block">
+         Note: This email is sent automatically at registration</span>
       <div class="uk-inline">
       <input type="submit" value="Resend email" class="uk-button uk-button-primary">
       </div>
@@ -134,15 +140,14 @@
                            <li><a href="#">Step 2</a></li>
                            <li><a href="#">Resend Email</a></li>
                         </ul>
-                        <!--<hr>-->
-                        <!-- LOC:PASSWORDRECOVER -->
+                        <!-- LOC:PASSWORDRESET -->
                         <ul id="passwordresetswitcher" class="uk-switcher">
                            <li>
                               <form id="passwordresetform" class="uk-padding-small" onsubmit="return false">
                                  <fieldset class="uk-fieldset" uk-margin>
                                     <legend class="uk-legend">Password Reset</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="email" type="email" placeholder="Account Email">
+      <input class="uk-input" name="email" type="email" placeholder="Account Email" required>
       <div class="uk-inline">
       <input type="submit" value="Send email" class="uk-button uk-button-primary">
       </div>
@@ -154,9 +159,11 @@
                                  <fieldset class="uk-fieldset" uk-margin>
                                     <legend class="uk-legend">Password Reset Confirm</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="resetKey" type="text" placeholder="Code">
-      <input class="uk-input" name="password" type="password" placeholder="New Password">
-      <input class="uk-input" name="password2" type="password" placeholder="Confirm New Password">
+      <input class="uk-input" name="resetKey" type="text" placeholder="Email Code" required>
+      <input class="uk-input" name="password" type="password" placeholder="New Password" required>
+      <input class="uk-input" name="password2" type="password" placeholder="Confirm New Password" required>
+      <span class="uk-text-meta uk-display-block">
+         An email was sent with a password reset code; use it here</span>
       <div class="uk-inline">
       <input type="submit" value="Reset Password" class="uk-button uk-button-primary">
       </div>
@@ -167,8 +174,8 @@
                         <ul class="uk-tab-bottom uk-flex-center"
                            uk-tab="connect: #passwordresetswitcher; 
                            animation: uk-animation-slide-right-medium, uk-animation-slide-left-medium">
-                           <li><a href="#">Step 1</a></li>
-                           <li><a href="#">Step 2</a></li>
+                           <li><a id="passwordresetstep1" href="#">Step 1</a></li>
+                           <li><a id="passwordresetstep2" href="#">Step 2</a></li>
                         </ul>
                      </div>
                   </li>
