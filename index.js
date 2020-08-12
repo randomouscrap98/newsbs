@@ -383,9 +383,12 @@ function formSetupSubmit(form, endpoint, success, validate)
 
 function notifyBase(message, icon, status)
 {
-   UIkit.notification({"message": "<span class='uk-flex uk-flex-middle'><span uk-icon='icon: " +
-      icon + "'></span><span class='uk-flex-1 notification-actual'>" + message + "</span></span>", 
-      "status": status, "pos":"top-right"});
+   UIkit.notification({
+      "message": "<span class='uk-flex uk-flex-middle'><span uk-icon='icon: " +
+         icon + "; ratio: 1.4' class='uk-text-" + status + 
+         "'></span><span class='uk-flex-1 notification-actual'>" + message + "</span></span>", 
+      "pos":"bottom-right"
+   });
 }
 
 function notifyError(error)
