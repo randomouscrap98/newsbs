@@ -11,10 +11,10 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1597008659"></script>
-      <script src="index.js?v=1597008659"></script>
+      <script src="libbo.js?v=1597301532"></script>
+      <script src="index.js?v=1597301532"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1597008659" />
+      <link rel="stylesheet" href="index.css?v=1597301532" />
    </head>
    <!-- LOC:BODY -->
    <body>
@@ -337,14 +337,14 @@
             <a href="%link%" class="uk-display-block uk-text-truncate pulse-name uk-text-emphasis" 
                fuk-tooltip="title: %id%; pos: left">%name%</a>
             <div class="uk-flex uk-flex-bottom">
-               <div class="uk-flex-1 pulse-users"></div>
+               <div class="pulse-users uk-border-pill"></div>
                <time datetime="%date%" uk-tooltip="%date%" 
-                  class="pulse-time uk-text-meta">Just now</time>
+                  class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</time>
             </div>
          </div>
          <div data-pulseuser class="uk-inline">
-            <img uk-tooltip="title: %message%;" data-src="%avatarlink%?crop=true&size=30" 
-               class="uk-border-circle" width=25 height=25>
+            <img uk-tooltip="title: %message%;" data-src="%avatarlink%?crop=true&size=20" 
+              class="uk-border-circle uk-display-block" width=20 height=20>
             <span uk-icon="icon: %icon%; ratio: 1" 
                style="display: none" class="uk-position-bottom-right"></span>
          </div>

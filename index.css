@@ -9,25 +9,12 @@ body {
 input[type="file"] {
    cursor: pointer;
 }
-.pulse-name {
-   font-size: 1.3em;
-}
-[data-pulse] {
-   padding: 0.5em 0.9em 0.5em 0.9em;
-}
-[data-pulseuser] { 
-   margin: 0.3em;   
-   filter: opacity(0.7); /* grayscale(0.5);*/
-}
-[data-pulseuser]:hover { 
-   filter: none;
-}
-[data-pulseuser] img {
-   /*border: 1px solid rgba(127,127,127,0.4);*/
+/*[data-pulseuser] img {
+   border: 1px solid rgba(127,127,127,0.4);
 }
 [data-pulseuser] [uk-icon] {
-   /*padding: 0.2em;*/
-}
+   padding: 0.2em;
+}*/
 /* The rest */
 .databar {
    background-color: #444;
@@ -64,6 +51,18 @@ a:hover {
 #rightpanenav .uk-active {  
    background-color: rgba(128,255,240,0.4);
 }
+#postarea {
+   height: 5em;
+   background-color: rgba(128,128,128,0.05);
+   border-top: 2px solid rgba(128,128,128,0.1);
+   padding-bottom: 1px;
+}
+#postarea textarea {
+   resize: none;
+}
+/* ------- */
+/* Logging
+/* ------- */
 #logs {
    font-family: monospace;
    font-size: 0.8em;
@@ -79,15 +78,9 @@ a:hover {
 .tabnav > div {
    padding: 0.1em 0;
 }
-#postarea {
-   height: 5em;
-   background-color: rgba(128,128,128,0.05);
-   border-top: 2px solid rgba(128,128,128,0.1);
-   padding-bottom: 1px;
-}
-#postarea textarea {
-   resize: none;
-}
+/* -------------------- */
+/* Notification special */
+/* -------------------- */
 .uk-notification-message {
    /*background-color: #EEE;*/
    border: 2px solid rgba(128,128,128,0.1);
@@ -98,4 +91,26 @@ a:hover {
 .notification-actual {
    padding-left: 0.5em;
    padding-right: 0.4em;
+}
+/* -------------------------------------------------- */
+/* Pulse styling (should really just use uikit stuff) */
+/* -------------------------------------------------- */
+.pulse-users {
+   background-color: rgba(127,127,127,0.1);
+   margin-right: 1em;
+   padding: 0.05em;
+}
+.pulse-name {
+   font-size: 1.3em;
+   margin-bottom: 0.25em;
+}
+[data-pulse] {
+   padding: 0.45em 0.9em 0.5em 0.9em;
+}
+[data-pulseuser] { 
+   margin: 0.3em;   
+   filter: opacity(0.7);
+}
+[data-pulseuser]:hover { 
+   filter: none;
 }
