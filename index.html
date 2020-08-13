@@ -63,7 +63,7 @@
       <div data-utgl><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block"><img id="navuseravatar" 
-            src="tempicon.png" width="40" height="40" uk-img></img></a></div>
+            src="tempicon.png" width="40" height="40" class="uk-border-circle" uk-img></img></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
@@ -200,7 +200,9 @@
                      </div>
                   </li>
                   <!-- LOC:ACTIVITY -->
-                  <li>list</li>
+                  <li id="pulseparent">
+                     <ul id="pulse" class="uk-list uk-list-striped"></ul>
+                  </li>
                   <!-- LOC:WATCHES -->
                   <li>heart</li>
                   <!-- LOC:LOGS -->
@@ -331,6 +333,21 @@
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
          <li data-fupthumb data-id="%id%" uk-slideshow-item="%num%"><a href="#">
             <img data-src="%link%?size=60&crop=true" width="60" alt="" uk-img></a></li>
+         <div data-pulse>
+            <a href="%link%" class="uk-display-block uk-text-truncate pulse-name uk-text-emphasis" 
+               fuk-tooltip="title: %id%; pos: left">%name%</a>
+            <div class="uk-flex uk-flex-bottom">
+               <div class="uk-flex-1 pulse-users"></div>
+               <time datetime="%date%" uk-tooltip="%date%" 
+                  class="pulse-time uk-text-meta">Just now</time>
+            </div>
+         </div>
+         <div data-pulseuser class="uk-inline">
+            <img uk-tooltip="title: %message%;" data-src="%avatarlink%?crop=true&size=30" 
+               class="uk-border-circle" width=25 height=25>
+            <span uk-icon="icon: %icon%; ratio: 1" 
+               style="display: none" class="uk-position-bottom-right"></span>
+         </div>
       </div>
       <!-- LOC:CONTROLS -->
       <div id="controls" style="display: none">

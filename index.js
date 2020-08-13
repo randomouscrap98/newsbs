@@ -16,6 +16,8 @@ window.onload = function()
    setupFileUpload();
    setupAlerts();
 
+   setupTests(); //For now
+
    if(getToken())
    {
       log.Info("User token found, trying to continue logged in");
@@ -23,6 +25,36 @@ window.onload = function()
       refreshUserFull(function() { rightpane.style.opacity = 1.0; });
    }
 };
+
+function setupTests()
+{
+   quickApi("user", function(users)
+   {
+      var tests = [
+      { "name" : "Hello world!", "link" : "whatever" },
+      { "name" : "This is a very long title. It is VERY VERY LONG!!! I don't want it to wrap", "link" : "uhuh" },
+      { "name" : "And one more thing!", "link" : "yes" },
+      { "name" : "Off topic!", "link" : "yes" },
+      { "name" : "S U P R E M E C H A T", "link" : "yes" } ];
+
+      for(var i = 0; i < tests.length; i++)
+      {
+         var t = tests[i];
+         var p = cloneTemplate("pulse");
+         p.innerHTML = p.innerHTML
+            .replace("%name%", t.name)
+            .replace("%link%", t.link)
+            .replace(/%id%/g, i)
+            .replace(/%date%/g, (new Date()).toLocaleString());
+         for(var j = 0; j < i * 2 + 1; j++)
+         {
+            p.querySelector(".pulse-users").appendChild(
+               makePulseUser(users[Math.floor(Math.random() * users.length)], "comment", "Comment"));
+         }
+         pulse.appendChild(p);
+      }
+   });
+}
 
 // ********************
 // ---- SETUP CODE ----
@@ -223,7 +255,7 @@ function setLoginState(loggedIn)
 function updateUserData(user)
 {
    //Just username and avatar for now?
-   navuseravatar.src = apiroot + "/file/raw/" + user.avatar + "?crop=true&size=80";
+   navuseravatar.src = getAvatarLink(user.avatar, 80);
    userusername.textContent = user.username;
    userid.textContent = "User ID: " + user.id;
    userid.setAttribute("data-userid", user.id);
@@ -274,7 +306,7 @@ function setFileUploadList(page)
 
 function addFileUploadImage(file, num)
 {
-   var link = apiroot + "/file/raw/" + file.id;
+   var link = getImageLink(file.id);
    var fItem = cloneTemplate("fupmain");
    fItem.innerHTML = fItem.innerHTML.replace("%link%", link);
    var fThumb = cloneTemplate("fupthumb");
@@ -306,6 +338,20 @@ function setToken(token)
 function getUserId()
 {
    return userid.dataset.userid;
+}
+
+function getImageLink(id, size, crop)
+{
+   var img = apiroot + "/file/raw/" + id;
+   var linkch = "?";
+   if(size) { img += linkch + "size=" + size; linkch = "&"; }
+   if(crop) { img += linkch + "crop=true"; linkch = "&"; }
+   return img;
+}
+
+function getAvatarLink(id, size)
+{
+   return getImageLink(id, size, true);
 }
 
 function getFormInputs(form)
@@ -401,6 +447,17 @@ function notifySuccess(message)
 {
    log.Info("Notify: " + message);
    notifyBase(message, "check", "success");
+}
+
+function makePulseUser(user, icon, type)
+{
+   var pu = cloneTemplate("pulseuser");
+   pu.innerHTML = pu.innerHTML
+      .replace("%message%", type + ": " + user.username)
+      .replace("%icon%", icon);
+   pu.firstElementChild.src = pu.firstElementChild.getAttribute("data-src")
+      .replace("%avatarlink%", getImageLink(user.avatar));
+   return pu;
 }
 
 // ***********************

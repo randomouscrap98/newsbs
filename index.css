@@ -9,6 +9,25 @@ body {
 input[type="file"] {
    cursor: pointer;
 }
+.pulse-name {
+   font-size: 1.3em;
+}
+[data-pulse] {
+   padding: 0.5em 0.9em 0.5em 0.9em;
+}
+[data-pulseuser] { 
+   margin: 0.3em;   
+   filter: opacity(0.7); /* grayscale(0.5);*/
+}
+[data-pulseuser]:hover { 
+   filter: none;
+}
+[data-pulseuser] img {
+   /*border: 1px solid rgba(127,127,127,0.4);*/
+}
+[data-pulseuser] [uk-icon] {
+   /*padding: 0.2em;*/
+}
 /* The rest */
 .databar {
    background-color: #444;
@@ -34,9 +53,6 @@ a:hover {
 #rightpanefooter {
    font-size: 0.7em;
    padding: 0 0.5em;
-}
-#navuseravatar {
-   border-radius: 50rem;
 }
 #rightpanenav {
    background-color: rgba(128,128,128,0.1);
