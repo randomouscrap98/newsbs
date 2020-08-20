@@ -19,11 +19,7 @@ window.onload = function()
    setupTests(); //For now
 
    if(getToken())
-   {
-      log.Info("User token found, trying to continue logged in");
-      rightpane.style.opacity = 0.2;
-      refreshUserFull(function() { rightpane.style.opacity = 1.0; });
-   }
+      setupNewSession();
 };
 
 function setupTests()
@@ -99,7 +95,7 @@ function setupUserForms()
    formSetupSubmit(loginform, "user/authenticate", function(token)
    {
       setToken(token); 
-      refreshUserFull();
+      setupNewSession();
    });
    userlogout.addEventListener("click", function()
    {
@@ -234,6 +230,35 @@ function setupFileUpload()
    });
 }
 
+//Assuming the user is logged in, this will start up the long poller, set the
+//login state, etc.
+function setupNewSession()
+{
+   log.Info("User token found, trying to continue logged in");
+   rightpane.style.opacity = 0.2;
+   refreshUserFull(function() { rightpane.style.opacity = 1.0; });
+
+   //TODO: 
+
+   //Call chain endpoint to get watches, aggregate activity, aggregate
+   //comments, content just name/id, users just name/id/avatar. reset + fill
+   //two sidebars with pulled data.
+
+   var params = new URLSearchParams();
+   var search = {"reverse":true,"createstart":yesterday().toISOString()};
+   params.append("requests", "activity-" + JSON.stringify(search));
+   params.append("requests", "comment-" + JSON.stringify(search));
+   params.set("comment","id,parentId,createUserId,createDate");
+
+   //function quickApi(url, callback, error, postData, always, method)
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      console.log(data);
+   });
+
+   //Start long poller
+}
+
 // **********************
 // ---- Page Modify ----
 // **********************
@@ -352,6 +377,13 @@ function getImageLink(id, size, crop)
 function getAvatarLink(id, size)
 {
    return getImageLink(id, size, true);
+}
+
+function yesterday()
+{
+   var d = new Date();
+   d.setDate(d.getDate() - 1);
+   return d;
 }
 
 function getFormInputs(form)
