@@ -248,12 +248,21 @@ function setupNewSession()
    var search = {"reverse":true,"createstart":yesterday().toISOString()};
    params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "comment-" + JSON.stringify(search));
+   params.append("requests", "content.0contentId.1parentId");
+   params.append("requests", "user.0userId.1createUserId");
    params.set("comment","id,parentId,createUserId,createDate");
+   params.set("content","id,name");
+   params.set("user","id,username,avatar");
 
    //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
+      //for each content, check if one exists, if so get it, if not, create it.
+      //for each user, gather their actions (comments + activity) and update
+      //their counts for that content.
+      //sort list by last date (using uikit)
       console.log(data);
+      updatePulse(data);
    });
 
    //Start long poller
@@ -340,6 +349,39 @@ function addFileUploadImage(file, num)
    fThumb.setAttribute("data-id", file.id);
    fileuploaditems.appendChild(fItem);
    fileuploadthumbnails.appendChild(fThumb);
+}
+
+function updatePulse(data)
+{
+   for(var i = 0; i < data.content.length; i++)
+   {
+      var pid = "pulseitem-" + data.content[i].id;
+      var pulsedata = document.getElementById(pid);
+      var c = data.content[i];
+
+      if(!pulsedata)
+      {
+         pulsedata = cloneTemplate("pulse");
+         pulsedata.id = pid;
+         pulsedata.innerHTML = pulsedata.innerHTML
+            .replace("%name%", c.name)
+            .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
+            .replace(/%id%/g, c.id)
+            .replace(/%date%/g, (new Date(c.createDate)).toLocaleString());
+         pulse.appendChild(pulsedata);
+
+         //TODO: how to handle renames and updating date? SHould probably have
+         //known locations for those, find anywhere. Only things with like
+         //data-somethingunique
+      }
+
+      //var t = tests[i];
+      //for(var j = 0; j < i * 2 + 1; j++)
+      //{
+      //   p.querySelector(".pulse-users").appendChild(
+      //      makePulseUser(users[Math.floor(Math.random() * users.length)], "comment", "Comment"));
+      //}
+   }
 }
 
 // ***************************
