@@ -257,12 +257,12 @@ function setupNewSession()
    //two sidebars with pulled data.
 
    var params = new URLSearchParams();
-   var search = {"reverse":true,"createstart":subhours(24).toISOString()};
+   var search = {"reverse":true,"createstart":Utilities.SubHours(24).toISOString()};
    params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "comment-" + JSON.stringify(search));
    params.append("requests", "content.0contentId.1parentId");
    params.append("requests", "user.0userId.1createUserId");
-   params.set("comment","id,parentId,createUserId,createDate,content");
+   params.set("comment","id,parentId,createUserId,createDate");
    params.set("content","id,name");
    params.set("user","id,username,avatar");
 
@@ -403,7 +403,7 @@ function updatePulse(data, fullReset)
          if(cm && cm.parentId == c.id)
          {
             pulsedata.querySelector(".pulse-users").appendChild(
-               makePulseUser(users[cm.createUserId], cm.content.substr(cm.content.indexOf("\n") + 1)));
+               makePulseUser(users[cm.createUserId]));
             added++;
          }
          if(ac && ac.contentId == c.id)
@@ -456,17 +456,12 @@ function getAvatarLink(id, size)
    return getImageLink(id, size, true);
 }
 
-function subhours(hours)
-{
-   return new Date(new Date().getTime() - (hours * 60 * 60 * 1000));
-}
-
-function yesterday()
-{
-   var d = new Date();
-   d.setDate(d.getDate() - 1);
-   return d;
-}
+//function yesterday()
+//{
+//   var d = new Date();
+//   d.setDate(d.getDate() - 1);
+//   return d;
+//}
 
 function getFormInputs(form)
 {
@@ -508,7 +503,7 @@ function formSerialize(form)
    for(var i = 0; i < inputs.length; i++)
    {
       var tag = inputs[i].tagName.toLowerCase();
-      if(tag == "input")
+      if(tag === "input" || tag === "textarea")
          result[inputs[i].getAttribute("name")] = inputs[i].value;
    }
    return result;

@@ -113,6 +113,15 @@ var Utilities =
       return window.innerHeight || document.documentElement.clientHeight || 
          document.body.clientHeight || 0; },
    ConvertRem : function(x){ 
-      return x / parseFloat(getComputedStyle(document.body)["font-size"]); }
+      return x / parseFloat(getComputedStyle(document.body)["font-size"]); },
+   //Taken from https://stackoverflow.com/a/50127768/1066474
+   SortElements : function(parent, sortFunc){
+      [...parent.children]
+         .sort((a,b)=>sortFunc(a)>sortFunc(b)?1:-1)
+         .forEach(node=>parent.appendChild(node));
+   },
+   SubHours : function(hours, date) {
+      return new Date((date || new Date()).getTime() - (hours * 60 * 60 * 1000));
+   }
 };
 
