@@ -1,5 +1,17 @@
 var apiroot = "https://newdev.smilebasicsource.com/api";
 
+var actiontext = {
+   "c" : "Create",
+   "r" : "Read",
+   "u" : "Edit",
+   "d" : "Delete"
+};
+
+//Will this be stored in user eventually?
+var options = {
+   pulseuserlimit : 10
+};
+
 window.onload = function()
 {
    log.Info("Window load event");
@@ -24,32 +36,32 @@ window.onload = function()
 
 function setupTests()
 {
-   quickApi("user", function(users)
-   {
-      var tests = [
-      { "name" : "Hello world!", "link" : "whatever" },
-      { "name" : "This is a very long title. It is VERY VERY LONG!!! I don't want it to wrap", "link" : "uhuh" },
-      { "name" : "And one more thing!", "link" : "yes" },
-      { "name" : "Off topic!", "link" : "yes" },
-      { "name" : "S U P R E M E C H A T", "link" : "yes" } ];
+   //quickApi("user", function(users)
+   //{
+   //   var tests = [
+   //   { "name" : "Hello world!", "link" : "whatever" },
+   //   { "name" : "This is a very long title. It is VERY VERY LONG!!! I don't want it to wrap", "link" : "uhuh" },
+   //   { "name" : "And one more thing!", "link" : "yes" },
+   //   { "name" : "Off topic!", "link" : "yes" },
+   //   { "name" : "S U P R E M E C H A T", "link" : "yes" } ];
 
-      for(var i = 0; i < tests.length; i++)
-      {
-         var t = tests[i];
-         var p = cloneTemplate("pulse");
-         p.innerHTML = p.innerHTML
-            .replace("%name%", t.name)
-            .replace("%link%", t.link)
-            .replace(/%id%/g, i)
-            .replace(/%date%/g, (new Date()).toLocaleString());
-         for(var j = 0; j < i * 2 + 1; j++)
-         {
-            p.querySelector(".pulse-users").appendChild(
-               makePulseUser(users[Math.floor(Math.random() * users.length)], "comment", "Comment"));
-         }
-         pulse.appendChild(p);
-      }
-   });
+   //   for(var i = 0; i < tests.length; i++)
+   //   {
+   //      var t = tests[i];
+   //      var p = cloneTemplate("pulse");
+   //      p.innerHTML = p.innerHTML
+   //         .replace("%name%", t.name)
+   //         .replace("%link%", t.link)
+   //         .replace(/%id%/g, i)
+   //         .replace(/%date%/g, (new Date()).toLocaleString());
+   //      for(var j = 0; j < i * 2 + 1; j++)
+   //      {
+   //         p.querySelector(".pulse-users").appendChild(
+   //            makePulseUser(users[Math.floor(Math.random() * users.length)], "comment", "Comment"));
+   //      }
+   //      pulse.appendChild(p);
+   //   }
+   //});
 }
 
 // ********************
@@ -245,12 +257,12 @@ function setupNewSession()
    //two sidebars with pulled data.
 
    var params = new URLSearchParams();
-   var search = {"reverse":true,"createstart":yesterday().toISOString()};
+   var search = {"reverse":true,"createstart":subhours(24).toISOString()};
    params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "comment-" + JSON.stringify(search));
    params.append("requests", "content.0contentId.1parentId");
    params.append("requests", "user.0userId.1createUserId");
-   params.set("comment","id,parentId,createUserId,createDate");
+   params.set("comment","id,parentId,createUserId,createDate,content");
    params.set("content","id,name");
    params.set("user","id,username,avatar");
 
@@ -262,7 +274,7 @@ function setupNewSession()
       //their counts for that content.
       //sort list by last date (using uikit)
       console.log(data);
-      updatePulse(data);
+      updatePulse(data, true);
    });
 
    //Start long poller
@@ -351,36 +363,59 @@ function addFileUploadImage(file, num)
    fileuploadthumbnails.appendChild(fThumb);
 }
 
-function updatePulse(data)
+function updatePulse(data, fullReset)
 {
+   if(fullReset)
+      pulse.innerHTML = "";
+
+   //Make user "dictionary"
+   var users = {};
+
+   for(var i = 0; i < data.user.length; i++)
+   {
+      users[data.user[i].id] = data.user[i];
+   }
+
+   //Now process each content in the new batch
    for(var i = 0; i < data.content.length; i++)
    {
-      var pid = "pulseitem-" + data.content[i].id;
-      var pulsedata = document.getElementById(pid);
       var c = data.content[i];
+      var pulsedata = document.getElementById(pulseId(c));
 
       if(!pulsedata)
       {
-         pulsedata = cloneTemplate("pulse");
-         pulsedata.id = pid;
-         pulsedata.innerHTML = pulsedata.innerHTML
-            .replace("%name%", c.name)
-            .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
-            .replace(/%id%/g, c.id)
-            .replace(/%date%/g, (new Date(c.createDate)).toLocaleString());
+         pulsedata = makePulse(c);
          pulse.appendChild(pulsedata);
-
-         //TODO: how to handle renames and updating date? SHould probably have
-         //known locations for those, find anywhere. Only things with like
-         //data-somethingunique
       }
 
-      //var t = tests[i];
-      //for(var j = 0; j < i * 2 + 1; j++)
-      //{
-      //   p.querySelector(".pulse-users").appendChild(
-      //      makePulseUser(users[Math.floor(Math.random() * users.length)], "comment", "Comment"));
-      //}
+      var pelname = pulsedata.querySelector("[data-pulsename]");
+      pelname[pelname.getAttribute("data-pulsename")] = c.name;
+
+      var added = 0;
+
+      //To be "kind of" fair or something, mix activity with comments. This
+      //probably isn't a good idea? Whatever
+      for(var j = 0; j < Math.max(data.comment.length, data.activity.length); j++)
+      {
+         var cm = data.comment[j];
+         var ac = data.activity[j];
+         
+         if(cm && cm.parentId == c.id)
+         {
+            pulsedata.querySelector(".pulse-users").appendChild(
+               makePulseUser(users[cm.createUserId], cm.content.substr(cm.content.indexOf("\n") + 1)));
+            added++;
+         }
+         if(ac && ac.contentId == c.id)
+         {
+            pulsedata.querySelector(".pulse-users").appendChild(
+               makePulseUser(users[ac.userId], actiontext[ac.action]));
+            added++;
+         }
+
+         if(added > options.pulseuserlimit)
+            break;
+      }
    }
 }
 
@@ -419,6 +454,11 @@ function getImageLink(id, size, crop)
 function getAvatarLink(id, size)
 {
    return getImageLink(id, size, true);
+}
+
+function subhours(hours)
+{
+   return new Date(new Date().getTime() - (hours * 60 * 60 * 1000));
 }
 
 function yesterday()
@@ -523,15 +563,9 @@ function notifySuccess(message)
    notifyBase(message, "check", "success");
 }
 
-function makePulseUser(user, icon, type)
+function pulseId(content)
 {
-   var pu = cloneTemplate("pulseuser");
-   pu.innerHTML = pu.innerHTML
-      .replace("%message%", type + ": " + user.username)
-      .replace("%icon%", icon);
-   pu.firstElementChild.src = pu.firstElementChild.getAttribute("data-src")
-      .replace("%avatarlink%", getImageLink(user.avatar));
-   return pu;
+   return "pulseitem-" + content.id;
 }
 
 // ***********************
@@ -555,6 +589,28 @@ function makeSuccess(message)
    var success = cloneTemplate("success");
    success.innerHTML = success.innerHTML.replace("%message%", message);
    return success;
+}
+
+function makePulseUser(user, message) //, icon, type)
+{
+   var pu = cloneTemplate("pulseuser");
+   pu.innerHTML = pu.innerHTML
+      .replace("%message%", user.username + (message ? (": " + message) : ""));
+      //.replace("%icon%", icon);
+   pu.firstElementChild.src = pu.firstElementChild.getAttribute("data-src")
+      .replace("%avatarlink%", getImageLink(user.avatar));
+   return pu;
+}
+
+function makePulse(c)
+{
+   var pulsedata = cloneTemplate("pulse");
+   pulsedata.id = pulseId(c);
+   pulsedata.innerHTML = pulsedata.innerHTML
+   .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
+   .replace(/%id%/g, c.id);
+   return pulsedata;
+   //.replace(/%date%/g, (new Date(c.createDate)).toLocaleString());
 }
 
 // *************
