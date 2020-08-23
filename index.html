@@ -342,26 +342,30 @@
                   class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</time>
             </div>
          </div>
+         <!-- Because of dropdowns, this one has the INNER elements pasted into
+              the parent, and not the container itself-->
          <div data-pulseuser>
             <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=20" 
                  class="uk-border-circle" width=20 height=20>
             <div uk-dropdown>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
-                  <tr data-count="" data-firstdate="" data-lastdate=""> 
-                     <td class="uk-text-right uk-table-shrink">10</td>
+                  <tr data-comment="10" data-firstdate="" data-lastdate=""> 
+                     <td class="uk-table-shrink">10</td>
                      <td width=20><span uk-icon="comment" ></span></td>
                      <td>44m-55m</td>
                   </tr>
-                  <tr data-count="" data-firstdate="" data-lastdate=""> 
-                     <td class="uk-text-right">2</td>
-                     <td width=20><span uk-icon="file-edit" ></span></td>
+                  <tr data-edit="2" data-firstdate="" data-lastdate=""> 
+                     <td>2</td>
+                     <td><span uk-icon="file-edit" ></span></td>
                      <td>1h-2h</td>
+                  </tr>
+                  <tr data-create data-firstdate="" data-lastdate=""> 
+                     <td></td>
+                     <td><span uk-icon="file-text"></span></td>
+                     <td>5h</td>
                   </tr>
                </table>
             </div>
-            <!--<span uk-icon="icon: %icon%; ratio: 1" 
-               style="display: none"
-               class="uk-position-bottom-right"></span>-->
          </div>
       </div>
       <!-- LOC:CONTROLS -->

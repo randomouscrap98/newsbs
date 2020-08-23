@@ -6,23 +6,14 @@ body {
    right: 0;
 }
 /* Stuff that should probably be taken over by uikit */
-input[type="file"] {
-   cursor: pointer;
-}
-/*[data-pulseuser] img {
-   border: 1px solid rgba(127,127,127,0.4);
-}
-[data-pulseuser] [uk-icon] {
-   padding: 0.2em;
-}*/
+input[type="file"] { cursor: pointer; }
+a:hover { color: inherit; }
+#postarea textarea { resize: none; }
 /* The rest */
 .databar {
    background-color: #444;
    color: #AAA;
    padding: 0 0.1em;
-}
-a:hover { 
-   color: inherit; 
 }
 #topnav a:hover {
    color: #CCC;
@@ -57,9 +48,7 @@ a:hover {
    border-top: 2px solid rgba(128,128,128,0.1);
    padding-bottom: 1px;
 }
-#postarea textarea {
-   resize: none;
-}
+.tabnav > div { padding: 0.1em 0; }
 /* ------- */
 /* Logging
 /* ------- */
@@ -75,9 +64,6 @@ a:hover {
 .log_debug { color: #BBB; }
 .log_error { color: #C42; }
 .log_warn { color: #DA6; }
-.tabnav > div {
-   padding: 0.1em 0;
-}
 /* -------------------- */
 /* Notification special */
 /* -------------------- */
@@ -95,31 +81,22 @@ a:hover {
 /* -------------------------------------------------- */
 /* Pulse styling (should really just use uikit stuff) */
 /* -------------------------------------------------- */
+[data-pulse] { padding: 0.45em 0.9em 0.5em 0.9em; }
+.pulse-name {
+   font-size: 1.3em;
+   margin-bottom: 0.25em;
+}
 .pulse-users {
    background-color: rgba(127,127,127,0.1);
    margin-right: 1em;
    padding: 0.05em;
 }
-.pulse-users [uk-dropdown] {
-   padding: 0.5em;
-}
-.pulse-users table {
-   margin: 0;
-}
-.pulse-users table td {
-   padding: 0.5em 0.4em;
-}
-.pulse-name {
-   font-size: 1.3em;
-   margin-bottom: 0.25em;
-}
-[data-pulse] {
-   padding: 0.45em 0.9em 0.5em 0.9em;
-}
+.pulse-users [uk-dropdown] { padding: 0.5em; }
+.pulse-users table { margin: 0; } 
+.pulse-users table td { padding: 0.5em 0.4em; }
+.pulse-users table td:first-child { text-align: right; }
+.pulse-users [aria-expanded="true"] {  filter: none; }
 [data-pulseuser] { 
    margin: 0.3em;   
    filter: opacity(0.7);
-}
-.pulse-users [aria-expanded="true"] {  
-   filter: none;
 }
