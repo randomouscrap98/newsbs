@@ -393,6 +393,29 @@ function updatePulse(data, fullReset)
 
       var added = 0;
 
+      var addPu = function(pu)
+      {
+         //pu.id = "pulseuser-" + i;
+         //pulsedata.querySelector(".pulse-users").appendChild(pu);//.children[k]);
+         //var dd = pu.querySelector("[uk-dropdown]");
+         //dd.setAttribute("uk-dropdown", dd.getAttribute("uk-dropdown") +
+         //   ";toggle: #pulseuser-" + i);
+         //dd.removeAttribute("fuk-dropdown");
+         //console.log(pu.children);
+         [...pu.children].forEach(x => 
+         {
+            //if(x.tagName === "IMG")
+            //   x.setAttribute("data-pulseuser", "");
+            pulsedata.querySelector(".pulse-users").appendChild(x);
+         });
+         //for(var x in pu.children) //var k = 0; k < pu.children.length; k++)
+         //{
+         //   //console.log(pu.children[k]);
+         //   pulsedata.querySelector(".pulse-users").appendChild(pu.children[x]);
+         //}
+         added++;
+      };
+
       //To be "kind of" fair or something, mix activity with comments. This
       //probably isn't a good idea? Whatever
       for(var j = 0; j < Math.max(data.comment.length, data.activity.length); j++)
@@ -401,17 +424,9 @@ function updatePulse(data, fullReset)
          var ac = data.activity[j];
          
          if(cm && cm.parentId == c.id)
-         {
-            pulsedata.querySelector(".pulse-users").appendChild(
-               makePulseUser(users[cm.createUserId]));
-            added++;
-         }
+            addPu(makePulseUser(users[cm.createUserId], c));
          if(ac && ac.contentId == c.id)
-         {
-            pulsedata.querySelector(".pulse-users").appendChild(
-               makePulseUser(users[ac.userId], actiontext[ac.action]));
-            added++;
-         }
+            addPu(makePulseUser(users[ac.userId], c, actiontext[ac.action]));
 
          if(added > options.pulseuserlimit)
             break;
@@ -589,10 +604,16 @@ function makeSuccess(message)
 function makePulseUser(user, message) //, icon, type)
 {
    var pu = cloneTemplate("pulseuser");
+   //var id = user.id + "-" + content.id;
+   //var parent = document.createElement("div");
+   //parent.appendChild(pu);
+   //pu.id = pu.id.replace(/%id%/g, user.id);
    pu.innerHTML = pu.innerHTML
-      .replace("%message%", user.username + (message ? (": " + message) : ""));
+      .replace(/%id%/g, user.id);
+      //.replace("%message%", user.username + (message ? (": " + message) : ""));
       //.replace("%icon%", icon);
-   pu.firstElementChild.src = pu.firstElementChild.getAttribute("data-src")
+   pu.firstElementChild.src = 
+      pu.firstElementChild.getAttribute("data-src")
       .replace("%avatarlink%", getImageLink(user.avatar));
    return pu;
 }

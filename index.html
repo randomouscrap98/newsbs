@@ -335,7 +335,6 @@
             <img data-src="%link%?size=60&crop=true" width="60" alt="" uk-img></a></li>
          <div data-pulse>
             <a href="%link%" class="uk-display-block uk-text-truncate pulse-name uk-text-emphasis" 
-               fuk-tooltip="title: %id%; pos: left"
                data-pulsename="textContent">%name%</a>
             <div class="uk-flex uk-flex-bottom">
                <div class="pulse-users uk-border-pill"></div>
@@ -343,11 +342,26 @@
                   class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</time>
             </div>
          </div>
-         <div data-pulseuser class="uk-inline">
-            <img uk-tooltip="title: %message%;" data-src="%avatarlink%?crop=true&size=20" 
-              class="uk-border-circle uk-display-block" width=20 height=20>
-            <span uk-icon="icon: %icon%; ratio: 1" 
-               style="display: none" class="uk-position-bottom-right"></span>
+         <div data-pulseuser>
+            <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=20" 
+                 class="uk-border-circle" width=20 height=20>
+            <div uk-dropdown>
+               <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
+                  <tr data-count="" data-firstdate="" data-lastdate=""> 
+                     <td class="uk-text-right uk-table-shrink">10</td>
+                     <td width=20><span uk-icon="comment" ></span></td>
+                     <td>44m-55m</td>
+                  </tr>
+                  <tr data-count="" data-firstdate="" data-lastdate=""> 
+                     <td class="uk-text-right">2</td>
+                     <td width=20><span uk-icon="file-edit" ></span></td>
+                     <td>1h-2h</td>
+                  </tr>
+               </table>
+            </div>
+            <!--<span uk-icon="icon: %icon%; ratio: 1" 
+               style="display: none"
+               class="uk-position-bottom-right"></span>-->
          </div>
       </div>
       <!-- LOC:CONTROLS -->

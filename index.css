@@ -48,7 +48,7 @@ a:hover {
    background-color: rgba(128,255,240,0.1);
 }
 /* Special styling JUST for the sidbar nav */
-#rightpanenav .uk-active {  
+#rightpanenav .uk-active {
    background-color: rgba(128,255,240,0.4);
 }
 #postarea {
@@ -100,6 +100,15 @@ a:hover {
    margin-right: 1em;
    padding: 0.05em;
 }
+.pulse-users [uk-dropdown] {
+   padding: 0.5em;
+}
+.pulse-users table {
+   margin: 0;
+}
+.pulse-users table td {
+   padding: 0.5em 0.4em;
+}
 .pulse-name {
    font-size: 1.3em;
    margin-bottom: 0.25em;
@@ -111,6 +120,6 @@ a:hover {
    margin: 0.3em;   
    filter: opacity(0.7);
 }
-[data-pulseuser]:hover { 
+.pulse-users [aria-expanded="true"] {  
    filter: none;
 }
