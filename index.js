@@ -36,32 +36,6 @@ window.onload = function()
 
 function setupTests()
 {
-   //quickApi("user", function(users)
-   //{
-   //   var tests = [
-   //   { "name" : "Hello world!", "link" : "whatever" },
-   //   { "name" : "This is a very long title. It is VERY VERY LONG!!! I don't want it to wrap", "link" : "uhuh" },
-   //   { "name" : "And one more thing!", "link" : "yes" },
-   //   { "name" : "Off topic!", "link" : "yes" },
-   //   { "name" : "S U P R E M E C H A T", "link" : "yes" } ];
-
-   //   for(var i = 0; i < tests.length; i++)
-   //   {
-   //      var t = tests[i];
-   //      var p = cloneTemplate("pulse");
-   //      p.innerHTML = p.innerHTML
-   //         .replace("%name%", t.name)
-   //         .replace("%link%", t.link)
-   //         .replace(/%id%/g, i)
-   //         .replace(/%date%/g, (new Date()).toLocaleString());
-   //      for(var j = 0; j < i * 2 + 1; j++)
-   //      {
-   //         p.querySelector(".pulse-users").appendChild(
-   //            makePulseUser(users[Math.floor(Math.random() * users.length)], "comment", "Comment"));
-   //      }
-   //      pulse.appendChild(p);
-   //   }
-   //});
 }
 
 // ********************
@@ -266,10 +240,6 @@ function setupNewSession()
    //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
-      //for each content, check if one exists, if so get it, if not, create it.
-      //for each user, gather their actions (comments + activity) and update
-      //their counts for that content.
-      //sort list by last date (using uikit)
       console.log(data);
       updatePulse(data, true);
    });
@@ -360,6 +330,93 @@ function addFileUploadImage(file, num)
    fileuploadthumbnails.appendChild(fThumb);
 }
 
+function cataloguePulse(c, u, aggregate)
+{
+   //Oops, never categorized this content
+   if(!aggregate[c.id])
+   {
+      var pulsedata = document.getElementById(pulseId(c));
+
+      if(!pulsedata)
+      {
+         pulsedata = makePulse(c);
+         pulse.appendChild(pulsedata);
+      }
+
+      //Update the content name now, might as well
+      var pelname = pulsedata.querySelector("[data-pulsename]");
+      pelname[pelname.getAttribute("data-pulsename")] = c.name;
+
+      aggregate[c.id] = { pulse : pulsedata };
+   }
+
+   //Oops, never categorized this user IN this content
+   if(!aggregate[c.id][u.id])
+   {
+      var pulseuser = aggregate[c.id].pulse
+         .querySelector('[data-pulseuser="' + u.id + '"]');
+
+      if(!pulseuser)
+      {
+         var pu = makePulseUser(u, c);
+         var pus = aggregate[c.id].pulse.querySelector(".pulse-users");
+
+         //Go find the user element (hoping it exists)
+         [...pu.children].forEach(x => 
+            {
+               if(x.hasAttribute("data-pulseuser")) pulseuser = x;
+               pus.appendChild(x);
+            });
+      }
+
+      //Now pull the catalogue data FINALLY!
+      aggregate[c.id][u.id] = getPulseUserData(pulseuser.nextSibling);
+      aggregate[c.id][u.id].user = pulseuser.nextSibling;
+   }
+
+   return aggregate[c.id][u.id];
+}
+
+function applyPulseCatalogue(aggregate)
+{
+   for(key in aggregate)
+      if(Number(key))
+         for(key2 in aggregate[key])
+            if(Number(key2))
+               setPulseUserData(aggregate[key][key2].user, aggregate[key][key2]);
+}
+
+function updatePulseCatalogue(item, date)
+{
+   item.count++;
+
+   if(item.count === 1) 
+   {
+      item.firstdate = date;
+      return;
+   }
+   else if(item.count === 2) 
+   {
+      item.lastdate = date;
+   }
+
+   var lt = new Date(item.lastdate).getTime();
+   var ft = new Date(item.firstdate).getTime();
+   var dt = new Date(date).getTime();
+
+   if(lt < ft)
+   {
+      var t = item.lastdate;
+      item.lastdate = item.firstdate;
+      item.firstdate = t;
+   }
+
+   if(dt > lt)
+      item.lastdate = date;
+   if(dt < ft)
+      item.firstdate = date;
+}
+
 function updatePulse(data, fullReset)
 {
    if(fullReset)
@@ -370,63 +427,13 @@ function updatePulse(data, fullReset)
    var contents = idMap(data.content);
    var aggregate = {};
 
-   var catalogue = function(contentid, userid)
-   {
-      var c = contents[contentid];
-      var u = users[userid];
-
-      //Oops, never categorized this content
-      if(!aggregate[contentid])
-      {
-         var pulsedata = document.getElementById(pulseId(c));
-
-         if(!pulsedata)
-         {
-            pulsedata = makePulse(c);
-            pulse.appendChild(pulsedata);
-         }
-
-         //Update the content name now, might as well
-         var pelname = pulsedata.querySelector("[data-pulsename]");
-         pelname[pelname.getAttribute("data-pulsename")] = c.name;
-
-         aggregate[contentid] = { pulse : pulsedata };
-      }
-
-      //Oops, never categorized this user IN this content
-      if(!aggregate[contentid][userid])
-      {
-         var pulseuser = aggregate[contentid].pulse
-            .querySelector('[data-pulseuser="' + userid + '"]');
-
-         if(!pulseuser)
-         {
-            var pu = makePulseUser(u, c);
-            var pus = aggregate[contentid].pulse.querySelector(".pulse-users");
-
-            //Go find the user element (hoping it exists)
-            [...pu.children].forEach(x => 
-            {
-               if(x.hasAttribute("data-pulseuser")) pulseuser = x;
-               pus.appendChild(x);
-            });
-         }
-
-         //Now pull the catalogue data FINALLY!
-         aggregate[contentid][userid] = getPulseUserData(pulseuser.nextSibling);
-         aggregate[contentid][userid].user = pulseuser.nextSibling;
-      }
-
-      return aggregate[contentid][userid];
-   };
-
    for(var i = 0; i < data.comment.length; i++)
    {
       var c = data.comment[i];
       if(c.createUserId) //need to check in case deleted comment
       {
-         var d = catalogue(c.parentId, c.createUserId);
-         d.comment.count++;
+         var d = cataloguePulse(contents[c.parentId], users[c.createUserId], aggregate);
+         updatePulseCatalogue(d.comment, c.createDate);
       }
    }
 
@@ -435,73 +442,16 @@ function updatePulse(data, fullReset)
       var a = data.activity[i];
       if(a.userId > 0) //need to check in case system
       {
-         var d = catalogue(a.contentId, a.userId);
+         var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
 
          if(a.action == "c")
-            d.create.count++;
+            updatePulseCatalogue(d.create, a.date);
          else if(a.action == "e")
-            d.edit.count++;
+            updatePulseCatalogue(d.edit, a.date);
       }
    }
 
-   //console.log(aggregate);
-
-   for(key in aggregate)
-   {
-      if(Number(key))
-      {
-         for(key2 in aggregate[key])
-         {
-            if(Number(key2))
-            {
-               setPulseUserData(aggregate[key][key2].user, aggregate[key][key2]);
-            }
-         }
-      }
-   }
-
-   ////Now process each content in the new batch
-   //for(var i = 0; i < data.content.length; i++)
-   //{
-   //   var c = data.content[i];
-   //   var pulsedata = document.getElementById(pulseId(c));
-
-   //   if(!pulsedata)
-   //   {
-   //      pulsedata = makePulse(c);
-   //      pulse.appendChild(pulsedata);
-   //   }
-
-   //   var pelname = pulsedata.querySelector("[data-pulsename]");
-   //   pelname[pelname.getAttribute("data-pulsename")] = c.name;
-
-   //   var added = 0;
-
-   //   var addPu = function(pu)
-   //   {
-   //      [...pu.children].forEach(x => 
-   //      {
-   //         pulsedata.querySelector(".pulse-users").appendChild(x);
-   //      });
-   //      added++;
-   //   };
-
-   //   //To be "kind of" fair or something, mix activity with comments. This
-   //   //probably isn't a good idea? Whatever
-   //   for(var j = 0; j < Math.max(data.comment.length, data.activity.length); j++)
-   //   {
-   //      var cm = data.comment[j];
-   //      var ac = data.activity[j];
-   //      
-   //      if(cm && cm.parentId == c.id)
-   //         addPu(makePulseUser(users[cm.createUserId], c));
-   //      if(ac && ac.contentId == c.id)
-   //         addPu(makePulseUser(users[ac.userId], c, actiontext[ac.action]));
-
-   //      if(added > options.pulseuserlimit)
-   //         break;
-   //   }
-   //}
+   applyPulseCatalogue(aggregate);
 }
 
 // ***************************
@@ -712,10 +662,10 @@ function reapplyPulseUserDisplay(userElem)
       var d = data[pulseUserFields[i]];
       if(d && d.count)
       {
-         elem.querySelector("td:first-child").textContent = (d.count > 1) ?  d.count : "";
+         elem.querySelector("td:first-child").textContent = d.count; //(d.count > 1) ?  d.count : "";
          var dtmsg = [];
-         if(d.firstdate) dtmsg.push(Utilities.TimeDiff(d.firstdate, null, true));
          if(d.lastdate) dtmsg.push(Utilities.TimeDiff(d.lastdate, null, true));
+         if(d.firstdate) dtmsg.push(Utilities.TimeDiff(d.firstdate, null, true));
          elem.querySelector("td:last-child").textContent = dtmsg.join(" - ");
          elem.style = "";
       }
