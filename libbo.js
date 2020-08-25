@@ -122,6 +122,35 @@ var Utilities =
    },
    SubHours : function(hours, date) {
       return new Date((date || new Date()).getTime() - (hours * 60 * 60 * 1000));
+   },
+   ReSource : function(parent, srcAttr, modify) {
+      var srcs = parent.querySelectorAll("[" + srcAttr + "]");
+      modify = modify || function(s) { return s; };
+      for(var i = 0; i < srcs.length; i++)
+         srcs[i].src = modify(srcs[i].getAttribute(srcAttr));
+   },
+   TimeDiff : function(date1, date2, short, nowBuf) {
+      nowBuf = nowBuf || 5;
+      date2 = date2 || new Date(); //Now
+      if(typeof date1 === "string")
+         date1 = new Date(date1);
+      if(typeof date2 === "string")
+         date2 = new Date(date2);
+      var diff = Math.abs(date1.getTime() - date2.getTime()) / 1000;
+      var t = 0, u = "";
+
+      if(diff <= nowBuf) { return short ? "Now" : "Just now"; }
+      else if(diff < 60) { t = diff; u = "second"; }
+      else if(diff < 3600) { t = diff / 60; u = "minute"; }
+      else if(diff < 86400) { t = diff / 3600; u = "hour"; }
+      else { t = diff / 86400; u = "day"; }
+
+      t = Math.floor(t);
+
+      if(short)
+         return t + u.substr(0, 1);
+      else
+         return t + " " + u + (t != 1 ? "s" : "");
    }
 };
 

@@ -133,13 +133,10 @@ function setupUserForms()
    formSetupSubmit(registerform, "user/register", function(token)
    {
       log.Info("Registration submitted! Sending email...");
-      quickApi("user/register/sendemail", function()
-      {
-         log.Info("Registration email sent! Check your email");
-      }, function(req)
-      {
-         notifyError("There was a problem sending your email. However, your registration was submitted successfully.");
-      }, {"email" : formSerialize(registerform)["email"] });
+      quickApi("user/register/sendemail", 
+         () => log.Info("Registration email sent! Check your email"), 
+         req => notifyError("There was a problem sending your email. However, your registration was submitted successfully."), 
+         {"email" : formSerialize(registerform)["email"] });
       registrationstep2.click();
    }, function(formData)
    {
@@ -156,7 +153,7 @@ function setupUserForms()
 
    userchangeavatar.addEventListener("click", function() {
       fileselectcallback = function(id) {
-         quickApi("user/basic", function() { refreshUserFull() }, undefined, 
+         quickApi("user/basic", () => refreshUserFull(), undefined, 
             { "avatar" : id }, undefined, "PUT"); 
       };
    });
@@ -177,7 +174,7 @@ function setupAlerts()
             setToken(null);
             location.reload(); 
          }, undefined, "pleaseinvalidate");
-      }, function() { log.Debug("Cancelled invalidate tokens"); });
+      }, () => log.Debug("Cancelled invalidate tokens"));
    });
 }
 
@@ -224,10 +221,10 @@ function setupFileUpload()
       multiple: false,
       mime: "image/*",
       name: "file",
-      beforeSend: function (e) { e.headers["Authorization"] = "Bearer " + getToken(); },
-      loadStart: function (e) { bar.removeAttribute('hidden'); bar.max = e.total; bar.value = e.loaded; },
-      progress: function (e) { bar.max = e.total; bar.value = e.loaded; },
-      loadEnd: function (e) { bar.max = e.total; bar.value = e.loaded; },
+      beforeSend: e => { e.headers["Authorization"] = "Bearer " + getToken(); },
+      loadStart: e => { bar.removeAttribute('hidden'); bar.max = e.total; bar.value = e.loaded; },
+      progress: e => { bar.max = e.total; bar.value = e.loaded; },
+      loadEnd: e => { bar.max = e.total; bar.value = e.loaded; },
       error: generalError,
       fail: generalError,
       completeAll: function () {
@@ -248,7 +245,7 @@ function setupNewSession()
 {
    log.Info("User token found, trying to continue logged in");
    rightpane.style.opacity = 0.2;
-   refreshUserFull(function() { rightpane.style.opacity = 1.0; });
+   refreshUserFull(() => rightpane.style.opacity = 1.0);
 
    //TODO: 
 
@@ -340,8 +337,8 @@ function setFileUploadList(page)
          addFileUploadImage(files[i], i);
       }
 
-      fileuploadnewer.onclick = function(e) { e.preventDefault(); setFileUploadList(page - 1); }
-      fileuploadolder.onclick = function(e) { e.preventDefault(); setFileUploadList(page + 1); }
+      fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1); }
+      fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1); }
 
       if(page > 0) fileuploadnewer.removeAttribute("hidden");
       else fileuploadnewer.setAttribute("hidden", "");
@@ -368,70 +365,143 @@ function updatePulse(data, fullReset)
    if(fullReset)
       pulse.innerHTML = "";
 
-   //Make user "dictionary"
-   var users = {};
+   //Easy dictionaries
+   var users = idMap(data.user);
+   var contents = idMap(data.content);
+   var aggregate = {};
 
-   for(var i = 0; i < data.user.length; i++)
+   var catalogue = function(contentid, userid)
    {
-      users[data.user[i].id] = data.user[i];
-   }
+      var c = contents[contentid];
+      var u = users[userid];
 
-   //Now process each content in the new batch
-   for(var i = 0; i < data.content.length; i++)
-   {
-      var c = data.content[i];
-      var pulsedata = document.getElementById(pulseId(c));
-
-      if(!pulsedata)
+      //Oops, never categorized this content
+      if(!aggregate[contentid])
       {
-         pulsedata = makePulse(c);
-         pulse.appendChild(pulsedata);
-      }
+         var pulsedata = document.getElementById(pulseId(c));
 
-      var pelname = pulsedata.querySelector("[data-pulsename]");
-      pelname[pelname.getAttribute("data-pulsename")] = c.name;
-
-      var added = 0;
-
-      var addPu = function(pu)
-      {
-         //pu.id = "pulseuser-" + i;
-         //pulsedata.querySelector(".pulse-users").appendChild(pu);//.children[k]);
-         //var dd = pu.querySelector("[uk-dropdown]");
-         //dd.setAttribute("uk-dropdown", dd.getAttribute("uk-dropdown") +
-         //   ";toggle: #pulseuser-" + i);
-         //dd.removeAttribute("fuk-dropdown");
-         //console.log(pu.children);
-         [...pu.children].forEach(x => 
+         if(!pulsedata)
          {
-            //if(x.tagName === "IMG")
-            //   x.setAttribute("data-pulseuser", "");
-            pulsedata.querySelector(".pulse-users").appendChild(x);
-         });
-         //for(var x in pu.children) //var k = 0; k < pu.children.length; k++)
-         //{
-         //   //console.log(pu.children[k]);
-         //   pulsedata.querySelector(".pulse-users").appendChild(pu.children[x]);
-         //}
-         added++;
-      };
+            pulsedata = makePulse(c);
+            pulse.appendChild(pulsedata);
+         }
 
-      //To be "kind of" fair or something, mix activity with comments. This
-      //probably isn't a good idea? Whatever
-      for(var j = 0; j < Math.max(data.comment.length, data.activity.length); j++)
+         //Update the content name now, might as well
+         var pelname = pulsedata.querySelector("[data-pulsename]");
+         pelname[pelname.getAttribute("data-pulsename")] = c.name;
+
+         aggregate[contentid] = { pulse : pulsedata };
+      }
+
+      //Oops, never categorized this user IN this content
+      if(!aggregate[contentid][userid])
       {
-         var cm = data.comment[j];
-         var ac = data.activity[j];
-         
-         if(cm && cm.parentId == c.id)
-            addPu(makePulseUser(users[cm.createUserId], c));
-         if(ac && ac.contentId == c.id)
-            addPu(makePulseUser(users[ac.userId], c, actiontext[ac.action]));
+         var pulseuser = aggregate[contentid].pulse
+            .querySelector('[data-pulseuser="' + userid + '"]');
 
-         if(added > options.pulseuserlimit)
-            break;
+         if(!pulseuser)
+         {
+            var pu = makePulseUser(u, c);
+            var pus = aggregate[contentid].pulse.querySelector(".pulse-users");
+
+            //Go find the user element (hoping it exists)
+            [...pu.children].forEach(x => 
+            {
+               if(x.hasAttribute("data-pulseuser")) pulseuser = x;
+               pus.appendChild(x);
+            });
+         }
+
+         //Now pull the catalogue data FINALLY!
+         aggregate[contentid][userid] = getPulseUserData(pulseuser.nextSibling);
+         aggregate[contentid][userid].user = pulseuser.nextSibling;
+      }
+
+      return aggregate[contentid][userid];
+   };
+
+   for(var i = 0; i < data.comment.length; i++)
+   {
+      var c = data.comment[i];
+      if(c.createUserId) //need to check in case deleted comment
+      {
+         var d = catalogue(c.parentId, c.createUserId);
+         d.comment.count++;
       }
    }
+
+   for(var i = 0; i < data.activity.length; i++)
+   {
+      var a = data.activity[i];
+      if(a.userId > 0) //need to check in case system
+      {
+         var d = catalogue(a.contentId, a.userId);
+
+         if(a.action == "c")
+            d.create.count++;
+         else if(a.action == "e")
+            d.edit.count++;
+      }
+   }
+
+   //console.log(aggregate);
+
+   for(key in aggregate)
+   {
+      if(Number(key))
+      {
+         for(key2 in aggregate[key])
+         {
+            if(Number(key2))
+            {
+               setPulseUserData(aggregate[key][key2].user, aggregate[key][key2]);
+            }
+         }
+      }
+   }
+
+   ////Now process each content in the new batch
+   //for(var i = 0; i < data.content.length; i++)
+   //{
+   //   var c = data.content[i];
+   //   var pulsedata = document.getElementById(pulseId(c));
+
+   //   if(!pulsedata)
+   //   {
+   //      pulsedata = makePulse(c);
+   //      pulse.appendChild(pulsedata);
+   //   }
+
+   //   var pelname = pulsedata.querySelector("[data-pulsename]");
+   //   pelname[pelname.getAttribute("data-pulsename")] = c.name;
+
+   //   var added = 0;
+
+   //   var addPu = function(pu)
+   //   {
+   //      [...pu.children].forEach(x => 
+   //      {
+   //         pulsedata.querySelector(".pulse-users").appendChild(x);
+   //      });
+   //      added++;
+   //   };
+
+   //   //To be "kind of" fair or something, mix activity with comments. This
+   //   //probably isn't a good idea? Whatever
+   //   for(var j = 0; j < Math.max(data.comment.length, data.activity.length); j++)
+   //   {
+   //      var cm = data.comment[j];
+   //      var ac = data.activity[j];
+   //      
+   //      if(cm && cm.parentId == c.id)
+   //         addPu(makePulseUser(users[cm.createUserId], c));
+   //      if(ac && ac.contentId == c.id)
+   //         addPu(makePulseUser(users[ac.userId], c, actiontext[ac.action]));
+
+   //      if(added > options.pulseuserlimit)
+   //         break;
+   //   }
+   //}
 }
 
 // ***************************
@@ -470,13 +540,6 @@ function getAvatarLink(id, size)
 {
    return getImageLink(id, size, true);
 }
-
-//function yesterday()
-//{
-//   var d = new Date();
-//   d.setDate(d.getDate() - 1);
-//   return d;
-//}
 
 function getFormInputs(form)
 {
@@ -544,9 +607,9 @@ function formSetupSubmit(form, endpoint, success, validate)
       }
 
       quickApi(endpoint, success,
-         function(error) { formError(form, error.responseText || error.status); }, 
+         error => formError(form, error.responseText || error.status), 
          formData,
-         function(req) { formEnd(form); }
+         req => formEnd(form)
       );
    });
 }
@@ -578,6 +641,14 @@ function pulseId(content)
    return "pulseitem-" + content.id;
 }
 
+function idMap(data)
+{
+   var ds = {};
+   for(var i = 0; i < data.length; i++)
+      ds[data[i].id] = data[i];
+   return ds;
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -601,20 +672,69 @@ function makeSuccess(message)
    return success;
 }
 
-function makePulseUser(user, message) //, icon, type)
+var pulseUserFields = [ "create", "edit", "comment" ];
+
+function getPulseUserData(userElem)
+{
+   var result = {};
+
+   for(var i = 0; i < pulseUserFields.length; i++)
+   {
+      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
+      result[pulseUserFields[i]] = {
+         "count" : Number(elem.getAttribute("data-count")),
+         "lastdate" : elem.getAttribute("data-lastdate"),
+         "firstdate" : elem.getAttribute("data-firstdate")
+      };
+   }
+
+   return result;
+}
+
+function setPulseUserData(userElem, data)
+{
+   for(var i = 0; i < pulseUserFields.length; i++)
+   {
+      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
+      var d = data[pulseUserFields[i]];
+      elem.setAttribute("data-count", d.count);
+      elem.setAttribute("data-lastdate", d.lastdate);
+      elem.setAttribute("data-firstdate", d.firstdate);
+   }
+}
+
+function reapplyPulseUserDisplay(userElem)
+{
+   var data = getPulseUserData(userElem); 
+   for(var i = 0; i < pulseUserFields.length; i++)
+   {
+      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
+      var d = data[pulseUserFields[i]];
+      if(d && d.count)
+      {
+         elem.querySelector("td:first-child").textContent = (d.count > 1) ?  d.count : "";
+         var dtmsg = [];
+         if(d.firstdate) dtmsg.push(Utilities.TimeDiff(d.firstdate, null, true));
+         if(d.lastdate) dtmsg.push(Utilities.TimeDiff(d.lastdate, null, true));
+         elem.querySelector("td:last-child").textContent = dtmsg.join(" - ");
+         elem.style = "";
+      }
+      else
+      {
+         elem.style.display = "none";
+      }
+   }
+}
+
+function makePulseUser(user, message)
 {
    var pu = cloneTemplate("pulseuser");
-   //var id = user.id + "-" + content.id;
-   //var parent = document.createElement("div");
-   //parent.appendChild(pu);
-   //pu.id = pu.id.replace(/%id%/g, user.id);
    pu.innerHTML = pu.innerHTML
       .replace(/%id%/g, user.id);
-      //.replace("%message%", user.username + (message ? (": " + message) : ""));
-      //.replace("%icon%", icon);
-   pu.firstElementChild.src = 
-      pu.firstElementChild.getAttribute("data-src")
-      .replace("%avatarlink%", getImageLink(user.avatar));
+   Utilities.ReSource(pu, "data-src", 
+      s => s.replace("%avatarlink%", getImageLink(user.avatar)));
+   UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
+      e => reapplyPulseUserDisplay(e.target));
    return pu;
 }
 
@@ -626,7 +746,6 @@ function makePulse(c)
    .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
    .replace(/%id%/g, c.id);
    return pulsedata;
-   //.replace(/%date%/g, (new Date(c.createDate)).toLocaleString());
 }
 
 // *************
@@ -639,7 +758,7 @@ function quickApi(url, callback, error, postData, always, method)
 {
    let thisreqid = ++reqId;
    url = apiroot + "/" + url;
-   error = error || function(e) { notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText); };
+   error = error || (e => notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText));
 
    method = method || (postData ? "POST" : "GET");
    log.Info("[" + thisreqid + "] " + method + ": " + url);
