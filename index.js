@@ -233,19 +233,25 @@ function setupNewSession()
 
    var params = new URLSearchParams();
    var search = {"reverse":true,"createstart":Utilities.SubHours(24).toISOString()};
+   var watchsearch = {"ContentLimit":{"Watches":true}};
    params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "comment-" + JSON.stringify(search));
-   params.append("requests", "content.0contentId.1parentId");
-   params.append("requests", "user.0userId.1createUserId");
+   params.append("requests", "watch");
+   params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch));
+   params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch));
+   params.append("requests", "content.0contentId.1parentId.2contentId");
+   params.append("requests", "user.0userId.1createUserId.3userIds.4userIds");
    params.set("comment","id,parentId,createUserId,createDate");
    params.set("content","id,name");
    params.set("user","id,username,avatar");
+   params.set("watch","id,contentId,lastNotificationId");
 
    //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.log(data);
       updatePulse(data, true);
+      updateWatch(data, true);
    });
 
    //Start long poller
@@ -474,6 +480,13 @@ function idMap(data)
    return ds;
 }
 
+function findSwap(element, attribute, replace)
+{
+	//Update the content name now, might as well
+	var name = element.querySelector("[" + attribute + "]");
+	name[name.getAttribute(attribute)] = replace;
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -551,15 +564,8 @@ function quickApi(url, callback, error, postData, always, method)
 // ---- Pulse ----
 // ***************
 
-function pulseId(content)
-{
-   return "pulseitem-" + content.id;
-}
-
-function getPulseUserlist(pulseitem)
-{
-   return pulseitem.querySelector(".pulse-users");
-}
+function pulseId(content) { return "pulseitem-" + content.id; }
+function getPulseUserlist(pulseitem) { return pulseitem.querySelector(".pulse-users"); }
 
 function makePulse(c)
 {
@@ -662,8 +668,7 @@ function cataloguePulse(c, u, aggregate)
       }
 
       //Update the content name now, might as well
-      var pelname = pulsedata.querySelector("[data-pulsename]");
-      pelname[pelname.getAttribute("data-pulsename")] = c.name;
+		findSwap(pulsedata, "data-pulsename", c.name);
 
       aggregate[c.id] = { pulse : pulsedata };
    }
@@ -804,3 +809,38 @@ function refreshPulseDates()
 {
    [...pulse.children].forEach(x => refreshPulseDate(x));
 }
+
+
+// ***************
+// ---- Watch ----
+// ***************
+
+function watchId(content) { return "watchitem-" + content.id; }
+
+function updateWatch(data, fullReset)
+{
+   if(fullReset)
+      watches.innerHTML = "";
+
+   var users = idMap(data.user);
+   var contents = idMap(data.content);
+
+	for(var i = 0; i < data.watch.length; i++)
+	{
+		var c = contents[data.watch[i].contentId];
+    	var watchdata = makeWatch(c);
+		findSwap(watchdata, "data-watchname", c.name);
+		watches.appendChild(watchdata);
+	}
+}
+
+function makeWatch(c)
+{
+   var watchdata = cloneTemplate("watch");
+   watchdata.id = watchId(c);
+   watchdata.innerHTML = watchdata.innerHTML
+		.replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
+		.replace(/%id%/g, c.id);
+   return watchdata;
+}
+

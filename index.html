@@ -200,11 +200,13 @@
                      </div>
                   </li>
                   <!-- LOC:ACTIVITY -->
-                  <li id="pulseparent">
+                  <li id="pulseparent" class="uk-margin-large-bottom">
                      <ul id="pulse" class="uk-list uk-list-striped"></ul>
                   </li>
                   <!-- LOC:WATCHES -->
-                  <li>heart</li>
+                  <li class="uk-margin-large-bottom">
+                     <ul id="watches" class="uk-list uk-list-striped"></ul>
+                  </li>
                   <!-- LOC:LOGS -->
                   <li id="logsparent">
                      <ul id="logs" class="uk-list uk-list-striped uk-list-collapse"></ul>
@@ -370,6 +372,23 @@
                   </tr>
                </table>
             </div>
+         </div>
+         <li data-watch>
+            <div class="uk-flex uk-flex-bottom">
+               <a href="%link%" class="uk-display-block uk-text-truncate pulse-name uk-text-emphasis" 
+                  data-watchname="textContent">%name%</a>
+            </div>
+            <div class="uk-flex uk-flex-bottom">
+               <div>
+                  <div class="watch-comments pulse-users uk-border-pill"></div>
+                  <div class="watch-activity pulse-users uk-border-pill"></div>
+               </div>
+               <span class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
+            </div>
+         </li>
+         <div data-watchuser>
+            <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=20" 
+                 class="uk-border-circle" width=20 height=20>
          </div>
       </div>
       <!-- LOC:CONTROLS -->
