@@ -234,13 +234,14 @@ function setupNewSession()
    var params = new URLSearchParams();
    var search = {"reverse":true,"createstart":Utilities.SubHours(24).toISOString()};
    var watchsearch = {"ContentLimit":{"Watches":true}};
-   params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "comment-" + JSON.stringify(search));
+   search.type ="content"; //Add more restrictions for activity
+   params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "watch");
    params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch));
    params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch));
-   params.append("requests", "content.0contentId.1parentId.2contentId");
-   params.append("requests", "user.0userId.1createUserId.3userIds.4userIds");
+   params.append("requests", "content.1contentId.0parentId.2contentId");
+   params.append("requests", "user.1userId.0createUserId.3userIds.4userIds");
    params.set("comment","id,parentId,createUserId,createDate");
    params.set("content","id,name");
    params.set("user","id,username,avatar");
@@ -780,6 +781,7 @@ function updatePulse(data, fullReset)
       var a = data.activity[i];
       if(a.userId > 0) //need to check in case system
       {
+         console.log(a);
          var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
 
          if(a.action == "c")
@@ -802,7 +804,7 @@ function refreshPulseDate(pulseitem)
    var timediff = Utilities.TimeDiff(pulseitem.getAttribute(attr.pulsedate));
    if(timediff.indexOf("now") < 0)
       timediff += " ago";
-   pulseitem.querySelector(".pulse-time").innerHTML = timediff;
+   findSwap(pulseitem, "data-pulsetime", timediff);
 }
 
 function refreshPulseDates()

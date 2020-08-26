@@ -63,7 +63,7 @@
       <div data-utgl><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block"><img id="navuseravatar" 
-            src="tempicon.png" width="40" height="40" class="uk-border-circle" uk-img></img></a></div>
+            src="tempicon.png" width="40" height="40" class="" uk-img></img></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
@@ -339,8 +339,9 @@
             <a href="%link%" class="uk-display-block uk-text-truncate pulse-name uk-text-emphasis" 
                data-pulsename="textContent">%name%</a>
             <div class="uk-flex uk-flex-bottom">
-               <div class="pulse-users uk-border-pill"></div>
-               <span class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
+               <div class="pulse-users"></div>
+               <span data-pulsetime="textContent"
+                  class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
                <!--<time datetime="%date%" uk-tooltip="title: %date%; pos: top-right" 
                   class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</time>-->
             </div>
@@ -349,7 +350,7 @@
               the parent, and not the container itself-->
          <div data-pulseuser>
             <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=20" 
-                 class="uk-border-circle" width=20 height=20>
+                 class="" width=20 height=20>
             <div uk-dropdown>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
@@ -374,21 +375,22 @@
             </div>
          </div>
          <li data-watch>
-            <div class="uk-flex uk-flex-bottom">
-               <a href="%link%" class="uk-display-block uk-text-truncate pulse-name uk-text-emphasis" 
+            <div class="uk-flex uk-flex-middle">
+               <a href="%link%" class="uk-flex-1 uk-text-truncate pulse-name uk-text-emphasis" 
                   data-watchname="textContent">%name%</a>
+               <span class="uk-label uk-label-danger">55</span>
             </div>
             <div class="uk-flex uk-flex-bottom">
                <div>
-                  <div class="watch-comments pulse-users uk-border-pill"></div>
-                  <div class="watch-activity pulse-users uk-border-pill"></div>
+                  <div class="watch-comments pulse-users"></div>
+                  <div class="watch-activity pulse-users"></div>
                </div>
                <span class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
             </div>
          </li>
          <div data-watchuser>
             <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=20" 
-                 class="uk-border-circle" width=20 height=20>
+                 class="" width=20 height=20>
          </div>
       </div>
       <!-- LOC:CONTROLS -->

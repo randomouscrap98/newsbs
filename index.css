@@ -91,6 +91,7 @@ a:hover { color: inherit; }
    background-color: rgba(127,127,127,0.1);
    margin-right: 1em;
    padding: 0 0.3em;
+   border-radius: 5px;
 }
 .pulse-users [uk-dropdown] { padding: 0.5em; }
 .pulse-users table { margin: 0; } 
@@ -101,4 +102,10 @@ a:hover { color: inherit; }
    margin: 0.4em 0.2em;   
    vertical-align: top;
    filter: opacity(0.7);
+   border-radius: 5px;
+}
+
+#navuseravatar
+{
+   border-radius: 8px;
 }
