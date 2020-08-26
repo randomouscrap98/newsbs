@@ -7,6 +7,10 @@ var actiontext = {
    "d" : "Delete"
 };
 
+var attr = {
+   "pulsedate" : "data-maxdate"
+};
+
 //Will this be stored in user eventually?
 var options = {
    pulseuserlimit : 10
@@ -330,130 +334,6 @@ function addFileUploadImage(file, num)
    fileuploadthumbnails.appendChild(fThumb);
 }
 
-function cataloguePulse(c, u, aggregate)
-{
-   //Oops, never categorized this content
-   if(!aggregate[c.id])
-   {
-      var pulsedata = document.getElementById(pulseId(c));
-
-      if(!pulsedata)
-      {
-         pulsedata = makePulse(c);
-         pulse.appendChild(pulsedata);
-      }
-
-      //Update the content name now, might as well
-      var pelname = pulsedata.querySelector("[data-pulsename]");
-      pelname[pelname.getAttribute("data-pulsename")] = c.name;
-
-      aggregate[c.id] = { pulse : pulsedata };
-   }
-
-   //Oops, never categorized this user IN this content
-   if(!aggregate[c.id][u.id])
-   {
-      var pulseuser = aggregate[c.id].pulse
-         .querySelector('[data-pulseuser="' + u.id + '"]');
-
-      if(!pulseuser)
-      {
-         var pu = makePulseUser(u, c);
-         var pus = aggregate[c.id].pulse.querySelector(".pulse-users");
-
-         //Go find the user element (hoping it exists)
-         [...pu.children].forEach(x => 
-            {
-               if(x.hasAttribute("data-pulseuser")) pulseuser = x;
-               pus.appendChild(x);
-            });
-      }
-
-      //Now pull the catalogue data FINALLY!
-      aggregate[c.id][u.id] = getPulseUserData(pulseuser.nextSibling);
-      aggregate[c.id][u.id].user = pulseuser.nextSibling;
-   }
-
-   return aggregate[c.id][u.id];
-}
-
-function applyPulseCatalogue(aggregate)
-{
-   for(key in aggregate)
-      if(Number(key))
-         for(key2 in aggregate[key])
-            if(Number(key2))
-               setPulseUserData(aggregate[key][key2].user, aggregate[key][key2]);
-}
-
-function updatePulseCatalogue(item, date)
-{
-   item.count++;
-
-   if(item.count === 1) 
-   {
-      item.firstdate = date;
-      return;
-   }
-   else if(item.count === 2) 
-   {
-      item.lastdate = date;
-   }
-
-   var lt = new Date(item.lastdate).getTime();
-   var ft = new Date(item.firstdate).getTime();
-   var dt = new Date(date).getTime();
-
-   if(lt < ft)
-   {
-      var t = item.lastdate;
-      item.lastdate = item.firstdate;
-      item.firstdate = t;
-   }
-
-   if(dt > lt)
-      item.lastdate = date;
-   if(dt < ft)
-      item.firstdate = date;
-}
-
-function updatePulse(data, fullReset)
-{
-   if(fullReset)
-      pulse.innerHTML = "";
-
-   //Easy dictionaries
-   var users = idMap(data.user);
-   var contents = idMap(data.content);
-   var aggregate = {};
-
-   for(var i = 0; i < data.comment.length; i++)
-   {
-      var c = data.comment[i];
-      if(c.createUserId) //need to check in case deleted comment
-      {
-         var d = cataloguePulse(contents[c.parentId], users[c.createUserId], aggregate);
-         updatePulseCatalogue(d.comment, c.createDate);
-      }
-   }
-
-   for(var i = 0; i < data.activity.length; i++)
-   {
-      var a = data.activity[i];
-      if(a.userId > 0) //need to check in case system
-      {
-         var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
-
-         if(a.action == "c")
-            updatePulseCatalogue(d.create, a.date);
-         else if(a.action == "e")
-            updatePulseCatalogue(d.edit, a.date);
-      }
-   }
-
-   applyPulseCatalogue(aggregate);
-}
-
 // ***************************
 // ---- GENERAL UTILITIES ----
 // ***************************
@@ -586,11 +466,6 @@ function notifySuccess(message)
    notifyBase(message, "check", "success");
 }
 
-function pulseId(content)
-{
-   return "pulseitem-" + content.id;
-}
-
 function idMap(data)
 {
    var ds = {};
@@ -602,6 +477,7 @@ function idMap(data)
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
+
 
 function cloneTemplate(name)
 {
@@ -620,82 +496,6 @@ function makeSuccess(message)
    var success = cloneTemplate("success");
    success.innerHTML = success.innerHTML.replace("%message%", message);
    return success;
-}
-
-var pulseUserFields = [ "create", "edit", "comment" ];
-
-function getPulseUserData(userElem)
-{
-   var result = {};
-
-   for(var i = 0; i < pulseUserFields.length; i++)
-   {
-      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
-      result[pulseUserFields[i]] = {
-         "count" : Number(elem.getAttribute("data-count")),
-         "lastdate" : elem.getAttribute("data-lastdate"),
-         "firstdate" : elem.getAttribute("data-firstdate")
-      };
-   }
-
-   return result;
-}
-
-function setPulseUserData(userElem, data)
-{
-   for(var i = 0; i < pulseUserFields.length; i++)
-   {
-      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
-      var d = data[pulseUserFields[i]];
-      elem.setAttribute("data-count", d.count);
-      elem.setAttribute("data-lastdate", d.lastdate);
-      elem.setAttribute("data-firstdate", d.firstdate);
-   }
-}
-
-function reapplyPulseUserDisplay(userElem)
-{
-   var data = getPulseUserData(userElem); 
-   for(var i = 0; i < pulseUserFields.length; i++)
-   {
-      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
-      var d = data[pulseUserFields[i]];
-      if(d && d.count)
-      {
-         elem.querySelector("td:first-child").textContent = d.count; //(d.count > 1) ?  d.count : "";
-         var dtmsg = [];
-         if(d.lastdate) dtmsg.push(Utilities.TimeDiff(d.lastdate, null, true));
-         if(d.firstdate) dtmsg.push(Utilities.TimeDiff(d.firstdate, null, true));
-         elem.querySelector("td:last-child").textContent = dtmsg.join(" - ");
-         elem.style = "";
-      }
-      else
-      {
-         elem.style.display = "none";
-      }
-   }
-}
-
-function makePulseUser(user, message)
-{
-   var pu = cloneTemplate("pulseuser");
-   pu.innerHTML = pu.innerHTML
-      .replace(/%id%/g, user.id);
-   Utilities.ReSource(pu, "data-src", 
-      s => s.replace("%avatarlink%", getImageLink(user.avatar)));
-   UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
-      e => reapplyPulseUserDisplay(e.target));
-   return pu;
-}
-
-function makePulse(c)
-{
-   var pulsedata = cloneTemplate("pulse");
-   pulsedata.id = pulseId(c);
-   pulsedata.innerHTML = pulsedata.innerHTML
-   .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
-   .replace(/%id%/g, c.id);
-   return pulsedata;
 }
 
 // *************
@@ -745,4 +545,262 @@ function quickApi(url, callback, error, postData, always, method)
       req.send(JSON.stringify(postData));
    else
       req.send();
+}
+
+// ***************
+// ---- Pulse ----
+// ***************
+
+function pulseId(content)
+{
+   return "pulseitem-" + content.id;
+}
+
+function getPulseUserlist(pulseitem)
+{
+   return pulseitem.querySelector(".pulse-users");
+}
+
+function makePulse(c)
+{
+   var pulsedata = cloneTemplate("pulse");
+   pulsedata.id = pulseId(c);
+   pulsedata.innerHTML = pulsedata.innerHTML
+   .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
+   .replace(/%id%/g, c.id);
+   return pulsedata;
+}
+
+function makePulseUser(user, message)
+{
+   var pu = cloneTemplate("pulseuser");
+   pu.innerHTML = pu.innerHTML
+      .replace(/%id%/g, user.id);
+   Utilities.ReSource(pu, "data-src", 
+      s => s.replace("%avatarlink%", getImageLink(user.avatar)));
+   UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
+      e => refreshPulseUserDisplay(e.target));
+   return pu;
+}
+
+var pulseUserFields = [ "create", "edit", "comment" ];
+
+function getPulseUserData(userElem)
+{
+   var result = {};
+
+   for(var i = 0; i < pulseUserFields.length; i++)
+   {
+      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
+      result[pulseUserFields[i]] = {
+         "count" : Number(elem.getAttribute("data-count")),
+         "lastdate" : elem.getAttribute("data-lastdate"),
+         "firstdate" : elem.getAttribute("data-firstdate")
+      };
+   }
+
+   return result;
+}
+
+function setPulseUserData(userElem, data)
+{
+   var maxparentdate=userElem.getAttribute(attr.pulsedate) || "0";
+   for(var i = 0; i < pulseUserFields.length; i++)
+   {
+      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
+      var d = data[pulseUserFields[i]];
+      elem.setAttribute("data-count", d.count);
+      elem.setAttribute("data-lastdate", d.lastdate);
+      elem.setAttribute("data-firstdate", d.firstdate);
+      if(d.lastdate > maxparentdate) maxparentdate=d.lastdate;
+      if(d.firstdate > maxparentdate) maxparentdate=d.firstdate;
+   }
+   userElem.setAttribute(attr.pulsedate, maxparentdate);
+   userElem.previousSibling.setAttribute(attr.pulsedate, maxparentdate + " ");
+}
+
+function refreshPulseUserDisplay(userElem)
+{
+   var data = getPulseUserData(userElem); 
+   var parent = false;
+   for(var i = 0; i < pulseUserFields.length; i++)
+   {
+      var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
+      if(!parent) parent = elem.parentNode;
+      var d = data[pulseUserFields[i]];
+      if(d && d.count)
+      {
+         elem.querySelector("td:first-child").textContent = d.count; 
+            //(d.count > 1) ?  d.count : "";
+         var dtmsg = [];
+         if(d.lastdate) dtmsg.push(Utilities.TimeDiff(d.lastdate, null, true));
+         if(d.firstdate) dtmsg.push(Utilities.TimeDiff(d.firstdate, null, true));
+         elem.querySelector("td:last-child").textContent = dtmsg.join(" - ");
+         elem.style = "";
+      }
+      else
+      {
+         elem.style.display = "none";
+      }
+   }
+   Utilities.SortElements(parent, 
+      x => x.getAttribute("data-lastdate") || x.getAttribute("data-firstdate") || "0", 
+      true);
+}
+
+function cataloguePulse(c, u, aggregate)
+{
+   //Oops, never categorized this content
+   if(!aggregate[c.id])
+   {
+      var pulsedata = document.getElementById(pulseId(c));
+
+      if(!pulsedata)
+      {
+         pulsedata = makePulse(c);
+         pulse.appendChild(pulsedata);
+      }
+
+      //Update the content name now, might as well
+      var pelname = pulsedata.querySelector("[data-pulsename]");
+      pelname[pelname.getAttribute("data-pulsename")] = c.name;
+
+      aggregate[c.id] = { pulse : pulsedata };
+   }
+
+   //Oops, never categorized this user IN this content
+   if(!aggregate[c.id][u.id])
+   {
+      var pulseuser = aggregate[c.id].pulse
+         .querySelector('[data-pulseuser="' + u.id + '"]');
+
+      if(!pulseuser)
+      {
+         var pu = makePulseUser(u, c);
+         var pus = getPulseUserlist(aggregate[c.id].pulse);
+
+         //Go find the user element (hoping it exists)
+         [...pu.children].forEach(x => 
+            {
+               if(x.hasAttribute("data-pulseuser")) pulseuser = x;
+               pus.appendChild(x);
+            });
+      }
+
+      //Now pull the catalogue data FINALLY!
+      aggregate[c.id][u.id] = getPulseUserData(pulseuser.nextSibling);
+      aggregate[c.id][u.id].user = pulseuser.nextSibling;
+   }
+
+   return aggregate[c.id][u.id];
+}
+
+function applyPulseCatalogue(aggregate)
+{
+   for(key in aggregate)
+   {
+      if(Number(key))
+      {
+         for(key2 in aggregate[key])
+            if(Number(key2))
+               setPulseUserData(aggregate[key][key2].user, aggregate[key][key2]);
+
+         //Sort userlist since we know exactly which contents we updated, we
+         //don't want to sort EVERYTHING (think updates to only a single item
+         //in the list)
+         var pulseuserlist = getPulseUserlist(aggregate[key].pulse);
+         Utilities.SortElements(pulseuserlist,
+            x => x.getAttribute(attr.pulsedate) || "0", true);
+
+         //Now update the maxdate on overall content
+         aggregate[key].pulse.setAttribute(attr.pulsedate,
+            pulseuserlist.firstElementChild.getAttribute(attr.pulsedate));
+      }
+   }
+}
+
+function updatePulseCatalogue(item, date)
+{
+   item.count++;
+
+   if(item.count === 1) 
+   {
+      item.firstdate = date;
+      return;
+   }
+   else if(item.count === 2) 
+   {
+      item.lastdate = date;
+   }
+
+   var lt = new Date(item.lastdate).getTime();
+   var ft = new Date(item.firstdate).getTime();
+   var dt = new Date(date).getTime();
+
+   if(lt < ft)
+   {
+      var t = item.lastdate;
+      item.lastdate = item.firstdate;
+      item.firstdate = t;
+   }
+
+   if(dt > lt)
+      item.lastdate = date;
+   if(dt < ft)
+      item.firstdate = date;
+}
+
+function updatePulse(data, fullReset)
+{
+   if(fullReset)
+      pulse.innerHTML = "";
+
+   //Easy dictionaries
+   var users = idMap(data.user);
+   var contents = idMap(data.content);
+   var aggregate = {};
+
+   for(var i = 0; i < data.comment.length; i++)
+   {
+      var c = data.comment[i];
+      if(c.createUserId) //need to check in case deleted comment
+      {
+         var d = cataloguePulse(contents[c.parentId], users[c.createUserId], aggregate);
+         updatePulseCatalogue(d.comment, c.createDate);
+      }
+   }
+
+   for(var i = 0; i < data.activity.length; i++)
+   {
+      var a = data.activity[i];
+      if(a.userId > 0) //need to check in case system
+      {
+         var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
+
+         if(a.action == "c")
+            updatePulseCatalogue(d.create, a.date);
+         else if(a.action == "u")
+            updatePulseCatalogue(d.edit, a.date);
+      }
+   }
+
+   applyPulseCatalogue(aggregate);
+
+   Utilities.SortElements(pulse,
+      x => x.getAttribute(attr.pulsedate) || "0", true);
+
+   refreshPulseDates();
+}
+
+function refreshPulseDate(pulseitem)
+{
+   var timediff = Utilities.TimeDiff(pulseitem.getAttribute(attr.pulsedate));
+   if(timediff.indexOf("now") < 0)
+      timediff += " ago";
+   pulseitem.querySelector(".pulse-time").innerHTML = timediff;
+}
+
+function refreshPulseDates()
+{
+   [...pulse.children].forEach(x => refreshPulseDate(x));
 }

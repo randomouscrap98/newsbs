@@ -115,9 +115,10 @@ var Utilities =
    ConvertRem : function(x){ 
       return x / parseFloat(getComputedStyle(document.body)["font-size"]); },
    //Taken from https://stackoverflow.com/a/50127768/1066474
-   SortElements : function(parent, sortFunc){
+   SortElements : function(parent, sortFunc, descending){
+      descending = descending ? -1 : 1;
       [...parent.children]
-         .sort((a,b)=>sortFunc(a)>sortFunc(b)?1:-1)
+         .sort((a,b)=>descending*((sortFunc(a)>sortFunc(b))?1:-1))
          .forEach(node=>parent.appendChild(node));
    },
    SubHours : function(hours, date) {
@@ -133,9 +134,9 @@ var Utilities =
       nowBuf = nowBuf || 5;
       date2 = date2 || new Date(); //Now
       if(typeof date1 === "string")
-         date1 = new Date(date1);
+         date1 = new Date(date1.trim());
       if(typeof date2 === "string")
-         date2 = new Date(date2);
+         date2 = new Date(date2.trim());
       var diff = Math.abs(date1.getTime() - date2.getTime()) / 1000;
       var t = 0, u = "";
 
