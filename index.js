@@ -206,7 +206,6 @@ function setupFileUpload()
       error: generalError,
       fail: generalError,
       completeAll: function () {
-         console.log(arguments);
          log.Info("Upload complete");
          addFileUploadImage(JSON.parse(arguments[0].responseText), fileuploaditems.childElementCount);
          setTimeout(function () { 
@@ -235,7 +234,7 @@ function setupNewSession()
    var search = {"reverse":true,"createstart":Utilities.SubHours(24).toISOString()};
    var watchsearch = {"ContentLimit":{"Watches":true}};
    params.append("requests", "comment-" + JSON.stringify(search));
-   search.type ="content"; //Add more restrictions for activity
+   //search.type ="content"; //Add more restrictions for activity
    params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "watch");
    params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch));
@@ -252,7 +251,7 @@ function setupNewSession()
    {
       console.log(data);
       updatePulse(data, true);
-      updateWatch(data, true);
+      displayNewWatches(data, true);
    });
 
    //Start long poller
@@ -475,6 +474,7 @@ function notifySuccess(message)
 
 function idMap(data)
 {
+   data = data || [];
    var ds = {};
    for(var i = 0; i < data.length; i++)
       ds[data[i].id] = data[i];
@@ -561,34 +561,90 @@ function quickApi(url, callback, error, postData, always, method)
       req.send();
 }
 
-// ***************
-// ---- Pulse ----
-// ***************
 
-function pulseId(content) { return "pulseitem-" + content.id; }
-function getPulseUserlist(pulseitem) { return pulseitem.querySelector(".pulse-users"); }
+// *********************
+// ---- P/W General ----
+// *********************
 
-function makePulse(c)
+function refreshPWDate(item)
 {
-   var pulsedata = cloneTemplate("pulse");
-   pulsedata.id = pulseId(c);
+   var timediff = Utilities.TimeDiff(item.getAttribute(attr.pulsedate));
+   if(timediff.indexOf("now") < 0)
+      timediff += " ago";
+   findSwap(item, "data-pwtime", timediff);
+}
+
+function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
+function getPWUserlist(pulseitem) { return pulseitem.querySelector(".pw-users"); }
+
+function makePW(c) //, idBase)
+{
+   var pulsedata = cloneTemplate("pw");
+   //pulsedata.id = idBase + c.id; //pulseId(c);
    pulsedata.innerHTML = pulsedata.innerHTML
-   .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
-   .replace(/%id%/g, c.id);
+      .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
+      .replace(/%id%/g, c.id);
    return pulsedata;
 }
 
-function makePulseUser(user, message)
+function makePWUser(user) //, message)
 {
-   var pu = cloneTemplate("pulseuser");
+   var pu = cloneTemplate("pwuser");
    pu.innerHTML = pu.innerHTML
-      .replace(/%id%/g, user.id);
+      .replace(/%id%/g, user.id)
+      .replace("%link%", "?u=" + user.id) //TODO: replace with actual linking service thing
    Utilities.ReSource(pu, "data-src", 
       s => s.replace("%avatarlink%", getImageLink(user.avatar)));
    UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
       e => refreshPulseUserDisplay(e.target));
    return pu;
 }
+
+function makeOrAddPWContent(c, id, parent)
+{
+   var pulsedata = document.getElementById(id);
+
+   if(!pulsedata)
+   {
+      pulsedata = makePW(c);
+      pulsedata.id = id;
+      parent.appendChild(pulsedata);
+   }
+
+   //Update the content name now, might as well
+   findSwap(pulsedata, "data-pwname", c.name);
+
+   return pulsedata;
+}
+
+function makeOrAddPWUser(u, parent)
+{
+   var pulseuser = parent.querySelector('[data-pwuser="' + u.id + '"]');
+
+   if(!pulseuser)
+   {
+      var pu = makePWUser(u);
+      var pus = getPWUserlist(parent);
+
+      //Go find the user element (hoping it exists)
+      [...pu.children].forEach(x => 
+      {
+         if(x.hasAttribute("data-pwuser")) pulseuser = x;
+         pus.appendChild(x);
+      });
+   }
+
+   var dropdown = pulseuser.nextSibling;
+   findSwap(dropdown, "data-pwusername", u.username);
+
+   return { user : pulseuser, dropdown : dropdown };
+}
+
+// ***************
+// ---- Pulse ----
+// ***************
+
+function pulseId(content) { return "pulseitem-" + content.id; }
 
 var pulseUserFields = [ "create", "edit", "comment" ];
 
@@ -638,7 +694,6 @@ function refreshPulseUserDisplay(userElem)
       if(d && d.count)
       {
          elem.querySelector("td:first-child").textContent = d.count; 
-            //(d.count > 1) ?  d.count : "";
          var dtmsg = [];
          if(d.lastdate) dtmsg.push(Utilities.TimeDiff(d.lastdate, null, true));
          if(d.firstdate) dtmsg.push(Utilities.TimeDiff(d.firstdate, null, true));
@@ -659,43 +714,15 @@ function cataloguePulse(c, u, aggregate)
 {
    //Oops, never categorized this content
    if(!aggregate[c.id])
-   {
-      var pulsedata = document.getElementById(pulseId(c));
-
-      if(!pulsedata)
-      {
-         pulsedata = makePulse(c);
-         pulse.appendChild(pulsedata);
-      }
-
-      //Update the content name now, might as well
-		findSwap(pulsedata, "data-pulsename", c.name);
-
-      aggregate[c.id] = { pulse : pulsedata };
-   }
+      aggregate[c.id] = { pulse: makeOrAddPWContent(c, pulseId(c), pulse) };
 
    //Oops, never categorized this user IN this content
    if(!aggregate[c.id][u.id])
    {
-      var pulseuser = aggregate[c.id].pulse
-         .querySelector('[data-pulseuser="' + u.id + '"]');
+      var pulseuser = makeOrAddPWUser(u, aggregate[c.id].pulse);
 
-      if(!pulseuser)
-      {
-         var pu = makePulseUser(u, c);
-         var pus = getPulseUserlist(aggregate[c.id].pulse);
-
-         //Go find the user element (hoping it exists)
-         [...pu.children].forEach(x => 
-            {
-               if(x.hasAttribute("data-pulseuser")) pulseuser = x;
-               pus.appendChild(x);
-            });
-      }
-
-      //Now pull the catalogue data FINALLY!
-      aggregate[c.id][u.id] = getPulseUserData(pulseuser.nextSibling);
-      aggregate[c.id][u.id].user = pulseuser.nextSibling;
+      aggregate[c.id][u.id] = getPulseUserData(pulseuser.dropdown);
+      aggregate[c.id][u.id].user = pulseuser.dropdown;
    }
 
    return aggregate[c.id][u.id];
@@ -714,7 +741,7 @@ function applyPulseCatalogue(aggregate)
          //Sort userlist since we know exactly which contents we updated, we
          //don't want to sort EVERYTHING (think updates to only a single item
          //in the list)
-         var pulseuserlist = getPulseUserlist(aggregate[key].pulse);
+         var pulseuserlist = getPWUserlist(aggregate[key].pulse);
          Utilities.SortElements(pulseuserlist,
             x => x.getAttribute(attr.pulsedate) || "0", true);
 
@@ -779,9 +806,9 @@ function updatePulse(data, fullReset)
    for(var i = 0; i < data.activity.length; i++)
    {
       var a = data.activity[i];
-      if(a.userId > 0) //need to check in case system
+      //Activity type is broken, needs to be fixed. This check is a temporary stopgap
+      if(a.userId > 0 && a.type==="content") //need to check in case system
       {
-         console.log(a);
          var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
 
          if(a.action == "c")
@@ -796,20 +823,7 @@ function updatePulse(data, fullReset)
    Utilities.SortElements(pulse,
       x => x.getAttribute(attr.pulsedate) || "0", true);
 
-   refreshPulseDates();
-}
-
-function refreshPulseDate(pulseitem)
-{
-   var timediff = Utilities.TimeDiff(pulseitem.getAttribute(attr.pulsedate));
-   if(timediff.indexOf("now") < 0)
-      timediff += " ago";
-   findSwap(pulseitem, "data-pulsetime", timediff);
-}
-
-function refreshPulseDates()
-{
-   [...pulse.children].forEach(x => refreshPulseDate(x));
+   refreshPWDates(pulse);
 }
 
 
@@ -819,22 +833,66 @@ function refreshPulseDates()
 
 function watchId(content) { return "watchitem-" + content.id; }
 
-function updateWatch(data, fullReset)
+function displayNewWatches(data, fullReset)
 {
    if(fullReset)
       watches.innerHTML = "";
 
    var users = idMap(data.user);
    var contents = idMap(data.content);
+   var comments = idMap(data.commentaggregate);
+   var activity = idMap(data.activityaggregate);
 
 	for(var i = 0; i < data.watch.length; i++)
 	{
 		var c = contents[data.watch[i].contentId];
-    	var watchdata = makeWatch(c);
+      var watchdata = document.getElementById(watchId(c));
+
+      if(!watchdata)
+         watchdata = makeWatch(c);
+
 		findSwap(watchdata, "data-watchname", c.name);
+
+      var total = 0;
+      var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
+      var userlist = watchdata.querySelector(".pulse-users");
+      userlist.innerHTML = "";
+
+      var upd = function(t)
+      {
+         if(t)
+         {
+            for(var i = 0; i < t.userIds.length; i++)
+            {
+               if(t.userIds[i] !== 0 && 
+                  !userlist.querySelector('[data-pulseuser="' + t.userIds[i] + '"]'))
+               {
+                  userlist.appendChild(makeWatchUser(users[t.userIds[i]]));
+               }
+            }
+
+            total += t.count;
+            if(t.lastDate > maxDate)
+               maxDate = t.lastDate;
+         }
+      };
+
+      upd(comments[c.id]);
+      upd(activity[c.id]);
+
+      if(total)
+         findSwap(watchdata, "data-watchcount", total);
+
+      watchdata.setAttribute(attr.pulsedate, maxDate);
 		watches.appendChild(watchdata);
 	}
+
+   Utilities.SortElements(watches,
+      x => x.getAttribute(attr.pulsedate) || "0", true);
+
+   refreshPWDates(watches);
 }
+
 
 function makeWatch(c)
 {
@@ -846,3 +904,27 @@ function makeWatch(c)
    return watchdata;
 }
 
+function makeWatchUser(user)
+{
+   var pu = cloneTemplate("watchuser");
+   pu.innerHTML = pu.innerHTML
+      .replace(/%id%/g, user.id);
+   Utilities.ReSource(pu, "data-src", 
+      s => s.replace("%avatarlink%", getImageLink(user.avatar)));
+   //UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
+   //   e => refreshPulseUserDisplay(e.target));
+   return pu.firstElementChild;
+}
+
+function refreshWatchDate(watchitem)
+{
+   var timediff = Utilities.TimeDiff(watchitem.getAttribute(attr.pulsedate));
+   if(timediff.indexOf("now") < 0)
+      timediff += " ago";
+   findSwap(pulseitem, "data-watchtime", timediff);
+}
+
+function refreshPulseDates()
+{
+   [...pulse.children].forEach(x => refreshPulseDate(x));
+}

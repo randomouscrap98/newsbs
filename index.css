@@ -6,6 +6,7 @@ body {
    right: 0;
    overflow: hidden;
 }
+img { image-rendering: -webkit-optimize-contrast; }
 /* Stuff that should probably be taken over by uikit */
 input[type="file"] { cursor: pointer; }
 a:hover { color: inherit; }
@@ -82,27 +83,30 @@ a:hover { color: inherit; }
 /* -------------------------------------------------- */
 /* Pulse styling (should really just use uikit stuff) */
 /* -------------------------------------------------- */
-[data-pulse] { padding: 0.45em 0.9em 0.5em 0.9em; }
-.pulse-name {
+[data-pw] { padding: 0.45em 0.9em 0.5em 0.9em; }
+[data-pwname] {
    font-size: 1.3em;
    margin-bottom: 0.25em;
 }
-.pulse-users {
+.pw-users {
    background-color: rgba(127,127,127,0.1);
    margin-right: 1em;
    padding: 0 0.3em;
    border-radius: 5px;
 }
-.pulse-users [uk-dropdown] { padding: 0.5em; }
-.pulse-users table { margin: 0; } 
-.pulse-users table td { padding: 0.5em 0.4em; }
-.pulse-users table td:first-child { text-align: right; }
-.pulse-users [aria-expanded="true"] {  filter: none; }
-[data-pulseuser] { 
+.pw-users [uk-dropdown] { padding: 0.5em; }
+.pw-users table { margin: 0; } 
+.pw-users table td { padding: 0.5em 0.4em; }
+.pw-users table td:first-child { text-align: right; }
+.pw-users [aria-expanded="true"] {  filter: none; }
+[data-pwuser] { 
    margin: 0.4em 0.2em;   
    vertical-align: top;
    filter: opacity(0.7);
    border-radius: 5px;
+}
+[data-pwusername] {
+   margin: 0 0.4em;
 }
 
 #navuseravatar

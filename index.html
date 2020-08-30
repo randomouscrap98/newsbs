@@ -335,23 +335,26 @@
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
          <li data-fupthumb data-id="%id%" uk-slideshow-item="%num%"><a href="#">
             <img data-src="%link%?size=60&crop=true" width="60" alt="" uk-img></a></li>
-         <li data-pulse>
-            <a href="%link%" class="uk-display-block uk-text-truncate pulse-name uk-text-emphasis" 
-               data-pulsename="textContent">%name%</a>
+         <li data-pw>
+            <div class="uk-flex uk-flex-middle">
+               <a href="%link%" class="uk-flex-1 uk-text-truncate pulse-name uk-text-emphasis" 
+                  data-pwname="textContent">%name%</a>
+               <span data-watchcount="textContent" class="uk-label uk-label-danger"></span>
+            </div>
             <div class="uk-flex uk-flex-bottom">
-               <div class="pulse-users"></div>
-               <span data-pulsetime="textContent"
-                  class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
-               <!--<time datetime="%date%" uk-tooltip="title: %date%; pos: top-right" 
-                  class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</time>-->
+               <div class="pw-users"></div>
+               <span data-pwtime="textContent"
+                  class="uk-flex-1 uk-text-right pw-time uk-text-meta">Just now</span>
             </div>
          </li>
          <!-- Because of dropdowns, this one has the INNER elements pasted into
               the parent, and not the container itself-->
-         <div data-pulseuser>
-            <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=20" 
-                 class="" width=20 height=20>
+         <div data-pwuser>
+            <img data-pwuser="%id%"
+                 data-src="%avatarlink%?crop=true&size=40" class="" width=20 height=20>
             <div uk-dropdown>
+               <a href="%link%" data-pwusername="textContent">
+               </a>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
                      style="display: none"> 
@@ -374,24 +377,26 @@
                </table>
             </div>
          </div>
-         <li data-watch>
+         <!--<li data-watch class="pulsewatch">
             <div class="uk-flex uk-flex-middle">
                <a href="%link%" class="uk-flex-1 uk-text-truncate pulse-name uk-text-emphasis" 
                   data-watchname="textContent">%name%</a>
-               <span class="uk-label uk-label-danger">55</span>
+               <span data-watchcount="textContent" class="uk-label uk-label-danger"></span>
             </div>
             <div class="uk-flex uk-flex-bottom">
                <div>
+                  <div class="pulse-users"></div>
                   <div class="watch-comments pulse-users"></div>
                   <div class="watch-activity pulse-users"></div>
                </div>
-               <span class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
+               <span data-watchtime="textContent"
+                  class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
             </div>
-         </li>
-         <div data-watchuser>
-            <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=20" 
+         </li>-->
+         <!--<div data-watchuser>
+            <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=40" 
                  class="" width=20 height=20>
-         </div>
+         </div>-->
       </div>
       <!-- LOC:CONTROLS -->
       <div id="controls" style="display: none">
