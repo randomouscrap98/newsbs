@@ -846,30 +846,18 @@ function displayNewWatches(data, fullReset)
 	for(var i = 0; i < data.watch.length; i++)
 	{
 		var c = contents[data.watch[i].contentId];
-      var watchdata = document.getElementById(watchId(c));
-
-      if(!watchdata)
-         watchdata = makeWatch(c);
-
-		findSwap(watchdata, "data-watchname", c.name);
+      var watchdata = makeOrAddPWContent(c, watchId(c), watches);
 
       var total = 0;
       var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
-      var userlist = watchdata.querySelector(".pulse-users");
-      userlist.innerHTML = "";
 
       var upd = function(t)
       {
          if(t)
          {
             for(var i = 0; i < t.userIds.length; i++)
-            {
-               if(t.userIds[i] !== 0 && 
-                  !userlist.querySelector('[data-pulseuser="' + t.userIds[i] + '"]'))
-               {
-                  userlist.appendChild(makeWatchUser(users[t.userIds[i]]));
-               }
-            }
+               if(t.userIds[i] !== 0)
+                  makeOrAddPWUser(users[t.userIds[i]], watchdata);
 
             total += t.count;
             if(t.lastDate > maxDate)
@@ -881,10 +869,9 @@ function displayNewWatches(data, fullReset)
       upd(activity[c.id]);
 
       if(total)
-         findSwap(watchdata, "data-watchcount", total);
+         findSwap(watchdata, "data-pwcount", total);
 
       watchdata.setAttribute(attr.pulsedate, maxDate);
-		watches.appendChild(watchdata);
 	}
 
    Utilities.SortElements(watches,
@@ -893,38 +880,3 @@ function displayNewWatches(data, fullReset)
    refreshPWDates(watches);
 }
 
-
-function makeWatch(c)
-{
-   var watchdata = cloneTemplate("watch");
-   watchdata.id = watchId(c);
-   watchdata.innerHTML = watchdata.innerHTML
-		.replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
-		.replace(/%id%/g, c.id);
-   return watchdata;
-}
-
-function makeWatchUser(user)
-{
-   var pu = cloneTemplate("watchuser");
-   pu.innerHTML = pu.innerHTML
-      .replace(/%id%/g, user.id);
-   Utilities.ReSource(pu, "data-src", 
-      s => s.replace("%avatarlink%", getImageLink(user.avatar)));
-   //UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
-   //   e => refreshPulseUserDisplay(e.target));
-   return pu.firstElementChild;
-}
-
-function refreshWatchDate(watchitem)
-{
-   var timediff = Utilities.TimeDiff(watchitem.getAttribute(attr.pulsedate));
-   if(timediff.indexOf("now") < 0)
-      timediff += " ago";
-   findSwap(pulseitem, "data-watchtime", timediff);
-}
-
-function refreshPulseDates()
-{
-   [...pulse.children].forEach(x => refreshPulseDate(x));
-}
