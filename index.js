@@ -36,6 +36,9 @@ window.onload = function()
 
    if(getToken())
       setupNewSession();
+
+   setupSpa();
+   spa.ProcessLink(document.location.href);
 };
 
 function setupTests()
@@ -45,6 +48,40 @@ function setupTests()
 // ********************
 // ---- SETUP CODE ----
 // ********************
+
+var spa = false;
+
+function setupSpa()
+{
+   spa = new BasicSpa(log);
+
+   //For now, we have ONE processor!
+   spa.Processors.push(new SpaProcessor(url => true, function(url)
+   {
+      var pVal = Utilities.GetParams(url).get("p") || "home"; 
+      var route = "route" + pVal;
+      var template;
+
+      try
+      {
+         template = cloneTemplate(route);
+      }
+      catch
+      {
+         log.Error("Couldn't find route " + url);
+         route = "routeerror";
+         template = cloneTemplate(route);
+      }
+
+      maincontent.innerHTML = "";
+      maincontent.appendChild(template);
+
+      if(window[route + "_load"])
+         window[route = "_load"](url);
+   }));
+
+   spa.SetHandlePopState();
+}
 
 function setupDebugLog()
 {
@@ -492,10 +529,20 @@ function findSwap(element, attribute, replace)
 // ---- TEMPLATE CRAP ----
 // ***********************
 
-
 function cloneTemplate(name)
 {
-   return document.querySelector("#templates [data-" + name + "]").cloneNode(true);
+   var elm = document.querySelector("#templates [data-" + name + "]").cloneNode(true);
+   return elm;
+}
+
+function finalizeTemplate(elm)
+{
+   var links = elm.querySelectorAll("[data-spa]");
+   [...links].forEach(x =>
+   {
+      x.onclick = spa.ClickFunction(x.href);
+   });
+   return elm;
 }
 
 function makeError(message)
@@ -568,10 +615,22 @@ function quickApi(url, callback, error, postData, always, method)
 
 function refreshPWDate(item)
 {
-   var timediff = Utilities.TimeDiff(item.getAttribute(attr.pulsedate));
-   if(timediff.indexOf("now") < 0)
-      timediff += " ago";
-   findSwap(item, "data-pwtime", timediff);
+   var timeattr = item.getAttribute(attr.pulsedate);
+   var message;
+
+   if(!timeattr || timeattr === "0")
+   {
+      message = "";
+   }
+   else
+   {
+      message = Utilities.TimeDiff(timeattr);
+
+      if(message.indexOf("now") < 0)
+         message += " ago";
+   }
+
+   findSwap(item, "data-pwtime", message);
 }
 
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
@@ -582,7 +641,7 @@ function makePW(c) //, idBase)
    var pulsedata = cloneTemplate("pw");
    //pulsedata.id = idBase + c.id; //pulseId(c);
    pulsedata.innerHTML = pulsedata.innerHTML
-      .replace("%link%", "?p=" + c.id) //TODO: replace with actual linking service thing
+      .replace("%link%", "?p=page&i=" + c.id) //TODO: replace with actual linking service thing
       .replace(/%id%/g, c.id);
    return pulsedata;
 }
@@ -592,7 +651,7 @@ function makePWUser(user) //, message)
    var pu = cloneTemplate("pwuser");
    pu.innerHTML = pu.innerHTML
       .replace(/%id%/g, user.id)
-      .replace("%link%", "?u=" + user.id) //TODO: replace with actual linking service thing
+      .replace("%link%", "?p=user&i=" + user.id) //TODO: replace with actual linking service thing
    Utilities.ReSource(pu, "data-src", 
       s => s.replace("%avatarlink%", getImageLink(user.avatar)));
    UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
@@ -608,7 +667,7 @@ function makeOrAddPWContent(c, id, parent)
    {
       pulsedata = makePW(c);
       pulsedata.id = id;
-      parent.appendChild(pulsedata);
+      parent.appendChild(finalizeTemplate(pulsedata));
    }
 
    //Update the content name now, might as well
@@ -630,7 +689,7 @@ function makeOrAddPWUser(u, parent)
       [...pu.children].forEach(x => 
       {
          if(x.hasAttribute("data-pwuser")) pulseuser = x;
-         pus.appendChild(x);
+         pus.appendChild(finalizeTemplate(x));
       });
    }
 

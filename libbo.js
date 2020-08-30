@@ -152,6 +152,10 @@ var Utilities =
          return t + u.substr(0, 1);
       else
          return t + " " + u + (t != 1 ? "s" : "");
+   },
+   GetParams : function(url)
+   {
+      return new URLSearchParams((url.split("?")[1] || "").split("#")[0]);
    }
 };
 

@@ -41,13 +41,6 @@
               "uk-width-expand uk-flex uk-flex-column uk-height-1-1 uk-overflow-hidden">
                <!-- LOC:MAINCONTENT -->
                <div id="maincontent" class="uk-flex-1" uk-overflow-auto>
-                  <p>This is a lot of text. i am hoping it will continue so long
-                  and long and long that it will eventually wrap or something,
-                  showing you exactly wehre the pane ends</p>
-                  <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
-                  <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
-                  <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
-                  <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
                </div>
                <div id="postarea" class="uk-flex" data-utgl hidden>
                   <textarea class="uk-flex-1 uk-textarea"></textarea>
@@ -335,10 +328,11 @@
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
          <li data-fupthumb data-id="%id%" uk-slideshow-item="%num%"><a href="#">
             <img data-src="%link%?size=60&crop=true" width="60" alt="" uk-img></a></li>
+         <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li data-pw>
             <div class="uk-flex uk-flex-middle">
                <a href="%link%" class="uk-flex-1 uk-text-truncate pulse-name uk-text-emphasis" 
-                  data-pwname="textContent">%name%</a>
+                  data-spa data-pwname="textContent">%name%</a>
                <span data-pwcount="textContent" class="uk-label uk-label-danger"></span>
             </div>
             <div class="uk-flex uk-flex-bottom">
@@ -353,7 +347,7 @@
             <img data-pwuser="%id%"
                  data-src="%avatarlink%?crop=true&size=40" class="" width=20 height=20>
             <div uk-dropdown>
-               <a href="%link%" data-pwusername="textContent">
+               <a href="%link%" data-spa data-pwusername="textContent">
                </a>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
@@ -377,26 +371,18 @@
                </table>
             </div>
          </div>
-         <!--<li data-watch class="pulsewatch">
-            <div class="uk-flex uk-flex-middle">
-               <a href="%link%" class="uk-flex-1 uk-text-truncate pulse-name uk-text-emphasis" 
-                  data-watchname="textContent">%name%</a>
-               <span data-watchcount="textContent" class="uk-label uk-label-danger"></span>
-            </div>
-            <div class="uk-flex uk-flex-bottom">
-               <div>
-                  <div class="pulse-users"></div>
-                  <div class="watch-comments pulse-users"></div>
-                  <div class="watch-activity pulse-users"></div>
-               </div>
-               <span data-watchtime="textContent"
-                  class="uk-flex-1 uk-text-right pulse-time uk-text-meta">Just now</span>
-            </div>
-         </li>-->
-         <!--<div data-watchuser>
-            <img data-pulseuser="%id%" data-src="%avatarlink%?crop=true&size=40" 
-                 class="" width=20 height=20>
-         </div>-->
+         <div data-routehome>
+            <p>This is a lot of text. i am hoping it will continue so long
+            and long and long that it will eventually wrap or something,
+            showing you exactly wehre the pane ends</p>
+            <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
+            <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
+            <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
+            <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
+         </div>
+         <div data-routeerror>
+            <h1>ERROR</h1>
+         </div>
       </div>
       <!-- LOC:CONTROLS -->
       <div id="controls" style="display: none">
