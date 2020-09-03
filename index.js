@@ -13,8 +13,11 @@ var attr = {
 
 //Will this be stored in user eventually?
 var options = {
-   pulseuserlimit : 10
+   pulseuserlimit : 10,
+   refreshcycle : 10000
 };
+
+var globals = {};
 
 window.onload = function()
 {
@@ -39,10 +42,18 @@ window.onload = function()
 
    setupSpa();
    spa.ProcessLink(document.location.href);
+
+   globals.refreshCycle = setInterval(refreshCycle, options.refreshcycle);
 };
 
 function setupTests()
 {
+}
+
+function refreshCycle()
+{
+   refreshPWDates(pulse);
+   refreshPWDates(watches);
 }
 
 // ********************
@@ -59,7 +70,7 @@ function setupSpa()
    spa.Processors.push(new SpaProcessor(url => true, function(url)
    {
       var pVal = Utilities.GetParams(url).get("p") || "home"; 
-      var route = "route" + pVal;
+      var route = "route" + pVal.split("-")[0];
       var template;
 
       try
@@ -95,11 +106,12 @@ function setupDebugLog()
          if(log.messages[i].id > lastId)
          {
             var logMessage = msgBase.cloneNode(true);
-            logMessage.innerHTML = logMessage.innerHTML
-               .replace("%message%", log.messages[i].message)
-               .replace("%level%", log.messages[i].level)
-               .replace("%time%", log.messages[i].time);
-            logMessage.setAttribute("data-id", log.messages[i].id);
+            multiSwap(logMessage, {
+               "data-message": log.messages[i].message,
+               "data-level": log.messages[i].level,
+               "data-time": log.messages[i].time,
+               "data-id": log.messages[i].id
+            });
             logs.appendChild(logMessage);
          }
       }
@@ -110,10 +122,11 @@ function setupTechnicalInfo()
 {
    quickApi("test/info", function(data)
    {
-      technicalinfo.innerHTML = technicalinfo.innerHTML
-         .replace("%apiroot%", apiroot)
-         .replace("%apiversion%", data.versions.contentapi)
-         .replace("%entitysystemversion%", data.versions.entitysystem);
+      multiSwap(technicalinfo, {
+         "data-apiroot": apiroot,
+         "data-apiversion": data.versions.contentapi,
+         "data-entitysystemversion": data.versions.entitysystem
+      });
    });
 }
 
@@ -366,15 +379,28 @@ function setFileUploadList(page)
 
 function addFileUploadImage(file, num)
 {
-   var link = getImageLink(file.id);
    var fItem = cloneTemplate("fupmain");
-   fItem.innerHTML = fItem.innerHTML.replace("%link%", link);
+   multiSwap(fItem, { "data-src": getImageLink(file.id) });
    var fThumb = cloneTemplate("fupthumb");
-   fThumb.innerHTML = fThumb.innerHTML.replace("%link%", link);
-   fThumb.setAttribute("uk-slideshow-item", num);
-   fThumb.setAttribute("data-id", file.id);
+   multiSwap(fThumb, {
+      "data-src": getImageLink(file.id, 60, true),
+      "uk-slideshow-item": num,
+      "data-id": file.id
+   });
    fileuploaditems.appendChild(fItem);
    fileuploadthumbnails.appendChild(fThumb);
+}
+
+function updateGlobalAlert()
+{
+   if(watchglobalalert.textContent)
+   {
+      globalalert.style = "";
+   }
+   else
+   {
+      globalalert.style.display = "none";
+   }
 }
 
 // ***************************
@@ -518,12 +544,61 @@ function idMap(data)
    return ds;
 }
 
+function getSwapElement(element, attribute)
+{
+   if(element.hasAttribute(attribute))
+      return element;
+
+	return element.querySelector("[" + attribute + "]");
+}
+
+//How does this work?
+//-Find an element by (assumed unique) attribute
+//-If attribute is empty, that is what is assigned
+//-If attribute has a value, the replacement goes to where the attribute is
+// pointing
+//-If attribute is not part of element, assumed a global function.
+function swapBase(element, attribute, replace)
+{
+	var name = getSwapElement(element, attribute);
+   var caller = name.getAttribute(attribute);
+
+   if(!caller)
+   {
+      if(replace !== undefined)
+         name.setAttribute(attribute, replace);
+      else
+         return name.getAttribute(attribute);
+   }
+   else if(caller in name)
+   {
+      if(replace !== undefined)
+         name[caller] = replace;
+      else
+         return name[caller];
+   }
+   else
+   {
+      return window[caller](name, replace);
+   }
+}
+
 function findSwap(element, attribute, replace)
 {
-	//Update the content name now, might as well
-	var name = element.querySelector("[" + attribute + "]");
-	name[name.getAttribute(attribute)] = replace;
+   swapBase(element, attribute, replace);
 }
+
+function multiSwap(element, replacements)
+{
+   for(key in replacements)
+      findSwap(element, key, replacements[key]);
+}
+
+function getSwap(element, attribute)
+{
+   return swapBase(element, attribute);
+}
+
 
 // ***********************
 // ---- TEMPLATE CRAP ----
@@ -548,14 +623,14 @@ function finalizeTemplate(elm)
 function makeError(message)
 {
    var error = cloneTemplate("error");
-   error.innerHTML = error.innerHTML.replace("%message%", message);
+   findSwap(error, "data-message", message);
    return error;
 }
 
 function makeSuccess(message)
 {
    var success = cloneTemplate("success");
-   success.innerHTML = success.innerHTML.replace("%message%", message);
+   findSwap(error, "data-message", message);
    return success;
 }
 
@@ -636,24 +711,13 @@ function refreshPWDate(item)
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
 function getPWUserlist(pulseitem) { return pulseitem.querySelector(".pw-users"); }
 
-function makePW(c) //, idBase)
-{
-   var pulsedata = cloneTemplate("pw");
-   //pulsedata.id = idBase + c.id; //pulseId(c);
-   pulsedata.innerHTML = pulsedata.innerHTML
-      .replace("%link%", "?p=page&i=" + c.id) //TODO: replace with actual linking service thing
-      .replace(/%id%/g, c.id);
-   return pulsedata;
-}
-
 function makePWUser(user) //, message)
 {
    var pu = cloneTemplate("pwuser");
-   pu.innerHTML = pu.innerHTML
-      .replace(/%id%/g, user.id)
-      .replace("%link%", "?p=user&i=" + user.id) //TODO: replace with actual linking service thing
-   Utilities.ReSource(pu, "data-src", 
-      s => s.replace("%avatarlink%", getImageLink(user.avatar)));
+   multiSwap(pu, {
+      "data-pwuser": user.id,
+      "data-pwuserlink": "?p=user-" + user.id
+   });
    UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
       e => refreshPulseUserDisplay(e.target));
    return pu;
@@ -665,8 +729,9 @@ function makeOrAddPWContent(c, id, parent)
 
    if(!pulsedata)
    {
-      pulsedata = makePW(c);
+      pulsedata = cloneTemplate("pw");
       pulsedata.id = id;
+      findSwap(pulsedata, "data-pwlink", "?p=page-" + c.id);
       parent.appendChild(finalizeTemplate(pulsedata));
    }
 
@@ -693,10 +758,11 @@ function makeOrAddPWUser(u, parent)
       });
    }
 
-   var dropdown = pulseuser.nextSibling;
-   findSwap(dropdown, "data-pwusername", u.username);
+   var result = { user : pulseuser, dropdown : pulseuser.nextSibling };
+   findSwap(result.user, "data-src", getImageLink(u.avatar, 40, true));
+   findSwap(result.dropdown, "data-pwusername", u.username);
 
-   return { user : pulseuser, dropdown : dropdown };
+   return result;
 }
 
 // ***************
@@ -892,6 +958,14 @@ function updatePulse(data, fullReset)
 
 function watchId(content) { return "watchitem-" + content.id; }
 
+function updateWatchGlobalAlert()
+{
+   var counts = watches.querySelectorAll("[data-pwcount]");
+   var sum = 0;
+   [...counts].forEach(x => sum += (Number(getSwap(x, "data-pwcount")) || 0));
+   watchglobalalert.textContent = sum ? String(sum) : "";
+}
+
 function displayNewWatches(data, fullReset)
 {
    if(fullReset)
@@ -937,5 +1011,7 @@ function displayNewWatches(data, fullReset)
       x => x.getAttribute(attr.pulsedate) || "0", true);
 
    refreshPWDates(watches);
+   updateWatchGlobalAlert();
+   updateGlobalAlert();
 }
 

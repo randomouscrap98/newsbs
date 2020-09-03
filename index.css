@@ -11,6 +11,7 @@ img { image-rendering: -webkit-optimize-contrast; }
 input[type="file"] { cursor: pointer; }
 a:hover { color: inherit; }
 #postarea textarea { resize: none; }
+.noevent { pointer-events: none; }
 /* The rest */
 .databar {
    background-color: #444;

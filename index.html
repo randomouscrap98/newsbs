@@ -15,6 +15,16 @@
       <script src="index.js?v=1597301532"></script>
       <!-- LOC:STYLE -->
       <link rel="stylesheet" href="index.css?v=1597301532" />
+      <script>
+//Scripts for templates/THIS file etc
+function loglevel(el, replace)
+{
+   var loglevel = "log_" + replace;
+   if(el.className.indexOf(loglevel) < 0)
+      el.className += " " + loglevel;
+   return loglevel;
+}
+      </script>
    </head>
    <!-- LOC:BODY -->
    <body>
@@ -31,8 +41,12 @@
             <div class="uk-flex-1">
             </div> 
             <!-- The burger side-menu thing-->
-            <a id="rightpanetoggle" uk-icon="icon: menu; ratio: 2" href="#"
-               uk-toggle="target: #rightpane; mode: click;"></a>
+            <div class="uk-inline">
+               <a id="rightpanetoggle" uk-icon="icon: menu; ratio: 2" href="#"
+                  uk-toggle="target: #rightpane; mode: click;"></a>
+               <div id="globalalert" class="uk-label uk-label-danger
+                  uk-position-bottom-right noevent" style="display: none">!</div>
+            </div>
          </div>
          <!-- LOC:MAINWINDOW -->
          <div id="mainwindow" class="uk-flex-1 uk-grid-collapse uk-overflow-hidden" uk-grid>
@@ -59,8 +73,11 @@
             src="tempicon.png" width="40" height="40" class="" uk-img></img></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
-      <div data-utgl hidden><a href="" class="uk-display-block" 
-            uk-icon="icon: heart; ratio: 2"></a></div>
+      <div data-utgl hidden class="uk-inline">
+         <a href="" class="uk-display-block" uk-icon="icon: heart; ratio: 2"></a>
+         <div id="watchglobalalert" class="uk-label uk-label-danger 
+            uk-position-bottom-right noevent"></div>
+      </div>
       <div><a href="" class="uk-display-block" 
             uk-icon="icon: server; ratio: 2"></a></div>
                </div>
@@ -258,11 +275,11 @@
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" class="uk-description-list uk-text-break">
       <dt>API Version:</dt>
-      <dd>%apiversion%</dd>
+      <dd data-apiversion="textContent"></dd>
       <dt>EntitySystem Version:</dt>
-      <dd>%entitysystemversion%</dd>
+      <dd data-entitysystemversion="textContent"></dd>
       <dt>API ROOT:</dt>
-      <dd>%apiroot%</dd>
+      <dd data-apiroot="textContent"></dd>
    </dl>
 
                   <h3 class="uk-heading-divider"><span>Contact</span></h3>
@@ -311,28 +328,28 @@
       </div>
       <!-- LOC:TEMPLATES -->
       <div id="templates" style="display: none">
-         <li data-log data-id="1" class="uk-flex">
-            <span class="log_%level% uk-width-expand">%message%</span>
-            <time class="">%time%</time>
+         <li data-log data-id="" class="uk-flex uk-text-break">
+            <span data-message="textContent" data-level="loglevel" class="uk-width-expand"></span>
+            <time data-time="textContent" class=""></time>
          </li>
-         <div data-error class="uk-alert-danger" uk-alert>
+         <div data-error class="uk-alert-danger uk-text-break" uk-alert>
             <a class="uk-alert-close" uk-close></a>
-            <p>%message%</p>
+            <p data-message="textContent"></p>
          </div>
-         <div data-success class="uk-alert-success" uk-alert>
+         <div data-success class="uk-alert-success uk-text-break" uk-alert>
             <a class="uk-alert-close" uk-close></a>
-            <p>%message%</p>
+            <p data-message="textContent"></p>
          </div>
          <div data-spinner uk-spinner></div>
-         <li data-fupmain><img data-src="%link%" width="" height="" alt=""
+         <li data-fupmain><img data-src="" width="" height="" alt=""
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
-         <li data-fupthumb data-id="%id%" uk-slideshow-item="%num%"><a href="#">
-            <img data-src="%link%?size=60&crop=true" width="60" alt="" uk-img></a></li>
+         <li data-fupthumb data-id="" uk-slideshow-item=""><a href="#">
+            <img data-src="src" width="60" alt=""></a></li>
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li data-pw>
             <div class="uk-flex uk-flex-middle">
-               <a href="%link%" class="uk-flex-1 uk-text-truncate pulse-name uk-text-emphasis" 
-                  data-spa data-pwname="textContent">%name%</a>
+               <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis" 
+                  data-spa data-pwname="textContent"></a>
                <span data-pwcount="textContent" class="uk-label uk-label-danger"></span>
             </div>
             <div class="uk-flex uk-flex-bottom">
@@ -344,11 +361,9 @@
          <!-- Because of dropdowns, this one has the INNER elements pasted into
               the parent, and not the container itself-->
          <div data-pwuser>
-            <img data-pwuser="%id%"
-                 data-src="%avatarlink%?crop=true&size=40" class="" width=20 height=20>
+            <img data-pwuser="" data-src="src" class="" width=20 height=20>
             <div uk-dropdown>
-               <a href="%link%" data-spa data-pwusername="textContent">
-               </a>
+               <a data-pwuserlink="href" data-spa data-pwusername="textContent"></a>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
                      style="display: none"> 
