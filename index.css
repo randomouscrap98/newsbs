@@ -113,6 +113,10 @@ a:hover { color: inherit; }
    border-radius: 8px;
 }
 /* Breadcrumb/nav special (uikit default replacements) */
+#breadcrumbs [data-breadcrumb] { padding-top: 0.15em; }
+@media (min-width: 700px) { 
+   #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
+}
 .bc-collapse>*::before
 {
    margin-left: 10px !important;

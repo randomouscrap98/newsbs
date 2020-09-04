@@ -36,6 +36,8 @@ window.onload = function()
    if(ww >= 60)
       rightpanetoggle.click();
 
+   setupSpa();
+
    setupDebugLog();
    setupTechnicalInfo();
    setupUserForms();
@@ -47,9 +49,7 @@ window.onload = function()
    if(getToken())
       setupNewSession();
 
-   setupSpa();
    spa.ProcessLink(document.location.href);
-
    globals.refreshCycle = setInterval(refreshCycle, options.refreshcycle);
 };
 
@@ -339,9 +339,11 @@ function updateUserData(user)
 {
    //Just username and avatar for now?
    navuseravatar.src = getAvatarLink(user.avatar, 80);
-   userusername.textContent = user.username;
+   userusername.firstElementChild.textContent = user.username;
+   userusername.href = getUserLink(user.id);
    userid.textContent = "User ID: " + user.id;
    userid.setAttribute("data-userid", user.id);
+   finalizeTemplate(userusername);
    //Check fields in user for certain special fields like email etc.
 }
 
@@ -441,9 +443,8 @@ function makeBreadcrumbs(chain)
    chain.forEach(x =>
    {
       var bc = cloneTemplate("breadcrumb");
-      var place = x.content ? "page" : "category";
       multiSwap(bc, {
-         "data-link" : "?p=" + place + "-" + x.id,
+         "data-link" : x.content ? getPageLink(x.id) : getCategoryLink(x.id),
          "data-text" : x.name
       });
       finalizeTemplate(bc);
@@ -493,6 +494,10 @@ function getAvatarLink(id, size)
 {
    return getImageLink(id, size, true);
 }
+
+function getUserLink(id) { return "?p=user-" + id; }
+function getPageLink(id) { return "?p=page-" + id; }
+function getCategoryLink(id) { return "?p=category-" + id; }
 
 function getFormInputs(form)
 {
@@ -682,6 +687,8 @@ function finalizeTemplate(elm)
    {
       x.onclick = spa.ClickFunction(x.href);
    });
+   if(elm.hasAttribute("data-spa"))
+      elm.onclick = spa.ClickFunction(elm.href);
    return elm;
 }
 
@@ -781,7 +788,7 @@ function makePWUser(user) //, message)
    var pu = cloneTemplate("pwuser");
    multiSwap(pu, {
       "data-pwuser": user.id,
-      "data-pwuserlink": "?p=user-" + user.id
+      "data-pwuserlink": getUserLink(user.id)
    });
    UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
       e => refreshPulseUserDisplay(e.target));
@@ -796,7 +803,7 @@ function makeOrAddPWContent(c, id, parent)
    {
       pulsedata = cloneTemplate("pw");
       pulsedata.id = id;
-      findSwap(pulsedata, "data-pwlink", "?p=page-" + c.id);
+      findSwap(pulsedata, "data-pwlink", getPageLink(c.id));
       parent.appendChild(finalizeTemplate(pulsedata));
    }
 

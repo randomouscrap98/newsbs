@@ -32,9 +32,10 @@ function loglevel(el, replace)
          <!-- LOC:TOPNAV -->
          <div id="topnav" class="databar uk-flex-middle" uk-navbar>
             <!-- LOC:BREADCRUMBS -->
-            <ul id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-bottom bc-collapse">
+            <ul id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-bottom 
+               bc-collapse uk-margin-small-right">
                <li><a href=".">
-                  <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
+                  <img uk-svg="ratio: 2" data-src="sbs.svg">
                </a></li>
             </ul>
             <!-- Just a spacer for now... maybe something will go here -->
@@ -196,8 +197,9 @@ function loglevel(el, replace)
                      <div class="uk-container" uk-margin>
                         <div id="userdata" class="uk-padding-small" uk-margin>
                            <div class="uk-flex uk-flex-bottom">
-                              <h2 id="userusername" class="uk-display-inline uk-width-expand 
-                                      uk-margin-remove"></h2>
+                              <a id="userusername" href="" data-spa class="uk-display-inline uk-width-expand">
+                                 <h2 class="uk-margin-remove"></h2>
+                              </a>
                               <span id="userid" data-userid="" class="uk-text-meta uk-display-block"></span>
                            </div>
                            <hr>
