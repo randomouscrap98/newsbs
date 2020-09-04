@@ -1105,3 +1105,22 @@ function routepage_load(url, pVal, id)
       finalizePage();
    });
 }
+
+function routeuser_load(url, pVal, id)
+{
+   var params = new URLSearchParams();
+   params.append("requests", "user-" + JSON.stringify({"ids" : [Number(id)]}));
+
+   //function quickApi(url, callback, error, postData, always, method)
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      console.datalog(data);
+      var u = data.user[0];
+      u.name = u.username;
+      multiSwap(maincontent, {
+         "data-title" : u.username
+      });
+      makeBreadcrumbs([u]);
+      finalizePage();
+   });
+}
