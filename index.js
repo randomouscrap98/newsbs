@@ -1110,15 +1110,24 @@ function routeuser_load(url, pVal, id)
 {
    var params = new URLSearchParams();
    params.append("requests", "user-" + JSON.stringify({"ids" : [Number(id)]}));
+   params.append("requests", "content-" + JSON.stringify({
+      "createUserIds" : [Number(id)],
+      "type" : "@user.page",
+      "limit" : 1//,
+      //"reverse" : true
+   }));
 
    //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.datalog(data);
       var u = data.user[0];
+      var c = data.content[0];
       u.name = u.username;
       multiSwap(maincontent, {
-         "data-title" : u.username
+         "data-title" : u.username,
+         "data-avatar" : getAvatarLink(u.avatar, 200),
+         "data-content" : c ? c.content : ""
       });
       makeBreadcrumbs([u]);
       finalizePage();
