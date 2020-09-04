@@ -71,12 +71,8 @@ a:hover { color: inherit; }
 /* Notification special */
 /* -------------------- */
 .uk-notification-message {
-   /*background-color: #EEE;*/
    border: 2px solid rgba(128,128,128,0.1);
 }
-/*.uk-notification-close {
-   display: initial;
-}*/
 .notification-actual {
    padding-left: 0.5em;
    padding-right: 0.4em;
@@ -113,4 +109,10 @@ a:hover { color: inherit; }
 #navuseravatar
 {
    border-radius: 8px;
+}
+/* Breadcrumb/nav special (uikit default replacements) */
+.bc-collapse>*::before
+{
+   margin-left: 10px !important;
+   margin-right: 5px !important;
 }

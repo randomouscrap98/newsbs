@@ -32,7 +32,7 @@ function loglevel(el, replace)
          <!-- LOC:TOPNAV -->
          <div id="topnav" class="databar uk-flex-middle" uk-navbar>
             <!-- LOC:BREADCRUMBS -->
-            <ul class="uk-breadcrumb uk-margin-remove-bottom">
+            <ul id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-bottom bc-collapse">
                <li><a href=".">
                   <img uk-svg="ratio: 2" data-src="sbs.svg" class="uk-margin-small-right">
                </a></li>
@@ -398,12 +398,27 @@ function loglevel(el, replace)
          <div data-routeerror>
             <h1>ERROR</h1>
          </div>
+         <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
+            <h1 data-title="textContent"></h1>
+            <p data-content="textContent" class="uk-text-break"></p>
+         </div>
+         <!-- ROOT discussion, holds the whole thing? -->
+         <div data-discussion>
+         </div>
+         <div data-message>
+         </div>
+         <li data-breadcrumb>
+            <a data-link="href" data-spa data-text="textContent"></a>
+         </li>
       </div>
       <!-- LOC:CONTROLS -->
       <div id="controls" style="display: none">
          <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
             onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
          </button>
+      </div>
+      <!-- LOC:MEMORY -->
+      <div id="memory" style="display: none">
       </div>
    </body>
 </html>

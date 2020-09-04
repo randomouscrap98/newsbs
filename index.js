@@ -14,10 +14,17 @@ var attr = {
 //Will this be stored in user eventually?
 var options = {
    pulseuserlimit : 10,
-   refreshcycle : 10000
+   refreshcycle : 10000,
+   datalog : false
 };
 
 var globals = {};
+
+console.datalog = function(d)
+{
+   if(options.datalog)
+      console.log(d);
+};
 
 window.onload = function()
 {
@@ -70,7 +77,8 @@ function setupSpa()
    spa.Processors.push(new SpaProcessor(url => true, function(url)
    {
       var pVal = Utilities.GetParams(url).get("p") || "home"; 
-      var route = "route" + pVal.split("-")[0];
+      var pParts = pVal.split("-");
+      var route = "route" + pParts[0];
       var template;
 
       try
@@ -84,11 +92,13 @@ function setupSpa()
          template = cloneTemplate(route);
       }
 
-      maincontent.innerHTML = "";
+      initializePage();
       maincontent.appendChild(template);
 
       if(window[route + "_load"])
-         window[route = "_load"](url);
+         window[route + "_load"](url, pVal, pParts[1]);
+      else
+         finalizePage();
    }));
 
    spa.SetHandlePopState();
@@ -299,7 +309,7 @@ function setupNewSession()
    //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
-      console.log(data);
+      console.datalog(data);
       updatePulse(data, true);
       displayNewWatches(data, true);
    });
@@ -401,6 +411,50 @@ function updateGlobalAlert()
    {
       globalalert.style.display = "none";
    }
+}
+
+function initializePage()
+{
+   log.Debug("Clearing breadcrumbs on pageload");
+
+   //Clear out the breadcrumbs
+   while(breadcrumbs.lastElementChild !== breadcrumbs.firstElementChild)
+   {
+      breadcrumbs.removeChild(breadcrumbs.lastElementChild);
+   }
+
+   //Go find the discussion, move it to the hidden zone.
+   var discussions = maincontent.querySelectorAll("[data-discussion]");
+   [...discussions].forEach(x =>
+   {
+      log.Info("Moving discussion '" + x.getAttribute("data-id") + "' to hidden element for storage");
+      memory.appendChild(x);
+   });
+
+   maincontent.innerHTML = "";
+   //Make this nicer later
+   maincontent.appendChild(cloneTemplate("spinner"));
+}
+
+function makeBreadcrumbs(chain)
+{
+   chain.forEach(x =>
+   {
+      var bc = cloneTemplate("breadcrumb");
+      var place = x.content ? "page" : "category";
+      multiSwap(bc, {
+         "data-link" : "?p=" + place + "-" + x.id,
+         "data-text" : x.name
+      });
+      finalizeTemplate(bc);
+      breadcrumbs.appendChild(bc);
+   });
+}
+
+function finalizePage()
+{
+   //We HOPE the first spinner is the one we added. Fix this later!
+   maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
 }
 
 // ***************************
@@ -599,6 +653,17 @@ function getSwap(element, attribute)
    return swapBase(element, attribute);
 }
 
+function getChain(categories, content)
+{
+   //work backwards until there's no parent id
+   var crumbs = [ content ];
+   var cs = idMap(categories);
+
+   while(crumbs[0].parentId)
+      crumbs.unshift(cs[crumbs[0].parentId]);
+
+    return crumbs;
+}
 
 // ***********************
 // ---- TEMPLATE CRAP ----
@@ -1015,3 +1080,28 @@ function displayNewWatches(data, fullReset)
    updateGlobalAlert();
 }
 
+
+// ***************
+// ---- Route ----
+// ***************
+
+function routepage_load(url, pVal, id)
+{
+   var params = new URLSearchParams();
+   params.append("requests", "content-" + JSON.stringify({"ids" : [Number(id)]}));
+   params.append("requests", "category");
+   params.set("category", "id,name,parentId");
+
+   //function quickApi(url, callback, error, postData, always, method)
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      console.datalog(data);
+      var c = data.content[0];
+      multiSwap(maincontent, {
+         "data-title" : c.name,
+         "data-content" : c.content
+      });
+      makeBreadcrumbs(getChain(data.category, c));
+      finalizePage();
+   });
+}
