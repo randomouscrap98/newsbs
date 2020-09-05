@@ -61,19 +61,17 @@ function loglevel(el, replace)
                   </div>
                </div>
                <div id="maincontentbar">
-                  <div id="maincontentinfo">
+                  <div id="maincontentinfo" class="uk-display-inline">
                   </div>
                   <div id="maincontentbarcontrols">
                      <a href="#" class="" uk-icon="triangle-up" id="fulldiscussionmode"></a>
                      <a href="#" class="" uk-icon="triangle-down" id="fullcontentmode"></a>
                      <a href="#" class="" uk-icon="comments" id="splitmodediscussion"></a>
-                        <!--uk-toggle="target: #leftpane; cls: discussionmode"></a>-->
                      <a href="#" class="" uk-icon="file-text" id="splitmodecontent"></a>
-                        <!--uk-toggle="target: #leftpane; cls: pagemode"></a>-->
                   </div>
                </div>
                <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
-                  <ul id="discussions" class="uk-flex-1" uk-overflow-auto>
+                  <ul id="discussions" class="uk-flex-1 uk-switcher" uk-overflow-auto>
                      <!-- Everything in here are the in-memory discussions -->
                   </ul>
                   <div id="postarea" class="uk-flex" data-utgl hidden>
@@ -408,6 +406,11 @@ function loglevel(el, replace)
                </table>
             </div>
          </div>
+         <div data-stdcontentinfo class="uk-display-inline">
+            <a data-spa data-createlink="href"><img data-createavatar="src" height=20 width=20></a>
+            <time data-createdate="textContent"></time>
+         </div>
+         <!-- LOC:ROUTES -->
          <div data-routehome>
             <p>This is a lot of text. i am hoping it will continue so long
             and long and long that it will eventually wrap or something,
@@ -443,6 +446,8 @@ function loglevel(el, replace)
          <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
             onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
          </button>
+         <ul uk-switcher="connect: #discussions">
+         </ul>
       </div>
       <!-- LOC:MEMORY -->
       <div id="memory" style="display: none">

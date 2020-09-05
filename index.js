@@ -449,24 +449,9 @@ function initializePage()
    //});
 
    maincontent.innerHTML = "";
+   maincontentinfo.innerHTML = "";
    maincontentloading.removeAttribute("hidden");
    setHasDiscussions(false);
-   //Make this nicer later
-   //maincontent.appendChild(cloneTemplate("spinner"));
-}
-
-function setHasDiscussions(has)
-{
-   if(has)
-   {
-      unhide(maincontentbar);
-      setSplitMode();
-   }
-   else
-   {
-      hide(maincontentbar);
-      setFullContentMode();
-   }
 }
 
 function makeBreadcrumbs(chain)
@@ -494,6 +479,7 @@ function setFullContentMode()
 {
    unhide(maincontentcontainer);
    unhide(splitmodediscussion);
+   maincontentcontainer.className += " uk-flex-1";
 
    hide(discussionscontainer);
    hide(splitmodecontent);
@@ -514,6 +500,8 @@ function setFullDiscussionMode()
 
 function setSplitMode()
 {
+   maincontentcontainer.className = 
+      maincontentcontainer.className.replace(/uk-flex-1/g, ""); 
    unhide(discussionscontainer);
    unhide(maincontentcontainer);
    unhide(fulldiscussionmode);
@@ -522,6 +510,21 @@ function setSplitMode()
    hide(splitmodecontent);
    hide(splitmodediscussion);
 }
+
+function setHasDiscussions(has)
+{
+   if(has)
+   {
+      unhide(maincontentbar);
+      setSplitMode(); //Could be settings?
+   }
+   else
+   {
+      hide(maincontentbar);
+      setFullContentMode();
+   }
+}
+
 
 // ***************************
 // ---- GENERAL UTILITIES ----
@@ -687,26 +690,34 @@ function getSwapElement(element, attribute)
 //-If attribute is not part of element, assumed a global function.
 function swapBase(element, attribute, replace)
 {
-	var name = getSwapElement(element, attribute);
-   var caller = name.getAttribute(attribute);
+   try
+   {
+      var name = getSwapElement(element, attribute);
+      var caller = name.getAttribute(attribute);
 
-   if(!caller)
-   {
-      if(replace !== undefined)
-         name.setAttribute(attribute, replace);
+      if(!caller)
+      {
+         if(replace !== undefined)
+            name.setAttribute(attribute, replace);
+         else
+            return name.getAttribute(attribute);
+      }
+      else if(caller in name)
+      {
+         if(replace !== undefined)
+            name[caller] = replace;
+         else
+            return name[caller];
+      }
       else
-         return name.getAttribute(attribute);
+      {
+         return window[caller](name, replace);
+      }
    }
-   else if(caller in name)
+   catch(ex)
    {
-      if(replace !== undefined)
-         name[caller] = replace;
-      else
-         return name[caller];
-   }
-   else
-   {
-      return window[caller](name, replace);
+      log.Error("Can't swap attribute " + attribute + " on element " + element
+         + " : " + ex);
    }
 }
 
@@ -772,6 +783,18 @@ function makeSuccess(message)
    var success = cloneTemplate("success");
    findSwap(error, "data-message", message);
    return success;
+}
+
+function makeStandardContentInfo(content, users)
+{
+   var info = cloneTemplate("stdcontentinfo");
+   multiSwap(info, {
+      "data-createavatar" : getAvatarLink(users[content.createUserId].avatar, 20),
+      "data-createlink" : getUserLink(content.createUserId),
+      "data-createdate" : (new Date(content.createDate)).toLocaleString()
+   });
+   finalizeTemplate(info);
+   return info;
 }
 
 // *************
@@ -1166,6 +1189,7 @@ function routepage_load(url, pVal, id)
    var params = new URLSearchParams();
    params.append("requests", "content-" + JSON.stringify({"ids" : [Number(id)]}));
    params.append("requests", "category");
+   params.append("requests", "user.0createUserId.1edituserId");
    params.set("category", "id,name,parentId");
 
    //function quickApi(url, callback, error, postData, always, method)
@@ -1173,11 +1197,13 @@ function routepage_load(url, pVal, id)
    {
       console.datalog(data);
       var c = data.content[0];
+      var users = idMap(data.user);
       multiSwap(maincontent, {
          "data-title" : c.name,
          "data-content" : c.content
       });
       makeBreadcrumbs(getChain(data.category, c));
+      maincontentinfo.appendChild(makeStandardContentInfo(c, users));
       finalizePage();
    });
 }
@@ -1190,8 +1216,7 @@ function routeuser_load(url, pVal, id)
    params.append("requests", "content-" + JSON.stringify({
       "createUserIds" : [Number(id)],
       "type" : "@user.page",
-      "limit" : 1//,
-      //"reverse" : true
+      "limit" : 1
    }));
 
    //function quickApi(url, callback, error, postData, always, method)
