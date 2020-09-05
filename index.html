@@ -55,10 +55,30 @@ function loglevel(el, replace)
             <div id="leftpane" class=
               "uk-width-expand uk-flex uk-flex-column uk-height-1-1 uk-overflow-hidden">
                <!-- LOC:MAINCONTENT -->
-               <div id="maincontent" class="uk-flex-1" uk-overflow-auto>
+               <div id="maincontentcontainer" class="uk-inline" uk-overflow-auto>
+                  <div id="maincontentloading" class="uk-cover" uk-spinner="ratio: 2" hidden></div>
+                  <div id="maincontent">
+                  </div>
                </div>
-               <div id="postarea" class="uk-flex" data-utgl hidden>
-                  <textarea class="uk-flex-1 uk-textarea"></textarea>
+               <div id="maincontentbar">
+                  <div id="maincontentinfo">
+                  </div>
+                  <div id="maincontentbarcontrols">
+                     <a href="#" class="" uk-icon="triangle-up" id="fulldiscussionmode"></a>
+                     <a href="#" class="" uk-icon="triangle-down" id="fullcontentmode"></a>
+                     <a href="#" class="" uk-icon="comments" id="splitmodediscussion"></a>
+                        <!--uk-toggle="target: #leftpane; cls: discussionmode"></a>-->
+                     <a href="#" class="" uk-icon="file-text" id="splitmodecontent"></a>
+                        <!--uk-toggle="target: #leftpane; cls: pagemode"></a>-->
+                  </div>
+               </div>
+               <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
+                  <ul id="discussions" class="uk-flex-1" uk-overflow-auto>
+                     <!-- Everything in here are the in-memory discussions -->
+                  </ul>
+                  <div id="postarea" class="uk-flex" data-utgl hidden>
+                     <textarea class="uk-flex-1 uk-textarea"></textarea>
+                  </div>
                </div>
             </div>
             <!-- LOC:RIGHTPANE -->

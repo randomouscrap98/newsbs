@@ -41,6 +41,17 @@ a:hover { color: inherit; }
 #rightpanenav a:hover {
    background-color: rgba(128,255,240,0.1);
 }
+/* left-pane stuff (main content!) */
+#maincontentbar {
+   background-color: rgba(128,128,128,0.1);
+   padding: 0.1em;
+}
+#maincontentbarcontrols {
+   float: right;
+}
+#discussionscontainer {
+   min-height: 45%;
+}
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
    background-color: rgba(128,255,240,0.4);

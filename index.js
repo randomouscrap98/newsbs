@@ -43,6 +43,7 @@ window.onload = function()
    setupUserForms();
    setupFileUpload();
    setupAlerts();
+   setupPageControls();
 
    setupTests(); //For now
 
@@ -138,6 +139,20 @@ function setupTechnicalInfo()
          "data-entitysystemversion": data.versions.entitysystem
       });
    });
+}
+
+function setupPageControls()
+{
+   var makeSet = f => function(event)
+   {
+      event.preventDefault();
+      f();
+   };
+
+   fulldiscussionmode.onclick = makeSet(setFullDiscussionMode);
+   fullcontentmode.onclick = makeSet(setFullContentMode);
+   splitmodecontent.onclick = makeSet(setSplitMode);
+   splitmodediscussion.onclick = makeSet(setSplitMode);
 }
 
 function setupUserForms()
@@ -426,16 +441,32 @@ function initializePage()
    }
 
    //Go find the discussion, move it to the hidden zone.
-   var discussions = maincontent.querySelectorAll("[data-discussion]");
-   [...discussions].forEach(x =>
-   {
-      log.Info("Moving discussion '" + x.getAttribute("data-id") + "' to hidden element for storage");
-      memory.appendChild(x);
-   });
+   //var discussions = maincontent.querySelectorAll("[data-discussion]");
+   //[...discussions].forEach(x =>
+   //{
+   //   log.Info("Moving discussion '" + x.getAttribute("data-id") + "' to hidden element for storage");
+   //   memory.appendChild(x);
+   //});
 
    maincontent.innerHTML = "";
+   maincontentloading.removeAttribute("hidden");
+   setHasDiscussions(false);
    //Make this nicer later
-   maincontent.appendChild(cloneTemplate("spinner"));
+   //maincontent.appendChild(cloneTemplate("spinner"));
+}
+
+function setHasDiscussions(has)
+{
+   if(has)
+   {
+      unhide(maincontentbar);
+      setSplitMode();
+   }
+   else
+   {
+      hide(maincontentbar);
+      setFullContentMode();
+   }
 }
 
 function makeBreadcrumbs(chain)
@@ -455,7 +486,41 @@ function makeBreadcrumbs(chain)
 function finalizePage()
 {
    //We HOPE the first spinner is the one we added. Fix this later!
-   maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
+   //maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
+   maincontentloading.setAttribute("hidden", "");
+}
+
+function setFullContentMode()
+{
+   unhide(maincontentcontainer);
+   unhide(splitmodediscussion);
+
+   hide(discussionscontainer);
+   hide(splitmodecontent);
+   hide(fulldiscussionmode);
+   hide(fullcontentmode);
+}
+
+function setFullDiscussionMode()
+{
+   unhide(discussionscontainer);
+   unhide(splitmodecontent);
+
+   hide(maincontentcontainer);
+   hide(splitmodediscussion);
+   hide(fulldiscussionmode);
+   hide(fullcontentmode);
+}
+
+function setSplitMode()
+{
+   unhide(discussionscontainer);
+   unhide(maincontentcontainer);
+   unhide(fulldiscussionmode);
+   unhide(fullcontentmode);
+
+   hide(splitmodecontent);
+   hide(splitmodediscussion);
 }
 
 // ***************************
@@ -475,6 +540,9 @@ function setToken(token)
       token = JSON.stringify(token);
    window.localStorage.setItem("usertoken", token);
 }
+
+function hide(e) { e.setAttribute("hidden", ""); }
+function unhide(e) { e.removeAttribute("hidden"); }
 
 function getUserId()
 {
@@ -1094,6 +1162,7 @@ function displayNewWatches(data, fullReset)
 
 function routepage_load(url, pVal, id)
 {
+   setHasDiscussions(true);
    var params = new URLSearchParams();
    params.append("requests", "content-" + JSON.stringify({"ids" : [Number(id)]}));
    params.append("requests", "category");
@@ -1115,6 +1184,7 @@ function routepage_load(url, pVal, id)
 
 function routeuser_load(url, pVal, id)
 {
+   setHasDiscussions(true);
    var params = new URLSearchParams();
    params.append("requests", "user-" + JSON.stringify({"ids" : [Number(id)]}));
    params.append("requests", "content-" + JSON.stringify({
