@@ -15,11 +15,12 @@ var attr = {
 //Will this be stored in user eventually?
 var options = {
    pulseuserlimit : 10,
+   filedisplaylimit: 40,
    refreshcycle : 10000,
    datalog : false
 };
 
-var globals = {};
+var globals = { };
 
 console.datalog = function(d)
 {
@@ -47,8 +48,14 @@ window.onload = function()
    setupPageControls();
 
    if(getToken())
-      setupNewSession();
+   {
+      log.Info("User token found, trying to continue logged in");
+      startSession();
+   }
 
+   //Regardless if you're logged in or not, this will work "correctly" since
+   //the spa processor will take your login state into account. And if you're
+   //not "REALLY" logged in, well whatever, better than processing it twice.
    spa.ProcessLink(document.location.href);
    globals.refreshCycle = setInterval(refreshCycle, options.refreshcycle);
 };
@@ -98,6 +105,7 @@ function setupSpa()
    }));
 
    spa.SetHandlePopState();
+   log.Debug("Setup SPA, override handling popstate");
 }
 
 function setupDebugLog()
@@ -122,12 +130,15 @@ function setupDebugLog()
          }
       }
    });
+   log.Debug("Setup logger display");
 }
 
 function setupTechnicalInfo()
 {
    quickApi("test/info", function(data)
    {
+      log.Debug("Received technical info from API");
+
       multiSwap(technicalinfo, {
          "data-apiroot": apiroot,
          "data-apiversion": data.versions.contentapi,
@@ -148,6 +159,8 @@ function setupPageControls()
    fullcontentmode.onclick = makeSet(setFullContentMode);
    splitmodecontent.onclick = makeSet(setSplitMode);
    splitmodediscussion.onclick = makeSet(setSplitMode);
+
+   log.Debug("Setup page controls");
 }
 
 function setupUserForms()
@@ -155,13 +168,12 @@ function setupUserForms()
    formSetupSubmit(loginform, "user/authenticate", function(token)
    {
       setToken(token); 
-      setupNewSession();
+      startSession();
    });
    userlogout.addEventListener("click", function()
    {
       setToken(null);
-      setLoginState(false);
-      //stopSession();
+      stopSession();
    });
    formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", function(result)
    {
@@ -201,11 +213,13 @@ function setupUserForms()
    });
 
    userchangeavatar.addEventListener("click", function() {
-      fileselectcallback = function(id) {
+      globals.fileselectcallback = function(id) {
          quickApi("user/basic", () => refreshUserFull(), undefined, 
             { "avatar" : id }, undefined, "PUT"); 
       };
    });
+
+   log.Debug("Setup all user forms");
 }
 
 function setupAlerts()
@@ -225,9 +239,9 @@ function setupAlerts()
          }, undefined, "pleaseinvalidate");
       }, () => log.Debug("Cancelled invalidate tokens"));
    });
-}
 
-fileselectcallback = false;
+   log.Debug("Setup alerts");
+}
 
 function setupFileUpload()
 {
@@ -248,11 +262,11 @@ function setupFileUpload()
       var selectedImage = document.querySelector("#fileuploadthumbnails li.uk-active");
 
       //Call the "function" (a global variable! yay!)
-      if(fileselectcallback)
+      if(globals.fileselectcallback)
       {
          //for safety, remove callback
-         fileselectcallback(selectedImage.getAttribute("data-id"));
-         fileselectcallback = false;
+         globals.fileselectcallback(selectedImage.getAttribute("data-id"));
+         globals.fileselectcallback = false;
       }
    });
 
@@ -285,14 +299,18 @@ function setupFileUpload()
          }, 200);
       }
    });
+
+   log.Debug("Setup all file uploading/handling");
 }
 
 //Assuming the user is logged in, this will start up the long poller, set the
-//login state, etc.
-function setupNewSession()
+//login state, etc. You don't "start" sessions all the time, so it's just
+//called once, but the "setLoginState" will change the view, so that can be
+//called whenever you want.
+function startSession()
 {
-   log.Info("User token found, trying to continue logged in");
    rightpane.style.opacity = 0.2;
+   //Refreshing will set our login state, don't worry about that stuff.
    refreshUserFull(() => rightpane.style.opacity = 1.0);
 
    var params = new URLSearchParams();
@@ -323,18 +341,16 @@ function setupNewSession()
 
 function stopSession()
 {
-   setLoginState(false);
-
-   //Reload current page
-   spa.ProcessLink(document.location.href);
-
-   //Abort long poller
+   //lol relog (maybe in the future, do something better)
+   location.reload();
 }
 
 // **********************
 // ---- Page Modify ----
 // **********************
 
+//This is the VISIBILITY modifier, it's just how the page LOOKS. So you can
+//call this whenever, it won't do anything major.
 function setLoginState(loggedIn)
 {
    //check current login state. User is logged in if first element (the user
@@ -345,6 +361,7 @@ function setLoginState(loggedIn)
    //timing errors here but egh whatever, sorry users (for now).
    if(currentState != loggedIn)
    {
+      log.Info("Set login visual state to: " + loggedIn);
       toggleuserstate.click();
    }
 }
@@ -358,7 +375,7 @@ function updateUserData(user)
    userid.textContent = "User ID: " + user.id;
    //Can't use findSwap: it's an UPDATE
    userid.setAttribute("data-userid", user.id);
-   finalizeTemplate(userusername);
+   finalizeTemplate(userusername); //be careful with this!
    //Check fields in user for certain special fields like email etc.
 }
 
@@ -368,40 +385,43 @@ function refreshUserFull(always)
    quickApi("user/me", function(user)
    {
       updateUserData(user);
-      setLoginState(true);
+      //Don't set up the FULL session, you know? Someone else will do that
+      setLoginState(true); 
    }, function(req)
    {
       //Assume any failed user refresh means they're logged out
       log.Error("Couldn't refresh user, deleting cached token");
       setToken(null);   
-      setLoginState(false);
+      //For SAFETY, we completely stop the session. It might be inefficient 
+      //since we may be reloading content we JUST loaded in, but it's rare
+      //hopefully
+      stopSession();
    }, undefined, always);
 }
-
-var displayLimit = 40;
 
 function setFileUploadList(page)
 {
    fileuploaditems.innerHTML = "<div uk-spinner='ratio: 3'></div>";
    fileuploadthumbnails.innerHTML = "";
 
-   quickApi("file?reverse=true&limit=" + displayLimit + "&skip=" + (displayLimit * page) +
-      "&createuserids=" + getUserId(), function(files)
-   {
-      fileuploaditems.innerHTML = "";
-      for(var i = 0; i < files.length; i++)
+   quickApi("file?reverse=true&limit=" + options.filedisplaylimit + "&skip=" + 
+      (options.filedisplaylimit * page) + "&createuserids=" + getUserId(), 
+      function(files)
       {
-         addFileUploadImage(files[i], i);
-      }
+         fileuploaditems.innerHTML = "";
+         for(var i = 0; i < files.length; i++)
+         {
+            addFileUploadImage(files[i], i);
+         }
 
-      fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1); }
-      fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1); }
+         fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1); }
+         fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1); }
 
-      if(page > 0) fileuploadnewer.removeAttribute("hidden");
-      else fileuploadnewer.setAttribute("hidden", "");
-      if(files.length == displayLimit) fileuploadolder.removeAttribute("hidden");
-      else fileuploadolder.setAttribute("hidden", "");
-   });
+         if(page > 0) fileuploadnewer.removeAttribute("hidden");
+         else fileuploadnewer.setAttribute("hidden", "");
+         if(files.length == globals.filedisplaylimit) fileuploadolder.removeAttribute("hidden");
+         else fileuploadolder.setAttribute("hidden", "");
+      });
 }
 
 function addFileUploadImage(file, num)
@@ -432,7 +452,7 @@ function updateGlobalAlert()
 
 function initializePage()
 {
-   log.Debug("Clearing breadcrumbs on pageload");
+   log.Debug("Initializing page to a clean slate");
 
    //Clear out the breadcrumbs
    while(breadcrumbs.lastElementChild !== breadcrumbs.firstElementChild)
