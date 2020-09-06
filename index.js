@@ -8,7 +8,8 @@ var actiontext = {
 };
 
 var attr = {
-   "pulsedate" : "data-maxdate"
+   "pulsedate" : "data-maxdate",
+   "pulsecount" : "data-pwcount"
 };
 
 //Will this be stored in user eventually?
@@ -45,18 +46,12 @@ window.onload = function()
    setupAlerts();
    setupPageControls();
 
-   setupTests(); //For now
-
    if(getToken())
       setupNewSession();
 
    spa.ProcessLink(document.location.href);
    globals.refreshCycle = setInterval(refreshCycle, options.refreshcycle);
 };
-
-function setupTests()
-{
-}
 
 function refreshCycle()
 {
@@ -111,7 +106,7 @@ function setupDebugLog()
       //Find the last id, only display new ones.
       log.Debug("Debug log shown, rendering new messages");
       var lastId = (logs.lastElementChild ?  Number(logs.lastElementChild.dataset.id) : 0);
-      var msgBase = document.querySelector("#templates [data-log]");
+      var msgBase = cloneTemplate("log");
       for(var i = 0; i < log.messages.length; i++)
       {
          if(log.messages[i].id > lastId)
@@ -166,6 +161,7 @@ function setupUserForms()
    {
       setToken(null);
       setLoginState(false);
+      //stopSession();
    });
    formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", function(result)
    {
@@ -299,12 +295,6 @@ function setupNewSession()
    rightpane.style.opacity = 0.2;
    refreshUserFull(() => rightpane.style.opacity = 1.0);
 
-   //TODO: 
-
-   //Call chain endpoint to get watches, aggregate activity, aggregate
-   //comments, content just name/id, users just name/id/avatar. reset + fill
-   //two sidebars with pulled data.
-
    var params = new URLSearchParams();
    var search = {"reverse":true,"createstart":Utilities.SubHours(24).toISOString()};
    var watchsearch = {"ContentLimit":{"Watches":true}};
@@ -321,7 +311,6 @@ function setupNewSession()
    params.set("user","id,username,avatar");
    params.set("watch","id,contentId,lastNotificationId");
 
-   //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.datalog(data);
@@ -330,6 +319,16 @@ function setupNewSession()
    });
 
    //Start long poller
+}
+
+function stopSession()
+{
+   setLoginState(false);
+
+   //Reload current page
+   spa.ProcessLink(document.location.href);
+
+   //Abort long poller
 }
 
 // **********************
@@ -357,6 +356,7 @@ function updateUserData(user)
    userusername.firstElementChild.textContent = user.username;
    userusername.href = getUserLink(user.id);
    userid.textContent = "User ID: " + user.id;
+   //Can't use findSwap: it's an UPDATE
    userid.setAttribute("data-userid", user.id);
    finalizeTemplate(userusername);
    //Check fields in user for certain special fields like email etc.
@@ -407,11 +407,11 @@ function setFileUploadList(page)
 function addFileUploadImage(file, num)
 {
    var fItem = cloneTemplate("fupmain");
-   multiSwap(fItem, { "data-src": getImageLink(file.id) });
    var fThumb = cloneTemplate("fupthumb");
+   multiSwap(fItem, { "data-src": getImageLink(file.id) });
    multiSwap(fThumb, {
       "data-src": getImageLink(file.id, 60, true),
-      "uk-slideshow-item": num,
+      "data-number": num,
       "data-id": file.id
    });
    fileuploaditems.appendChild(fItem);
@@ -687,7 +687,8 @@ function getSwapElement(element, attribute)
 //-If attribute is empty, that is what is assigned
 //-If attribute has a value, the replacement goes to where the attribute is
 // pointing
-//-If attribute is not part of element, assumed a global function.
+//-If attribute starts with ., it goes to the MEMBER on the element.
+// If element doesn't have that member, try global function
 function swapBase(element, attribute, replace)
 {
    try
@@ -695,23 +696,34 @@ function swapBase(element, attribute, replace)
       var name = getSwapElement(element, attribute);
       var caller = name.getAttribute(attribute);
 
+      //Oops, use the direct attribute if there's no value.
       if(!caller)
+         caller = attribute;
+
+      //Oh, it's a function call! Try on the element itself first, then fall
+      //back to the window functions
+      if(caller.indexOf(".") === 0)
       {
-         if(replace !== undefined)
-            name.setAttribute(attribute, replace);
+         caller = caller.substr(1);
+
+         if(caller in name)
+         {
+            if(replace !== undefined)
+               name[caller] = replace;
+            else
+               return name[caller];
+         }
          else
-            return name.getAttribute(attribute);
-      }
-      else if(caller in name)
-      {
-         if(replace !== undefined)
-            name[caller] = replace;
-         else
-            return name[caller];
+         {
+            return window[caller](name, replace);
+         }
       }
       else
       {
-         return window[caller](name, replace);
+         if(replace !== undefined)
+            name.setAttribute(caller, replace);
+         else
+            return name.getAttribute(caller);
       }
    }
    catch(ex)
@@ -1123,9 +1135,9 @@ function watchId(content) { return "watchitem-" + content.id; }
 
 function updateWatchGlobalAlert()
 {
-   var counts = watches.querySelectorAll("[data-pwcount]");
+   var counts = watches.querySelectorAll("[" + attr.pulsecount + "]");
    var sum = 0;
-   [...counts].forEach(x => sum += (Number(getSwap(x, "data-pwcount")) || 0));
+   [...counts].forEach(x => sum += (Number(getSwap(x, attr.pulsecount)) || 0));
    watchglobalalert.textContent = sum ? String(sum) : "";
 }
 
@@ -1165,7 +1177,7 @@ function displayNewWatches(data, fullReset)
       upd(activity[c.id]);
 
       if(total)
-         findSwap(watchdata, "data-pwcount", total);
+         findSwap(watchdata, attr.pulsecount, total);
 
       watchdata.setAttribute(attr.pulsedate, maxDate);
 	}

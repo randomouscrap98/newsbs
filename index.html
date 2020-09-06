@@ -295,11 +295,11 @@ function loglevel(el, replace)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" class="uk-description-list uk-text-break">
       <dt>API Version:</dt>
-      <dd data-apiversion="textContent"></dd>
+      <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
-      <dd data-entitysystemversion="textContent"></dd>
+      <dd data-entitysystemversion=".textContent"></dd>
       <dt>API ROOT:</dt>
-      <dd data-apiroot="textContent"></dd>
+      <dd data-apiroot=".textContent"></dd>
    </dl>
 
                   <h3 class="uk-heading-divider"><span>Contact</span></h3>
@@ -349,32 +349,32 @@ function loglevel(el, replace)
       <!-- LOC:TEMPLATES -->
       <div id="templates" style="display: none">
          <li data-log data-id="" class="uk-flex uk-text-break">
-            <span data-message="textContent" data-level="loglevel" class="uk-width-expand"></span>
-            <time data-time="textContent" class=""></time>
+            <span data-message=".textContent" data-level=".loglevel" class="uk-width-expand"></span>
+            <time data-time=".textContent" class=""></time>
          </li>
          <div data-error class="uk-alert-danger uk-text-break" uk-alert>
             <a class="uk-alert-close" uk-close></a>
-            <p data-message="textContent"></p>
+            <p data-message=".textContent"></p>
          </div>
          <div data-success class="uk-alert-success uk-text-break" uk-alert>
             <a class="uk-alert-close" uk-close></a>
-            <p data-message="textContent"></p>
+            <p data-message=".textContent"></p>
          </div>
          <div data-spinner uk-spinner></div>
          <li data-fupmain><img data-src="" width="" height="" alt=""
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
-         <li data-fupthumb data-id="" uk-slideshow-item=""><a href="#">
+         <li data-fupthumb data-id="" data-number="uk-slideshow-item"><a href="#">
             <img data-src="src" width="60" alt=""></a></li>
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li data-pw>
             <div class="uk-flex uk-flex-middle">
                <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis" 
-                  data-spa data-pwname="textContent"></a>
-               <span data-pwcount="textContent" class="uk-label uk-label-danger"></span>
+                  data-spa data-pwname=".textContent"></a>
+               <span data-pwcount=".textContent" class="uk-label uk-label-danger"></span>
             </div>
             <div class="uk-flex uk-flex-bottom">
                <div class="pw-users"></div>
-               <span data-pwtime="textContent"
+               <span data-pwtime=".textContent"
                   class="uk-flex-1 uk-text-right pw-time uk-text-meta">Just now</span>
             </div>
          </li>
@@ -383,7 +383,7 @@ function loglevel(el, replace)
          <div data-pwuser>
             <img data-pwuser="" data-src="src" class="" width=20 height=20>
             <div uk-dropdown>
-               <a data-pwuserlink="href" data-spa data-pwusername="textContent"></a>
+               <a data-pwuserlink="href" data-spa data-pwusername=".textContent"></a>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
                      style="display: none"> 
@@ -408,7 +408,7 @@ function loglevel(el, replace)
          </div>
          <div data-stdcontentinfo class="uk-display-inline">
             <a data-spa data-createlink="href"><img data-createavatar="src" height=20 width=20></a>
-            <time data-createdate="textContent"></time>
+            <time data-createdate=".textContent"></time>
          </div>
          <!-- LOC:ROUTES -->
          <div data-routehome>
@@ -424,13 +424,13 @@ function loglevel(el, replace)
             <h1>ERROR</h1>
          </div>
          <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
-            <h1 data-title="textContent"></h1>
-            <p data-content="textContent" class="uk-text-break"></p>
+            <h1 data-title=".textContent"></h1>
+            <p data-content=".textContent" class="uk-text-break"></p>
          </div>
          <div data-routeuser class="uk-container uk-margin-top uk-margin-bottom">
-            <h1 data-title="textContent" class="uk-inline"></h1>
+            <h1 data-title=".textContent" class="uk-inline"></h1>
             <img data-avatar="src" class="uk-align-right avatar">
-            <p data-content="textContent" class="uk-text-break"></p>
+            <p data-content=".textContent" class="uk-text-break"></p>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
          <div data-discussion>
@@ -438,7 +438,7 @@ function loglevel(el, replace)
          <div data-message>
          </div>
          <li data-breadcrumb>
-            <a data-link="href" data-spa data-text="textContent"></a>
+            <a data-link="href" data-spa data-text=".textContent"></a>
          </li>
       </div>
       <!-- LOC:CONTROLS -->
