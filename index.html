@@ -380,10 +380,10 @@ function loglevel(el, replace)
          </li>
          <!-- Because of dropdowns, this one has the INNER elements pasted into
               the parent, and not the container itself-->
-         <div data-pwuser>
-            <img data-pwuser="" data-src="src" class="" width=20 height=20>
+         <div data-pwuser class="uk-inline">
+            <img data-useravatar="src" class="" width=20 height=20>
             <div uk-dropdown>
-               <a data-pwuserlink="href" data-spa data-pwusername=".textContent"></a>
+               <a data-userlink="href" data-spa data-username=".textContent"></a>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
                      style="display: none"> 
@@ -446,7 +446,7 @@ function loglevel(el, replace)
          <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
             onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
          </button>
-         <ul uk-switcher="connect: #discussions">
+         <ul id="discussionswitcher" uk-switcher="connect: #discussions">
          </ul>
       </div>
       <!-- LOC:MEMORY -->

@@ -829,6 +829,19 @@ function makeStandardContentInfo(content, users)
    return info;
 }
 
+function makePWUser(user)
+{
+   var pu = cloneTemplate("pwuser");
+   multiSwap(pu, {
+      "data-pwuser": user.id,
+      "data-userlink": getUserLink(user.id)
+   });
+   UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
+      e => refreshPulseUserDisplay(e.target));
+   finalizeTemplate(pu);
+   return pu;
+}
+
 // *************
 // ---- API ----
 // *************
@@ -906,18 +919,6 @@ function refreshPWDate(item)
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
 function getPWUserlist(pulseitem) { return pulseitem.querySelector(".pw-users"); }
 
-function makePWUser(user) //, message)
-{
-   var pu = cloneTemplate("pwuser");
-   multiSwap(pu, {
-      "data-pwuser": user.id,
-      "data-pwuserlink": getUserLink(user.id)
-   });
-   UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
-      e => refreshPulseUserDisplay(e.target));
-   return pu;
-}
-
 function makeOrAddPWContent(c, id, parent)
 {
    var pulsedata = document.getElementById(id);
@@ -942,22 +943,16 @@ function makeOrAddPWUser(u, parent)
 
    if(!pulseuser)
    {
-      var pu = makePWUser(u);
-      var pus = getPWUserlist(parent);
-
-      //Go find the user element (hoping it exists)
-      [...pu.children].forEach(x => 
-      {
-         if(x.hasAttribute("data-pwuser")) pulseuser = x;
-         pus.appendChild(finalizeTemplate(x));
-      });
+      pulseuser = makePWUser(u);
+      getPWUserlist(parent).appendChild(pulseuser);
    }
 
-   var result = { user : pulseuser, dropdown : pulseuser.nextSibling };
-   findSwap(result.user, "data-src", getImageLink(u.avatar, 40, true));
-   findSwap(result.dropdown, "data-pwusername", u.username);
+   multiSwap(pulseuser, {
+      "data-useravatar": getImageLink(u.avatar, 40, true),
+      "data-username": u.username
+   });
 
-   return result;
+   return pulseuser;
 }
 
 // ***************
@@ -999,7 +994,7 @@ function setPulseUserData(userElem, data)
       if(d.firstdate > maxparentdate) maxparentdate=d.firstdate;
    }
    userElem.setAttribute(attr.pulsedate, maxparentdate);
-   userElem.previousSibling.setAttribute(attr.pulsedate, maxparentdate + " ");
+   //userElem.previousElementSibling.setAttribute(attr.pulsedate, maxparentdate + " ");
 }
 
 function refreshPulseUserDisplay(userElem)
@@ -1041,8 +1036,8 @@ function cataloguePulse(c, u, aggregate)
    {
       var pulseuser = makeOrAddPWUser(u, aggregate[c.id].pulse);
 
-      aggregate[c.id][u.id] = getPulseUserData(pulseuser.dropdown);
-      aggregate[c.id][u.id].user = pulseuser.dropdown;
+      aggregate[c.id][u.id] = getPulseUserData(pulseuser);
+      aggregate[c.id][u.id].user = pulseuser;
    }
 
    return aggregate[c.id][u.id];

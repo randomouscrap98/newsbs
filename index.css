@@ -112,13 +112,13 @@ a:hover { color: inherit; }
 .pw-users table td { padding: 0.5em 0.4em; }
 .pw-users table td:first-child { text-align: right; }
 .pw-users [aria-expanded="true"] {  filter: none; }
-[data-pwuser] { 
+[data-pwuser] img { 
    margin: 0.4em 0.2em;   
    vertical-align: top;
    filter: opacity(0.7);
    border-radius: 5px;
 }
-[data-pwusername] {
+[data-username] {
    margin: 0 0.4em;
 }
 
