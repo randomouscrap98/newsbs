@@ -378,8 +378,8 @@ function loglevel(el, replace)
                   class="uk-flex-1 uk-text-right pw-time uk-text-meta">Just now</span>
             </div>
          </li>
-         <!-- Because of dropdowns, this one has the INNER elements pasted into
-              the parent, and not the container itself-->
+         <!-- Dropdowns HAVE to be inside a uk-inline element! This DOES NOT
+              WORK without that!! -->
          <div data-pwuser class="uk-inline">
             <img data-useravatar="src" class="" width=20 height=20>
             <div uk-dropdown>
@@ -410,6 +410,35 @@ function loglevel(el, replace)
             <a data-spa data-createlink="href"><img data-createavatar="src" height=20 width=20></a>
             <time data-createdate=".textContent"></time>
          </div>
+         <!-- ROOT discussion, holds the whole thing? -->
+         <li data-discussion data-id="id">
+            <!-- A placeholder, so inserting will always have a place to stop searching -->
+            <div data-messageframe data-userid="0" style="display: none">
+               <div data-messageid="0"></div>
+            </div>
+         </li>
+         <li data-discussionswitch data-id="id">
+            <a href="#"></a>
+         </li>
+         <div data-messageframe data-userid="" class="uk-flex">
+            <div class="messageframeavatar">
+               <img data-useravatar="src">
+            </div>
+            <div class="messageframemain uk-width-expand">
+               <div class="messageframeinfo">
+                  <a data-spa data-userlink="href"><span data-username=".textContent"></span></a>
+                  <time data-frametime=".textContent"></time>
+               </div>
+               <div class="messagelist"> </div>
+            </div>
+         </div>
+         <div data-singlemessage data-messageid="" data-id="id" class="uk-flex">
+            <div data-message=".renderComment" class="uk-width-expand"></div>
+            <a href="#" uk-toggle="target: #fileupload" uk-icon="cog"></a>
+         </div>
+         <li data-breadcrumb>
+            <a data-link="href" data-spa data-text=".textContent"></a>
+         </li>
          <!-- LOC:ROUTES -->
          <div data-routehome>
             <p>This is a lot of text. i am hoping it will continue so long
@@ -432,14 +461,6 @@ function loglevel(el, replace)
             <img data-avatar="src" class="uk-align-right avatar">
             <p data-content=".textContent" class="uk-text-break"></p>
          </div>
-         <!-- ROOT discussion, holds the whole thing? -->
-         <div data-discussion>
-         </div>
-         <div data-message>
-         </div>
-         <li data-breadcrumb>
-            <a data-link="href" data-spa data-text=".textContent"></a>
-         </li>
       </div>
       <!-- LOC:CONTROLS -->
       <div id="controls" style="display: none">

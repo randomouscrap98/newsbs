@@ -121,6 +121,11 @@ var Utilities =
          .sort((a,b)=>descending*((sortFunc(a)>sortFunc(b))?1:-1))
          .forEach(node=>parent.appendChild(node));
    },
+   RemoveElement : function(element) {
+      var p = element.parentNode;
+      p.removeChild(element);
+      return p;
+   },
    SubHours : function(hours, date) {
       return new Date((date || new Date()).getTime() - (hours * 60 * 60 * 1000));
    },
@@ -156,6 +161,25 @@ var Utilities =
    GetParams : function(url)
    {
       return new URLSearchParams((url.split("?")[1] || "").split("#")[0]);
+   },
+   FindParent : function(element, pfind, maxDepth)
+   {
+      if(maxDepth === undefined)
+         maxDepth = 100;
+      if(maxDepth < 0)
+         return null;
+
+      if(pfind(element))
+         return element;
+      else if (!element)
+         return null;
+      else
+         return Utilities.FindParent(element.parentNode, pfind, maxDepth - 1);
+   },
+   InsertAfter : function(newelm, afterthis)
+   {
+      //https://stackoverflow.com/a/4793630/1066474
+      afterthis.parentNode.insertBefore(newelm, afterthis.nextSibling);
    }
 };
 

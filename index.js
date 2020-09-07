@@ -16,6 +16,7 @@ var attr = {
 var options = {
    pulseuserlimit : 10,
    filedisplaylimit: 40,
+   initialloadcomments: 30,
    refreshcycle : 10000,
    datalog : false
 };
@@ -474,20 +475,6 @@ function initializePage()
    setHasDiscussions(false);
 }
 
-function makeBreadcrumbs(chain)
-{
-   chain.forEach(x =>
-   {
-      var bc = cloneTemplate("breadcrumb");
-      multiSwap(bc, {
-         "data-link" : x.content ? getPageLink(x.id) : getCategoryLink(x.id),
-         "data-text" : x.name
-      });
-      finalizeTemplate(bc);
-      breadcrumbs.appendChild(bc);
-   });
-}
-
 function finalizePage()
 {
    //We HOPE the first spinner is the one we added. Fix this later!
@@ -740,6 +727,12 @@ function swapBase(element, attribute, replace)
       }
       else
       {
+         if(!isNaN(Number(caller)))
+         {
+            log.Warn("Trying to swap attribute '" + attribute + "', which is number: " + caller);
+            return null;
+         }
+
          if(replace !== undefined)
             name.setAttribute(caller, replace);
          else
@@ -748,8 +741,7 @@ function swapBase(element, attribute, replace)
    }
    catch(ex)
    {
-      log.Error("Can't swap attribute " + attribute + " on element " + element
-         + " : " + ex);
+      log.Error("Can't swap attribute " + attribute + " on element " + element + " : " + ex);
    }
 }
 
@@ -787,8 +779,10 @@ function getChain(categories, content)
 
 function cloneTemplate(name)
 {
-   var elm = document.querySelector("#templates [data-" + name + "]").cloneNode(true);
-   return elm;
+   var elm = document.querySelector("#templates > [data-" + name + "]");
+   if(!elm)
+      throw "No template found: " + name;
+   return elm.cloneNode(true);
 }
 
 function finalizeTemplate(elm)
@@ -841,6 +835,47 @@ function makePWUser(user)
    finalizeTemplate(pu);
    return pu;
 }
+
+function makeBreadcrumbs(chain)
+{
+   chain.forEach(x =>
+   {
+      var bc = cloneTemplate("breadcrumb");
+      multiSwap(bc, {
+         "data-link" : x.content ? getPageLink(x.id) : getCategoryLink(x.id),
+         "data-text" : x.name
+      });
+      finalizeTemplate(bc);
+      breadcrumbs.appendChild(bc);
+   });
+}
+
+function makeCommentFrame(comment, users)
+{
+   var frame = cloneTemplate("messageframe");
+   var u = users[comment.createUserId];
+   multiSwap(frame, {
+      "data-userid": comment.createUserId,
+      "data-userlink": getUserLink(comment.createUserId),
+      "data-useravatar": getAvatarLink(u.avatar, 80),
+      "data-username": u.username,
+      "data-frametime": (new Date(comment.createDate)).toLocaleString()
+   });
+   finalizeTemplate(frame);
+   return frame;
+}
+
+function makeCommentFragment(comment, users)
+{
+   var fragment = cloneTemplate("singlemessage");
+   multiSwap(fragment, {
+      "data-messageid": comment.id,
+      "data-id": getCommentId(comment.id)
+   });
+   finalizeTemplate(fragment);
+   return fragment;
+}
+
 
 // *************
 // ---- API ----
@@ -919,7 +954,7 @@ function refreshPWDate(item)
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
 function getPWUserlist(pulseitem) { return pulseitem.querySelector(".pw-users"); }
 
-function makeOrAddPWContent(c, id, parent)
+function easyPWContent(c, id, parent)
 {
    var pulsedata = document.getElementById(id);
 
@@ -937,7 +972,7 @@ function makeOrAddPWContent(c, id, parent)
    return pulsedata;
 }
 
-function makeOrAddPWUser(u, parent)
+function easyPWUser(u, parent)
 {
    var pulseuser = parent.querySelector('[data-pwuser="' + u.id + '"]');
 
@@ -994,7 +1029,6 @@ function setPulseUserData(userElem, data)
       if(d.firstdate > maxparentdate) maxparentdate=d.firstdate;
    }
    userElem.setAttribute(attr.pulsedate, maxparentdate);
-   //userElem.previousElementSibling.setAttribute(attr.pulsedate, maxparentdate + " ");
 }
 
 function refreshPulseUserDisplay(userElem)
@@ -1029,12 +1063,12 @@ function cataloguePulse(c, u, aggregate)
 {
    //Oops, never categorized this content
    if(!aggregate[c.id])
-      aggregate[c.id] = { pulse: makeOrAddPWContent(c, pulseId(c), pulse) };
+      aggregate[c.id] = { pulse: easyPWContent(c, pulseId(c), pulse) };
 
    //Oops, never categorized this user IN this content
    if(!aggregate[c.id][u.id])
    {
-      var pulseuser = makeOrAddPWUser(u, aggregate[c.id].pulse);
+      var pulseuser = easyPWUser(u, aggregate[c.id].pulse);
 
       aggregate[c.id][u.id] = getPulseUserData(pulseuser);
       aggregate[c.id][u.id].user = pulseuser;
@@ -1169,7 +1203,7 @@ function displayNewWatches(data, fullReset)
 	for(var i = 0; i < data.watch.length; i++)
 	{
 		var c = contents[data.watch[i].contentId];
-      var watchdata = makeOrAddPWContent(c, watchId(c), watches);
+      var watchdata = easyPWContent(c, watchId(c), watches);
 
       var total = 0;
       var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
@@ -1180,7 +1214,7 @@ function displayNewWatches(data, fullReset)
          {
             for(var i = 0; i < t.userIds.length; i++)
                if(t.userIds[i] !== 0)
-                  makeOrAddPWUser(users[t.userIds[i]], watchdata);
+                  easyPWUser(users[t.userIds[i]], watchdata);
 
             total += t.count;
             if(t.lastDate > maxDate)
@@ -1213,10 +1247,17 @@ function displayNewWatches(data, fullReset)
 function routepage_load(url, pVal, id)
 {
    setHasDiscussions(true);
+   easyShowDiscussion(id);
+   var pid = Number(id);
    var params = new URLSearchParams();
-   params.append("requests", "content-" + JSON.stringify({"ids" : [Number(id)]}));
+   params.append("requests", "content-" + JSON.stringify({"ids" : [pid]}));
    params.append("requests", "category");
-   params.append("requests", "user.0createUserId.1edituserId");
+   params.append("requests", "comment-" + JSON.stringify({
+      "Reverse" : true,
+      "Limit" : options.initialloadcomments,
+      "ParentIds" : [ pid ]
+   }));
+   params.append("requests", "user.0createUserId.0edituserId.2createUserId");
    params.set("category", "id,name,parentId");
 
    //function quickApi(url, callback, error, postData, always, method)
@@ -1231,6 +1272,7 @@ function routepage_load(url, pVal, id)
       });
       makeBreadcrumbs(getChain(data.category, c));
       maincontentinfo.appendChild(makeStandardContentInfo(c, users));
+      data.comment.forEach(x => easyComment(x, users));
       finalizePage();
    });
 }
@@ -1238,6 +1280,7 @@ function routepage_load(url, pVal, id)
 function routeuser_load(url, pVal, id)
 {
    setHasDiscussions(true);
+   easyShowDiscussion(id);
    var params = new URLSearchParams();
    params.append("requests", "user-" + JSON.stringify({"ids" : [Number(id)]}));
    params.append("requests", "content-" + JSON.stringify({
@@ -1246,7 +1289,6 @@ function routeuser_load(url, pVal, id)
       "limit" : 1
    }));
 
-   //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.datalog(data);
@@ -1261,4 +1303,137 @@ function routeuser_load(url, pVal, id)
       makeBreadcrumbs([u]);
       finalizePage();
    });
+}
+
+
+// ********************
+// ---- Discussion ----
+// ********************
+
+function renderComment(elm, repl)
+{
+   if(repl)
+   {
+      elm.setAttribute("data-rawmessage", repl);
+      elm.textContent = repl;
+   }
+
+   return elm.getAttribute("data-rawmessage");
+}
+
+function getDiscussionId(id) { return "discussion-" + id; }
+function getDiscussionSwitchId(id) { return "discussion-" + id + "-switch"; }
+function getCommentId(id) { return "comment-" + id; }
+
+function easyDiscussion(id)
+{
+   var eid = getDiscussionId(id);
+   var discussion = document.getElementById(eid);
+
+   if(!discussion)
+   {
+      var dswitch = cloneTemplate("discussionswitch");
+      findSwap(dswitch, "data-id", getDiscussionSwitchId(id));
+      discussionswitcher.appendChild(dswitch);
+
+      log.Debug("Creating container + switcher for discussion " + id);
+      discussion = cloneTemplate("discussion");
+      findSwap(discussion, "data-id", eid);
+      discussions.appendChild(discussion);
+   }
+
+   return discussion;
+}
+
+function easyShowDiscussion(id)
+{
+   var d = easyDiscussion(id);
+   setTimeout(x => document.getElementById(getDiscussionSwitchId(id)).firstElementChild.click(), 0);
+}
+
+function updateCommentFragment(comment, element)
+{
+   //nothing for now, but there might be other things
+   multiSwap(element, {
+      "data-message": comment.content,
+   });
+}
+
+function getFragmentFrame(element)
+{
+   return Utilities.FindParent(element, x => x.hasAttribute("data-messageframe"));
+}
+
+function easyComment(comment, users)
+{
+   //First, find existing comment. If it's there, just update information?
+   var existing = document.getElementById(getCommentId(comment.id));
+
+   //Do different things depending on if it's an edit or not.
+   if(existing)
+   {
+      if(comment.deleted)
+      {
+         log.Debug("Removing comment " + comment.id);
+         var prnt = Utilities.RemoveElement(existing); 
+
+         if(!prnt.firstElementChild)
+         {
+            log.Debug("Message frame containing comment " + comment.id + " empty, removing frame");
+            Utilities.RemoveElement(getFragmentFrame(prnt));
+         }
+      }
+      else
+      {
+         updateCommentFragment(comment, existing);
+      }
+   }
+   else
+   {
+      //Comment was never added but we're getting a delete message? Ignore it
+      if(comment.deleted)
+      {
+         logger.Warn("Ignoring comment delete: " + comment.id);
+         return;
+      }
+
+      //Automatically create discussion?
+      var d = easyDiscussion(comment.parentId);
+
+      //Starting from bottom, find place to insert.
+      var comments = d.querySelectorAll("[data-messageid]");
+      var insertAfter = false;
+
+      for(var i = comments.length - 1; i >= 0; i--)
+      {
+         //This is the place to insert!
+         if(comment.id > Number(comments[i].getAttribute("data-messageid")))
+         {
+            insertAfter = comments[i];
+            break;
+         }
+      }
+
+      //Oops, this really shouldn't happen!!
+      if(!insertAfter)
+      {
+         throw "Didn't find a place to insert comment " + comment.id + 
+            " into discussion " + comment.parentId;
+      }
+
+      var insertFrame = getFragmentFrame(insertAfter);
+
+      //Oops, we need a new frame
+      if(Number(insertFrame.getAttribute("data-userid")) !== Number(comment.createUserId))
+      {
+         //create a frame to insert into
+         var frame = makeCommentFrame(comment, users);
+         Utilities.InsertAfter(frame, insertFrame);
+         insertAfter = frame.querySelector(".messagelist").firstChild;
+      }
+
+      var fragment = makeCommentFragment(comment, users);
+      updateCommentFragment(comment, fragment);
+      Utilities.InsertAfter(fragment, insertAfter);
+   }
 }
