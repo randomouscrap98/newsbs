@@ -13,6 +13,9 @@
       <!-- LOC:SCRIPT -->
       <script src="libbo.js?v=1597301532"></script>
       <script src="index.js?v=1597301532"></script>
+      <script src="sbs2-markup/highlight.js?v=123"></script>
+      <script src="sbs2-markup/parse.js?v=123"></script>
+      <script src="sbs2-markup/render.js?v=123"></script>
       <!-- LOC:STYLE -->
       <link rel="stylesheet" href="index.css?v=1597301532" />
       <script>
@@ -89,7 +92,7 @@ function loglevel(el, replace)
       <div data-utgl><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block"><img id="navuseravatar" 
-            src="tempicon.png" width="40" height="40" class="" uk-img></img></a></div>
+            width="40" height="40" class="" uk-img></img></a></div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
       <div data-utgl hidden class="uk-inline">
@@ -408,7 +411,7 @@ function loglevel(el, replace)
          </div>
          <div data-stdcontentinfo class="uk-display-inline">
             <a data-spa data-createlink="href"><img data-createavatar="src" height=20 width=20></a>
-            <time data-createdate=".textContent"></time>
+            <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
          <li data-discussion data-id="id">
@@ -427,14 +430,14 @@ function loglevel(el, replace)
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo">
                   <a data-spa data-userlink="href"><span data-username=".textContent"></span></a>
-                  <time data-frametime=".textContent"></time>
+                  <time class="uk-text-meta" data-frametime=".textContent"></time>
                </div>
                <div class="messagelist"> </div>
             </div>
          </div>
-         <div data-singlemessage data-messageid="" data-id="id" class="uk-flex">
-            <div data-message=".renderComment" class="uk-width-expand"></div>
-            <a href="#" uk-toggle="target: #fileupload" uk-icon="cog"></a>
+         <div tabindex="2" data-singlemessage data-messageid="" data-id="id" class="uk-flex">
+            <div data-message=".renderComment" class="uk-width-expand uk-text-break"></div>
+            <a href="#" class="messagecontrol" uk-toggle="target: #fileupload" uk-icon="cog"></a>
          </div>
          <li data-breadcrumb>
             <a data-link="href" data-spa data-text=".textContent"></a>
@@ -454,7 +457,7 @@ function loglevel(el, replace)
          </div>
          <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent"></h1>
-            <p data-content=".textContent" class="uk-text-break"></p>
+            <p data-content=".renderContent" class="uk-text-break"></p>
          </div>
          <div data-routeuser class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>

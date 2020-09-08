@@ -80,6 +80,15 @@ function setupSpa()
    //For now, we have ONE processor!
    spa.Processors.push(new SpaProcessor(url => true, function(url)
    {
+      if(globals.processingspaurl)
+      {
+         log.Warn("Spa busy processing '" + globals.processingspaurl +
+            "', ignoring new request '" + url + "'");
+         return;
+      }
+
+      globals.processingspaurl = url;
+
       var pVal = Utilities.GetParams(url).get("p") || "home"; 
       var pParts = pVal.split("-");
       var route = "route" + pParts[0];
@@ -480,6 +489,7 @@ function finalizePage()
    //We HOPE the first spinner is the one we added. Fix this later!
    //maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
    maincontentloading.setAttribute("hidden", "");
+   globals.processingspaurl = false;
 }
 
 function setFullContentMode()
@@ -1268,11 +1278,11 @@ function routepage_load(url, pVal, id)
       var users = idMap(data.user);
       multiSwap(maincontent, {
          "data-title" : c.name,
-         "data-content" : c.content
+         "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang })
       });
       makeBreadcrumbs(getChain(data.category, c));
       maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-      data.comment.forEach(x => easyComment(x, users));
+      easyComments(data.comment, users);
       finalizePage();
    });
 }
@@ -1305,17 +1315,46 @@ function routeuser_load(url, pVal, id)
    });
 }
 
+function renderContent(elm, repl)
+{
+   if(repl)
+   {
+      elm.setAttribute("data-rawcontent", repl);
+      elm.innerHTML = "";
+      var content = JSON.parse(repl);
+      elm.appendChild(Parse.parseLang(content.content, content.format));
+   }
+
+   return elm.getAttribute("data-rawcontent");
+}
 
 // ********************
 // ---- Discussion ----
 // ********************
+
+function parseComment(content) {
+   var newline = content.indexOf("\n");
+   try {
+      // try to parse the first line as JSON
+      var data = JSON.parse(newline>=0 ? content.substr(0, newline) : content);
+   } finally {
+      if (data && data.constructor == Object) { // new or legacy format
+         if (newline >= 0)
+            data.t = content.substr(newline+1); // new format
+      } else // raw
+         data = {t: content};
+      return data;
+   }
+}
 
 function renderComment(elm, repl)
 {
    if(repl)
    {
       elm.setAttribute("data-rawmessage", repl);
-      elm.textContent = repl;
+      var comment = parseComment(repl);
+      elm.innerHTML = "";
+      elm.appendChild(Parse.parseLang(comment.t, comment.m));
    }
 
    return elm.getAttribute("data-rawmessage");
@@ -1362,6 +1401,11 @@ function updateCommentFragment(comment, element)
 function getFragmentFrame(element)
 {
    return Utilities.FindParent(element, x => x.hasAttribute("data-messageframe"));
+}
+
+function easyComments(comments, users)
+{
+   comments.sort((x,y) => Math.sign(x.id - y.id)).forEach(x => easyComment(x, users));
 }
 
 function easyComment(comment, users)

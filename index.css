@@ -128,11 +128,44 @@ a:hover { color: inherit; }
 }
 /* Breadcrumb/nav special (uikit default replacements) */
 #breadcrumbs [data-breadcrumb] { padding-top: 0.15em; }
-@media (min-width: 700px) { 
-   #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
-}
-.bc-collapse>*::before
-{
+.bc-collapse>*::before {
    margin-left: 10px !important;
    margin-right: 5px !important;
+}
+/* Discussions */
+[data-messageframe] [data-useravatar] {
+   margin: 0.3em;
+   border: 1px solid rgba(127,127,127, 0.5);
+   width: 40px;
+   box-sizing: content-box;
+}
+[data-messageframe] .messagelist {
+   padding: 0.0em 0.5em 0.5em 0.5em;
+}
+[data-messageframe] .messageframeinfo {
+   /*font-size: 1.1em;*/
+}
+[data-messageframe] .messagecontrol {
+   visibility: hidden;
+   margin: 0.2em 0.15em;
+}
+[data-singlemessage]:focus, [data-singlemessage]:hover  {
+   background-color: rgba(127,127,127,0.05);
+   border: none;
+   outline: none;
+}
+[data-singlemessage]:focus .messagecontrol,
+[data-singlemessage]:hover .messagecontrol {
+   visibility: visible;
+}
+[data-message] img {
+   max-height: 50vh;
+   display: block;
+   margin: 0.5em 0;
+}
+
+/* Some reaction crap or whatever it's called */
+@media (min-width: 700px) { 
+   #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
+   [data-messageframe] [data-useravatar] { width: 80px; }
 }
