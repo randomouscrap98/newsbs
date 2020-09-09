@@ -561,7 +561,7 @@ function finalizePage()
    //maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
    maincontentloading.setAttribute("hidden", "");
    globals.processingspaurl = false;
-   //setDiscussionScrollNow();
+   setDiscussionScrollNow(options.discussionscrollnow);
    log.Debug("Page render finalized");
 }
 
@@ -1435,11 +1435,10 @@ function scrollDiscussionsDistance(baseHeight)
 
 function scrollDiscussionsAnimation(timestamp)
 {
-   var delta = timestamp - globals.discussion.lastanimtime;
-
-   if(discussions.scrollTop === globals.discussion.scrollTop ||
-      performance.now() < globals.discussion.scrollNow)
+   if(discussions.scrollTop === globals.discussion.scrollTop
+      || performance.now() < globals.discussion.scrollNow)
    {
+      var delta = timestamp - globals.discussion.lastanimtime;
       var scm = Math.max(1, Math.ceil(delta * 60 / 1000 * 
          options.discussionscrollspeed * Math.abs(scrollDiscussionsDistance())));
       //These are added separately because eventually, our scrolltop will move
@@ -1533,8 +1532,6 @@ function easyShowDiscussion(id)
       globals.discussion.observer.disconnect();
       globals.discussion.observer.observe(discussions);
       globals.discussion.observer.observe(d);
-
-      setTimeout(y => setDiscussionScrollNow(options.discussionscrollnow), 12);
    }, 12);
 }
 
@@ -1657,11 +1654,14 @@ function longpollRepeater()
 
    quickApi("read/listen?" + params.toString(), data =>
    {
-      globals.lastsystemid = data.lastId;
-      var users = idMap(data.chains.user);
-      updatePulse(data.chains);
-      easyComments(data.chains.comment, users);
-      longpollRepeater();
+      if(data)
+      {
+         globals.lastsystemid = data.lastId;
+         var users = idMap(data.chains.user);
+         updatePulse(data.chains);
+         easyComments(data.chains.comment, users);
+         longpollRepeater();
+      }
    }, req =>
    {
       if(req.status)
