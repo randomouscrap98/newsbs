@@ -328,7 +328,7 @@ function setupDiscussions()
       "lastanimtime" : 0,
       "observer" : new ResizeObserver(entries => 
       {
-         if(globals.discussion.rect &&
+         if(globals.discussion.rect && globals.discussion.scrollHeight &&
             scrollDiscussionsDistance(globals.discussion.scrollHeight) < 
             globals.discussion.rect.height * options.discussionscrolllock)
          {
@@ -358,13 +358,13 @@ function setupDiscussions()
          quickApi("comment", function(data)
          {
             log.Info("Successfully posted comment to " + currentDiscussion);
-            setDiscussionScrollNow();
          }, null, {
             "parentId" : Number(currentDiscussion),
             "content" : JSON.stringify({"m":"12y"}) + "\n" + postdiscussiontext.value
          });
 
          postdiscussiontext.value = "";
+         //setDiscussionScrollNow(options.discussionscrollnow);
 		}
 	};
 
@@ -1435,16 +1435,26 @@ function scrollDiscussionsDistance(baseHeight)
 
 function scrollDiscussionsAnimation(timestamp)
 {
-   if(discussions.scrollTop === globals.discussion.scrollTop
-      || performance.now() < globals.discussion.scrollNow)
+   //globals.discussion.avgdelta = globals.discussion.avgdelta * 0.9 + 
+   //   (timestamp - globals.discussion.lastanimtime) * 0.1;
+
+   if(Math.abs(discussions.scrollTop - globals.discussion.scrollTop) <= 1 || 
+      performance.now() < globals.discussion.scrollNow)
    {
-      var delta = timestamp - globals.discussion.lastanimtime;
-      var scm = Math.max(1, Math.ceil(delta * 60 / 1000 * 
-         options.discussionscrollspeed * Math.abs(scrollDiscussionsDistance())));
+      //We will go at MINIMUM half framerate (to prevent huge stops from
+      //destroying the animation)
+      var delta = Math.min(32, timestamp - globals.discussion.lastanimtime);
+      var scd = scrollDiscussionsDistance();
+      var scm = Math.max(1, delta * 60 / 1000 * 
+         options.discussionscrollspeed * Math.abs(scd));
+      console.log("scd: " + scd + ", scm: " + scm + ", delta: " 
+         + delta + ", dst: " + discussions.scrollTop);
       //These are added separately because eventually, our scrolltop will move
       //past the actual assigned one
-      discussions.scrollTop += scm;
-      globals.discussion.scrollTop += scm;
+      globals.discussion.scrollTop = Math.ceil(globals.discussion.scrollTop + scm);
+      discussions.scrollTop = globals.discussion.scrollTop;
+      console.log("New dst: " + discussions.scrollTop + ", gst: " +
+         globals.discussion.scrollTop);
    }
 
    globals.discussion.lastanimtime = timestamp;
@@ -1453,6 +1463,7 @@ function scrollDiscussionsAnimation(timestamp)
 
 function setDiscussionScrollNow(forceTime)
 {
+   log.Debug("Discussion scroll now: " + forceTime);
    globals.discussion.scrollTop = discussions.scrollTop;
 
    if(forceTime)
@@ -1660,8 +1671,8 @@ function longpollRepeater()
          var users = idMap(data.chains.user);
          updatePulse(data.chains);
          easyComments(data.chains.comment, users);
-         longpollRepeater();
       }
+      longpollRepeater();
    }, req =>
    {
       if(req.status)
