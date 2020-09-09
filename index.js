@@ -18,6 +18,9 @@ var options = {
    filedisplaylimit: 40,
    initialloadcomments: 30,
    refreshcycle : 10000,
+   discussionscrollspeed : 0.25, // Percentage of scroll diff to scroll per frame
+   discussionscrolllock : 0.25,  // Percentage of discussion height to lock bottom
+   discussionscrollnow : 300,
    datalog : false
 };
 
@@ -47,6 +50,7 @@ window.onload = function()
    setupFileUpload();
    setupAlerts();
    setupPageControls();
+   setupDiscussions();
 
    if(getToken())
    {
@@ -313,6 +317,30 @@ function setupFileUpload()
    log.Debug("Setup all file uploading/handling");
 }
 
+//Right now, this can only be called once :/
+function setupDiscussions()
+{
+   globals.discussion =
+   { 
+      "lastanimtime" : 0,
+      "observer" : new ResizeObserver(entries => 
+      {
+         if(scrollDiscussionsShouldLock())
+            setDiscussionScrollNow();
+         for (let entry of entries) 
+         {
+            if(entry.target.id === "discussions")
+            {
+               //console.log("Discussions changed size: ", entry.contentRect);
+               globals.discussion.rect = entry.contentRect;
+            }
+         } 
+      })
+   };
+
+   scrollDiscussionsAnimation(0);
+}
+
 //Assuming the user is logged in, this will start up the long poller, set the
 //login state, etc. You don't "start" sessions all the time, so it's just
 //called once, but the "setLoginState" will change the view, so that can be
@@ -490,6 +518,8 @@ function finalizePage()
    //maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
    maincontentloading.setAttribute("hidden", "");
    globals.processingspaurl = false;
+   setDiscussionScrollNow();
+   log.Debug("Page render finalized");
 }
 
 function setFullContentMode()
@@ -1287,10 +1317,13 @@ function routepage_load(url, pVal, id)
    });
 }
 
+//This is EXTREMELY similar to pages, think about doing something different to
+//minimize duplicate code???
 function routeuser_load(url, pVal, id)
 {
    setHasDiscussions(true);
    easyShowDiscussion(id);
+   var uid = Number(id);
    var params = new URLSearchParams();
    params.append("requests", "user-" + JSON.stringify({"ids" : [Number(id)]}));
    params.append("requests", "content-" + JSON.stringify({
@@ -1298,11 +1331,17 @@ function routeuser_load(url, pVal, id)
       "type" : "@user.page",
       "limit" : 1
    }));
+   params.append("requests", "comment.1id$ParentIds-" + JSON.stringify({
+      "Reverse" : true,
+      "Limit" : options.initialloadcomments
+   }));
+   params.append("requests", "user.1createUserId.1edituserId.2createUserId");
 
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.datalog(data);
-      var u = data.user[0];
+      var users = idMap(data.user);
+      var u = users[uid];
       var c = data.content[0];
       u.name = u.username;
       multiSwap(maincontent, {
@@ -1311,6 +1350,15 @@ function routeuser_load(url, pVal, id)
          "data-content" : c ? c.content : ""
       });
       makeBreadcrumbs([u]);
+      if(c)
+      {
+         maincontentinfo.appendChild(makeStandardContentInfo(c, users));
+         easyComments(data.comment, users);
+      }
+      else
+      {
+         maincontentinfo.innerHTML = "No user page";
+      }
       finalizePage();
    });
 }
@@ -1331,6 +1379,44 @@ function renderContent(elm, repl)
 // ********************
 // ---- Discussion ----
 // ********************
+
+function scrollDiscussionsDistance()
+{
+   return globals.discussion.rect ? 
+      discussions.scrollHeight - (globals.discussion.rect.height + discussions.scrollTop) : 
+      0;
+}
+
+function scrollDiscussionsShouldLock()
+{
+   return globals.discussion.rect && scrollDiscussionsDistance() < 
+      globals.discussion.rect.height * options.discussionscrolllock;
+}
+
+function scrollDiscussionsAnimation(timestamp)
+{
+   var delta = timestamp - globals.discussion.lastanimtime;
+
+   if(discussions.scrollTop === globals.discussion.scrollTop ||
+      performance.now() < globals.discussion.scrollNow)
+   {
+      var scm = Math.max(1, Math.ceil(delta * 60 / 1000 * 
+         options.discussionscrollspeed * Math.abs(scrollDiscussionsDistance())));
+      //These are added separately because eventually, our scrolltop will move
+      //past the actual assigned one
+      discussions.scrollTop += scm;
+      globals.discussion.scrollTop += scm;
+   }
+
+   globals.discussion.lastanimtime = timestamp;
+   window.requestAnimationFrame(scrollDiscussionsAnimation);
+}
+
+function setDiscussionScrollNow()
+{
+   globals.discussion.scrollTop = discussions.scrollTop;
+   globals.discussion.scrollNow = performance.now() + options.discussionscrollnow;
+}
 
 function parseComment(content) {
    var newline = content.indexOf("\n");
@@ -1379,6 +1465,7 @@ function easyDiscussion(id)
       discussion = cloneTemplate("discussion");
       findSwap(discussion, "data-id", eid);
       discussions.appendChild(discussion);
+
    }
 
    return discussion;
@@ -1387,7 +1474,17 @@ function easyDiscussion(id)
 function easyShowDiscussion(id)
 {
    var d = easyDiscussion(id);
-   setTimeout(x => document.getElementById(getDiscussionSwitchId(id)).firstElementChild.click(), 0);
+   setTimeout(x => 
+   {
+      document.getElementById(getDiscussionSwitchId(id)).firstElementChild.click();
+
+      //Is this going to be ok???
+      globals.discussion.observer.disconnect();
+      globals.discussion.observer.observe(discussions);
+      globals.discussion.observer.observe(d);
+
+      setTimeout(y => setDiscussionScrollNow(), 12);
+   }, 12);
 }
 
 function updateCommentFragment(comment, element)
@@ -1437,7 +1534,7 @@ function easyComment(comment, users)
       //Comment was never added but we're getting a delete message? Ignore it
       if(comment.deleted)
       {
-         logger.Warn("Ignoring comment delete: " + comment.id);
+         log.Warn("Ignoring comment delete: " + comment.id);
          return;
       }
 
@@ -1481,3 +1578,4 @@ function easyComment(comment, users)
       Utilities.InsertAfter(fragment, insertAfter);
    }
 }
+
