@@ -328,8 +328,14 @@ function setupDiscussions()
       "lastanimtime" : 0,
       "observer" : new ResizeObserver(entries => 
       {
-         if(scrollDiscussionsShouldLock())
+         if(globals.discussion.rect &&
+            scrollDiscussionsDistance(globals.discussion.scrollHeight) < 
+            globals.discussion.rect.height * options.discussionscrolllock)
+         {
             setDiscussionScrollNow();
+         }
+
+         globals.discussion.scrollHeight = discussions.scrollHeight;
          for (let entry of entries) 
          {
             if(entry.target.id === "discussions")
@@ -352,6 +358,7 @@ function setupDiscussions()
          quickApi("comment", function(data)
          {
             log.Info("Successfully posted comment to " + currentDiscussion);
+            setDiscussionScrollNow();
          }, null, {
             "parentId" : Number(currentDiscussion),
             "content" : JSON.stringify({"m":"12y"}) + "\n" + postdiscussiontext.value
@@ -554,7 +561,7 @@ function finalizePage()
    //maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
    maincontentloading.setAttribute("hidden", "");
    globals.processingspaurl = false;
-   setDiscussionScrollNow();
+   //setDiscussionScrollNow();
    log.Debug("Page render finalized");
 }
 
@@ -1419,17 +1426,11 @@ function renderContent(elm, repl)
 // ---- Discussion ----
 // ********************
 
-function scrollDiscussionsDistance()
+function scrollDiscussionsDistance(baseHeight)
 {
-   return globals.discussion.rect ? 
-      discussions.scrollHeight - (globals.discussion.rect.height + discussions.scrollTop) : 
-      0;
-}
-
-function scrollDiscussionsShouldLock()
-{
-   return globals.discussion.rect && scrollDiscussionsDistance() < 
-      globals.discussion.rect.height * options.discussionscrolllock;
+   var baseHeight = baseHeight || discussions.scrollHeight;
+   return globals.discussion.rect ? baseHeight - 
+      (globals.discussion.rect.height + discussions.scrollTop) : 0;
 }
 
 function scrollDiscussionsAnimation(timestamp)
@@ -1451,10 +1452,12 @@ function scrollDiscussionsAnimation(timestamp)
    window.requestAnimationFrame(scrollDiscussionsAnimation);
 }
 
-function setDiscussionScrollNow()
+function setDiscussionScrollNow(forceTime)
 {
    globals.discussion.scrollTop = discussions.scrollTop;
-   globals.discussion.scrollNow = performance.now() + options.discussionscrollnow;
+
+   if(forceTime)
+      globals.discussion.scrollNow = performance.now() + forceTime; 
 }
 
 function parseComment(content) {
@@ -1531,7 +1534,7 @@ function easyShowDiscussion(id)
       globals.discussion.observer.observe(discussions);
       globals.discussion.observer.observe(d);
 
-      setTimeout(y => setDiscussionScrollNow(), 12);
+      setTimeout(y => setDiscussionScrollNow(options.discussionscrollnow), 12);
    }, 12);
 }
 
@@ -1677,3 +1680,10 @@ function longpollRepeater()
    });
 }
 
+/*var Nav = {
+   link: function(path, element) {
+      var a = element || document.createElement('a')
+      a.href = "#"+path
+      return a
+   }
+}*/
