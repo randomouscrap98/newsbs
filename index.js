@@ -341,6 +341,26 @@ function setupDiscussions()
       })
    };
 
+   postdiscussiontext.onkeypress = function(e) 
+   {
+		if (!e.shiftKey && e.keyCode == 13) 
+      {
+			e.preventDefault();
+
+         var currentDiscussion = getActiveDiscussion();
+
+         quickApi("comment", function(data)
+         {
+            log.Info("Successfully posted comment to " + currentDiscussion);
+         }, null, {
+            "parentId" : Number(currentDiscussion),
+            "content" : JSON.stringify({"m":"12y"}) + "\n" + postdiscussiontext.value
+         });
+
+         postdiscussiontext.value = "";
+		}
+	};
+
    scrollDiscussionsAnimation(0);
 }
 
@@ -1469,6 +1489,12 @@ function getDiscussionId(id) { return "discussion-" + id; }
 function getDiscussionSwitchId(id) { return "discussion-" + id + "-switch"; }
 function getCommentId(id) { return "comment-" + id; }
 
+function getActiveDiscussion()
+{
+   return discussions.querySelector("[data-discussion].uk-active")
+      .getAttribute("data-discussionid");
+}
+
 function easyDiscussion(id)
 {
    var eid = getDiscussionId(id);
@@ -1482,7 +1508,10 @@ function easyDiscussion(id)
 
       log.Debug("Creating container + switcher for discussion " + id);
       discussion = cloneTemplate("discussion");
-      findSwap(discussion, "data-id", eid);
+      multiSwap(discussion, {
+         "data-id": eid,
+         "data-discussionid": id
+      });
       discussions.appendChild(discussion);
 
    }

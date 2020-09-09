@@ -78,7 +78,8 @@ function loglevel(el, replace)
                      <!-- Everything in here are the in-memory discussions -->
                   </ul>
                   <div id="postarea" class="uk-flex" data-utgl hidden>
-                     <textarea class="uk-flex-1 uk-textarea"></textarea>
+                     <textarea id="postdiscussiontext" 
+                        class="uk-flex-1 uk-textarea"></textarea>
                   </div>
                </div>
             </div>
@@ -414,7 +415,7 @@ function loglevel(el, replace)
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <li data-discussion data-id="id">
+         <li data-discussion data-discussionid="" data-id="id">
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <div data-messageframe data-userid="0" style="display: none">
                <div data-messageid="0"></div>
