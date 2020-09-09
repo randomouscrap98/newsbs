@@ -22,18 +22,16 @@ var options = {
    discussionscrolllock : 0.25,  // Percentage of discussion height to lock bottom
    discussionscrollnow : 300,
    longpollerrorrestart : 5000,
-   datalog : false
+   datalog : false,
+   drawlog : false
 };
 
 var globals = { 
    lastsystemid : -1  //The last id retrieved from the system for actions
 };
 
-console.datalog = function(d)
-{
-   if(options.datalog)
-      console.log(d);
-};
+console.datalog = d => { if(options.datalog) console.log(d); };
+console.drawlog = d => { if(options.drawlog) console.log(d); };
 
 window.onload = function()
 {
@@ -1435,9 +1433,6 @@ function scrollDiscussionsDistance(baseHeight)
 
 function scrollDiscussionsAnimation(timestamp)
 {
-   //globals.discussion.avgdelta = globals.discussion.avgdelta * 0.9 + 
-   //   (timestamp - globals.discussion.lastanimtime) * 0.1;
-
    if(Math.abs(discussions.scrollTop - globals.discussion.scrollTop) <= 1 || 
       performance.now() < globals.discussion.scrollNow)
    {
@@ -1447,13 +1442,13 @@ function scrollDiscussionsAnimation(timestamp)
       var scd = scrollDiscussionsDistance();
       var scm = Math.max(1, delta * 60 / 1000 * 
          options.discussionscrollspeed * Math.abs(scd));
-      console.log("scd: " + scd + ", scm: " + scm + ", delta: " 
+      console.drawlog("scd: " + scd + ", scm: " + scm + ", delta: " 
          + delta + ", dst: " + discussions.scrollTop);
       //These are added separately because eventually, our scrolltop will move
       //past the actual assigned one
       globals.discussion.scrollTop = Math.ceil(globals.discussion.scrollTop + scm);
       discussions.scrollTop = globals.discussion.scrollTop;
-      console.log("New dst: " + discussions.scrollTop + ", gst: " +
+      console.drawlog("New dst: " + discussions.scrollTop + ", gst: " +
          globals.discussion.scrollTop);
    }
 
