@@ -21,10 +21,13 @@ var options = {
    discussionscrollspeed : 0.25, // Percentage of scroll diff to scroll per frame
    discussionscrolllock : 0.25,  // Percentage of discussion height to lock bottom
    discussionscrollnow : 300,
+   longpollerrorrestart : 5000,
    datalog : false
 };
 
-var globals = { };
+var globals = { 
+   lastsystemid : -1  //The last id retrieved from the system for actions
+};
 
 console.datalog = function(d)
 {
@@ -354,14 +357,15 @@ function startSession()
    var params = new URLSearchParams();
    var search = {"reverse":true,"createstart":Utilities.SubHours(24).toISOString()};
    var watchsearch = {"ContentLimit":{"Watches":true}};
+   params.append("requests", "systemaggregate");
    params.append("requests", "comment-" + JSON.stringify(search));
    //search.type ="content"; //Add more restrictions for activity
    params.append("requests", "activity-" + JSON.stringify(search));
    params.append("requests", "watch");
    params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch));
    params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch));
-   params.append("requests", "content.1contentId.0parentId.2contentId");
-   params.append("requests", "user.1userId.0createUserId.3userIds.4userIds");
+   params.append("requests", "content.2contentId.1parentId.3contentId");
+   params.append("requests", "user.2userId.1createUserId.4userIds.5userIds");
    params.set("comment","id,parentId,createUserId,createDate");
    params.set("content","id,name");
    params.set("user","id,username,avatar");
@@ -370,11 +374,23 @@ function startSession()
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.datalog(data);
+
+      data.systemaggregate.forEach(x => 
+      {
+         if(x.type === "actionMax")
+         {
+            log.Info("Last system id: " + x.id);
+            globals.lastsystemid = x.id;
+         }
+      });
+
       updatePulse(data, true);
       displayNewWatches(data, true);
+
+      //Start long poller
+      easyLongpoll();
    });
 
-   //Start long poller
 }
 
 function stopSession()
@@ -923,7 +939,7 @@ function makeCommentFragment(comment, users)
 
 var reqId = 0;
 
-function quickApi(url, callback, error, postData, always, method)
+function quickApi(url, callback, error, postData, always, method, modify)
 {
    let thisreqid = ++reqId;
    url = apiroot + "/" + url;
@@ -959,6 +975,9 @@ function quickApi(url, callback, error, postData, always, method)
    var token = getToken(); //Do this as late as possible "just in case" (it makes no difference though)
    if(token)
       req.setRequestHeader("Authorization", "Bearer " + token);
+
+   if(modify)
+      modify(req);
 
    if(postData)
       req.send(JSON.stringify(postData));
@@ -1347,7 +1366,7 @@ function routeuser_load(url, pVal, id)
       multiSwap(maincontent, {
          "data-title" : u.username,
          "data-avatar" : getAvatarLink(u.avatar, 200),
-         "data-content" : c ? c.content : ""
+         "data-content" : c ? JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }) : false
       });
       makeBreadcrumbs([u]);
       if(c)
@@ -1577,5 +1596,55 @@ function easyComment(comment, users)
       updateCommentFragment(comment, fragment);
       Utilities.InsertAfter(fragment, insertAfter);
    }
+}
+
+// **********************
+// ---- LONG POLLING ----
+// **********************
+
+function easyLongpoll()
+{
+   log.Info("Starting (or restarting) long poller!");
+
+   if(globals.pendinglongpoll)
+      globals.pendinglongpoll.abort();
+
+   longpollRepeater();
+}
+
+function longpollRepeater()
+{
+   var params = new URLSearchParams();
+   params.append("actions", JSON.stringify({
+      "lastId" : globals.lastsystemid,
+      "chains" : [ "comment.0id", "activity.0id", 
+         "user.1createUserId.2userId", "content.1parentId.2contentId" ]
+   }));
+   params.set("user","id,username,avatar");
+   params.set("content","id,name");
+
+   quickApi("read/listen?" + params.toString(), data =>
+   {
+      globals.lastsystemid = data.lastId;
+      var users = idMap(data.chains.user);
+      updatePulse(data.chains);
+      easyComments(data.chains.comment, users);
+      longpollRepeater();
+   }, req =>
+   {
+      if(req.status)
+      {
+         log.Error("Long poller failed, status: " + req.status + ", retrying in " + 
+            options.longpollerrorrestart + " ms");
+         setTimeout(longpollRepeater, options.longpollerrorrestart);
+      }
+      else
+      {
+         log.Warn("Long poller was aborted!");
+      }
+   }, undefined, undefined, undefined, req =>
+   {
+      globals.pendinglongpoll = req;
+   });
 }
 
