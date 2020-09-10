@@ -19,10 +19,13 @@ var options = {
    initialloadcomments: 30,
    refreshcycle : 10000,
    discussionscrollspeed : 0.25, // Percentage of scroll diff to scroll per frame
-   discussionscrolllock : 0.25,  // Percentage of discussion height to lock bottom
+   discussionscrolllock : 0.15,  // Percentage of discussion height to lock bottom
    discussionscrollnow : 300,
+   discussionavatarsize : 60,
    longpollerrorrestart : 5000,
    datalog : false,
+   notificationtimeout : 5000,
+   defaultmarkup : "12y",
    drawlog : false
 };
 
@@ -32,6 +35,11 @@ var globals = {
 
 console.datalog = d => { if(options.datalog) console.log(d); };
 console.drawlog = d => { if(options.drawlog) console.log(d); };
+
+window.onerror = function(message, source, lineno, colno, error)
+{
+   notifyError(message + "\n(" + source + ":" + lineno + ")"); 
+};
 
 window.onload = function()
 {
@@ -53,6 +61,8 @@ window.onload = function()
    setupPageControls();
    setupDiscussions();
 
+   //Don't do this special crap until everything is setup, SOME setup may not
+   //be required before the user session is started, but it's minimal savings.
    if(getToken())
    {
       log.Info("User token found, trying to continue logged in");
@@ -62,7 +72,7 @@ window.onload = function()
    //Regardless if you're logged in or not, this will work "correctly" since
    //the spa processor will take your login state into account. And if you're
    //not "REALLY" logged in, well whatever, better than processing it twice.
-   spa.ProcessLink(document.location.href);
+   globals.spa.ProcessLink(document.location.href);
    globals.refreshCycle = setInterval(refreshCycle, options.refreshcycle);
 };
 
@@ -72,27 +82,37 @@ function refreshCycle()
    refreshPWDates(watches);
 }
 
+function safety(func)
+{
+   try { func(); }
+   catch(ex)
+   {
+      notifyError("Failed: " + ex.message);
+      console.log(ex);
+   }
+}
+
 // ********************
 // ---- SETUP CODE ----
 // ********************
 
-var spa = false;
-
 function setupSpa()
 {
-   spa = new BasicSpa(log);
+   globals.spa = new BasicSpa(log);
 
    //For now, we have ONE processor!
-   spa.Processors.push(new SpaProcessor(url => true, function(url)
+   globals.spa.Processors.push(new SpaProcessor(url => 
    {
-      if(globals.processingspaurl)
+      if(globals.spa.processingurl)
       {
-         log.Warn("Spa busy processing '" + globals.processingspaurl +
+         log.Warn("Spa busy processing '" + globals.spa.processingurl +
             "', ignoring new request '" + url + "'");
-         return;
+         return false;
       }
-
-      globals.processingspaurl = url;
+      return true;
+   }, url =>
+   {
+      globals.spa.processingurl = url;
 
       var pVal = Utilities.GetParams(url).get("p") || "home"; 
       var pParts = pVal.split("-");
@@ -119,13 +139,14 @@ function setupSpa()
          finalizePage();
    }));
 
-   spa.SetHandlePopState();
+   globals.spa.SetHandlePopState();
    log.Debug("Setup SPA, override handling popstate");
 }
 
 function setupDebugLog()
 {
-   UIkit.util.on('#logsparent', 'show', function () {
+   UIkit.util.on('#logsparent', 'show', () =>
+   {
       //Find the last id, only display new ones.
       log.Debug("Debug log shown, rendering new messages");
       var lastId = (logs.lastElementChild ?  Number(logs.lastElementChild.dataset.id) : 0);
@@ -150,7 +171,7 @@ function setupDebugLog()
 
 function setupTechnicalInfo()
 {
-   quickApi("test/info", function(data)
+   quickApi("test/info", (data) =>
    {
       log.Debug("Received technical info from API");
 
@@ -262,8 +283,11 @@ function setupFileUpload()
 {
    UIkit.util.on('#fileupload', 'beforeshow', function () {
       log.Debug("File upload shown, refreshing images");
-      setFileUploadList(0);
+      setFileUploadList(0, fileuploadsearchall.checked);
    });
+
+   fileuploadsearchall.addEventListener("change", 
+      () => setFileUploadList(0, fileuploadsearchall.checked));
 
    //this is the "dynamic loading" to save data: only load big images when
    //users click on them
@@ -334,13 +358,11 @@ function setupDiscussions()
          }
 
          globals.discussion.scrollHeight = discussions.scrollHeight;
+
          for (let entry of entries) 
          {
             if(entry.target.id === "discussions")
-            {
-               //console.log("Discussions changed size: ", entry.contentRect);
                globals.discussion.rect = entry.contentRect;
-            }
          } 
       })
    };
@@ -352,20 +374,26 @@ function setupDiscussions()
 			e.preventDefault();
 
          var currentDiscussion = getActiveDiscussion();
+         let currentText = postdiscussiontext.value;
 
-         quickApi("comment", function(data)
+         quickApi("comment", data => 
          {
             log.Info("Successfully posted comment to " + currentDiscussion);
-         }, null, {
+         }, error =>
+         {
+            notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
+            postdiscussiontext.value = currentText;
+         }, {
             "parentId" : Number(currentDiscussion),
-            "content" : JSON.stringify({"m":"12y"}) + "\n" + postdiscussiontext.value
+            "content" : createComment(postdiscussiontext.value, options.defaultmarkup)
          });
 
          postdiscussiontext.value = "";
-         //setDiscussionScrollNow(options.discussionscrollnow);
+         setDiscussionScrollNow(options.discussionscrollnow);
 		}
 	};
 
+   //Begin the animation loop for discussion scrolling
    scrollDiscussionsAnimation(0);
 }
 
@@ -409,13 +437,13 @@ function startSession()
          }
       });
 
+      //Fully stock (with reset) the sidepanel
       updatePulse(data, true);
       displayNewWatches(data, true);
 
       //Start long poller
       easyLongpoll();
    });
-
 }
 
 function stopSession()
@@ -478,29 +506,31 @@ function refreshUserFull(always)
    }, undefined, always);
 }
 
-function setFileUploadList(page)
+function setFileUploadList(page, allImages)
 {
    fileuploaditems.innerHTML = "<div uk-spinner='ratio: 3'></div>";
    fileuploadthumbnails.innerHTML = "";
 
-   quickApi("file?reverse=true&limit=" + options.filedisplaylimit + "&skip=" + 
-      (options.filedisplaylimit * page) + "&createuserids=" + getUserId(), 
-      function(files)
+   var url = "file?reverse=true&limit=" + options.filedisplaylimit + "&skip=" + 
+      (options.filedisplaylimit * page);
+      
+   if(!allImages)
+      url += "&createuserids=" + getUserId();
+
+   quickApi(url, files =>
+   {
+      fileuploaditems.innerHTML = "";
+      for(var i = 0; i < files.length; i++)
       {
-         fileuploaditems.innerHTML = "";
-         for(var i = 0; i < files.length; i++)
-         {
-            addFileUploadImage(files[i], i);
-         }
+         addFileUploadImage(files[i], i);
+      }
 
-         fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1); }
-         fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1); }
+      fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1, allImages); }
+      fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages); }
 
-         if(page > 0) fileuploadnewer.removeAttribute("hidden");
-         else fileuploadnewer.setAttribute("hidden", "");
-         if(files.length == globals.filedisplaylimit) fileuploadolder.removeAttribute("hidden");
-         else fileuploadolder.setAttribute("hidden", "");
-      });
+      page > 0 ?  unhide(fileuploadnewer) : hide(fileuploadnewer);
+      files.length === options.filedisplaylimit ? unhide(fileuploadolder) : hide(fileuploadolder);
+   });
 }
 
 function addFileUploadImage(file, num)
@@ -558,7 +588,7 @@ function finalizePage()
    //We HOPE the first spinner is the one we added. Fix this later!
    //maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
    maincontentloading.setAttribute("hidden", "");
-   globals.processingspaurl = false;
+   globals.spa.processingurl = false;
    setDiscussionScrollNow(options.discussionscrollnow);
    log.Debug("Page render finalized");
 }
@@ -735,9 +765,12 @@ function notifyBase(message, icon, status)
 {
    UIkit.notification({
       "message": "<span class='uk-flex uk-flex-middle'><span uk-icon='icon: " +
-         icon + "; ratio: 1.4' class='uk-text-" + status + 
-         "'></span><span class='uk-flex-1 uk-text-break notification-actual'>" + message + "</span></span>", 
-      "pos":"bottom-right"
+         icon + "; ratio: 1.4' class='uk-flex-none uk-text-" + status + 
+         "'></span><span class=" +
+         "'uk-width-expand uk-text-break notification-actual'>" + 
+         message + "</span></span>", 
+      "pos":"bottom-right",
+      "timeout":options.notificationtimeout
    });
 }
 
@@ -871,10 +904,10 @@ function finalizeTemplate(elm)
    var links = elm.querySelectorAll("[data-spa]");
    [...links].forEach(x =>
    {
-      x.onclick = spa.ClickFunction(x.href);
+      x.onclick = globals.spa.ClickFunction(x.href);
    });
    if(elm.hasAttribute("data-spa"))
-      elm.onclick = spa.ClickFunction(elm.href);
+      elm.onclick = globals.spa.ClickFunction(elm.href);
    return elm;
 }
 
@@ -938,7 +971,7 @@ function makeCommentFrame(comment, users)
    multiSwap(frame, {
       "data-userid": comment.createUserId,
       "data-userlink": getUserLink(comment.createUserId),
-      "data-useravatar": getAvatarLink(u.avatar, 80),
+      "data-useravatar": getAvatarLink(u.avatar, options.discussionavatarsize),
       "data-username": u.username,
       "data-frametime": (new Date(comment.createDate)).toLocaleString()
    });
@@ -1352,7 +1385,8 @@ function routepage_load(url, pVal, id)
       var users = idMap(data.user);
       multiSwap(maincontent, {
          "data-title" : c.name,
-         "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang })
+         "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }),
+         "data-format" : c.values.markupLang
       });
       makeBreadcrumbs(getChain(data.category, c));
       maincontentinfo.appendChild(makeStandardContentInfo(c, users));
@@ -1365,8 +1399,6 @@ function routepage_load(url, pVal, id)
 //minimize duplicate code???
 function routeuser_load(url, pVal, id)
 {
-   setHasDiscussions(true);
-   easyShowDiscussion(id);
    var uid = Number(id);
    var params = new URLSearchParams();
    params.append("requests", "user-" + JSON.stringify({"ids" : [Number(id)]}));
@@ -1396,6 +1428,8 @@ function routeuser_load(url, pVal, id)
       makeBreadcrumbs([u]);
       if(c)
       {
+         setHasDiscussions(true);
+         easyShowDiscussion(c.id);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          easyComments(data.comment, users);
       }
@@ -1458,11 +1492,15 @@ function scrollDiscussionsAnimation(timestamp)
 
 function setDiscussionScrollNow(forceTime)
 {
-   log.Debug("Discussion scroll now: " + forceTime);
+   //log.Debug("Discussion scroll now: " + forceTime);
    globals.discussion.scrollTop = discussions.scrollTop;
 
    if(forceTime)
       globals.discussion.scrollNow = performance.now() + forceTime; 
+}
+
+function createComment(rawtext, markup) {
+   return JSON.stringify({"m":markup}) + "\n" + rawtext;
 }
 
 function parseComment(content) {

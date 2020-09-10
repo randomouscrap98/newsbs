@@ -7,6 +7,10 @@ body {
    overflow: hidden;
 }
 img { image-rendering: -webkit-optimize-contrast; }
+code { 
+   white-space: pre-wrap !important; 
+   display: block;
+}
 /* Stuff that should probably be taken over by uikit */
 input[type="file"] { cursor: pointer; }
 a:hover { color: inherit; }
@@ -136,7 +140,7 @@ a:hover { color: inherit; }
 [data-messageframe] [data-useravatar] {
    margin: 0.3em;
    border: 1px solid rgba(127,127,127, 0.5);
-   width: 40px;
+   width: 30px;
    box-sizing: content-box;
 }
 [data-messageframe] .messagelist {
@@ -163,9 +167,13 @@ a:hover { color: inherit; }
    display: block;
    margin: 0.5em 0;
 }
+/* Content */
+.content {
+   white-space: pre-wrap;
+}
 
 /* Some reaction crap or whatever it's called */
 @media (min-width: 700px) { 
    #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
-   [data-messageframe] [data-useravatar] { width: 80px; }
+   [data-messageframe] [data-useravatar] { width: 60px; }
 }

@@ -335,7 +335,14 @@ function loglevel(el, replace)
                   </div>
                   <progress id="fileuploadprogress" class="uk-progress" value="0" max="100" hidden></progress>
                   <span class="uk-text-meta uk-display-block">After upload, your image will appear below</span>
-                  <h3 class="uk-heading-divider"><span>Select</span></h3>
+                  <h3 class="uk-heading-divider uk-flex uk-flex-bottom">
+                     <span class="uk-width-expand">Select</span>
+                     <label class="uk-text-small uk-flex-none">
+                        <input id="fileuploadsearchall" 
+                           class="uk-checkbox uk-margin-large-left uk-margin-small-right" 
+                           type="checkbox">Search All
+                     </label>
+                  </h3>
                   <div id="fileuploadslideshow" uk-slideshow uk-margin>
                      <ul id="fileuploaditems" class="uk-slideshow-items"></ul>
                      <div><ul id="fileuploadthumbnails" class="uk-thumbnav" uk-margin></ul></div>
@@ -452,13 +459,16 @@ function loglevel(el, replace)
             <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
             <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
             <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
+            <button
+               onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
          </div>
          <div data-routeerror>
             <h1>ERROR</h1>
          </div>
          <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent"></h1>
-            <p data-content=".renderContent" class="uk-text-break"></p>
+            <p data-content=".renderContent" data-format="" 
+               class="uk-text-break content"></p>
          </div>
          <div data-routeuser class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>
