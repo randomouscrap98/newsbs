@@ -23,9 +23,10 @@ var options = {
    discussionscrollnow : 300,
    discussionavatarsize : 60,
    longpollerrorrestart : 5000,
-   datalog : false,
    notificationtimeout : 5000,
    defaultmarkup : "12y",
+   forcediscussionoutofdate : false,
+   datalog : false,
    drawlog : false
 };
 
@@ -434,6 +435,9 @@ function startSession()
          {
             log.Info("Last system id: " + x.id);
             globals.lastsystemid = x.id;
+
+            if(options.forcediscussionoutofdate)
+               globals.lastsystemid -= 2000;
          }
       });
 
@@ -1708,7 +1712,17 @@ function longpollRepeater()
       longpollRepeater();
    }, req =>
    {
-      if(req.status)
+      console.log(req);
+      if(req.status === 400)
+      {
+         UIkit.modal.confirm("Live updates cannot recover from error. " +
+            "Press OK to reload page.\n\nIf you " +
+            "CANCEL, the website will not function properly!").then(x =>
+         {
+            location.reload();
+         });
+      }
+      else if(req.status)
       {
          log.Error("Long poller failed, status: " + req.status + ", retrying in " + 
             options.longpollerrorrestart + " ms");
