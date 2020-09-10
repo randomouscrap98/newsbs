@@ -587,13 +587,28 @@ function initializePage()
    setHasDiscussions(false);
 }
 
-function finalizePage()
+//Finish rendering a page. For "ease", can also include information about the
+//available discussion so we can do a few things.
+function finalizePage(chain, discussion)
 {
-   //We HOPE the first spinner is the one we added. Fix this later!
-   //maincontent.removeChild(maincontent.querySelector("[data-spinner]"));
    maincontentloading.setAttribute("hidden", "");
    globals.spa.processingurl = false;
-   setDiscussionScrollNow(options.discussionscrollnow);
+
+   if(chain)
+      makeBreadcrumbs(chain);
+
+   if(discussion)
+   {
+      maincontentinfo.appendChild(
+         makeStandardContentInfo(discussion.content, discussion.users));
+      easyComments(discussion.comments, discussion.users);
+      setDiscussionScrollNow(options.discussionscrollnow);
+
+      //HOW to update long poller? probably just some "update" function instead
+      //of THE long poller function, they do different things.
+      //easyLongpoll(discussion.content.id);
+   }
+
    log.Debug("Page render finalized");
 }
 
@@ -1392,10 +1407,8 @@ function routepage_load(url, pVal, id)
          "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }),
          "data-format" : c.values.markupLang
       });
-      makeBreadcrumbs(getChain(data.category, c));
-      maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-      easyComments(data.comment, users);
-      finalizePage();
+      finalizePage(getChain(data.category, c), 
+         { "users" : users, "comments" : data.comment, "content" : c });
    });
 }
 
@@ -1429,19 +1442,19 @@ function routeuser_load(url, pVal, id)
          "data-avatar" : getAvatarLink(u.avatar, 200),
          "data-content" : c ? JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }) : false
       });
-      makeBreadcrumbs([u]);
+      var discussion = false;
       if(c)
       {
          setHasDiscussions(true);
          easyShowDiscussion(c.id);
-         maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-         easyComments(data.comment, users);
+         discussion = { "users" : users, "content" : c, "comments" : data.comment };
       }
       else
       {
          maincontentinfo.innerHTML = "No user page";
       }
-      finalizePage();
+
+      finalizePage([u], discussion);
    });
 }
 
@@ -1679,12 +1692,15 @@ function easyComment(comment, users)
 // ---- LONG POLLING ----
 // **********************
 
-function easyLongpoll()
+function easyLongpoll(viewContentId)
 {
    log.Info("Starting (or restarting) long poller!");
 
    if(globals.pendinglongpoll)
+   {
+      log.Debug("Aborting old long poller...");
       globals.pendinglongpoll.abort();
+   }
 
    longpollRepeater();
 }
@@ -1700,7 +1716,7 @@ function longpollRepeater()
    params.set("user","id,username,avatar");
    params.set("content","id,name");
 
-   quickApi("read/listen?" + params.toString(), data =>
+   quickApi("read/listen?" + params.toString(), data => //success
    {
       if(data)
       {
@@ -1710,9 +1726,8 @@ function longpollRepeater()
          easyComments(data.chains.comment, users);
       }
       longpollRepeater();
-   }, req =>
+   }, req => //error
    {
-      console.log(req);
       if(req.status === 400)
       {
          UIkit.modal.confirm("Live updates cannot recover from error. " +
@@ -1732,7 +1747,10 @@ function longpollRepeater()
       {
          log.Warn("Long poller was aborted!");
       }
-   }, undefined, undefined, undefined, req =>
+   }, undefined, req => //Always
+   {
+      globals.pendinglongpoll = false;
+   }, undefined, req => //modify
    {
       globals.pendinglongpoll = req;
    });
