@@ -604,6 +604,8 @@ function finalizePage(chain, discussion)
       //easyLongpoll(discussion.content.id);
    }
 
+   finalizeTemplate(maincontent);
+
    log.Debug("Page render finalized");
 }
 

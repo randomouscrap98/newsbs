@@ -460,16 +460,21 @@ function loglevel(el, replace)
          <a data-sbslink data-link="href" data-spa>
          </a>
          <!-- LOC:ROUTES -->
-         <div data-routehome>
-            <p>This is a lot of text. i am hoping it will continue so long
-            and long and long that it will eventually wrap or something,
-            showing you exactly wehre the pane ends</p>
-            <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
-            <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
-            <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
-            <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
-            <button
-               onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
+         <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">
+            <h1>SmileBASIC Source</h1>
+            <p>A website for making BASIC programs in SmileBASIC! 
+            This website is in development! There's a lot of missing
+            features, but we're gonna keep adding stuff until it's good!</p>
+            <h3><a href="?p=category-0" data-spa>Browse</a></h3>
+            <a href="#" uk-toggle="#hometestarea">Test area</a>
+            <div id="hometestarea" hidden>
+      <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
+      <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
+      <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
+      <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
+      <button
+         onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
+            </div>
          </div>
          <div data-routeerror>
             <h1>ERROR</h1>
