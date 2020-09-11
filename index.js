@@ -9,7 +9,8 @@ var actiontext = {
 
 var attr = {
    "pulsedate" : "data-maxdate",
-   "pulsecount" : "data-pwcount"
+   "pulsecount" : "data-pwcount",
+   "constate" : "data-connectionindicator"
 };
 
 //Will this be stored in user eventually?
@@ -20,7 +21,7 @@ var options = {
    refreshcycle : 10000,
    discussionscrollspeed : 0.25, // Percentage of scroll diff to scroll per frame
    discussionscrolllock : 0.15,  // Percentage of discussion height to lock bottom
-   discussionscrollnow : 300,
+   discussionscrollnow : 1000,
    discussionavatarsize : 60,
    longpollerrorrestart : 5000,
    notificationtimeout : 5000,
@@ -31,7 +32,8 @@ var options = {
 };
 
 var globals = { 
-   lastsystemid : -1  //The last id retrieved from the system for actions
+   lastsystemid : -1,   //The last id retrieved from the system for actions
+   reqId : 0,           //Ever increasing request id
 };
 
 console.datalog = d => { if(options.datalog) console.log(d); };
@@ -351,9 +353,10 @@ function setupDiscussions()
       "lastanimtime" : 0,
       "observer" : new ResizeObserver(entries => 
       {
-         if(globals.discussion.rect && globals.discussion.scrollHeight &&
-            scrollDiscussionsDistance(globals.discussion.scrollHeight) < 
-            globals.discussion.rect.height * options.discussionscrolllock)
+         if((globals.discussion.rect && globals.discussion.scrollHeight &&
+             scrollDiscussionsDistance(globals.discussion.scrollHeight) < 
+             globals.discussion.rect.height * options.discussionscrolllock) ||
+             performance.now() < globals.discussion.scrollNow)
          {
             setDiscussionScrollNow();
          }
@@ -532,8 +535,8 @@ function setFileUploadList(page, allImages)
       fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1, allImages); }
       fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages); }
 
-      page > 0 ?  unhide(fileuploadnewer) : hide(fileuploadnewer);
-      files.length === options.filedisplaylimit ? unhide(fileuploadolder) : hide(fileuploadolder);
+      setHidden(fileuploadnewer, page <= 0);
+      setHidden(fileuploadolder, files.length !== options.filedisplaylimit);
    });
 }
 
@@ -553,14 +556,7 @@ function addFileUploadImage(file, num)
 
 function updateGlobalAlert()
 {
-   if(watchglobalalert.textContent)
-   {
-      globalalert.style = "";
-   }
-   else
-   {
-      globalalert.style.display = "none";
-   }
+   setHidden(globalalert, !watchglobalalert.textContent);
 }
 
 function initializePage()
@@ -568,30 +564,22 @@ function initializePage()
    log.Debug("Initializing page to a clean slate");
 
    //Clear out the breadcrumbs
-   while(breadcrumbs.lastElementChild !== breadcrumbs.firstElementChild)
-   {
-      breadcrumbs.removeChild(breadcrumbs.lastElementChild);
-   }
+   breadcrumbs.innerHTML = "";
 
-   //Go find the discussion, move it to the hidden zone.
-   //var discussions = maincontent.querySelectorAll("[data-discussion]");
-   //[...discussions].forEach(x =>
-   //{
-   //   log.Info("Moving discussion '" + x.getAttribute("data-id") + "' to hidden element for storage");
-   //   memory.appendChild(x);
-   //});
-
+   //Clear out anything that used to be there
    maincontent.innerHTML = "";
    maincontentinfo.innerHTML = "";
-   maincontentloading.removeAttribute("hidden");
    setHasDiscussions(false);
+
+   //show the loading bar
+   unhide(maincontentloading);
 }
 
 //Finish rendering a page. For "ease", can also include information about the
 //available discussion so we can do a few things.
 function finalizePage(chain, discussion)
 {
-   maincontentloading.setAttribute("hidden", "");
+   hide(maincontentloading);
    globals.spa.processingurl = false;
 
    if(chain)
@@ -681,13 +669,15 @@ function setToken(token)
    window.localStorage.setItem("usertoken", token);
 }
 
+function getUserId() { return userid.dataset.userid; }
+
 function hide(e) { e.setAttribute("hidden", ""); }
 function unhide(e) { e.removeAttribute("hidden"); }
+function setHidden(e, hidden) { if(hidden) hide(e); else unhide(e); }
 
-function getUserId()
-{
-   return userid.dataset.userid;
-}
+function getUserLink(id) { return "?p=user-" + id; }
+function getPageLink(id) { return "?p=page-" + id; }
+function getCategoryLink(id) { return "?p=category-" + id; }
 
 function getImageLink(id, size, crop)
 {
@@ -698,14 +688,16 @@ function getImageLink(id, size, crop)
    return img;
 }
 
-function getAvatarLink(id, size)
-{
-   return getImageLink(id, size, true);
-}
+function getAvatarLink(id, size) { return getImageLink(id, size, true); }
 
-function getUserLink(id) { return "?p=user-" + id; }
-function getPageLink(id) { return "?p=page-" + id; }
-function getCategoryLink(id) { return "?p=category-" + id; }
+function idMap(data)
+{
+   data = data || [];
+   var ds = {};
+   for(var i = 0; i < data.length; i++)
+      ds[data[i].id] = data[i];
+   return ds;
+}
 
 function getFormInputs(form)
 {
@@ -805,15 +797,6 @@ function notifySuccess(message)
    notifyBase(message, "check", "success");
 }
 
-function idMap(data)
-{
-   data = data || [];
-   var ds = {};
-   for(var i = 0; i < data.length; i++)
-      ds[data[i].id] = data[i];
-   return ds;
-}
-
 function getSwapElement(element, attribute)
 {
    if(element.hasAttribute(attribute))
@@ -878,20 +861,13 @@ function swapBase(element, attribute, replace)
    }
 }
 
-function findSwap(element, attribute, replace)
-{
-   swapBase(element, attribute, replace);
-}
+function findSwap(element, attribute, replace) { swapBase(element, attribute, replace); }
+function getSwap(element, attribute) { return swapBase(element, attribute); }
 
 function multiSwap(element, replacements)
 {
    for(key in replacements)
       findSwap(element, key, replacements[key]);
-}
-
-function getSwap(element, attribute)
-{
-   return swapBase(element, attribute);
 }
 
 function getChain(categories, content)
@@ -1014,11 +990,9 @@ function makeCommentFragment(comment, users)
 // ---- API ----
 // *************
 
-var reqId = 0;
-
 function quickApi(url, callback, error, postData, always, method, modify)
 {
-   let thisreqid = ++reqId;
+   let thisreqid = ++globals.reqId;
    url = apiroot + "/" + url;
    error = error || (e => notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText));
 
@@ -1026,6 +1000,8 @@ function quickApi(url, callback, error, postData, always, method, modify)
    log.Info("[" + thisreqid + "] " + method + ": " + url);
 
    var req = new XMLHttpRequest();
+   //This is supposedly thrown before the others
+   req.addEventListener("error", function() { req.networkError = true; });
    req.addEventListener("loadend", function()
    {
       log.Debug("[" + thisreqid + "]: " + req.status + " " + req.statusText + 
@@ -1041,6 +1017,7 @@ function quickApi(url, callback, error, postData, always, method, modify)
       }
       else
       {
+         //Also thrown on network error
          error(req);
       }
    });
@@ -1484,8 +1461,7 @@ function scrollDiscussionsDistance(baseHeight)
 
 function scrollDiscussionsAnimation(timestamp)
 {
-   if(Math.abs(discussions.scrollTop - globals.discussion.scrollTop) <= 1 || 
-      performance.now() < globals.discussion.scrollNow)
+   if(Math.abs(discussions.scrollTop - globals.discussion.scrollTop) <= 1)
    {
       //We will go at MINIMUM half framerate (to prevent huge stops from
       //destroying the animation)
@@ -1507,9 +1483,10 @@ function scrollDiscussionsAnimation(timestamp)
    window.requestAnimationFrame(scrollDiscussionsAnimation);
 }
 
+//Set the discussion to scroll, and if forceTime is set, CONTINUE scrolling
+//even if the scroller shouldn't be (like the user is too far up)
 function setDiscussionScrollNow(forceTime)
 {
-   //log.Debug("Discussion scroll now: " + forceTime);
    globals.discussion.scrollTop = discussions.scrollTop;
 
    if(forceTime)
@@ -1705,8 +1682,20 @@ function easyLongpoll(viewContentId)
    longpollRepeater();
 }
 
+function setConnectionState(state)
+{
+   var indicator = document.querySelector("[" + attr.constate + "]");
+
+   if(state)
+      indicator.setAttribute(attr.constate, state);
+   else
+      indicator.removeAttribute(attr.constate);
+}
+
 function longpollRepeater()
 {
+   setConnectionState("connected");
+
    var params = new URLSearchParams();
    params.append("actions", JSON.stringify({
       "lastId" : globals.lastsystemid,
@@ -1730,6 +1719,7 @@ function longpollRepeater()
    {
       if(req.status === 400)
       {
+         setConnectionState("error");
          UIkit.modal.confirm("Live updates cannot recover from error. " +
             "Press OK to reload page.\n\nIf you " +
             "CANCEL, the website will not function properly!").then(x =>
@@ -1737,15 +1727,18 @@ function longpollRepeater()
             location.reload();
          });
       }
-      else if(req.status)
+      else if(req.status || req.networkError)
       {
+         setConnectionState("error");
          log.Error("Long poller failed, status: " + req.status + ", retrying in " + 
             options.longpollerrorrestart + " ms");
          setTimeout(longpollRepeater, options.longpollerrorrestart);
       }
       else
       {
+         setConnectionState("aborted");
          log.Warn("Long poller was aborted!");
+         console.log(req);
       }
    }, undefined, req => //Always
    {

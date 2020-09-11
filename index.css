@@ -22,8 +22,10 @@ a:hover { color: inherit; }
    color: #AAA;
    padding: 0 0.1em;
 }
-#topnav a:hover {
-   color: #CCC;
+#topnav a:hover { color: #CCC; }
+[data-connectionindicator="error"] { 
+   filter: hue-rotate(180deg); 
+   transform: rotate(15deg);
 }
 #leftpane {
    /*background-color: lime;*/
@@ -131,8 +133,10 @@ a:hover { color: inherit; }
    border-radius: 8px;
 }
 /* Breadcrumb/nav special (uikit default replacements) */
-#breadcrumbs [data-breadcrumb] { padding-top: 0.15em; }
+/*#breadcrumbs [data-breadcrumb] { padding-top: 0.15em; }*/
+#breadcrumbs a { line-height: 1.0em; }
 .bc-collapse>*::before {
+   line-height: 1.0em;
    margin-left: 10px !important;
    margin-right: 5px !important;
 }

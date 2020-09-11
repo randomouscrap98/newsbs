@@ -34,22 +34,22 @@ function loglevel(el, replace)
       <div id="website" class="uk-flex uk-flex-column uk-height-1-1">
          <!-- LOC:TOPNAV -->
          <div id="topnav" class="databar uk-flex-middle" uk-navbar>
+            <a data-connectionindicator class="uk-flex-none" href=".">
+               <img uk-svg="ratio: 2" data-src="sbs.svg">
+            </a>
             <!-- LOC:BREADCRUMBS -->
-            <ul id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-bottom 
-               bc-collapse uk-margin-small-right">
-               <li><a href=".">
-                  <img uk-svg="ratio: 2" data-src="sbs.svg">
-               </a></li>
+            <ul id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-top uk-margin-remove-bottom
+               bc-collapse uk-margin-small-right uk-margin-small-left">
             </ul>
             <!-- Just a spacer for now... maybe something will go here -->
             <div class="uk-flex-1">
             </div> 
             <!-- The burger side-menu thing-->
-            <div class="uk-inline">
+            <div class="uk-inline uk-flex-none">
                <a id="rightpanetoggle" uk-icon="icon: menu; ratio: 2" href="#"
                   uk-toggle="target: #rightpane; mode: click;"></a>
                <div id="globalalert" class="uk-label uk-label-danger
-                  uk-position-bottom-right noevent" style="display: none">!</div>
+                  uk-position-bottom-right noevent" hidden>!</div>
             </div>
          </div>
          <!-- LOC:MAINWINDOW -->
@@ -92,8 +92,12 @@ function loglevel(el, replace)
       <!-- Shifted over for convenience, want to fit on one line please -->
       <div data-utgl><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
-      <div data-utgl hidden><a href="" class="uk-display-block"><img id="navuseravatar" 
-            width="40" height="40" class="" uk-img></img></a></div>
+      <div data-utgl hidden class="uk-inline">
+         <a href="" class="uk-display-block"><img id="navuseravatar" 
+            width="40" height="40" class="" uk-img></img></a>
+         <!--<div id="connectionalert" class="uk-label uk-label-danger
+            uk-position-bottom-right noevent" hidden>!</div>-->
+      </div>
       <div data-utgl hidden><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
       <div data-utgl hidden class="uk-inline">
