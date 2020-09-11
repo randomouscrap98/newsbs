@@ -997,14 +997,19 @@ function makeCommentFragment(comment, users)
 // ---- API ----
 // *************
 
-function quickApi(url, callback, error, postData, always, method, modify)
+function quickApi(url, callback, error, postData, always, method, modify, nolog)
 {
    let thisreqid = ++globals.reqId;
+   var endpoint = url; var epquery = url.indexOf("?");
+   if(epquery >= 0) endpoint = endpoint.substr(0, epquery);
+
    url = apiroot + "/" + url;
    error = error || (e => notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText));
 
    method = method || (postData ? "POST" : "GET");
-   log.Info("[" + thisreqid + "] " + method + ": " + url);
+
+   if(!nolog)
+      log.Info("[" + thisreqid + "] " + method + ": " + url);
 
    var req = new XMLHttpRequest();
    //This is supposedly thrown before the others
@@ -1012,7 +1017,7 @@ function quickApi(url, callback, error, postData, always, method, modify)
    req.addEventListener("loadend", function()
    {
       log.Debug("[" + thisreqid + "]: " + req.status + " " + req.statusText + 
-         " (" + req.response.length + "b)");
+         " (" + req.response.length + "b) " + endpoint);
       if(always) 
          always(req);
       if(req.status <= 299 && req.status >= 200)
@@ -1753,13 +1758,15 @@ function longpollRepeater()
    }, undefined, req => //modify
    {
       globals.pendinglongpoll = req;
-   });
+   }, true /* Do we want this? No logging? */);
 }
 
-/*var Nav = {
+//A 12me thing for the renderer
+var Nav = {
    link: function(path, element) {
-      var a = element || document.createElement('a')
-      a.href = "#"+path
-      return a
+      var a = cloneTemplate("sbslink");
+      multiSwap(a, { "data-link" : "?p=" + path.replace(/s?\//g, "-") });
+      finalizeTemplate(a);
+      return a;
    }
-}*/
+};
