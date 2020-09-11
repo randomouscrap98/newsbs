@@ -397,6 +397,13 @@ function setupDiscussions()
 		}
 	};
 
+   discussionimageselect.addEventListener("click", function() {
+      globals.fileselectcallback = function(id) {
+         //TODO: this assumes 12y format
+         postdiscussiontext.value += " !" + getImageLink(id);
+      };
+   });
+
    //Begin the animation loop for discussion scrolling
    scrollDiscussionsAnimation(0);
 }

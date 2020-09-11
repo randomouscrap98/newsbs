@@ -171,6 +171,9 @@ a:hover { color: inherit; }
    display: block;
    margin: 0.5em 0;
 }
+#discussionimageselect {
+   margin: 3px;
+}
 /* Content */
 .content {
    white-space: pre-wrap;
