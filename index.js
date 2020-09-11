@@ -63,6 +63,7 @@ window.onload = function()
    setupAlerts();
    setupPageControls();
    setupDiscussions();
+   setupLongpoller();
 
    //Don't do this special crap until everything is setup, SOME setup may not
    //be required before the user session is started, but it's minimal savings.
@@ -204,16 +205,8 @@ function setupPageControls()
 
 function setupUserForms()
 {
-   formSetupSubmit(loginform, "user/authenticate", function(token)
-   {
-      setToken(token); 
-      startSession();
-   });
-   userlogout.addEventListener("click", function()
-   {
-      setToken(null);
-      stopSession();
-   });
+   formSetupSubmit(loginform, "user/authenticate", token => login(token));
+   userlogout.addEventListener("click", () => logout(token));
    formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", function(result)
    {
       log.Info("Password reset code sent!");
@@ -222,8 +215,7 @@ function setupUserForms()
    formSetupSubmit(passwordresetconfirmform, "user/passwordreset", function(token)
    {
       notifySuccess("Password reset!");
-      setToken(token); 
-      refreshUserFull();
+      login(token);
    }, function(formData)
    {
       if(formData.password != formData.password2)
@@ -247,8 +239,7 @@ function setupUserForms()
    formSetupSubmit(registerconfirmform, "user/register/confirm", function(token)
    {
       notifySuccess("Registration complete!");
-      setToken(token); 
-      refreshUserFull();
+      login(token);
    });
 
    userchangeavatar.addEventListener("click", function() {
@@ -273,8 +264,7 @@ function setupAlerts()
       {
          quickApi("user/invalidatealltokens", function() 
          { 
-            setToken(null);
-            location.reload(); 
+            logout();
          }, undefined, "pleaseinvalidate");
       }, () => log.Debug("Cancelled invalidate tokens"));
    });
@@ -406,12 +396,17 @@ function setupDiscussions()
 
    //Begin the animation loop for discussion scrolling
    scrollDiscussionsAnimation(0);
+
+   log.Debug("Setup discussions (scrolling/etc)");
 }
 
-//Assuming the user is logged in, this will start up the long poller, set the
-//login state, etc. You don't "start" sessions all the time, so it's just
-//called once, but the "setLoginState" will change the view, so that can be
-//called whenever you want.
+function setupLongpoller()
+{
+   globals.longpoller = {};
+   log.Debug("Setup long poller (not started)");
+}
+
+//Set up the page and perform initial requests for being "logged in"
 function startSession()
 {
    rightpane.style.opacity = 0.2;
@@ -456,15 +451,13 @@ function startSession()
       displayNewWatches(data, true);
 
       //Start long poller
-      easyLongpoll();
+      //easyLongpoll();
    });
 }
 
-function stopSession()
-{
-   //lol relog (maybe in the future, do something better)
-   location.reload();
-}
+function login(token) { setToken(token); location.reload(); }
+function logout() { setToken(null); location.reload(); }
+
 
 // **********************
 // ---- Page Modify ----
@@ -512,11 +505,7 @@ function refreshUserFull(always)
    {
       //Assume any failed user refresh means they're logged out
       log.Error("Couldn't refresh user, deleting cached token");
-      setToken(null);   
-      //For SAFETY, we completely stop the session. It might be inefficient 
-      //since we may be reloading content we JUST loaded in, but it's rare
-      //hopefully
-      stopSession();
+      logout();
    }, undefined, always);
 }
 
@@ -576,7 +565,9 @@ function initializePage()
    //Clear out anything that used to be there
    maincontent.innerHTML = "";
    maincontentinfo.innerHTML = "";
-   setHasDiscussions(false);
+   easyShowDiscussion(false);
+   //setHasDiscussions(false);
+   globals.discussion.current = 0;
 
    //show the loading bar
    unhide(maincontentloading);
@@ -605,6 +596,10 @@ function finalizePage(chain, discussion)
    }
 
    finalizeTemplate(maincontent);
+
+   //At the end of it, update the long poller (no matter if there's a
+   //discussion or not, because maybe we need to EXIT the last room)
+   updateLongPoller();
 
    log.Debug("Page render finalized");
 }
@@ -806,91 +801,6 @@ function notifySuccess(message)
    notifyBase(message, "check", "success");
 }
 
-function getSwapElement(element, attribute)
-{
-   if(element.hasAttribute(attribute))
-      return element;
-
-	return element.querySelector("[" + attribute + "]");
-}
-
-//How does this work?
-//-Find an element by (assumed unique) attribute
-//-If attribute is empty, that is what is assigned
-//-If attribute has a value, the replacement goes to where the attribute is
-// pointing
-//-If attribute starts with ., it goes to the MEMBER on the element.
-// If element doesn't have that member, try global function
-function swapBase(element, attribute, replace)
-{
-   try
-   {
-      var name = getSwapElement(element, attribute);
-      var caller = name.getAttribute(attribute);
-
-      //Oops, use the direct attribute if there's no value.
-      if(!caller)
-         caller = attribute;
-
-      //Oh, it's a function call! Try on the element itself first, then fall
-      //back to the window functions
-      if(caller.indexOf(".") === 0)
-      {
-         caller = caller.substr(1);
-
-         if(caller in name)
-         {
-            if(replace !== undefined)
-               name[caller] = replace;
-            else
-               return name[caller];
-         }
-         else
-         {
-            return window[caller](name, replace);
-         }
-      }
-      else
-      {
-         if(!isNaN(Number(caller)))
-         {
-            log.Warn("Trying to swap attribute '" + attribute + "', which is number: " + caller);
-            return null;
-         }
-
-         if(replace !== undefined)
-            name.setAttribute(caller, replace);
-         else
-            return name.getAttribute(caller);
-      }
-   }
-   catch(ex)
-   {
-      log.Error("Can't swap attribute " + attribute + " on element " + element + " : " + ex);
-   }
-}
-
-function findSwap(element, attribute, replace) { swapBase(element, attribute, replace); }
-function getSwap(element, attribute) { return swapBase(element, attribute); }
-
-function multiSwap(element, replacements)
-{
-   for(key in replacements)
-      findSwap(element, key, replacements[key]);
-}
-
-function getChain(categories, content)
-{
-   //work backwards until there's no parent id
-   var crumbs = [ content ];
-   var cs = idMap(categories);
-
-   while(crumbs[0].parentId)
-      crumbs.unshift(cs[crumbs[0].parentId]);
-
-    return crumbs;
-}
-
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -992,6 +902,92 @@ function makeCommentFragment(comment, users)
    });
    finalizeTemplate(fragment);
    return fragment;
+}
+
+
+function getSwapElement(element, attribute)
+{
+   if(element.hasAttribute(attribute))
+      return element;
+
+	return element.querySelector("[" + attribute + "]");
+}
+
+//How does this work?
+//-Find an element by (assumed unique) attribute
+//-If attribute is empty, that is what is assigned
+//-If attribute has a value, the replacement goes to where the attribute is
+// pointing
+//-If attribute starts with ., it goes to the MEMBER on the element.
+// If element doesn't have that member, try global function
+function swapBase(element, attribute, replace)
+{
+   try
+   {
+      var name = getSwapElement(element, attribute);
+      var caller = name.getAttribute(attribute);
+
+      //Oops, use the direct attribute if there's no value.
+      if(!caller)
+         caller = attribute;
+
+      //Oh, it's a function call! Try on the element itself first, then fall
+      //back to the window functions
+      if(caller.indexOf(".") === 0)
+      {
+         caller = caller.substr(1);
+
+         if(caller in name)
+         {
+            if(replace !== undefined)
+               name[caller] = replace;
+            else
+               return name[caller];
+         }
+         else
+         {
+            return window[caller](name, replace);
+         }
+      }
+      else
+      {
+         if(!isNaN(Number(caller)))
+         {
+            log.Warn("Trying to swap attribute '" + attribute + "', which is number: " + caller);
+            return null;
+         }
+
+         if(replace !== undefined)
+            name.setAttribute(caller, replace);
+         else
+            return name.getAttribute(caller);
+      }
+   }
+   catch(ex)
+   {
+      log.Error("Can't swap attribute " + attribute + " on element " + element + " : " + ex);
+   }
+}
+
+function findSwap(element, attribute, replace) { swapBase(element, attribute, replace); }
+function getSwap(element, attribute) { return swapBase(element, attribute); }
+
+function multiSwap(element, replacements)
+{
+   for(key in replacements)
+      findSwap(element, key, replacements[key]);
+}
+
+function getChain(categories, content)
+{
+   //work backwards until there's no parent id
+   var crumbs = [ content ];
+   var cs = idMap(categories);
+
+   while(crumbs[0].parentId)
+      crumbs.unshift(cs[crumbs[0].parentId]);
+
+    return crumbs;
 }
 
 
@@ -1373,7 +1369,7 @@ function displayNewWatches(data, fullReset)
 
 function routepage_load(url, pVal, id)
 {
-   setHasDiscussions(true);
+   //setHasDiscussions(true);
    easyShowDiscussion(id);
    var pid = Number(id);
    var params = new URLSearchParams();
@@ -1436,7 +1432,7 @@ function routeuser_load(url, pVal, id)
       var discussion = false;
       if(c)
       {
-         setHasDiscussions(true);
+         //setHasDiscussions(true);
          easyShowDiscussion(c.id);
          discussion = { "users" : users, "content" : c, "comments" : data.comment };
       }
@@ -1545,8 +1541,11 @@ function getCommentId(id) { return "comment-" + id; }
 
 function getActiveDiscussion()
 {
-   return discussions.querySelector("[data-discussion].uk-active")
-      .getAttribute("data-discussionid");
+   return globals.discussion.current;
+   //return discussions.querySelector("[data-discussion].uk-active")
+   //   .getAttribute("data-discussionid");
+   //var d = discussions.querySelector("[data-discussion].uk-active");
+   //return d ? d.getAttribute("data-discussionid") : 0;
 }
 
 function easyDiscussion(id)
@@ -1575,16 +1574,24 @@ function easyDiscussion(id)
 
 function easyShowDiscussion(id)
 {
-   var d = easyDiscussion(id);
-   setTimeout(x => 
-   {
-      document.getElementById(getDiscussionSwitchId(id)).firstElementChild.click();
+   //The true/false isn't necessary, just as a visual reminder that that
+   //function accepts a truthy value for whether it has discussions
+   setHasDiscussions(id ? true : false);
 
-      //Is this going to be ok???
-      globals.discussion.observer.disconnect();
-      globals.discussion.observer.observe(discussions);
-      globals.discussion.observer.observe(d);
-   }, 12);
+   if(id)
+   {
+      var d = easyDiscussion(id);
+      setTimeout(x => 
+      {
+         document.getElementById(getDiscussionSwitchId(id)).firstElementChild.click();
+
+         //Is this going to be ok???
+         globals.discussion.current = id;
+         globals.discussion.observer.disconnect();
+         globals.discussion.observer.observe(discussions);
+         globals.discussion.observer.observe(d);
+      }, 12);
+   }
 }
 
 function updateCommentFragment(comment, element)
@@ -1683,36 +1690,63 @@ function easyComment(comment, users)
 // ---- LONG POLLING ----
 // **********************
 
-function easyLongpoll(viewContentId)
+function setConnectionState(state)
 {
-   log.Info("Starting (or restarting) long poller!");
+   state = state || "";
+   var indicator = document.querySelector("[" + attr.constate + "]");
+   indicator.setAttribute(attr.constate, state);
+}
 
+function tryAbortLongPoller()
+{
    if(globals.pendinglongpoll)
    {
       log.Debug("Aborting old long poller...");
       globals.pendinglongpoll.abort();
+      return true;
    }
 
-   longpollRepeater();
+   return false;
 }
 
-function setConnectionState(state)
+function updateLongPoller()
 {
-   var indicator = document.querySelector("[" + attr.constate + "]");
+   //Just always abort, if they want an update, they'll GET one
+   tryAbortLongPoller();
 
-   if(state)
-      indicator.setAttribute(attr.constate, state);
-   else
-      indicator.removeAttribute(attr.constate);
+   if(!getToken())
+      return;
+
+   longpollRepeater();
+   //var lastStatuses = globals.userstatuses;
+
+   //try
+   //{
+   //   globals.userstatuses = { String(getActiveDiscussion()) : "online" };
+   //}
+   //catch
+   //{
+   //   log.Debug("No active discussion, long poller removing all user statuses");
+   //   globals.userstatuses = { };
+   //}
+
+   //startPoller = (discussionId !== globals.pendinglongpollid);
+
+   //log.Info("Starting (or restarting) long poller!");
 }
 
-function longpollRepeater()
+function longpollRepeater()//discussionId) //TODO: update with status list
 {
    setConnectionState("connected");
+
+   var statuses = {};
+   if(globals.discussion.current)
+      statuses[String(globals.discussion.current)] = "online";
 
    var params = new URLSearchParams();
    params.append("actions", JSON.stringify({
       "lastId" : globals.lastsystemid,
+      "statuses" : statuses,
       "chains" : [ "comment.0id", "activity.0id", 
          "user.1createUserId.2userId", "content.1parentId.2contentId" ]
    }));
@@ -1752,7 +1786,6 @@ function longpollRepeater()
       {
          setConnectionState("aborted");
          log.Warn("Long poller was aborted!");
-         console.log(req);
       }
    }, undefined, req => //Always
    {
