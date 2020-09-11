@@ -63,7 +63,7 @@ function loglevel(el, replace)
                   <div id="maincontent">
                   </div>
                </div>
-               <div id="maincontentbar">
+               <div class="uk-flex-none" id="maincontentbar">
                   <div id="maincontentinfo" class="uk-display-inline">
                   </div>
                   <div id="maincontentbarcontrols">
@@ -72,6 +72,8 @@ function loglevel(el, replace)
                      <a href="#" class="" uk-icon="comments" id="splitmodediscussion"></a>
                      <a href="#" class="" uk-icon="file-text" id="splitmodecontent"></a>
                   </div>
+               </div> 
+               <div id="discussionuserlist" class="uk-flex-none">
                </div>
                <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
                   <ul id="discussions" class="uk-flex-1 uk-switcher" uk-overflow-auto>
@@ -458,6 +460,9 @@ function loglevel(el, replace)
             <a data-link="href" data-spa data-text=".textContent"></a>
          </li>
          <a data-sbslink data-link="href" data-spa>
+         </a>
+         <a data-discussionuser data-uid="" data-userlink="href" data-status="" data-spa>
+            <img data-avatar="src" width=40>
          </a>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">

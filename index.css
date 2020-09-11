@@ -58,9 +58,6 @@ a:hover { color: inherit; }
 #maincontentbarcontrols {
    float: right;
 }
-#discussionscontainer {
-   min-height: 45%;
-}
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
    background-color: rgba(128,255,240,0.4);
@@ -141,6 +138,14 @@ a:hover { color: inherit; }
    margin-right: 5px !important;
 }
 /* Discussions */
+#discussionuserlist {
+   background-color: rgba(128,128,128,0.05);
+   border-bottom: 1px solid rgba(128,128,128,0.1);
+   border-top : 1px solid rgba(128,128,128,0.15);
+}
+#discussionscontainer {
+   min-height: 45%;
+}
 [data-messageframe] [data-useravatar] {
    margin: 0.3em;
    border: 1px solid rgba(127,127,127, 0.5);
@@ -173,6 +178,9 @@ a:hover { color: inherit; }
 }
 #discussionimageselect {
    margin: 3px;
+}
+[data-discussionuser] {
+   display: inline-block;
 }
 /* Content */
 .content {

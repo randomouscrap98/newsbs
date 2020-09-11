@@ -565,6 +565,7 @@ function initializePage()
    //Clear out anything that used to be there
    maincontent.innerHTML = "";
    maincontentinfo.innerHTML = "";
+   discussionuserlist.innerHTML = "";
    easyShowDiscussion(false);
    //setHasDiscussions(false);
    globals.discussion.current = 0;
@@ -652,6 +653,41 @@ function setHasDiscussions(has)
       hide(maincontentbar);
       setFullContentMode();
    }
+}
+
+function updateDiscussionUserlist(listeners, users)
+{
+   var list = listeners ? listeners[getActiveDiscussion()] : false;
+   list = list || {};
+
+   for(key in list)
+   {
+      var existing = discussionuserlist.querySelector('[data-uid="' + key + '"]');
+      var avatar = getAvatarLink(users[key].avatar, 80);
+
+      if(existing)
+      {
+         findSwap(existing, "data-avatar", avatar);
+      }
+      else
+      {
+         var user = cloneTemplate("discussionuser");
+         multiSwap(user, {
+            "data-uid" : key,
+            "data-avatar" : avatar,
+            "data-userlink" : getUserLink(key),
+            "data-status" : list[key]
+         });
+         finalizeTemplate(user);
+         discussionuserlist.appendChild(user);
+      }
+   }
+
+   [...discussionuserlist.querySelectorAll("[data-uid]")].forEach(x => 
+   {
+      if(!list[x.getAttribute("data-uid")])
+         Utilities.RemoveElement(x);
+   });
 }
 
 
@@ -1265,28 +1301,34 @@ function updatePulse(data, fullReset)
    var contents = idMap(data.content);
    var aggregate = {};
 
-   for(var i = 0; i < data.comment.length; i++)
+   if(data.comment)
    {
-      var c = data.comment[i];
-      if(c.createUserId) //need to check in case deleted comment
+      for(var i = 0; i < data.comment.length; i++)
       {
-         var d = cataloguePulse(contents[c.parentId], users[c.createUserId], aggregate);
-         updatePulseCatalogue(d.comment, c.createDate);
+         var c = data.comment[i];
+         if(c.createUserId) //need to check in case deleted comment
+         {
+            var d = cataloguePulse(contents[c.parentId], users[c.createUserId], aggregate);
+            updatePulseCatalogue(d.comment, c.createDate);
+         }
       }
    }
 
-   for(var i = 0; i < data.activity.length; i++)
+   if(data.activity)
    {
-      var a = data.activity[i];
-      //Activity type is broken, needs to be fixed. This check is a temporary stopgap
-      if(a.userId > 0 && a.type==="content") //need to check in case system
+      for(var i = 0; i < data.activity.length; i++)
       {
-         var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
+         var a = data.activity[i];
+         //Activity type is broken, needs to be fixed. This check is a temporary stopgap
+         if(a.userId > 0 && a.type==="content") //need to check in case system
+         {
+            var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
 
-         if(a.action == "c")
-            updatePulseCatalogue(d.create, a.date);
-         else if(a.action == "u")
-            updatePulseCatalogue(d.edit, a.date);
+            if(a.action == "c")
+               updatePulseCatalogue(d.create, a.date);
+            else if(a.action == "u")
+               updatePulseCatalogue(d.edit, a.date);
+         }
       }
    }
 
@@ -1369,7 +1411,6 @@ function displayNewWatches(data, fullReset)
 
 function routepage_load(url, pVal, id)
 {
-   //setHasDiscussions(true);
    easyShowDiscussion(id);
    var pid = Number(id);
    var params = new URLSearchParams();
@@ -1542,10 +1583,6 @@ function getCommentId(id) { return "comment-" + id; }
 function getActiveDiscussion()
 {
    return globals.discussion.current;
-   //return discussions.querySelector("[data-discussion].uk-active")
-   //   .getAttribute("data-discussionid");
-   //var d = discussions.querySelector("[data-discussion].uk-active");
-   //return d ? d.getAttribute("data-discussionid") : 0;
 }
 
 function easyDiscussion(id)
@@ -1577,6 +1614,7 @@ function easyShowDiscussion(id)
    //The true/false isn't necessary, just as a visual reminder that that
    //function accepts a truthy value for whether it has discussions
    setHasDiscussions(id ? true : false);
+   globals.discussion.current = id; //Whatever they send, it's what the current is
 
    if(id)
    {
@@ -1586,7 +1624,6 @@ function easyShowDiscussion(id)
          document.getElementById(getDiscussionSwitchId(id)).firstElementChild.click();
 
          //Is this going to be ok???
-         globals.discussion.current = id;
          globals.discussion.observer.disconnect();
          globals.discussion.observer.observe(discussions);
          globals.discussion.observer.observe(d);
@@ -1609,7 +1646,8 @@ function getFragmentFrame(element)
 
 function easyComments(comments, users)
 {
-   comments.sort((x,y) => Math.sign(x.id - y.id)).forEach(x => easyComment(x, users));
+   if(comments)
+      comments.sort((x,y) => Math.sign(x.id - y.id)).forEach(x => easyComment(x, users));
 }
 
 function easyComment(comment, users)
@@ -1699,10 +1737,10 @@ function setConnectionState(state)
 
 function tryAbortLongPoller()
 {
-   if(globals.pendinglongpoll)
+   if(globals.longpoller.pending)
    {
       log.Debug("Aborting old long poller...");
-      globals.pendinglongpoll.abort();
+      globals.longpoller.pending.abort();
       return true;
    }
 
@@ -1711,28 +1749,28 @@ function tryAbortLongPoller()
 
 function updateLongPoller()
 {
+   log.Info("Updating long poller, may restart");
+
    //Just always abort, if they want an update, they'll GET one
    tryAbortLongPoller();
 
    if(!getToken())
       return;
 
+   var cid = getActiveDiscussion();
+
+   //A full reset haha great
+   if(cid)
+   {
+      globals.longpoller.lastlisteners = { };
+      globals.longpoller.lastlisteners[String(cid)] = { "0" : "" }; 
+   }
+   else
+   {
+      globals.longpoller.lastlisteners = null;
+   }
+
    longpollRepeater();
-   //var lastStatuses = globals.userstatuses;
-
-   //try
-   //{
-   //   globals.userstatuses = { String(getActiveDiscussion()) : "online" };
-   //}
-   //catch
-   //{
-   //   log.Debug("No active discussion, long poller removing all user statuses");
-   //   globals.userstatuses = { };
-   //}
-
-   //startPoller = (discussionId !== globals.pendinglongpollid);
-
-   //log.Info("Starting (or restarting) long poller!");
 }
 
 function longpollRepeater()//discussionId) //TODO: update with status list
@@ -1740,8 +1778,8 @@ function longpollRepeater()//discussionId) //TODO: update with status list
    setConnectionState("connected");
 
    var statuses = {};
-   if(globals.discussion.current)
-      statuses[String(globals.discussion.current)] = "online";
+   var cid = getActiveDiscussion();
+   if(cid) statuses[String(cid)] = "online";
 
    var params = new URLSearchParams();
    params.append("actions", JSON.stringify({
@@ -1750,6 +1788,15 @@ function longpollRepeater()//discussionId) //TODO: update with status list
       "chains" : [ "comment.0id", "activity.0id", 
          "user.1createUserId.2userId", "content.1parentId.2contentId" ]
    }));
+
+   if(globals.longpoller.lastlisteners)
+   {
+      params.append("listeners", JSON.stringify({
+         "lastListeners" : globals.longpoller.lastlisteners,
+         "chains" : [ "user.0listeners" ]
+      }));
+   }
+
    params.set("user","id,username,avatar");
    params.set("content","id,name");
 
@@ -1758,11 +1805,20 @@ function longpollRepeater()//discussionId) //TODO: update with status list
       if(data)
       {
          globals.lastsystemid = data.lastId;
+
          var users = idMap(data.chains.user);
          updatePulse(data.chains);
          easyComments(data.chains.comment, users);
+
+         if(data.listeners)
+         {
+            globals.longpoller.lastlisteners = data.listeners;
+            updateDiscussionUserlist(data.listeners, users);
+         }
       }
+
       longpollRepeater();
+
    }, req => //error
    {
       if(req.status === 400)
@@ -1789,10 +1845,10 @@ function longpollRepeater()//discussionId) //TODO: update with status list
       }
    }, undefined, req => //Always
    {
-      globals.pendinglongpoll = false;
+      globals.longpoller.pending = false;
    }, undefined, req => //modify
    {
-      globals.pendinglongpoll = req;
+      globals.longpoller.pending = req;
    }, true /* Do we want this? No logging? */);
 }
 
