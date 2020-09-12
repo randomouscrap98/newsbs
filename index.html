@@ -409,9 +409,12 @@ function loglevel(el, replace)
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li data-pw data-contentid="">
             <div class="uk-flex uk-flex-middle">
-               <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis" 
+               <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis
+                  uk-margin-right" 
                   data-spa data-pwname=".textContent"></a>
-               <span data-pwcount=".textContent" class="uk-label uk-label-danger"></span>
+               <a data-clearcount href="#">
+                  <span data-pwcount=".textContent" class="uk-label uk-label-danger"></span>
+               </a>
             </div>
             <div class="uk-flex uk-flex-bottom">
                <div class="pw-users"></div>

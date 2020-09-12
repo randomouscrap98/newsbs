@@ -926,6 +926,22 @@ function setupWatchLink(parent, cid)
    };
 }
 
+function setupWatchClear(parent, cid)
+{
+   var watchLink = parent.querySelector("[data-clearcount]");
+
+   watchLink.onclick = function(event)
+   {
+      event.preventDefault();
+      notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
+
+      quickApi("watch/" + cid + "/clear", data =>
+      {
+         log.Info("Clear watch " + cid + " successful!");
+      }, undefined, {});
+   };
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -1528,6 +1544,7 @@ function updateWatches(data, fullReset)
       {
          var c = contents[data.watch[i].contentId];
          var watchdata = easyPWContent(c, watchId(c.id), watches);
+         setupWatchClear(watchdata, c.id);
          watchdata.setAttribute(attr.pulsemaxid, data.watch[i].lastNotificationId);
       }
    }
