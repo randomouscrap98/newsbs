@@ -10,6 +10,7 @@ var actiontext = {
 var attr = {
    "pulsedate" : "data-maxdate",
    "pulsecount" : "data-pwcount",
+   "pulsemaxid" : "data-pwmaxid",
    "constate" : "data-connectionindicator"
 };
 
@@ -450,10 +451,7 @@ function startSession()
 
       //Fully stock (with reset) the sidepanel
       updatePulse(data, true);
-      displayNewWatches(data, true);
-
-      //Start long poller
-      //easyLongpoll();
+      updateWatches(data, true);
    });
 }
 
@@ -854,7 +852,7 @@ function commentsToAggregate(comment)
       comment.forEach(c =>
       {
          if(!comments[c.parentId]) 
-            comments[c.parentId] = { "lastDate" : "0", "count" : 0, "userIds" : []};
+            comments[c.parentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : c.parentId};
          var cm = comments[c.parentId];
          if(cm.userIds.indexOf(c.createUserId) < 0) cm.userIds.push(c.createUserId);
          if(c.createDate > cm.lastDate) cm.lastDate = c.createDate;
@@ -862,7 +860,7 @@ function commentsToAggregate(comment)
       });
    }
 
-   return comments;
+   return Object.values(comments);
 }
 
 function activityToAggregate(activitee)
@@ -874,7 +872,7 @@ function activityToAggregate(activitee)
       activitee.forEach(a =>
       {
          if(!activity[a.contentId]) 
-            activity[a.contentId] = { "lastDate" : "0", "count" : 0, "userIds" : []};
+            activity[a.contentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : a.contentId};
          var ac = activity[a.contentId];
          if(ac.userIds.indexOf(a.userId) < 0) ac.userIds.push(a.userId);
          if(a.date > ac.lastDate) ac.lastDate = a.date;
@@ -882,7 +880,7 @@ function activityToAggregate(activitee)
       });
    }
 
-   return activity;
+   return Object.values(activity);
 }
 
 // ***********************
@@ -1172,7 +1170,10 @@ function easyPWContent(c, id, parent)
    {
       pulsedata = cloneTemplate("pw");
       pulsedata.id = id;
-      findSwap(pulsedata, "data-pwlink", getPageLink(c.id));
+      multiSwap(pulsedata, {
+         "data-pwlink": getPageLink(c.id),
+         "data-contentid" : c.id
+      });
       parent.appendChild(finalizeTemplate(pulsedata));
    }
 
@@ -1398,6 +1399,17 @@ function updatePulse(data, fullReset)
 
 function watchId(cid) { return "watchitem-" + cid; }
 
+function getWatchLastIds()
+{
+   var result = {};
+   [...watches.querySelectorAll("[data-pw]")].forEach(x =>
+   {
+      result[Number(x.getAttribute("data-contentid"))] =
+         Number(x.getAttribute(attr.pulsemaxid));
+   });
+   return result;
+}
+
 function updateWatchGlobalAlert()
 {
    var counts = watches.querySelectorAll("[" + attr.pulsecount + "]");
@@ -1409,8 +1421,8 @@ function updateWatchGlobalAlert()
 function updateWatchSingletons(data)
 {
    updateWatchComAct(idMap(data.user), 
-      commentsToAggregate(data.comment), 
-      activityToAggregate(data.activity));
+      idMap(commentsToAggregate(data.comment)), 
+      idMap(activityToAggregate(data.activity)));
 }
 
 function updateWatchComAct(users, comments, activity)
@@ -1457,7 +1469,7 @@ function updateWatchComAct(users, comments, activity)
    updateGlobalAlert();
 }
 
-function displayNewWatches(data, fullReset)
+function updateWatches(data, fullReset)
 {
    if(fullReset)
       watches.innerHTML = "";
@@ -1467,44 +1479,39 @@ function displayNewWatches(data, fullReset)
    var comments = idMap(data.commentaggregate);
    var activity = idMap(data.activityaggregate);
 
-	for(var i = 0; i < data.watch.length; i++)
-	{
-		var c = contents[data.watch[i].contentId];
-      var watchdata = easyPWContent(c, watchId(c.id), watches);
+   if(data.watch)
+   {
+      for(var i = 0; i < data.watch.length; i++)
+      {
+         var c = contents[data.watch[i].contentId];
+         var watchdata = easyPWContent(c, watchId(c.id), watches);
+         watchdata.setAttribute(attr.pulsemaxid, data.watch[i].lastNotificationId);
+      }
+   }
 
-      //var total = 0;
-      //var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
+   if(data.watchdelete)
+   {
+      for(var i = 0; i < data.watchdelete.length; i++)
+      {
+         var w = document.getElementById(watchId(data.watchdelete[i].contentId));
+         if(w) Utilities.RemoveElement(w);
+      }
+   }
 
-      //var upd = function(t)
-      //{
-      //   if(t)
-      //   {
-      //      for(var i = 0; i < t.userIds.length; i++)
-      //         if(t.userIds[i] !== 0)
-      //            easyPWUser(users[t.userIds[i]], watchdata);
-
-      //      total += t.count;
-      //      if(t.lastDate > maxDate)
-      //         maxDate = t.lastDate;
-      //   }
-      //};
-
-      //upd(comments[c.id]);
-      //upd(activity[c.id]);
-
-      //if(total)
-      //   findSwap(watchdata, attr.pulsecount, total);
-
-      //watchdata.setAttribute(attr.pulsedate, maxDate);
-	}
+   if(data.watchupdate) //ALL of these are assumed to be clears right now!!
+   {
+      for(var i = 0; i < data.watchupdate.length; i++)
+      {
+         var w = document.getElementById(watchId(data.watchupdate[i].contentId));
+         if(w) 
+         {
+            findSwap(w, attr.pulsecount, "");
+            w.setAttribute(attr.pulsedate, "0");
+         }
+      }
+   }
 
    updateWatchComAct(users, comments, activity);
-   //Utilities.SortElements(watches,
-   //   x => x.getAttribute(attr.pulsedate) || "0", true);
-
-   //refreshPWDates(watches);
-   //updateWatchGlobalAlert();
-   //updateGlobalAlert();
 }
 
 
@@ -1933,7 +1940,7 @@ function updateLongPoller()
    longpollRepeater();
 }
 
-function longpollRepeater()//discussionId) //TODO: update with status list
+function longpollRepeater()
 {
    setConnectionState("connected");
 
@@ -1945,8 +1952,8 @@ function longpollRepeater()//discussionId) //TODO: update with status list
    params.append("actions", JSON.stringify({
       "lastId" : globals.lastsystemid,
       "statuses" : statuses,
-      "chains" : [ "comment.0id", "activity.0id", 
-         "user.1createUserId.2userId", "content.1parentId.2contentId" ]
+      "chains" : [ "comment.0id", "activity.0id", "watch.0id",
+         "user.1createUserId.2userId", "content.1parentId.2contentId.3contentId" ]
    }));
 
    if(globals.longpoller.lastlisteners)
@@ -1967,8 +1974,14 @@ function longpollRepeater()//discussionId) //TODO: update with status list
          globals.lastsystemid = data.lastId;
 
          var users = idMap(data.chains.user);
+         var watchlastids = getWatchLastIds();
          updatePulse(data.chains);
-         updateWatchSingletons(data.chains);
+         data.chains.commentaggregate = commentsToAggregate(
+            data.chains.comment.filter(x => watchlastids[x] < x.id));
+         data.chains.activityaggregate = activityToAggregate(
+            data.chains.activity.filter(x => watchlastids[x] < x.id));
+         updateWatches(data.chains);
+         //updateWatchSingletons(data.chains);
          easyComments(data.chains.comment, users);
 
          if(data.listeners)
