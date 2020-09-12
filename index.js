@@ -17,6 +17,7 @@ var attr = {
 var options = {
    pulseuserlimit : 10,
    filedisplaylimit: 40,
+   pagedisplaylimit: 100,
    initialloadcomments: 30,
    refreshcycle : 10000,
    discussionscrollspeed : 0.25, // Percentage of scroll diff to scroll per frame
@@ -28,6 +29,7 @@ var options = {
    defaultmarkup : "12y",
    forcediscussionoutofdate : false,
    datalog : false,
+   imageresolution : 1,
    drawlog : false
 };
 
@@ -49,7 +51,7 @@ window.onload = function()
    log.Info("Window load event");
 
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
-   log.Debug("Width REM: " + ww);
+   log.Debug("Width REM: " + ww + ", pixelRatio: " + window.devicePixelRatio);
 
    if(ww >= 60)
       rightpanetoggle.click();
@@ -206,7 +208,7 @@ function setupPageControls()
 function setupUserForms()
 {
    formSetupSubmit(loginform, "user/authenticate", token => login(token));
-   userlogout.addEventListener("click", () => logout(token));
+   userlogout.addEventListener("click", () => logout());
    formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", function(result)
    {
       log.Info("Password reset code sent!");
@@ -483,7 +485,7 @@ function setLoginState(loggedIn)
 function updateUserData(user)
 {
    //Just username and avatar for now?
-   navuseravatar.src = getAvatarLink(user.avatar, 80);
+   navuseravatar.src = getAvatarLink(user.avatar, 40);
    userusername.firstElementChild.textContent = user.username;
    userusername.href = getUserLink(user.id);
    userid.textContent = "User ID: " + user.id;
@@ -663,7 +665,7 @@ function updateDiscussionUserlist(listeners, users)
    for(key in list)
    {
       var existing = discussionuserlist.querySelector('[data-uid="' + key + '"]');
-      var avatar = getAvatarLink(users[key].avatar, 80);
+      var avatar = getAvatarLink(users[key].avatar, 40);
 
       if(existing)
       {
@@ -719,16 +721,22 @@ function getUserLink(id) { return "?p=user-" + id; }
 function getPageLink(id) { return "?p=page-" + id; }
 function getCategoryLink(id) { return "?p=category-" + id; }
 
-function getImageLink(id, size, crop)
+function getImageLink(id, size, crop, ignoreRatio)
 {
    var img = apiroot + "/file/raw/" + id;
    var linkch = "?";
-   if(size) { img += linkch + "size=" + size; linkch = "&"; }
+   if(size) 
+   { 
+      img += linkch + "size=" + Math.max(10, 
+         Math.floor(size * options.imageresolution * 
+            (ignoreRatio ? 1 : window.devicePixelRatio))); 
+      linkch = "&"; 
+   }
    if(crop) { img += linkch + "crop=true"; linkch = "&"; }
    return img;
 }
 
-function getAvatarLink(id, size) { return getImageLink(id, size, true); }
+function getAvatarLink(id, size, ignoreRatio) { return getImageLink(id, size, true, ignoreRatio); }
 
 function idMap(data)
 {
@@ -1023,7 +1031,10 @@ function getChain(categories, content)
    while(crumbs[0].parentId)
       crumbs.unshift(cs[crumbs[0].parentId]);
 
-    return crumbs;
+   if(!crumbs.some(x => x.id === 0))
+      crumbs = [{"name":"Root","id":0}].concat(crumbs);
+
+   return crumbs;
 }
 
 
@@ -1467,7 +1478,7 @@ function routeuser_load(url, pVal, id)
       u.name = u.username;
       multiSwap(maincontent, {
          "data-title" : u.username,
-         "data-avatar" : getAvatarLink(u.avatar, 200),
+         "data-avatar" : getAvatarLink(u.avatar, 100),
          "data-content" : c ? JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }) : false
       });
       var discussion = false;
@@ -1483,6 +1494,63 @@ function routeuser_load(url, pVal, id)
       }
 
       finalizePage([u], discussion);
+   });
+}
+
+function routecategory_load(url, pVal, id)
+{
+   var cid = Number(id);
+   var params = new URLSearchParams();
+   params.append("requests", "content-" + JSON.stringify({
+      "parentIds" : [cid], 
+      "sort" : "editDate",
+      "reverse" : true,
+      "limit": options.pagedisplaylimit
+   }));
+   params.append("requests", "category");
+   params.append("requests", "user.0createUserId.0edituserId.1createUserId");
+   params.set("content", "id,name,parentId,createDate,editDate,createUserId");
+
+   //function quickApi(url, callback, error, postData, always, method)
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      console.datalog(data);
+      var users = idMap(data.user);
+      var categories = idMap(data.category);
+      var c = categories[cid] || { "name" : "Website Root" , "id" : 0 };
+      multiSwap(maincontent, {
+         "data-title" : c.name
+      });
+      var sbelm = maincontent.querySelector("[data-subcats]");
+      var pgelm = maincontent.querySelector("[data-pages]");
+      data.category.filter(x => x.parentId === cid).forEach(x =>
+      {
+         var subcat = cloneTemplate("subcat");
+         multiSwap(subcat, {
+            "data-link": getCategoryLink(x.id),
+            "data-name": x.name
+         });
+         finalizeTemplate(subcat);
+         sbelm.appendChild(subcat);
+      });
+      data.content.forEach(x =>
+      {
+         var date = (new Date(x.createDate)).toLocaleDateString();
+         //if(x.editDate != x.createDate)
+         //   date = "(" + (new Date(x.editDate)).toLocaleDateString() + ")\n" + date;
+         var citem = cloneTemplate("pageitem");
+         var u = users[x.createUserId] || {};
+         multiSwap(citem, {
+            "data-link": getPageLink(x.id),
+            "data-name": x.name,
+            "data-avatar" : getAvatarLink(u.avatar, 50, true),
+            "data-userlink" : getUserLink(x.createUserId),
+            "data-time" : date
+         });
+         finalizeTemplate(citem);
+         pgelm.appendChild(citem);
+      });
+      finalizePage(getChain(data.category, c));
    });
 }
 

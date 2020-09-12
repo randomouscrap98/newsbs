@@ -63,14 +63,18 @@ function loglevel(el, replace)
                   <div id="maincontent">
                   </div>
                </div>
-               <div class="uk-flex-none" id="maincontentbar">
-                  <div id="maincontentinfo" class="uk-display-inline">
+               <div class="uk-flex-none uk-flex" id="maincontentbar">
+                  <div id="maincontentinfo" class="uk-flex uk-width-expand">
                   </div>
-                  <div id="maincontentbarcontrols">
-                     <a href="#" class="" uk-icon="triangle-up" id="fulldiscussionmode"></a>
-                     <a href="#" class="" uk-icon="triangle-down" id="fullcontentmode"></a>
-                     <a href="#" class="" uk-icon="comments" id="splitmodediscussion"></a>
-                     <a href="#" class="" uk-icon="file-text" id="splitmodecontent"></a>
+                  <div id="maincontentbarcontrols" class="uk-flex uk-height-1-1 uk-flex-middle">
+                     <a href="#" class="" uk-icon="icon: triangle-up; ratio: 1.2" 
+                        id="fulldiscussionmode"></a>
+                     <a href="#" class="" uk-icon="icon: triangle-down; ratio: 1.2" 
+                        id="fullcontentmode"></a>
+                     <a href="#" class="" uk-icon="icon: comments; ratio: 1.1" 
+                        id="splitmodediscussion"></a>
+                     <a href="#" class="" uk-icon="icon: file-text; ratio: 1.2" 
+                        id="splitmodecontent"></a>
                   </div>
                </div> 
                <div id="discussionuserlist" class="uk-flex-none">
@@ -237,6 +241,9 @@ function loglevel(el, replace)
                               class="uk-display-block">Change Avatar</a>
                            <a href="#" id="userinvalidatesessions" 
                               class="uk-display-block">Invalidate All Sessions</a>
+                           <!--<div>
+                              <label>Image resolution (data save): <input id="userimagescale"></input></label>
+                           </div>-->
                            <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                         </div>
                      </div>
@@ -426,8 +433,9 @@ function loglevel(el, replace)
                </table>
             </div>
          </div>
-         <div data-stdcontentinfo class="uk-display-inline">
-            <a data-spa data-createlink="href"><img data-createavatar="src" height=20 width=20></a>
+         <div data-stdcontentinfo class="uk-display-inline uk-flex uk-flex-middle uk-width-expand">
+            <a data-spa class="nocontainer" data-createlink="href">
+               <img data-createavatar="src" width=20></a>
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
@@ -461,9 +469,16 @@ function loglevel(el, replace)
          </li>
          <a data-sbslink data-link="href" data-spa>
          </a>
-         <a data-discussionuser data-uid="" data-userlink="href" data-status="" data-spa>
+         <a data-discussionuser class="nocontainer" data-uid="" data-userlink="href" data-status="" data-spa>
             <img data-avatar="src" width=40>
          </a>
+         <li data-subcat><a data-link="href" data-spa data-name=".textContent">
+         </a></li>
+         <div data-pageitem class="uk-flex uk-flex-wrap uk-flex-middle">
+            <a class="uk-width-expand uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
+            <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
+            <a class="uk-flex-none nocontainer" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
+         </div>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">
             <h1>SmileBASIC Source</h1>
@@ -494,6 +509,13 @@ function loglevel(el, replace)
             <h1 data-title=".textContent" class="uk-inline"></h1>
             <img data-avatar="src" class="uk-align-right avatar">
             <p data-content=".renderContent" class="uk-text-break"></p>
+         </div>
+         <div data-routecategory class="uk-container uk-margin-top uk-margin-bottom">
+            <h1 data-title=".textContent" class="uk-inline"></h1>
+            <li data-subcats class="uk-list uk-list-square uk-list-collapse">
+            </li>
+            <div data-pages class="uk-margin-top">
+            </div>
          </div>
       </div>
       <!-- LOC:CONTROLS -->

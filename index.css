@@ -11,6 +11,7 @@ code {
    white-space: pre-wrap !important; 
    display: block;
 }
+.nocontainer { display: contents; }
 /* Stuff that should probably be taken over by uikit */
 input[type="file"] { cursor: pointer; }
 a:hover { color: inherit; }
@@ -185,6 +186,19 @@ a:hover { color: inherit; }
 /* Content */
 .content {
    white-space: pre-wrap;
+}
+/* CategoryLists */
+[data-pageitem]:nth-child(even) {
+   background-color: rgba(128,128,128,0.1);
+}
+[data-pageitem] [data-name] {
+   font-size: 1.1em;
+   padding: 0.2em;
+}
+/*[data-pageitem] [data-time] { white-space: pre-wrap; }*/
+[data-pageitem] [data-avatar] {
+   margin-right: 0.2em;
+   margin-left: 0.4em;
 }
 
 /* Some reaction crap or whatever it's called */
