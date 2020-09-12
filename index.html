@@ -2,10 +2,12 @@
 <html lang="en">
    <!-- LOC:HEAD -->
    <head>
+      <title>SmileBASIC Source</title>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width"><!--,maximum-scale=1">-->
       <meta name="rating" content="general">
       <meta name="description" content="New SmileBASIC Source">
+      <link rel="shortcut icon" href="favicon.ico">
       <!-- LOC:UIFRAMEWORK -->
       <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css" />
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
@@ -237,14 +239,26 @@ function loglevel(el, replace)
                               <span id="userid" data-userid="" class="uk-text-meta uk-display-block"></span>
                            </div>
                            <hr>
-                           <a href="" id="userchangeavatar" uk-toggle="target: #fileupload" 
-                              class="uk-display-block">Change Avatar</a>
-                           <a href="#" id="userinvalidatesessions" 
-                              class="uk-display-block">Invalidate All Sessions</a>
+                           <div uk-margin class="uk-margin-bottom">
+                              <a href="" id="userchangeavatar" uk-toggle="target: #fileupload" 
+                                 class="uk-display-block">Change Avatar</a>
+                              <a href="#" id="userinvalidatesessions" 
+                                 class="uk-display-block">Invalidate All Sessions</a>
+                           </div>
+                           <div uk-margin class="uk-margin-bottom">
+                              <div class="uk-heading-divider">Notifications</div>
+                              <button id="allowNotifications" 
+                                    class="uk-button uk-button-default">Permit Notifications</button>
+                              <!--<label class="uk-display-block"><input type="checkbox" class="uk-checkbox">
+                                 Chat notifications (does nothing)</label>-->
+                           </div>
                            <!--<div>
                               <label>Image resolution (data save): <input id="userimagescale"></input></label>
                            </div>-->
-                           <button id="userlogout" class="uk-button uk-button-default">Logout</button>
+                           <div uk-margin class="uk-margin-bottom">
+                              <div class="uk-heading-divider">Other</div>
+                              <button id="userlogout" class="uk-button uk-button-default">Logout</button>
+                           </div>
                         </div>
                      </div>
                   </li>

@@ -32,6 +32,7 @@ var options = {
    datalog : false,
    imageresolution : 1,
    hidelongpollrequest : false,
+   displaynotifications : true,
    drawlog : false
 };
 
@@ -252,6 +253,11 @@ function setupUserForms()
             { "avatar" : id }, undefined, "PUT"); 
       };
    });
+
+   allowNotifications.onclick = function()
+   {
+      Notification.requestPermission();
+   };
 
    log.Debug("Setup all user forms");
 }
@@ -746,6 +752,11 @@ function idMap(data)
    return ds;
 }
 
+function sortById(a)
+{
+   return a.sort((x,y) => Math.sign(x.id - y.id));
+}
+
 function getFormInputs(form)
 {
    return form.querySelectorAll("input, textarea, button, select");
@@ -1237,7 +1248,7 @@ function easyPWUser(u, parent)
 // ---- Pulse ----
 // ***************
 
-function pulseId(content) { return "pulseitem-" + content.id; }
+function pulseId(cid) { return "pulseitem-" + cid; }
 
 var pulseUserFields = [ "create", "edit", "comment" ];
 
@@ -1306,7 +1317,7 @@ function cataloguePulse(c, u, aggregate)
 {
    //Oops, never categorized this content
    if(!aggregate[c.id])
-      aggregate[c.id] = { pulse: easyPWContent(c, pulseId(c), pulse) };
+      aggregate[c.id] = { pulse: easyPWContent(c, pulseId(c.id), pulse) };
 
    //Oops, never categorized this user IN this content
    if(!aggregate[c.id][u.id])
@@ -1542,6 +1553,7 @@ function updateWatches(data, fullReset)
          var w = document.getElementById(watchId(data.watchupdate[i].contentId));
          if(w) 
          {
+            getPWUserlist(w).innerHTML = "";
             findSwap(w, attr.pulsecount, "");
             w.setAttribute(attr.pulsedate, "0");
          }
@@ -1853,7 +1865,7 @@ function getFragmentFrame(element)
 function easyComments(comments, users)
 {
    if(comments)
-      comments.sort((x,y) => Math.sign(x.id - y.id)).forEach(x => easyComment(x, users));
+      sortById(comments).forEach(x => easyComment(x, users));
 }
 
 function easyComment(comment, users)
@@ -2017,6 +2029,7 @@ function longpollRepeater()
          var users = idMap(data.chains.user);
          var watchlastids = getWatchLastIds();
          updatePulse(data.chains);
+
          if(data.chains.comment)
          {
             //I filter out comments from watch updates if we're currently in
@@ -2024,15 +2037,19 @@ function longpollRepeater()
             data.chains.commentaggregate = commentsToAggregate(
                data.chains.comment.filter(x => watchlastids[x.parentId] < x.id && 
                   clearNotifications.indexOf(x.parentId) < 0));
+            handleAlerts(data.chains.comment, users);
+            easyComments(data.chains.comment, users);
          }
+
          if(data.chains.activity)
          {
             data.chains.activityaggregate = activityToAggregate(
                data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
                   clearNotifications.indexOf(x.contentId) < 0));
          }
+
+         console.datalog(data);
          updateWatches(data.chains);
-         easyComments(data.chains.comment, users);
 
          if(data.listeners)
          {
@@ -2074,6 +2091,44 @@ function longpollRepeater()
    {
       globals.longpoller.pending = req;
    }, options.hidelongpollrequest /* Do we want this? No logging? */);
+}
+
+function handleAlerts(comments, users)
+{
+   //Figure out the comment that will go in the header
+   if(comments && Notification.permission === "granted" && options.displaynotifications)
+   {
+      var alertids = getWatchLastIds();
+      var activedisc = getActiveDiscussion();
+
+      //Add our current room ONLY if it's invisible
+      if(!document.hidden) //Document is visible, NEVER alert the current room
+         delete alertids[activedisc];
+      else if(!alertids[activedisc]) //Document is invisible, alert IF it's not already in the list
+         alertids[activedisc] = 0;
+
+      var cms = sortById(comments).filter(x => alertids[x.parentId] < x.id);
+
+      cms.forEach(x => 
+      {
+         //this may be dangerous
+         var pw = document.getElementById(pulseId(x.parentId));
+         console.log(pw);
+         var name = getSwap(pw, "data-pwname");
+         var notification = new Notification(users[x.createUserId].username + ": " + name, {
+            tag : "comment" + x.id,
+            body : parseComment(x.content).t,
+            icon : getAvatarLink(users[x.createUserId].avatar, 100),
+         });
+      });
+
+      //var titlecms = cms[0];
+      //if(titlecms)
+      //{
+      //   document.title = //users[titlecms.createUserId].username + ": " + 
+      //      parseComment(titlecms.content).t.substr(0, 100);
+      //}
+   }
 }
 
 //A 12me thing for the renderer
