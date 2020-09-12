@@ -845,6 +845,46 @@ function notifySuccess(message)
    notifyBase(message, "check", "success");
 }
 
+function commentsToAggregate(comment)
+{
+   var comments = {};
+
+   if(comment)
+   {
+      comment.forEach(c =>
+      {
+         if(!comments[c.parentId]) 
+            comments[c.parentId] = { "lastDate" : "0", "count" : 0, "userIds" : []};
+         var cm = comments[c.parentId];
+         if(cm.userIds.indexOf(c.createUserId) < 0) cm.userIds.push(c.createUserId);
+         if(c.createDate > cm.lastDate) cm.lastDate = c.createDate;
+         cm.count++;
+      });
+   }
+
+   return comments;
+}
+
+function activityToAggregate(activitee)
+{
+   var activity = {};
+
+   if(activitee)
+   {
+      activitee.forEach(a =>
+      {
+         if(!activity[a.contentId]) 
+            activity[a.contentId] = { "lastDate" : "0", "count" : 0, "userIds" : []};
+         var ac = activity[a.contentId];
+         if(ac.userIds.indexOf(a.userId) < 0) ac.userIds.push(a.userId);
+         if(a.date > ac.lastDate) ac.lastDate = a.date;
+         ac.count++;
+      });
+   }
+
+   return activity;
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -1356,7 +1396,7 @@ function updatePulse(data, fullReset)
 // ---- Watch ----
 // ***************
 
-function watchId(content) { return "watchitem-" + content.id; }
+function watchId(cid) { return "watchitem-" + cid; }
 
 function updateWatchGlobalAlert()
 {
@@ -1364,6 +1404,57 @@ function updateWatchGlobalAlert()
    var sum = 0;
    [...counts].forEach(x => sum += (Number(getSwap(x, attr.pulsecount)) || 0));
    watchglobalalert.textContent = sum ? String(sum) : "";
+}
+
+function updateWatchSingletons(data)
+{
+   updateWatchComAct(idMap(data.user), 
+      commentsToAggregate(data.comment), 
+      activityToAggregate(data.activity));
+}
+
+function updateWatchComAct(users, comments, activity)
+{
+   [...new Set(Object.keys(comments).concat(Object.keys(activity)))].forEach(cid =>
+   {
+      var watchdata = document.getElementById(watchId(cid)); 
+
+      if(watchdata)
+      {
+         var total = Number(getSwap(watchdata, attr.pulsecount) || "0");
+         var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
+
+         var upd = function(t)
+         {
+            if(t)
+            {
+               for(var i = 0; i < t.userIds.length; i++)
+                  if(t.userIds[i] !== 0)
+                     easyPWUser(users[t.userIds[i]], watchdata);
+
+               total += t.count;
+
+               if(t.lastDate > maxDate)
+                  maxDate = t.lastDate;
+            }
+         };
+
+         upd(comments[cid]);
+         upd(activity[cid]);
+
+         if(total)
+            findSwap(watchdata, attr.pulsecount, total);
+
+         watchdata.setAttribute(attr.pulsedate, maxDate);
+      }
+   });
+
+   Utilities.SortElements(watches,
+      x => x.getAttribute(attr.pulsedate) || "0", true);
+
+   refreshPWDates(watches);
+   updateWatchGlobalAlert();
+   updateGlobalAlert();
 }
 
 function displayNewWatches(data, fullReset)
@@ -1379,40 +1470,41 @@ function displayNewWatches(data, fullReset)
 	for(var i = 0; i < data.watch.length; i++)
 	{
 		var c = contents[data.watch[i].contentId];
-      var watchdata = easyPWContent(c, watchId(c), watches);
+      var watchdata = easyPWContent(c, watchId(c.id), watches);
 
-      var total = 0;
-      var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
+      //var total = 0;
+      //var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
 
-      var upd = function(t)
-      {
-         if(t)
-         {
-            for(var i = 0; i < t.userIds.length; i++)
-               if(t.userIds[i] !== 0)
-                  easyPWUser(users[t.userIds[i]], watchdata);
+      //var upd = function(t)
+      //{
+      //   if(t)
+      //   {
+      //      for(var i = 0; i < t.userIds.length; i++)
+      //         if(t.userIds[i] !== 0)
+      //            easyPWUser(users[t.userIds[i]], watchdata);
 
-            total += t.count;
-            if(t.lastDate > maxDate)
-               maxDate = t.lastDate;
-         }
-      };
+      //      total += t.count;
+      //      if(t.lastDate > maxDate)
+      //         maxDate = t.lastDate;
+      //   }
+      //};
 
-      upd(comments[c.id]);
-      upd(activity[c.id]);
+      //upd(comments[c.id]);
+      //upd(activity[c.id]);
 
-      if(total)
-         findSwap(watchdata, attr.pulsecount, total);
+      //if(total)
+      //   findSwap(watchdata, attr.pulsecount, total);
 
-      watchdata.setAttribute(attr.pulsedate, maxDate);
+      //watchdata.setAttribute(attr.pulsedate, maxDate);
 	}
 
-   Utilities.SortElements(watches,
-      x => x.getAttribute(attr.pulsedate) || "0", true);
+   updateWatchComAct(users, comments, activity);
+   //Utilities.SortElements(watches,
+   //   x => x.getAttribute(attr.pulsedate) || "0", true);
 
-   refreshPWDates(watches);
-   updateWatchGlobalAlert();
-   updateGlobalAlert();
+   //refreshPWDates(watches);
+   //updateWatchGlobalAlert();
+   //updateGlobalAlert();
 }
 
 
@@ -1876,6 +1968,7 @@ function longpollRepeater()//discussionId) //TODO: update with status list
 
          var users = idMap(data.chains.user);
          updatePulse(data.chains);
+         updateWatchSingletons(data.chains);
          easyComments(data.chains.comment, users);
 
          if(data.listeners)
