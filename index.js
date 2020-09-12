@@ -31,6 +31,7 @@ var options = {
    forcediscussionoutofdate : false,
    datalog : false,
    imageresolution : 1,
+   hidelongpollrequest : false,
    drawlog : false
 };
 
@@ -883,6 +884,37 @@ function activityToAggregate(activitee)
    return Object.values(activity);
 }
 
+function setupWatchLink(parent, cid)
+{
+   var watchLink = parent.querySelector("[data-watched]");
+   watchLink.onclick = function(event)
+   {
+      event.preventDefault();
+      var watched = getSwap(watchLink, "data-watched");
+      var failure = function(req)
+      {
+         findSwap(watchLink, "data-watched", watched); //the original;
+         notifyError("Watch failed: " + req.status + " - " + req.statusText);
+      };
+      if(watched === "true")
+      {
+         findSwap(watchLink, "data-watched", "false");
+         quickApi("watch/" + cid + "/delete", data =>
+         {
+            log.Info("Remove watch " + cid + " successful!");
+         }, failure, {});
+      }
+      else
+      {
+         findSwap(watchLink, "data-watched", "true");
+         quickApi("watch/" + cid, data =>
+         {
+            log.Info("Watch " + cid + " successful!");
+         }, failure, {});
+      }
+   };
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -1502,6 +1534,11 @@ function updateWatches(data, fullReset)
    {
       for(var i = 0; i < data.watchupdate.length; i++)
       {
+         //Need to get rid of anything pending in there if it's an update WITH
+         //them, the update takes precedence... probably. depends on the
+         //lastNotificationId!
+         //comments[data.watchupdate[i].contentId] = undefined;
+         //activity[data.watchupdate[i].contentId] = undefined;
          var w = document.getElementById(watchId(data.watchupdate[i].contentId));
          if(w) 
          {
@@ -1524,7 +1561,7 @@ function routepage_load(url, pVal, id)
    easyShowDiscussion(id);
    var pid = Number(id);
    var params = new URLSearchParams();
-   params.append("requests", "content-" + JSON.stringify({"ids" : [pid]}));
+   params.append("requests", "content-" + JSON.stringify({"ids" : [pid], "includeAbout" : true}));
    params.append("requests", "category");
    params.append("requests", "comment-" + JSON.stringify({
       "Reverse" : true,
@@ -1543,8 +1580,10 @@ function routepage_load(url, pVal, id)
       multiSwap(maincontent, {
          "data-title" : c.name,
          "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }),
-         "data-format" : c.values.markupLang
+         "data-format" : c.values.markupLang,
+         "data-watched" : c.about.watching
       });
+      setupWatchLink(maincontent, c.id);
       finalizePage(getChain(data.category, c), 
          { "users" : users, "comments" : data.comment, "content" : c });
    });
@@ -1947,11 +1986,13 @@ function longpollRepeater()
    var statuses = {};
    var cid = getActiveDiscussion();
    if(cid) statuses[String(cid)] = "online";
+   var clearNotifications = Object.keys(statuses).map(x => Number(x));
 
    var params = new URLSearchParams();
    params.append("actions", JSON.stringify({
       "lastId" : globals.lastsystemid,
       "statuses" : statuses,
+      "clearNotifications" : clearNotifications,
       "chains" : [ "comment.0id", "activity.0id", "watch.0id",
          "user.1createUserId.2userId", "content.1parentId.2contentId.3contentId" ]
    }));
@@ -1976,12 +2017,22 @@ function longpollRepeater()
          var users = idMap(data.chains.user);
          var watchlastids = getWatchLastIds();
          updatePulse(data.chains);
-         data.chains.commentaggregate = commentsToAggregate(
-            data.chains.comment.filter(x => watchlastids[x] < x.id));
-         data.chains.activityaggregate = activityToAggregate(
-            data.chains.activity.filter(x => watchlastids[x] < x.id));
+         if(data.chains.comment)
+         {
+            data.chains.commentaggregate = commentsToAggregate(
+               data.chains.comment.filter(x => watchlastids[x.parentId] < x.id && 
+                  clearNotifications.indexOf(x.parentId) < 0));
+         }
+         if(data.chains.activity)
+         {
+            data.chains.activityaggregate = activityToAggregate(
+               data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
+                  clearNotifications.indexOf(x.contentId) < 0));
+         }
+         //An unfortunate hack! The API is a little broken, we need to remove
+         //watch data for anything we're looking at!
+         data.chains.watchupdate = clearNotifications.map(x => ({"contentId" : x}));
          updateWatches(data.chains);
-         //updateWatchSingletons(data.chains);
          easyComments(data.chains.comment, users);
 
          if(data.listeners)
@@ -2023,7 +2074,7 @@ function longpollRepeater()
    }, undefined, req => //modify
    {
       globals.longpoller.pending = req;
-   }, true /* Do we want this? No logging? */);
+   }, options.hidelongpollrequest /* Do we want this? No logging? */);
 }
 
 //A 12me thing for the renderer

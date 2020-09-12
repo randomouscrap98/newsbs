@@ -501,9 +501,15 @@ function loglevel(el, replace)
             <h1>ERROR</h1>
          </div>
          <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
-            <h1 data-title=".textContent"></h1>
+            <div class="uk-flex">
+               <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
+               <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
+                  <li><a href="#" data-watched="data-watch" uk-icon="heart"></a></li>
+                  <li><a href="#" uk-icon="cog"></a></li>
+               </ul>
+            </div>
             <p data-content=".renderContent" data-format="" 
-               class="uk-text-break content"></p>
+               class="uk-text-break content uk-margin-remove-top"></p>
          </div>
          <div data-routeuser class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>
