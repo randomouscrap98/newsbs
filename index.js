@@ -2019,6 +2019,8 @@ function longpollRepeater()
          updatePulse(data.chains);
          if(data.chains.comment)
          {
+            //I filter out comments from watch updates if we're currently in
+            //the room. This should be done automatically somewhere else... mmm
             data.chains.commentaggregate = commentsToAggregate(
                data.chains.comment.filter(x => watchlastids[x.parentId] < x.id && 
                   clearNotifications.indexOf(x.parentId) < 0));
@@ -2029,9 +2031,6 @@ function longpollRepeater()
                data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
                   clearNotifications.indexOf(x.contentId) < 0));
          }
-         //An unfortunate hack! The API is a little broken, we need to remove
-         //watch data for anything we're looking at!
-         data.chains.watchupdate = clearNotifications.map(x => ({"contentId" : x}));
          updateWatches(data.chains);
          easyComments(data.chains.comment, users);
 
