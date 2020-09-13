@@ -410,8 +410,8 @@ function loglevel(el, replace)
                   </div>
                   <div class="controls" uk-margin>
                      <button class="uk-button uk-button-default" id="commenteditshowpreview">Preview</button>
-                     <button class="uk-button uk-button-danger" id="commenteditdelete">Delete</button>
                      <button class="uk-button uk-button-primary" id="commenteditedit">Edit</button>
+                     <button class="uk-button uk-button-danger" id="commenteditdelete">Delete</button>
                      <p class="uk-text-meta">Note: you may not have permission
                         to edit or delete every comment</p>
                   </div>
@@ -503,9 +503,13 @@ function loglevel(el, replace)
                <img data-useravatar="src">
             </div>
             <div class="messageframemain uk-width-expand">
-               <div class="messageframeinfo">
-                  <a data-spa data-userlink="href"><span data-username=".textContent"></span></a>
-                  <time class="uk-text-meta" data-frametime=".textContent"></time>
+               <div class="messageframeinfo uk-flex uk-flex-middle">
+                  <a data-spa data-userlink="href" class="uk-flex-none">
+                     <span data-username=".textContent"></span>
+                  </a>
+                  <time class="uk-text-meta uk-width-expand uk-text-truncate
+                     uk-margin-small-left" 
+                     data-frametime=".textContent"></time>
                </div>
                <div class="messagelist"> </div>
             </div>

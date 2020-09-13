@@ -2063,6 +2063,7 @@ function easyComment(comment, users)
          var msglist = frelm.querySelector(".messagelist")
          var frgdate = fragment.getAttribute("data-createdate");
          findSwap(frelm, "data-frametime", frgdate);
+         Utilities.RemoveElement(frgelm.querySelector(".messagecontrol"));
          //+ (frgdate !== frgedate ? 
          //   " (" + frgedate + ")" : ""));
          msglist.innerHTML = "";

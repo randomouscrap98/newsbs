@@ -164,6 +164,9 @@ a:hover { color: inherit; }
    visibility: hidden;
    margin: 0.2em 0.15em;
 }
+[data-messageframe] [data-frametime] {
+   font-size: 0.75em;
+}
 [data-singlemessage]:focus, [data-singlemessage]:hover  {
    background-color: rgba(127,127,127,0.05);
    border: none;
