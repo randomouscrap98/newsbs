@@ -47,6 +47,8 @@ var globals = {
 console.datalog = (d,e,f) => { if(getLocalOption("datalog")) console.log(d,e,f); };
 console.drawlog = (d,e,f) => { if(getLocalOption("drawlog")) console.log(d,e,f); };
 
+window.Notification = window.Notification || {};
+
 window.onerror = function(message, source, lineno, colno, error)
 {
    notifyError(message + "\n(" + source + ":" + lineno + ")"); 
@@ -491,12 +493,6 @@ function setupDiscussions()
 
    log.Debug("Setup discussions (scrolling/etc)");
 }
-
-//function getCommentEditData()
-//{
-//   //Need to query select stuff. This probably isn't the right place to do this?
-//   commenteditpreview;   
-//}
 
 function setupLongpoller()
 {
@@ -1142,7 +1138,8 @@ function makeCommentFragment(comment)//, users)
    multiSwap(fragment, {
       "data-messageid": comment.id,
       "data-id": getCommentId(comment.id),
-      "data-createdate": (new Date(comment.createDate)).toLocaleString()
+      "data-createdate": (new Date(comment.createDate)).toLocaleString(),
+      "data-editdate": (new Date(comment.editDate)).toLocaleString()
    });
    finalizeTemplate(fragment);
    return fragment;
@@ -2066,6 +2063,8 @@ function easyComment(comment, users)
          var msglist = frelm.querySelector(".messagelist")
          var frgdate = fragment.getAttribute("data-createdate");
          findSwap(frelm, "data-frametime", frgdate);
+         //+ (frgdate !== frgedate ? 
+         //   " (" + frgedate + ")" : ""));
          msglist.innerHTML = "";
          msglist.appendChild(frgelm);
          commenteditpreview.innerHTML = "";
@@ -2075,9 +2074,12 @@ function easyComment(comment, users)
          var cmid = fragment.getAttribute("data-messageid");
          var rawcm = fragment.querySelector("[data-rawmessage]").getAttribute("data-rawmessage");
          var parsedcm = parseComment(rawcm);
+         var frgedate = fragment.getAttribute("data-editdate");
 
          commentedittext.value = parsedcm.t;
          commenteditformat.value = parsedcm.m;
+         commenteditinfo.textContent = "ID: " + cmid + "  UID: " + fr.getAttribute("data-userid");
+         if(frgedate !== frgdate) commenteditinfo.textContent += "  Edited: " + frgedate;
 
          commenteditdelete.onclick = function() 
          { 

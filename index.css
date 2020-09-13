@@ -184,6 +184,9 @@ a:hover { color: inherit; }
 [data-discussionuser] {
    display: inline-block;
 }
+#commenteditinfo {
+   white-space: pre-wrap;
+}
 /* Content */
 .content {
    white-space: pre-wrap;
