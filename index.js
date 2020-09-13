@@ -380,10 +380,9 @@ function setupDiscussions()
          var currentDiscussion = getActiveDiscussion();
          let currentText = postdiscussiontext.value;
 
-         quickApi("comment", data => 
-         {
-            log.Info("Successfully posted comment to " + currentDiscussion);
-         }, error =>
+         quickApi("comment", data => { }, 
+         //data => { log.Info("Successfully posted comment to " + currentDiscussion); }, 
+         error =>
          {
             notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
             postdiscussiontext.value = currentText;
@@ -574,7 +573,6 @@ function initializePage()
    maincontentinfo.innerHTML = "";
    discussionuserlist.innerHTML = "";
    easyShowDiscussion(false);
-   //setHasDiscussions(false);
    globals.discussion.current = 0;
 
    //show the loading bar
@@ -597,10 +595,6 @@ function finalizePage(chain, discussion)
          makeStandardContentInfo(discussion.content, discussion.users));
       easyComments(discussion.comments, discussion.users);
       setDiscussionScrollNow(options.discussionscrollnow);
-
-      //HOW to update long poller? probably just some "update" function instead
-      //of THE long poller function, they do different things.
-      //easyLongpoll(discussion.content.id);
    }
 
    finalizeTemplate(maincontent);
@@ -1558,16 +1552,15 @@ function updateWatches(data, fullReset)
       }
    }
 
+   //Note that because this happens before adding, if a clear comes WITH
+   //comments, the comments will be added on top of the clear. That's probably
+   //fine, but may not reflect reality. It's hard to say, depends on the API
    if(data.watchupdate) //ALL of these are assumed to be clears right now!!
    {
       for(var i = 0; i < data.watchupdate.length; i++)
       {
-         //Need to get rid of anything pending in there if it's an update WITH
-         //them, the update takes precedence... probably. depends on the
-         //lastNotificationId!
-         //comments[data.watchupdate[i].contentId] = undefined;
-         //activity[data.watchupdate[i].contentId] = undefined;
          var w = document.getElementById(watchId(data.watchupdate[i].contentId));
+
          if(w) 
          {
             getPWUserlist(w).innerHTML = "";
@@ -1600,7 +1593,6 @@ function routepage_load(url, pVal, id)
    params.append("requests", "user.0createUserId.0edituserId.2createUserId");
    params.set("category", "id,name,parentId");
 
-   //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.datalog(data);
@@ -1651,7 +1643,6 @@ function routeuser_load(url, pVal, id)
       var discussion = false;
       if(c)
       {
-         //setHasDiscussions(true);
          easyShowDiscussion(c.id);
          discussion = { "users" : users, "content" : c, "comments" : data.comment };
       }
@@ -1678,7 +1669,6 @@ function routecategory_load(url, pVal, id)
    params.append("requests", "user.0createUserId.0edituserId.1createUserId");
    params.set("content", "id,name,parentId,createDate,editDate,createUserId");
 
-   //function quickApi(url, callback, error, postData, always, method)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       console.datalog(data);
@@ -2130,7 +2120,6 @@ function handleAlerts(comments, users)
       {
          //this may be dangerous
          var pw = document.getElementById(pulseId(x.parentId));
-         console.log(pw);
          var name = getSwap(pw, "data-pwname");
          var notification = new Notification(users[x.createUserId].username + ": " + name, {
             tag : "comment" + x.id,
@@ -2138,13 +2127,6 @@ function handleAlerts(comments, users)
             icon : getAvatarLink(users[x.createUserId].avatar, 100),
          });
       });
-
-      //var titlecms = cms[0];
-      //if(titlecms)
-      //{
-      //   document.title = //users[titlecms.createUserId].username + ": " + 
-      //      parseComment(titlecms.content).t.substr(0, 100);
-      //}
    }
 }
 

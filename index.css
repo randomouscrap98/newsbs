@@ -17,6 +17,7 @@ input[type="file"] { cursor: pointer; }
 a:hover { color: inherit; }
 #postarea textarea { resize: none; }
 .noevent { pointer-events: none; }
+/*h3.uk-text-meta { float: right; display: inline; }*/
 /* The rest */
 .databar {
    background-color: #444;
