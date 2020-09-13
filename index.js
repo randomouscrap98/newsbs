@@ -16,7 +16,6 @@ var attr = {
 
 //Will this be stored in user eventually?
 var options = {
-   //pulseuserlimit : 10,
    displaynotifications : { def : true, text : "Device Notifications" },
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
@@ -28,14 +27,13 @@ var options = {
    discussionscrollspeed : { def: 0.25, text: "Scroll animation (1 = instant)" },
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock"},
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
+   forcediscussionoutofdate : {def: false },
    discussionavatarsize : { def: 60 },
    refreshcycle : { def: 10000, },
    discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
-   defaultmarkup : {def:"12y"},
-   forcediscussionoutofdate : {def: false }
+   defaultmarkup : {def:"12y"}
 };
-
 
 var globals = { 
    lastsystemid : -1,   //The last id retrieved from the system for actions
@@ -71,25 +69,24 @@ window.onload = function()
    setupDiscussions();
    setupLongpoller();
 
-   //Don't do this special crap until everything is setup, SOME setup may not
-   //be required before the user session is started, but it's minimal savings.
-   if(getToken())
-   {
-      log.Info("User token found, trying to continue logged in");
-      startSession();
-   }
+   setupSession();
 
    //Regardless if you're logged in or not, this will work "correctly" since
    //the spa processor will take your login state into account. And if you're
    //not "REALLY" logged in, well whatever, better than processing it twice.
    globals.spa.ProcessLink(document.location.href);
-   globals.refreshCycle = setInterval(refreshCycle, getLocalOption("refreshcycle"));
+   refreshCycle(true);
 };
 
-function refreshCycle()
+function refreshCycle(dryRun)
 {
-   refreshPWDates(pulse);
-   refreshPWDates(watches);
+   if(!dryRun)
+   {
+      refreshPWDates(pulse);
+      refreshPWDates(watches);
+   }
+
+   globals.refreshCycle = setTimeout(refreshCycle, getLocalOption("refreshcycle"));
 }
 
 function safety(func)
@@ -274,20 +271,44 @@ function refreshOptions()
 {
    log.Info("Refreshing user options");
    userlocaloptions.innerHTML = "";
+   developerlocaloptions.innerHTML = "";
+
+   var lastType = false;
+
+   if(Notification.permission === "granted")
+      hide(allowNotifications);
 
    //Set up options
    for(key in options)
    {
       var o = options[key];
-      if(!o.text) continue;
+      var text = o.text;
+      var prnt = userlocaloptions;
       var templn = o.type;
+      let vconv = x => x;
+
+      if(!text) //oops, this is a developer option
+      {
+         text = key;
+         prnt = developerlocaloptions;
+      }
 
       if(!templn)
       {
          var to = typeof o.def;
-         if(to === "boolean") templn = "bool";
-         else if(to === "number") templn = "number";
-         else templn = "raw";
+         if(to === "boolean") 
+         {
+            templn = "bool";
+         }
+         else if(to === "number") 
+         {
+            templn = "number";
+            vconv = x => Number(x);
+         }
+         else 
+         {
+            templn = "raw";
+         }
       }
 
       let elm = cloneTemplate(templn + "option");
@@ -297,12 +318,16 @@ function refreshOptions()
          "data-input" : getLocalOption(key)
       });
       elm.onchange = e => { 
-         var val = getSwap(elm, "data-input");
+         var val = vconv(getSwap(elm, "data-input"));
          log.Info("Setting " + k + " to " + val);
          setLocalOption(k, val);
       };
       finalizeTemplate(elm);
-      userlocaloptions.appendChild(elm);
+
+      if(lastType && lastType !== templn)
+         elm.className += " uk-margin-small-top";
+      lastType = templn;
+      prnt.appendChild(elm);
    }
 }
 
@@ -473,8 +498,15 @@ function setupLongpoller()
 }
 
 //Set up the page and perform initial requests for being "logged in"
-function startSession()
+function setupSession()
 {
+   //Don't do this special crap until everything is setup, SOME setup may not
+   //be required before the user session is started, but it's minimal savings.
+   if(getToken())
+      log.Info("User token found, trying to continue logged in");
+   else
+      return;
+
    rightpane.style.opacity = 0.2;
    //Refreshing will set our login state, don't worry about that stuff.
    refreshUserFull(() => rightpane.style.opacity = 1.0);
@@ -2173,17 +2205,24 @@ function handleAlerts(comments, users)
 
       var cms = sortById(comments).filter(x => alertids[x.parentId] < x.id);
 
-      cms.forEach(x => 
+      try
       {
-         //this may be dangerous
-         var pw = document.getElementById(pulseId(x.parentId));
-         var name = getSwap(pw, "data-pwname");
-         var notification = new Notification(users[x.createUserId].username + ": " + name, {
-            tag : "comment" + x.id,
-            body : parseComment(x.content).t,
-            icon : getAvatarLink(users[x.createUserId].avatar, 100),
+         cms.forEach(x => 
+         {
+            //this may be dangerous
+            var pw = document.getElementById(pulseId(x.parentId));
+            var name = getSwap(pw, "data-pwname");
+            var notification = new Notification(users[x.createUserId].username + ": " + name, {
+               tag : "comment" + x.id,
+               body : parseComment(x.content).t,
+               icon : getAvatarLink(users[x.createUserId].avatar, 100),
+            });
          });
-      });
+      }
+      catch(ex)
+      {
+         log.Error("Could not send notification: " + ex);
+      }
    }
 }
 

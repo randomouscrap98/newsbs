@@ -240,7 +240,6 @@ function loglevel(el, replace)
                            </div>
                            <hr>
                            <div uk-margin class="uk-margin-bottom">
-                              <h4 class="ufk-text-meta">Account Settings</h4>
                               <a href="" id="userchangeavatar" uk-toggle="target: #fileupload" 
                                  class="uk-display-block">Change Avatar</a>
                               <a href="#" id="userinvalidatesessions" 
@@ -252,12 +251,14 @@ function loglevel(el, replace)
                                  <a href="#" id="refreshlocaloptions" 
                                     class="uk-align-right uk-text-small">Refresh</a>
                               </h4>
-                              <div id="userlocaloptions">
-                              </div>
+                              <div id="userlocaloptions"> </div>
+                              <a class="uk-display-block" uk-toggle="#developerlocaloptions">
+                                 Developer Options</a>
+                              <div id="developerlocaloptions" hidden></div>
                               <button id="allowNotifications" 
                                     class="uk-button uk-button-default">Permit Notifications</button>
-                              <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                            </div>
+                           <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                         </div>
                      </div>
                   </li>
@@ -486,28 +487,20 @@ function loglevel(el, replace)
          <a data-sbslink data-link="href" data-spa>
          </a>
          <div data-booloption>
-            <label> <!--class="uk-flex uk-flex-middle">
-               <div class="inputwrap uk-flex-none uk-margin-right">-->
-               <input data-input=".checked" type="checkbox" 
-                  class="uk-checkbox uk-margin-right">
-               <!--</div>-->
+            <label> 
+               <input data-input=".checked" type="checkbox" class="uk-checkbox uk-margin-right">
                <span data-text=".textContent"></span>
             </label>
          </div>
          <div data-numberoption>
-            <label> <!-- class="uk-flex uk-flex-middle">-->
-               <!--<div class="inputwrap uk-flex-none uk-margin-right">-->
-               <input data-input=".value" type="number" 
-                  class="uk-input uk-margin-right uk-width-1-5">
-                  <!--</div>-->
+            <label> 
+               <input data-input=".value" type="number" class="uk-input uk-margin-small-right uk-width-1-4">
                <span data-text=".textContent"></span>
             </label>
          </div>
          <div data-rawoption>
-            <label> <!-- class="uk-flex uk-flex-middle">
-               <div class="inputwrap uk-flex-none uk-margin-right">-->
-               <input data-input=".value" class="uk-input">
-               <!--</div>-->
+            <label> 
+               <input data-input=".value" class="uk-input uk-margin-small-right uk-width-1-2">
                <span data-text=".textContent"></span>
             </label>
          </div>

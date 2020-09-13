@@ -209,12 +209,8 @@ a:hover { color: inherit; }
    margin-left: 0.4em;
 }
 /* User settings */
-#userlocaloptions .inputwrap {
-   display: inline-block;
-   width: 20%;
-}
-#userlocaloptions .inputwrap input {
-   float: right;
+#userlocaloptions input {
+   /* padding: 0.1em 0.3em; */
 }
 
 /* Some reaction crap or whatever it's called */
