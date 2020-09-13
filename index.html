@@ -516,7 +516,8 @@ function loglevel(el, replace)
          </div>
          <div tabindex="2" data-singlemessage data-messageid="" data-id="id" 
             data-createdate="" data-editdate="" class="uk-flex">
-            <div data-message=".renderComment" class="uk-width-expand uk-text-break"></div>
+            <div data-message=".renderComment" class="uk-width-expand 
+               content uk-text-break"></div>
             <a href="#" class="messagecontrol" uk-toggle="target: #commentedit" uk-icon="cog"></a>
          </div>
          <li data-breadcrumb>
@@ -532,7 +533,8 @@ function loglevel(el, replace)
          </div>
          <div data-numberoption>
             <label> 
-               <input data-input=".value" type="number" class="uk-input uk-margin-small-right uk-width-1-4">
+               <input data-input=".value" type="number" data-step="step"
+                  class="uk-input uk-margin-small-right uk-width-1-4">
                <span data-text=".textContent"></span>
             </label>
          </div>

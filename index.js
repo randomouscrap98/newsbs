@@ -21,12 +21,12 @@ var options = {
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
-   imageresolution : { def: 1, text: "Image resolution scale" },
+   imageresolution : { def: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, text: "Display pages per category" },
    initialloadcomments: { def: 30, text: "Initial comment pull" },
-   discussionscrollspeed : { def: 0.25, text: "Scroll animation (1 = instant)" },
-   discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock"},
+   discussionscrollspeed : { def: 0.25, text: "Scroll animation (1 = instant)", step: 0.01 },
+   discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
    forcediscussionoutofdate : {def: false },
    retrievetechnicalinfo : {def:true },
@@ -328,6 +328,9 @@ function refreshOptions()
 
       if(lastType && lastType !== templn)
          elm.className += " uk-margin-small-top";
+      if(o.step)
+         findSwap(elm, "data-step", o.step);
+
       lastType = templn;
       prnt.appendChild(elm);
    }
@@ -1970,6 +1973,7 @@ function updateCommentFragment(comment, element)
    multiSwap(element, {
       "data-message": comment.content,
    });
+   element.setAttribute("data-editdate", (new Date(comment.editDate).toLocaleString()));
 }
 
 function getFragmentFrame(element)
@@ -2098,7 +2102,8 @@ function easyComment(comment, users)
             quickApi("comment/" + cmid, x => notifySuccess("Comment edited"),
                x => notifyError("Couldn't edit comment: " + x.status + " - " + x.statusText),
                {parentId : Number(getActiveDiscussion()), 
-                content: createComment(commentedittext.value, commenteditformat.value)});
+                content: createComment(commentedittext.value, commenteditformat.value)},
+               undefined, /*always*/ "PUT");
             UIkit.modal(commentedit).hide();
          };
 
