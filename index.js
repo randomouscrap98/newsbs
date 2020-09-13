@@ -169,11 +169,11 @@ function setupDebugLog()
          if(log.messages[i].id > lastId)
          {
             var logMessage = msgBase.cloneNode(true);
+            logMessage.setAttribute("data-id", log.messages[i].id);
             multiSwap(logMessage, {
                "data-message": log.messages[i].message,
                "data-level": log.messages[i].level,
-               "data-time": log.messages[i].time,
-               "data-id": log.messages[i].id
+               "data-time": log.messages[i].time
             });
             logs.appendChild(logMessage);
          }
@@ -396,7 +396,7 @@ function setupFileUpload()
       if(globals.fileselectcallback)
       {
          //for safety, remove callback
-         globals.fileselectcallback(selectedImage.getAttribute("data-id"));
+         globals.fileselectcallback(getSwap(selectedImage, "data-fileid")); 
          globals.fileselectcallback = false;
       }
    });
@@ -588,8 +588,7 @@ function updateUserData(user)
    userusername.firstElementChild.textContent = user.username;
    userusername.href = getUserLink(user.id);
    userid.textContent = "User ID: " + user.id;
-   //Can't use findSwap: it's an UPDATE
-   userid.setAttribute("data-userid", user.id);
+   userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
    finalizeTemplate(userusername); //be careful with this!
    //Check fields in user for certain special fields like email etc.
 }
@@ -641,11 +640,13 @@ function addFileUploadImage(file, num)
 {
    var fItem = cloneTemplate("fupmain");
    var fThumb = cloneTemplate("fupthumb");
-   multiSwap(fItem, { "data-src": getImageLink(file.id) });
+   multiSwap(fItem, { 
+      "data-imgsrc": getImageLink(file.id) 
+   });
    multiSwap(fThumb, {
-      "data-src": getImageLink(file.id, 60, true),
+      "data-imgsrc": getImageLink(file.id, 60, true),
       "data-number": num,
-      "data-id": file.id
+      "data-fileid": file.id
    });
    fileuploaditems.appendChild(fItem);
    fileuploadthumbnails.appendChild(fThumb);
@@ -758,25 +759,24 @@ function updateDiscussionUserlist(listeners, users)
 
    for(key in list)
    {
-      var existing = discussionuserlist.querySelector('[data-uid="' + key + '"]');
-      var avatar = getAvatarLink(users[key].avatar, 40);
+      let uid = key;
+      var existing = discussionuserlist.querySelector('[data-uid="' + uid + '"]');
+      var avatar = getAvatarLink(users[uid].avatar, 40);
 
-      if(existing)
+      if(!existing)
       {
-         findSwap(existing, "data-avatar", avatar);
-      }
-      else
-      {
-         var user = cloneTemplate("discussionuser");
-         multiSwap(user, {
-            "data-uid" : key,
+         existing = cloneTemplate("discussionuser");
+         multiSwap(existing, {
             "data-avatar" : avatar,
-            "data-userlink" : getUserLink(key),
-            "data-status" : list[key]
+            "data-userlink" : getUserLink(uid)
          });
-         finalizeTemplate(user);
-         discussionuserlist.appendChild(user);
+         finalizeTemplate(existing);
+         discussionuserlist.appendChild(existing);
       }
+
+      existing.setAttribute("data-uid", uid);
+      existing.setAttribute("data-status", list[uid]);
+      findSwap(existing, "data-avatar", avatar);
    }
 
    [...discussionuserlist.querySelectorAll("[data-uid]")].forEach(x => 
@@ -1096,8 +1096,8 @@ function makeStandardContentInfo(content, users)
 function makePWUser(user)
 {
    var pu = cloneTemplate("pwuser");
+   pu.setAttribute("data-pwuser", user.id);
    multiSwap(pu, {
-      "data-pwuser": user.id,
       "data-userlink": getUserLink(user.id)
    });
    UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
@@ -1159,7 +1159,7 @@ function getSwapElement(element, attribute)
 
 //How does this work?
 //-Find an element by (assumed unique) attribute
-//-If attribute is empty, that is what is assigned
+//-If attribute is empty, that is AN ERROR
 //-If attribute has a value, the replacement goes to where the attribute is
 // pointing
 //-If attribute starts with ., it goes to the MEMBER on the element.
@@ -1173,7 +1173,7 @@ function swapBase(element, attribute, replace)
 
       //Oops, use the direct attribute if there's no value.
       if(!caller)
-         caller = attribute;
+         throw "Bad attribute " + attribute + " (empty)";
 
       //Oh, it's a function call! Try on the element itself first, then fall
       //back to the window functions
@@ -1195,12 +1195,6 @@ function swapBase(element, attribute, replace)
       }
       else
       {
-         if(!isNaN(Number(caller)))
-         {
-            log.Warn("Trying to swap attribute '" + attribute + "', which is number: " + caller);
-            return null;
-         }
-
          if(replace !== undefined)
             name.setAttribute(caller, replace);
          else
@@ -1566,7 +1560,7 @@ function getWatchLastIds()
    var result = {};
    [...watches.querySelectorAll("[data-pw]")].forEach(x =>
    {
-      result[Number(x.getAttribute("data-contentid"))] =
+      result[Number(getSwap(x, "data-contentid"))] =
          Number(x.getAttribute(attr.pulsemaxid));
    });
    return result;
@@ -1973,7 +1967,7 @@ function updateCommentFragment(comment, element)
    multiSwap(element, {
       "data-message": comment.content,
    });
-   element.setAttribute("data-editdate", (new Date(comment.editDate).toLocaleString()));
+   findSwap(element, "data-editdate", (new Date(comment.editDate).toLocaleString()));
 }
 
 function getFragmentFrame(element)
@@ -2030,7 +2024,7 @@ function easyComment(comment, users)
       for(var i = comments.length - 1; i >= 0; i--)
       {
          //This is the place to insert!
-         if(comment.id > Number(comments[i].getAttribute("data-messageid")))
+         if(comment.id > Number(getSwap(comments[i], "data-messageid")))
          {
             insertAfter = comments[i];
             break;
@@ -2047,7 +2041,7 @@ function easyComment(comment, users)
       var insertFrame = getFragmentFrame(insertAfter);
 
       //Oops, we need a new frame
-      if(Number(insertFrame.getAttribute("data-userid")) !== Number(comment.createUserId))
+      if(Number(getSwap(insertFrame, "data-userid")) !== Number(comment.createUserId))
       {
          //create a frame to insert into
          var frame = makeCommentFrame(comment, users);
@@ -2055,66 +2049,68 @@ function easyComment(comment, users)
          insertAfter = frame.querySelector(".messagelist").firstChild;
       }
 
-      var fragment = makeCommentFragment(comment); //, users);
+      var fragment = makeCommentFragment(comment);
       updateCommentFragment(comment, fragment);
 
       var messageController = fragment.querySelector(".messagecontrol");
-      messageController.addEventListener("click", function()
-      {
-         var fr = getFragmentFrame(fragment);
-         var frelm = fr.cloneNode(true);
-         var frgelm = fragment.cloneNode(true);
-         var msglist = frelm.querySelector(".messagelist")
-         var frgdate = fragment.getAttribute("data-createdate");
-         findSwap(frelm, "data-frametime", frgdate);
-         Utilities.RemoveElement(frgelm.querySelector(".messagecontrol"));
-         //+ (frgdate !== frgedate ? 
-         //   " (" + frgedate + ")" : ""));
-         msglist.innerHTML = "";
-         msglist.appendChild(frgelm);
-         commenteditpreview.innerHTML = "";
-         commenteditpreview.appendChild(frelm);
-
-         //find the ids etc
-         var cmid = fragment.getAttribute("data-messageid");
-         var rawcm = fragment.querySelector("[data-rawmessage]").getAttribute("data-rawmessage");
-         var parsedcm = parseComment(rawcm);
-         var frgedate = fragment.getAttribute("data-editdate");
-
-         commentedittext.value = parsedcm.t;
-         commenteditformat.value = parsedcm.m;
-         commenteditinfo.textContent = "ID: " + cmid + "  UID: " + fr.getAttribute("data-userid");
-         if(frgedate !== frgdate) commenteditinfo.textContent += "  Edited: " + frgedate;
-
-         commenteditdelete.onclick = function() 
-         { 
-            if(confirm("Are you SURE you want to delete this comment?"))
-            {
-               quickApi("comment/" + cmid + "/delete", x => notifySuccess("Comment deleted"),
-                  x => notifyError("Couldn't delete comment: " + x.status + " - " + x.statusText),
-                  {});
-               UIkit.modal(commentedit).hide();
-            }
-         };
-
-         commenteditedit.onclick = function() 
-         { 
-            quickApi("comment/" + cmid, x => notifySuccess("Comment edited"),
-               x => notifyError("Couldn't edit comment: " + x.status + " - " + x.statusText),
-               {parentId : Number(getActiveDiscussion()), 
-                content: createComment(commentedittext.value, commenteditformat.value)},
-               undefined, /*always*/ "PUT");
-            UIkit.modal(commentedit).hide();
-         };
-
-         commenteditshowpreview.onclick = function() 
-         { 
-            findSwap(frgelm, "data-message", createComment(commentedittext.value, commenteditformat.value));
-         };
-      });
+      messageController.addEventListener("click", messageControllerEvent);
 
       Utilities.InsertAfter(fragment, insertAfter);
    }
+}
+
+function messageControllerEvent(event)
+{
+   var omsg = Utilities.FindParent(event.target, x => x.hasAttribute("data-singlemessage"));
+   var oframe = getFragmentFrame(omsg);
+
+   var msg = omsg.cloneNode(true);
+   var frame = oframe.cloneNode(true);
+   var msglist = frame.querySelector(".messagelist");
+   msglist.innerHTML = "";
+   msglist.appendChild(msg);
+   Utilities.RemoveElement(msg.querySelector(".messagecontrol"));
+
+   var cmid = getSwap(msg, "data-messageid");
+   var rawcm = getSwap(msg, "data-message"); 
+   var msgdate = getSwap(msg, "data-createdate");
+   var msgedate = getSwap(msg, "data-editdate");
+   findSwap(frame, "data-frametime", msgdate);
+
+   commenteditpreview.innerHTML = "";
+   commenteditpreview.appendChild(frame);
+
+   var parsedcm = parseComment(rawcm);
+   commentedittext.value = parsedcm.t;
+   commenteditformat.value = parsedcm.m;
+   commenteditinfo.textContent = "ID: " + cmid + "  UID: " + getSwap(frame, "data-userid");
+   if(msgedate !== msgdate) commenteditinfo.textContent += "  Edited: " + msgedate;
+
+   commenteditdelete.onclick = function() 
+   { 
+      if(confirm("Are you SURE you want to delete this comment?"))
+      {
+         quickApi("comment/" + cmid + "/delete", x => notifySuccess("Comment deleted"),
+            x => notifyError("Couldn't delete comment: " + x.status + " - " + x.statusText),
+            {});
+         UIkit.modal(commentedit).hide();
+      }
+   };
+
+   commenteditedit.onclick = function() 
+   { 
+      quickApi("comment/" + cmid, x => notifySuccess("Comment edited"),
+         x => notifyError("Couldn't edit comment: " + x.status + " - " + x.statusText),
+         {parentId : Number(getActiveDiscussion()), 
+          content: createComment(commentedittext.value, commenteditformat.value)},
+         undefined, /*always*/ "PUT");
+      UIkit.modal(commentedit).hide();
+   };
+
+   commenteditshowpreview.onclick = function() 
+   { 
+      findSwap(msg, "data-message", createComment(commentedittext.value, commenteditformat.value));
+   };
 }
 
 // **********************

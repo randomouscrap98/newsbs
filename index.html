@@ -236,7 +236,7 @@ function loglevel(el, replace)
                               <a id="userusername" href="" data-spa class="uk-display-inline uk-width-expand">
                                  <h2 class="uk-margin-remove"></h2>
                               </a>
-                              <span id="userid" data-userid="" class="uk-text-meta uk-display-block"></span>
+                              <span id="userid" data-userid class="uk-text-meta uk-display-block"></span>
                            </div>
                            <hr>
                            <div uk-margin class="uk-margin-bottom">
@@ -422,7 +422,7 @@ function loglevel(el, replace)
       </div>
       <!-- LOC:TEMPLATES -->
       <div id="templates" style="display: none">
-         <li data-log data-id="" class="uk-flex uk-text-break">
+         <li data-log class="uk-flex uk-text-break">
             <span data-message=".textContent" data-level=".loglevel" class="uk-width-expand"></span>
             <time data-time=".textContent" class=""></time>
          </li>
@@ -435,16 +435,15 @@ function loglevel(el, replace)
             <p data-message=".textContent"></p>
          </div>
          <div data-spinner uk-spinner></div>
-         <li data-fupmain><img data-src="" width="" height="" alt=""
+         <li data-fupmain><img data-imgsrc="data-src" width="" height="" alt=""
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
-         <li data-fupthumb data-id="" data-number="uk-slideshow-item"><a href="#">
-            <img data-src="src" width="60" alt=""></a></li>
+         <li data-fupthumb data-fileid="data-fid" data-number="uk-slideshow-item"><a href="#">
+            <img data-imgsrc="src" width="60" alt=""></a></li>
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
-         <li data-pw data-contentid="">
+         <li data-pw data-contentid="data-cid">
             <div class="uk-flex uk-flex-middle">
                <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis
-                  uk-margin-right" 
-                  data-spa data-pwname=".textContent"></a>
+                  uk-margin-right" data-spa data-pwname=".textContent"></a>
                <a data-clearcount href="#">
                   <span data-pwcount=".textContent" class="uk-label uk-label-danger"></span>
                </a>
@@ -489,7 +488,7 @@ function loglevel(el, replace)
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <li data-discussion data-discussionid="" data-id="id">
+         <li data-discussion data-discussionid="data-did" data-id="id">
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <div data-messageframe data-userid="0" style="display: none">
                <div data-messageid="0"></div>
@@ -498,7 +497,7 @@ function loglevel(el, replace)
          <li data-discussionswitch data-id="id">
             <a href="#"></a>
          </li>
-         <div data-messageframe data-userid="" class="uk-flex">
+         <div data-messageframe data-userid="data-uid" class="uk-flex">
             <div class="messageframeavatar">
                <img data-useravatar="src">
             </div>
@@ -514,8 +513,8 @@ function loglevel(el, replace)
                <div class="messagelist"> </div>
             </div>
          </div>
-         <div tabindex="2" data-singlemessage data-messageid="" data-id="id" 
-            data-createdate="" data-editdate="" class="uk-flex">
+         <div tabindex="2" data-singlemessage data-messageid="data-msgid" data-id="id" 
+            data-createdate="data-cdt" data-editdate="data-edt" class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand 
                content uk-text-break"></div>
             <a href="#" class="messagecontrol" uk-toggle="target: #commentedit" uk-icon="cog"></a>
@@ -544,7 +543,7 @@ function loglevel(el, replace)
                <span data-text=".textContent"></span>
             </label>
          </div>
-         <a data-discussionuser class="nocontainer" data-uid="" data-userlink="href" data-status="" data-spa>
+         <a data-discussionuser class="nocontainer" data-userlink="href" data-spa>
             <img data-avatar="src" width=40>
          </a>
          <li data-subcat><a data-link="href" data-spa data-name=".textContent">
@@ -583,7 +582,7 @@ function loglevel(el, replace)
                   <li><a href="#" uk-icon="cog"></a></li>
                </ul>
             </div>
-            <p data-content=".renderContent" data-format="" 
+            <p data-content=".renderContent" data-format="data-fmt" 
                class="uk-text-break content uk-margin-remove-top"></p>
          </div>
          <div data-routeuser class="uk-container uk-margin-top uk-margin-bottom">

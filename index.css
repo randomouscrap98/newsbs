@@ -144,6 +144,14 @@ a:hover { color: inherit; }
    background-color: rgba(128,128,128,0.05);
    border-bottom: 1px solid rgba(128,128,128,0.1);
    border-top : 1px solid rgba(128,128,128,0.15);
+   min-height: 40px; /* so it doesn't grow most of the time */
+}
+#discussionuserlist::after {
+   content: "Viewing";
+   margin: 0.5em 1em;
+   font-size: 0.7em;
+   color: rgba(128,128,128,0.5);
+   float: right;
 }
 #discussionscontainer {
    min-height: 45%;
