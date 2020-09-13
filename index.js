@@ -17,6 +17,7 @@ var attr = {
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : true, text : "Device Notifications" },
+   watchclearnotif : {def: false, text : "Watch clear toast" },
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
@@ -28,7 +29,10 @@ var options = {
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock"},
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
    forcediscussionoutofdate : {def: false },
+   retrievetechnicalinfo : {def:true },
+   pulsepasthours : { def: 24 },
    discussionavatarsize : { def: 60 },
+   showsidebarminrem : { def: 60 },
    refreshcycle : { def: 10000, },
    discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
@@ -36,7 +40,7 @@ var options = {
 };
 
 var globals = { 
-   lastsystemid : -1,   //The last id retrieved from the system for actions
+   lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
 };
 
@@ -55,7 +59,7 @@ window.onload = function()
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
    log.Debug("Width REM: " + ww + ", pixelRatio: " + window.devicePixelRatio);
 
-   if(ww >= 60)
+   if(ww >= getLocalOption("showsidebarminrem"))
       rightpanetoggle.click();
 
    setupSpa();
@@ -178,25 +182,24 @@ function setupDebugLog()
 
 function setupTechnicalInfo()
 {
-   quickApi("test/info", (data) =>
+   if(getLocalOption("retrievetechnicalinfo"))
    {
-      log.Debug("Received technical info from API");
+      quickApi("test/info", (data) =>
+      {
+         log.Debug("Received technical info from API");
 
-      multiSwap(technicalinfo, {
-         "data-apiroot": apiroot,
-         "data-apiversion": data.versions.contentapi,
-         "data-entitysystemversion": data.versions.entitysystem
+         multiSwap(technicalinfo, {
+            "data-apiroot": apiroot,
+            "data-apiversion": data.versions.contentapi,
+            "data-entitysystemversion": data.versions.entitysystem
+         });
       });
-   });
+   }
 }
 
 function setupPageControls()
 {
-   var makeSet = f => function(event)
-   {
-      event.preventDefault();
-      f();
-   };
+   var makeSet = f => function(event) { event.preventDefault(); f(); };
 
    fulldiscussionmode.onclick = makeSet(setFullDiscussionMode);
    fullcontentmode.onclick = makeSet(setFullContentMode);
@@ -210,22 +213,22 @@ function setupUserForms()
 {
    formSetupSubmit(loginform, "user/authenticate", token => login(token));
    userlogout.addEventListener("click", () => logout());
-   formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", function(result)
+   formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", result =>
    {
       log.Info("Password reset code sent!");
       passwordresetstep2.click();
    });
-   formSetupSubmit(passwordresetconfirmform, "user/passwordreset", function(token)
+   formSetupSubmit(passwordresetconfirmform, "user/passwordreset", token =>
    {
       notifySuccess("Password reset!");
       login(token);
-   }, function(formData)
+   }, formData =>
    {
       if(formData.password != formData.password2)
          return "Passwords don't match!"
       return undefined;
    });
-   formSetupSubmit(registerform, "user/register", function(token)
+   formSetupSubmit(registerform, "user/register", token =>
    {
       log.Info("Registration submitted! Sending email...");
       quickApi("user/register/sendemail", 
@@ -233,13 +236,13 @@ function setupUserForms()
          req => notifyError("There was a problem sending your email. However, your registration was submitted successfully."), 
          {"email" : formSerialize(registerform)["email"] });
       registrationstep2.click();
-   }, function(formData)
+   }, formData =>
    {
       if(formData.password != formData.password2)
          return "Passwords don't match!"
       return undefined;
    });
-   formSetupSubmit(registerconfirmform, "user/register/confirm", function(token)
+   formSetupSubmit(registerconfirmform, "user/register/confirm", token =>
    {
       notifySuccess("Registration complete!");
       login(token);
@@ -252,10 +255,7 @@ function setupUserForms()
       };
    });
 
-   allowNotifications.onclick = function()
-   {
-      Notification.requestPermission();
-   };
+   allowNotifications.onclick = () => Notification.requestPermission();
 
    refreshlocaloptions.onclick = event => {
       event.preventDefault();
@@ -512,7 +512,7 @@ function setupSession()
    refreshUserFull(() => rightpane.style.opacity = 1.0);
 
    var params = new URLSearchParams();
-   var search = {"reverse":true,"createstart":Utilities.SubHours(24).toISOString()};
+   var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
    var watchsearch = {"ContentLimit":{"Watches":true}};
    params.append("requests", "systemaggregate");
    params.append("requests", "comment-" + JSON.stringify(search));
@@ -1011,17 +1011,29 @@ function setupWatchLink(parent, cid)
 
 function setupWatchClear(parent, cid)
 {
-   var watchLink = parent.querySelector("[data-clearcount]");
+   let watchLink = parent.querySelector("[data-clearcount]");
+   let watchAlert = parent.querySelector("[data-pwcount]");
 
    watchLink.onclick = function(event)
    {
       event.preventDefault();
-      notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
+
+      watchAlert.className = watchAlert.className.replace(/danger/g, "warning");
+      console.log(watchAlert);
+
+      if(getLocalOption("watchclearnotif"))
+         notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
 
       quickApi("watch/" + cid + "/clear", data =>
       {
          log.Info("Clear watch " + cid + " successful!");
-      }, undefined, {});
+      }, req =>
+      {
+         notifyError("Failed to clear watches for cid " + cid);
+      }, {} /* Post data */ , () => //Always
+      {
+         watchAlert.className = watchAlert.className.replace(/warning/g, "danger");
+      });
    };
 }
 
