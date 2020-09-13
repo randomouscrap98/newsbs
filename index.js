@@ -44,8 +44,8 @@ var globals = {
    reqId : 0,           //Ever increasing request id
 };
 
-console.datalog = d => { if(getLocalOption("datalog")) console.log(d); };
-console.drawlog = d => { if(getLocalOption("drawlog")) console.log(d); };
+console.datalog = (d,e,f) => { if(getLocalOption("datalog")) console.log(d,e,f); };
+console.drawlog = (d,e,f) => { if(getLocalOption("drawlog")) console.log(d,e,f); };
 
 window.onerror = function(message, source, lineno, colno, error)
 {
@@ -485,11 +485,18 @@ function setupDiscussions()
       };
    });
 
+
    //Begin the animation loop for discussion scrolling
    scrollDiscussionsAnimation(0);
 
    log.Debug("Setup discussions (scrolling/etc)");
 }
+
+//function getCommentEditData()
+//{
+//   //Need to query select stuff. This probably isn't the right place to do this?
+//   commenteditpreview;   
+//}
 
 function setupLongpoller()
 {
@@ -1129,12 +1136,13 @@ function makeCommentFrame(comment, users)
    return frame;
 }
 
-function makeCommentFragment(comment, users)
+function makeCommentFragment(comment)//, users)
 {
    var fragment = cloneTemplate("singlemessage");
    multiSwap(fragment, {
       "data-messageid": comment.id,
-      "data-id": getCommentId(comment.id)
+      "data-id": getCommentId(comment.id),
+      "data-createdate": (new Date(comment.createDate)).toLocaleString()
    });
    finalizeTemplate(fragment);
    return fragment;
@@ -1860,6 +1868,8 @@ function scrollDiscussionsAnimation(timestamp)
    window.requestAnimationFrame(scrollDiscussionsAnimation);
 }
 
+//function 
+
 //Set the discussion to scroll, and if forceTime is set, CONTINUE scrolling
 //even if the scroller shouldn't be (like the user is too far up)
 function setDiscussionScrollNow(forceTime)
@@ -2044,8 +2054,57 @@ function easyComment(comment, users)
          insertAfter = frame.querySelector(".messagelist").firstChild;
       }
 
-      var fragment = makeCommentFragment(comment, users);
+      var fragment = makeCommentFragment(comment); //, users);
       updateCommentFragment(comment, fragment);
+
+      var messageController = fragment.querySelector(".messagecontrol");
+      messageController.addEventListener("click", function()
+      {
+         var fr = getFragmentFrame(fragment);
+         var frelm = fr.cloneNode(true);
+         var frgelm = fragment.cloneNode(true);
+         var msglist = frelm.querySelector(".messagelist")
+         var frgdate = fragment.getAttribute("data-createdate");
+         findSwap(frelm, "data-frametime", frgdate);
+         msglist.innerHTML = "";
+         msglist.appendChild(frgelm);
+         commenteditpreview.innerHTML = "";
+         commenteditpreview.appendChild(frelm);
+
+         //find the ids etc
+         var cmid = fragment.getAttribute("data-messageid");
+         var rawcm = fragment.querySelector("[data-rawmessage]").getAttribute("data-rawmessage");
+         var parsedcm = parseComment(rawcm);
+
+         commentedittext.value = parsedcm.t;
+         commenteditformat.value = parsedcm.m;
+
+         commenteditdelete.onclick = function() 
+         { 
+            if(confirm("Are you SURE you want to delete this comment?"))
+            {
+               quickApi("comment/" + cmid + "/delete", x => notifySuccess("Comment deleted"),
+                  x => notifyError("Couldn't delete comment: " + x.status + " - " + x.statusText),
+                  {});
+               UIkit.modal(commentedit).hide();
+            }
+         };
+
+         commenteditedit.onclick = function() 
+         { 
+            quickApi("comment/" + cmid, x => notifySuccess("Comment edited"),
+               x => notifyError("Couldn't edit comment: " + x.status + " - " + x.statusText),
+               {parentId : Number(getActiveDiscussion()), 
+                content: createComment(commentedittext.value, commenteditformat.value)});
+            UIkit.modal(commentedit).hide();
+         };
+
+         commenteditshowpreview.onclick = function() 
+         { 
+            findSwap(frgelm, "data-message", createComment(commentedittext.value, commenteditformat.value));
+         };
+      });
+
       Utilities.InsertAfter(fragment, insertAfter);
    }
 }
@@ -2156,7 +2215,8 @@ function longpollRepeater()
                   clearNotifications.indexOf(x.contentId) < 0));
          }
 
-         console.datalog(data);
+         console.datalog("watchlastids: ", watchlastids);
+         console.datalog("chatlisten: ", data);
          updateWatches(data.chains);
 
          if(data.listeners)
@@ -2215,7 +2275,8 @@ function handleAlerts(comments, users)
       else if(!alertids[activedisc]) //Document is invisible, alert IF it's not already in the list
          alertids[activedisc] = 0;
 
-      var cms = sortById(comments).filter(x => alertids[x.parentId] < x.id);
+      var cms = sortById(comments).filter(x => alertids[x.parentId] < x.id &&
+         x.editDate === x.createDate); //NO COMMENTS
 
       try
       {

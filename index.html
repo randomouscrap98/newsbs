@@ -386,6 +386,39 @@ function loglevel(el, replace)
                </div>
             </div>
          </div>
+         <div id="commentedit" uk-modal>
+            <div class="uk-modal-dialog" uk-overflow-auto>
+               <button class="uk-modal-close-default" type="button" uk-close></button>
+               <div class="uk-modal-header">
+                  <h2 class="uk-modal-title">
+                     <span uk-icon="icon: commenting; ratio: 2.5" class="uk-margin-small-right"></span>
+                     Comment Info
+                  </h2>
+               </div>
+               <div id="commenteditbody" class="uk-modal-body" uk-margin>
+                  <div id="commenteditpreview">
+                  </div>
+                  <div class="editor" uk-margin>
+                     <label><span>Format : </span>
+                        <select id="commenteditformat" class="uk-select">
+                           <option value="12y">12y</option>
+                           <option value="plaintext">plaintext</option>
+                           <option value="bbcode">bbcode</option>
+                        </select>
+                     </label>
+                     <textarea id="commentedittext" rows=5 class="uk-width-expand 
+                        uk-textarea uk-resize-vertical"></textarea>
+                  </div>
+                  <div class="controls" uk-margin>
+                     <button class="uk-button uk-button-default" id="commenteditshowpreview">Preview</button>
+                     <button class="uk-button uk-button-danger" id="commenteditdelete">Delete</button>
+                     <button class="uk-button uk-button-primary" id="commenteditedit">Edit</button>
+                     <p class="uk-text-meta">Note: you may not have permission
+                        to edit or delete every comment</p>
+                  </div>
+               </div>
+            </div>
+         </div>
       </div>
       <!-- LOC:TEMPLATES -->
       <div id="templates" style="display: none">
@@ -477,9 +510,10 @@ function loglevel(el, replace)
                <div class="messagelist"> </div>
             </div>
          </div>
-         <div tabindex="2" data-singlemessage data-messageid="" data-id="id" class="uk-flex">
+         <div tabindex="2" data-singlemessage data-messageid="" data-id="id" 
+            data-createdate="" class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand uk-text-break"></div>
-            <a href="#" class="messagecontrol" uk-toggle="target: #fileupload" uk-icon="cog"></a>
+            <a href="#" class="messagecontrol" uk-toggle="target: #commentedit" uk-icon="cog"></a>
          </div>
          <li data-breadcrumb>
             <a data-link="href" data-spa data-text=".textContent"></a>
