@@ -16,33 +16,34 @@ var attr = {
 
 //Will this be stored in user eventually?
 var options = {
-   pulseuserlimit : 10,
-   filedisplaylimit: 40,
-   pagedisplaylimit: 100,
-   initialloadcomments: 30,
-   refreshcycle : 10000,
-   discussionscrollspeed : 0.25, // Percentage of scroll diff to scroll per frame
-   discussionscrolllock : 0.15,  // Percentage of discussion height to lock bottom
-   discussionscrollnow : 1000,
-   discussionavatarsize : 60,
-   longpollerrorrestart : 5000,
-   notificationtimeout : 5000,
-   defaultmarkup : "12y",
-   forcediscussionoutofdate : false,
-   datalog : false,
-   imageresolution : 1,
-   hidelongpollrequest : false,
-   displaynotifications : true,
-   drawlog : false
+   //pulseuserlimit : 10,
+   displaynotifications : { def : true, text : "Device Notifications" },
+   datalog : { def: false, text : "Log received data objects" },
+   drawlog : { def: false, text : "Log custom render data" },
+   loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
+   imageresolution : { def: 1, text: "Image resolution scale" },
+   filedisplaylimit: { def: 40, text : "Image select files per page" },
+   pagedisplaylimit: { def: 100, text: "Display pages per category" },
+   initialloadcomments: { def: 30, text: "Initial comment pull" },
+   discussionscrollspeed : { def: 0.25, text: "Scroll animation (1 = instant)" },
+   discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock"},
+   notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
+   discussionavatarsize : { def: 60 },
+   refreshcycle : { def: 10000, },
+   discussionscrollnow : {def: 1000 },
+   longpollerrorrestart : {def: 5000 },
+   defaultmarkup : {def:"12y"},
+   forcediscussionoutofdate : {def: false }
 };
+
 
 var globals = { 
    lastsystemid : -1,   //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
 };
 
-console.datalog = d => { if(options.datalog) console.log(d); };
-console.drawlog = d => { if(options.drawlog) console.log(d); };
+console.datalog = d => { if(getLocalOption("datalog")) console.log(d); };
+console.drawlog = d => { if(getLocalOption("drawlog")) console.log(d); };
 
 window.onerror = function(message, source, lineno, colno, error)
 {
@@ -82,7 +83,7 @@ window.onload = function()
    //the spa processor will take your login state into account. And if you're
    //not "REALLY" logged in, well whatever, better than processing it twice.
    globals.spa.ProcessLink(document.location.href);
-   globals.refreshCycle = setInterval(refreshCycle, options.refreshcycle);
+   globals.refreshCycle = setInterval(refreshCycle, getLocalOption("refreshcycle"));
 };
 
 function refreshCycle()
@@ -259,8 +260,66 @@ function setupUserForms()
       Notification.requestPermission();
    };
 
+   refreshlocaloptions.onclick = event => {
+      event.preventDefault();
+      refreshOptions();
+   };
+
+   refreshOptions();
+
    log.Debug("Setup all user forms");
 }
+
+function refreshOptions()
+{
+   log.Info("Refreshing user options");
+   userlocaloptions.innerHTML = "";
+
+   //Set up options
+   for(key in options)
+   {
+      var o = options[key];
+      if(!o.text) continue;
+      var templn = o.type;
+
+      if(!templn)
+      {
+         var to = typeof o.def;
+         if(to === "boolean") templn = "bool";
+         else if(to === "number") templn = "number";
+         else templn = "raw";
+      }
+
+      let elm = cloneTemplate(templn + "option");
+      let k = key;
+      multiSwap(elm, {
+         "data-text" : o.text || key,
+         "data-input" : getLocalOption(key)
+      });
+      elm.onchange = e => { 
+         var val = getSwap(elm, "data-input");
+         log.Info("Setting " + k + " to " + val);
+         setLocalOption(k, val);
+      };
+      finalizeTemplate(elm);
+      userlocaloptions.appendChild(elm);
+   }
+}
+
+function getLocalOption(key)
+{
+   var val = localStorage.getItem("localsetting_" + key);
+   if(val === null || val === undefined)
+      return options[key].def;
+   else
+      return JSON.parse(val);
+}
+
+function setLocalOption(key, value)
+{
+   localStorage.setItem("localsetting_" + key, JSON.stringify(value));
+}
+
 
 function setupAlerts()
 {
@@ -355,7 +414,7 @@ function setupDiscussions()
       {
          if((globals.discussion.rect && globals.discussion.scrollHeight &&
              scrollDiscussionsDistance(globals.discussion.scrollHeight) < 
-             globals.discussion.rect.height * options.discussionscrolllock) ||
+             globals.discussion.rect.height * getLocalOption("discussionscrolllock")) ||
              performance.now() < globals.discussion.scrollNow)
          {
             setDiscussionScrollNow();
@@ -380,19 +439,17 @@ function setupDiscussions()
          var currentDiscussion = getActiveDiscussion();
          let currentText = postdiscussiontext.value;
 
-         quickApi("comment", data => { }, 
-         //data => { log.Info("Successfully posted comment to " + currentDiscussion); }, 
-         error =>
+         quickApi("comment", data => { }, error =>
          {
             notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
             postdiscussiontext.value = currentText;
          }, {
             "parentId" : Number(currentDiscussion),
-            "content" : createComment(postdiscussiontext.value, options.defaultmarkup)
+            "content" : createComment(postdiscussiontext.value, getLocalOption("defaultmarkup"))
          });
 
          postdiscussiontext.value = "";
-         setDiscussionScrollNow(options.discussionscrollnow);
+         setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
 		}
 	};
 
@@ -450,7 +507,7 @@ function startSession()
             log.Info("Last system id: " + x.id);
             globals.lastsystemid = x.id;
 
-            if(options.forcediscussionoutofdate)
+            if(getLocalOption("forcediscussionoutofdate"))
                globals.lastsystemid -= 2000;
          }
       });
@@ -520,8 +577,8 @@ function setFileUploadList(page, allImages)
    fileuploaditems.innerHTML = "<div uk-spinner='ratio: 3'></div>";
    fileuploadthumbnails.innerHTML = "";
 
-   var url = "file?reverse=true&limit=" + options.filedisplaylimit + "&skip=" + 
-      (options.filedisplaylimit * page);
+   var fdl = getLocalOption("filedisplaylimit");
+   var url = "file?reverse=true&limit=" + fdl + "&skip=" + (fdl * page);
       
    if(!allImages)
       url += "&createuserids=" + getUserId();
@@ -538,7 +595,7 @@ function setFileUploadList(page, allImages)
       fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages); }
 
       setHidden(fileuploadnewer, page <= 0);
-      setHidden(fileuploadolder, files.length !== options.filedisplaylimit);
+      setHidden(fileuploadolder, files.length !== fdl);
    });
 }
 
@@ -594,7 +651,7 @@ function finalizePage(chain, discussion)
       maincontentinfo.appendChild(
          makeStandardContentInfo(discussion.content, discussion.users));
       easyComments(discussion.comments, discussion.users);
-      setDiscussionScrollNow(options.discussionscrollnow);
+      setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
    }
 
    finalizeTemplate(maincontent);
@@ -727,7 +784,7 @@ function getImageLink(id, size, crop, ignoreRatio)
    if(size) 
    { 
       img += linkch + "size=" + Math.max(10, 
-         Math.floor(size * options.imageresolution * 
+         Math.floor(size * getLocalOption("imageresolution") * 
             (ignoreRatio ? 1 : window.devicePixelRatio))); 
       linkch = "&"; 
    }
@@ -833,7 +890,7 @@ function notifyBase(message, icon, status)
          "'uk-width-expand uk-text-break notification-actual'>" + 
          message + "</span></span>", 
       "pos":"bottom-right",
-      "timeout":options.notificationtimeout
+      "timeout": Math.floor(getLocalOption("notificationtimeout") * 1000)
    });
 }
 
@@ -1020,7 +1077,7 @@ function makeCommentFrame(comment, users)
    multiSwap(frame, {
       "data-userid": comment.createUserId,
       "data-userlink": getUserLink(comment.createUserId),
-      "data-useravatar": getAvatarLink(u.avatar, options.discussionavatarsize),
+      "data-useravatar": getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
       "data-username": u.username,
       "data-frametime": (new Date(comment.createDate)).toLocaleString()
    });
@@ -1587,7 +1644,7 @@ function routepage_load(url, pVal, id)
    params.append("requests", "category");
    params.append("requests", "comment-" + JSON.stringify({
       "Reverse" : true,
-      "Limit" : options.initialloadcomments,
+      "Limit" : getLocalOption("initialloadcomments"),
       "ParentIds" : [ pid ]
    }));
    params.append("requests", "user.0createUserId.0edituserId.2createUserId");
@@ -1624,7 +1681,7 @@ function routeuser_load(url, pVal, id)
    }));
    params.append("requests", "comment.1id$ParentIds-" + JSON.stringify({
       "Reverse" : true,
-      "Limit" : options.initialloadcomments
+      "Limit" : getLocalOption("initialloadcomments")
    }));
    params.append("requests", "user.1createUserId.1edituserId.2createUserId");
 
@@ -1663,7 +1720,7 @@ function routecategory_load(url, pVal, id)
       "parentIds" : [cid], 
       "sort" : "editDate",
       "reverse" : true,
-      "limit": options.pagedisplaylimit
+      "limit": getLocalOption("pagedisplaylimit")
    }));
    params.append("requests", "category");
    params.append("requests", "user.0createUserId.0edituserId.1createUserId");
@@ -1744,7 +1801,7 @@ function scrollDiscussionsAnimation(timestamp)
       var delta = Math.min(32, timestamp - globals.discussion.lastanimtime);
       var scd = scrollDiscussionsDistance();
       var scm = Math.max(1, delta * 60 / 1000 * 
-         options.discussionscrollspeed * Math.abs(scd));
+         getLocalOption("discussionscrollspeed") * Math.abs(scd));
       console.drawlog("scd: " + scd + ", scm: " + scm + ", delta: " 
          + delta + ", dst: " + discussions.scrollTop);
       //These are added separately because eventually, our scrolltop will move
@@ -2082,9 +2139,9 @@ function longpollRepeater()
       else if(req.status || req.networkError)
       {
          setConnectionState("error");
-         log.Error("Long poller failed, status: " + req.status + ", retrying in " + 
-            options.longpollerrorrestart + " ms");
-         setTimeout(longpollRepeater, options.longpollerrorrestart);
+         var lpr = getLocalOption("longpollerrorrestart");
+         log.Error("Long poller failed, status: " + req.status + ", retrying in " + lpr + " ms");
+         setTimeout(longpollRepeater, lpr);
       }
       else
       {
@@ -2097,13 +2154,13 @@ function longpollRepeater()
    }, undefined, req => //modify
    {
       globals.longpoller.pending = req;
-   }, options.hidelongpollrequest /* Do we want this? No logging? */);
+   }, !getLocalOption("loglongpollrequest") /* Do we want this? No logging? */);
 }
 
 function handleAlerts(comments, users)
 {
    //Figure out the comment that will go in the header
-   if(comments && Notification.permission === "granted" && options.displaynotifications)
+   if(comments && Notification.permission === "granted" && getLocalOption("displaynotifications"))
    {
       var alertids = getWatchLastIds();
       var activedisc = getActiveDiscussion();

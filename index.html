@@ -248,22 +248,15 @@ function loglevel(el, replace)
                            </div>
                            <hr>
                            <div uk-margin>
-                              <h4 class="ufk-text-meta">Device Settings</h4>
+                              <h4 class="ufk-text-meta">Device Settings
+                                 <a href="#" id="refreshlocaloptions" 
+                                    class="uk-align-right uk-text-small">Refresh</a>
+                              </h4>
+                              <div id="userlocaloptions">
+                              </div>
                               <button id="allowNotifications" 
                                     class="uk-button uk-button-default">Permit Notifications</button>
                               <button id="userlogout" class="uk-button uk-button-default">Logout</button>
-                              <!--<div uk-margin class="uk-margin-bottom">
-                                 <div
-                                 class="uk-heading-divider">Notifications</div>-->
-                                 <!--<label class="uk-display-block"><input type="checkbox" class="uk-checkbox">
-                                    Chat notifications (does nothing)</label>-->
-                                 <!--</div>-->
-                              <!--<div>
-                                 <label>Image resolution (data save): <input id="userimagescale"></input></label>
-                              </div>-->
-                              <!--<div uk-margin class="uk-margin-bottom">
-                                 <div class="uk-heading-divider">Other</div>
-                              </div>-->
                            </div>
                         </div>
                      </div>
@@ -492,6 +485,32 @@ function loglevel(el, replace)
          </li>
          <a data-sbslink data-link="href" data-spa>
          </a>
+         <div data-booloption>
+            <label> <!--class="uk-flex uk-flex-middle">
+               <div class="inputwrap uk-flex-none uk-margin-right">-->
+               <input data-input=".checked" type="checkbox" 
+                  class="uk-checkbox uk-margin-right">
+               <!--</div>-->
+               <span data-text=".textContent"></span>
+            </label>
+         </div>
+         <div data-numberoption>
+            <label> <!-- class="uk-flex uk-flex-middle">-->
+               <!--<div class="inputwrap uk-flex-none uk-margin-right">-->
+               <input data-input=".value" type="number" 
+                  class="uk-input uk-margin-right uk-width-1-5">
+                  <!--</div>-->
+               <span data-text=".textContent"></span>
+            </label>
+         </div>
+         <div data-rawoption>
+            <label> <!-- class="uk-flex uk-flex-middle">
+               <div class="inputwrap uk-flex-none uk-margin-right">-->
+               <input data-input=".value" class="uk-input">
+               <!--</div>-->
+               <span data-text=".textContent"></span>
+            </label>
+         </div>
          <a data-discussionuser class="nocontainer" data-uid="" data-userlink="href" data-status="" data-spa>
             <img data-avatar="src" width=40>
          </a>

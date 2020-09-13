@@ -208,6 +208,14 @@ a:hover { color: inherit; }
    margin-right: 0.2em;
    margin-left: 0.4em;
 }
+/* User settings */
+#userlocaloptions .inputwrap {
+   display: inline-block;
+   width: 20%;
+}
+#userlocaloptions .inputwrap input {
+   float: right;
+}
 
 /* Some reaction crap or whatever it's called */
 @media (min-width: 700px) { 
