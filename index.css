@@ -257,9 +257,7 @@ a:hover { color: inherit; }
    margin-left: 0.4em;
 }
 /* User settings */
-#userlocaloptions input {
-   /* padding: 0.1em 0.3em; */
-}
+#userlocaloptions input { }
 
 /* Scrollbar! WOW */
 ::-webkit-scrollbar { width: 10px; } /* width */
@@ -279,17 +277,13 @@ body[data-theme="dark"], [data-theme="dark"] .uk-modal-dialog,
    background-color: #222;
    color: #888;
 }
-[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
-[data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
-[data-theme="dark"] .uk-text-emphasis {
-   color: #999 !important;
-}
 [data-theme="dark"] #topnav {
    background-color: #111;
    color: #777;
 }
-[data-theme="dark"] img {
-   opacity: 0.9;
-}
-
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
+[data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+[data-theme="dark"] .uk-text-emphasis { 
+   color: #999 !important; }
+[data-theme="dark"] img { opacity: 0.9; }
 

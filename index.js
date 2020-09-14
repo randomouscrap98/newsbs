@@ -504,33 +504,34 @@ function setupLongpoller()
    log.Debug("Setup long poller (not started)");
 }
 
+function handleDarkmode(dark)
+{
+   if(dark)
+   {
+      document.body.setAttribute("data-theme", "dark");
+      localStorage.setItem("usertheme", "dark");
+      darkmodetoggle.innerHTML = "&#x2600;";
+   }
+   else
+   {
+      document.body.removeAttribute("data-theme");
+      localStorage.removeItem("usertheme");
+      darkmodetoggle.innerHTML = "&#x1F311;";
+   }
+}
+
 function setupTheme()
 {
    darkmodetoggle.onclick = event =>
    {
       event.preventDefault();
       var currentTheme = document.body.getAttribute("data-theme");
-      var newTheme = false;
 
-      //This is separate just in case something weird happens in the future.
-      if(currentTheme === "dark")
-      {
-         document.body.removeAttribute("data-theme");
-      }
-      else
-      {
-         newTheme ="dark";
-         document.body.setAttribute("data-theme", newTheme);
-      }
-
-      if(newTheme)
-         localStorage.setItem("usertheme", newTheme);
-      else
-         localStorage.removeItem("usertheme");
+      handleDarkmode(!document.body.getAttribute("data-theme"));
    };
 
    var currentTheme = localStorage.getItem("usertheme");
-   if(currentTheme) document.body.setAttribute("data-theme", currentTheme);
+   handleDarkmode(currentTheme === "dark");
 }
 
 //Set up the page and perform initial requests for being "logged in"
