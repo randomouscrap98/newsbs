@@ -5,9 +5,9 @@
 
 //The dependencies for this file to work!
 var DomDeps = {
-   spaClick : () => throw "Need to assign spaClick!",
-   log : (msg) => { /* not necessary */ },
-   signal : (name, data) => { /* not necessary */ }
+   spaClick : () => { throw "Need to assign spaClick!" },
+   log : (msg) => { },           //not necessary
+   signal : (name, data) => {  } //not necessary
 };
 
 //Note: NOTHING in dom manipulation uses the signal system. ONLY the signalers
@@ -122,7 +122,7 @@ function initializePage(requester)
    formatDiscussions(false);
 
    //Clean page isn't loading...?
-   setLoading(false);
+   setLoading(topnav, false);
 
    DomDeps.signal("pageinitialize", requester);
 }

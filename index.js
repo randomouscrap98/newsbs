@@ -50,11 +50,12 @@ var globals = {
    reqId : 0,           //Ever increasing request id
 };
 
+//Some um... global sturf uggh
 log.Datalog = (d,e,f) => { if(getLocalOption("datalog")) log.Trace(d,e,f); };
 log.Drawlog = (d,e,f) => { if(getLocalOption("drawlog")) log.Trace(d,e,f); };
 log.Domlog = (d,e,f) => { if(getLocalOption("domlog")) log.Trace(d,e,f); };
-DomDeps.log = log.Domlog;
-DomDeps.signal = signals.Add;
+DomDeps.log = (d,e,f) => log.Domlog(d,e,f);
+DomDeps.signal = (name, data) => signals.Add(name, data);
 
 window.Notification = window.Notification || {};
 
@@ -131,7 +132,7 @@ function renderLoop(time)
 
       //THEN, do all the stuff that requires modifying the layout,
       //DO NOT read past this point EVER!
-      signals.ProcessAll("wdom", time);
+      signals.Process("wdom", time);
 
       globals.render.lastrendertime = time;
       requestAnimationFrame(renderLoop);
@@ -150,7 +151,7 @@ function safety(func)
    catch(ex)
    {
       notifyError("Failed: " + ex.message);
-      console.log(ex);
+      console.log("safety exception: ", ex);
    }
 }
 
@@ -165,18 +166,26 @@ function writeDom(func) { signals.Add("wdom", func); }
 
 function setupSignalProcessors()
 {
+   //THESE signals need to be run manually, because the order matters
    ["wdom"].forEach(x => signals.AddAutoException(x));
+
    signals.Attach("wdom", data => data());
    signals.Attach("spaclick", spaclick_load);
-   signals.Attach("pageerror", spaclick_load);
+   signals.Attach("spafinish", spafinish_handle);
+   signals.Attach("pageerror", pageerror_handle);
 }
 
 function pageerror_handle(data)
 {
    writeDom(() =>
    {
-      initializePage();
-      signals.Add("pageerrorhandled", data);
+      renderPage("routeerror", template => safety(() => 
+      {
+         multiSwap(template, {
+            "data-message" : data.message,
+            "data-title" : data.sender
+         });
+      }));
    });
 }
 
@@ -184,16 +193,16 @@ function pageerror_handle(data)
 //another signal needs to be emmitted (like rendering or something)
 function spaclick_load(data)
 {
-   writeDom(() => { setLoading(true); });
+   writeDom(() => { setLoading(topnav, true); });
 
    var loadFunc = window[data.route + "_load"];
 
    if(!loadFunc)
    {
       signals.Add("pageerror", {
-         sender : this,
-         message : "Couldn't find loader for page " + data.page
-         data
+         sender : "spaclick_load",
+         message : "Couldn't find loader for page " + data.page,
+         data : data
       });
       return;
    }
@@ -226,7 +235,22 @@ function setupSpa()
    globals.spa.SetHandlePopState();
    log.Debug("Setup SPA, override handling popstate");
 
-   DomDeps.spaClick = globals.spa.ClickFunction;
+   DomDeps.spaClick = (url) => globals.spa.ClickFunction(url);
+}
+
+function spafinish_handle(data)
+{
+   if(data.rid === globals.spa.requestId)
+   {
+      writeDom(() =>
+      {
+         renderPage(data.route, data.applyTemplate, data.breadcrumbs);
+      });
+   }
+   else
+   {
+      log.Warn("Ignoring page finalization: " + data.url);
+   }
 }
 
 // ***************
@@ -234,13 +258,12 @@ function setupSpa()
 // ***************
 
 
-//function route_initialize(url, pVal, id)
-//{
-//   writeDom(() =>
-//   {
-//
-//   });
-//}
+//Data is SPA
+function routehome_load(data)
+{
+   signals.Add("spafinish", data);
+}
+
 
 function routegeneric_load(url, pVal, id)
 {

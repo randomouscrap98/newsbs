@@ -577,8 +577,9 @@ function loglevel(el, replace)
          onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
             </div>
          </div>
-         <div data-routeerror>
-            <h1>ERROR</h1>
+         <div data-routeerror class="uk-container uk-margin-top uk-margin-bottom">
+            <h1>ERROR - <span data-title=".textContent"></span></h1>
+            <p data-message=".textContent" class="uk-text-danger"></p>
          </div>
          <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
             <div class="uk-flex">
