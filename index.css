@@ -138,7 +138,8 @@ a:hover { color: inherit; }
    margin: 0.15em;
    opacity: 0.6;
 }
-.log_debug { opacity: 0.75; }
+.log_trace { opacity: 0.70; }
+.log_debug { color: #74b587; }
 .log_error { color: #C42; }
 .log_warn { color: #DA6; }
 [data-log] { padding: 0.1em 0.5em; }

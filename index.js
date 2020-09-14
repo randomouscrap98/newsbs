@@ -22,6 +22,7 @@ var options = {
    watchclearnotif : {def: false, text : "Watch clear toast" },
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
+   domlog : { def: false, text : "Log major DOM manipulation" },
    loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
    imageresolution : { def: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, text : "Image select files per page" },
@@ -36,9 +37,10 @@ var options = {
    pulsepasthours : { def: 24 },
    discussionavatarsize : { def: 60 },
    showsidebarminrem : { def: 60 },
-   refreshcycle : { def: 10000, },
+   refreshcycle : { def: 10000 },
    discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
+   signalcleanup : {def: 10000 },
    scrolldiscloadheight : {def: 1.0, step: 0.01 },
    defaultmarkup : {def:"12y"}
 };
@@ -56,8 +58,9 @@ var s = {
    rdom : "rd"
 };
 
-console.datalog = (d,e,f) => { if(getLocalOption("datalog")) console.log(d,e,f); };
-console.drawlog = (d,e,f) => { if(getLocalOption("drawlog")) console.log(d,e,f); };
+log.Datalog = (d,e,f) => { if(getLocalOption("datalog")) log.Trace(d,e,f); };
+log.Drawlog = (d,e,f) => { if(getLocalOption("drawlog")) log.Trace(d,e,f); };
+log.Domlog = (d,e,f) => { if(getLocalOption("domlog")) log.Trace(d,e,f); };
 
 window.Notification = window.Notification || {};
 
@@ -71,11 +74,14 @@ window.onload = function()
 {
    log.Info("Window load event");
 
+   setupSignalProcessors();
+
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
    log.Debug("Width REM: " + ww + ", pixelRatio: " + window.devicePixelRatio);
 
    if(ww >= getLocalOption("showsidebarminrem"))
       rightpanetoggle.click();
+
 
    setupSpa();
 
@@ -107,6 +113,8 @@ function refreshCycle()
       refreshPWDates(watches);
    });
 
+   signal.ClearOlderThan(performance.now() - getLocalOption("signalcleanup"));
+
    //This is called instead of setInterval so users can change this and have it
    //update immediately
    globals.refreshCycle = setTimeout(refreshCycle, getLocalOption("refreshcycle"));
@@ -128,7 +136,7 @@ function renderLoop(time)
 
       //THEN, do all the stuff that requires modifying the layout,
       //DO NOT read past this point EVER!
-      signal.ProcessAll(s.wdom, data => data(), time);
+      signal.ProcessAll(s.wdom, time);
 
       globals.render.lastrendertime = time;
       requestAnimationFrame(renderLoop);
@@ -151,9 +159,138 @@ function safety(func)
    }
 }
 
+// ************************
+// --- DOM MANIPULATION ---
+// ************************
+
+//Note: cascading dom writes should USUALLY be handled in the same frame UNLESS
+//there's something in the middle that's deferred (time set)
+function writeDom(func) { signal.Add(s.wdom, func); }
+
+//Note: NOTHING in dom manipulation uses the signal system. ONLY the signalers
+//do, this is so that these functions can be used by themselves wherever
+function hide(e) { e.setAttribute("hidden", ""); }
+function unhide(e) { e.removeAttribute("hidden"); }
+function setHidden(e, hidden) { if(hidden) hide(e); else unhide(e); }
+
+function setFullContentMode()
+{
+   log.Domlog("Set full content mode");
+
+   //writeDom(() =>
+   //{
+   unhide(maincontentcontainer);
+   unhide(splitmodediscussion);
+   maincontentcontainer.className += " uk-flex-1";
+
+   hide(discussionscontainer);
+   hide(splitmodecontent);
+   hide(fulldiscussionmode);
+   hide(fullcontentmode);
+
+   signal.Add("setcontentmode", "content");
+   //});
+}
+
+function setFullDiscussionMode()
+{
+   log.Domlog("Set full discussion mode");
+
+   //writeDom(() =>
+   //{
+   unhide(discussionscontainer);
+   unhide(splitmodecontent);
+
+   hide(maincontentcontainer);
+   hide(splitmodediscussion);
+   hide(fulldiscussionmode);
+   hide(fullcontentmode);
+
+   signal.Add("setcontentmode", "discussion");
+   //});
+}
+
+function setSplitMode()
+{
+   log.Domlog("Set split discussion/content mode");
+
+   //writeDom(() =>
+   //{
+   maincontentcontainer.className = 
+   maincontentcontainer.className.replace(/uk-flex-1/g, ""); 
+   unhide(discussionscontainer);
+   unhide(maincontentcontainer);
+   unhide(fulldiscussionmode);
+   unhide(fullcontentmode);
+
+   hide(splitmodecontent);
+   hide(splitmodediscussion);
+
+   signal.Add("setcontentmode", "split");
+   //});
+}
+
+function formatDiscussions(hasDiscussions)
+{
+   log.Domlog("Formatting page, show discussions: " + hasDiscussions);
+
+   //writeDom(() =>
+   //{
+   if(hasDiscussions)
+   {
+      unhide(maincontentbar);
+      setSplitMode(); //Could be settings?
+   }
+   else
+   {
+      hide(maincontentbar);
+      setFullContentMode();
+   }
+
+   signal.Add("formatdiscussions", hasDiscussions);
+   //});
+}
+
+function initializePage(requester)
+{
+   log.Domlog("Initializing page to a clean slate");
+
+   //writeDom(() =>
+   //{
+   //Clear out the breadcrumbs
+   breadcrumbs.innerHTML = "";
+
+   //Clear out anything that used to be there
+   maincontent.innerHTML = "";
+   maincontentinfo.innerHTML = "";
+   discussionuserlist.innerHTML = "";
+
+   //Assume there are no discussions (easier to just hide it)
+   formatDiscussions(false);
+
+   //show the loading bar
+   unhide(maincontentloading);
+
+   signal.Add("pageinitialized", requester);
+   //});
+}
+
+
 // ********************
 // ---- SETUP CODE ----
 // ********************
+
+function setupSignalProcessors()
+{
+   signal.Attach(s.wdom, data => data());
+   //signal.Attach("spaclick", );
+}
+
+function spaSignalHandler()
+{
+   //1: EVERY spa click should reinitialize the page (visually), so don't worry there. 
+}
+
 
 function setupSpa()
 {
@@ -170,33 +307,38 @@ function setupSpa()
    //}, url =>
 
    //For now, we have ONE processor!
-   globals.spa.Processors.push(new SpaProcessor(url => true, url =>
+   globals.spa.Processors.push(new SpaProcessor(url => true, (url, rid) =>
    {
-      //globals.spa.processingurl = url;
-
       var pVal = Utilities.GetParams(url).get("p") || "home"; 
       var pParts = pVal.split("-");
-      var route = "route" + pParts[0];
-      var template;
+      signal.Add("spaclick", {
+         p : pVal,
+         route : pParts[0],
+         id : pParts[1],
+         rid : rid
+      });
 
-      try
-      {
-         template = cloneTemplate(route);
-      }
-      catch
-      {
-         log.Error("Couldn't find route " + url);
-         route = "routeerror";
-         template = cloneTemplate(route);
-      }
+      //var route = "route" + pParts[0];
+      //var template;
 
-      initializePage();
-      maincontent.appendChild(template);
+      //try
+      //{
+      //   template = cloneTemplate(route);
+      //}
+      //catch
+      //{
+      //   log.Error("Couldn't find route " + url);
+      //   route = "routeerror";
+      //   template = cloneTemplate(route);
+      //}
 
-      if(window[route + "_load"])
-         window[route + "_load"](url, pVal, pParts[1]);
-      else
-         finalizePage();
+      //initializePage();
+      //maincontent.appendChild(template);
+
+      //if(window[route + "_load"])
+      //   window[route + "_load"](url, pVal, pParts[1]);
+      //else
+      //   finalizePage();
    }));
 
    globals.spa.SetHandlePopState();
@@ -618,7 +760,7 @@ function setupSession()
 
    quickApi("read/chain?" + params.toString(), function(data)
    {
-      console.datalog(data);
+      log.Datalog(data);
 
       data.systemaggregate.forEach(x => 
       {
@@ -739,24 +881,6 @@ function updateGlobalAlert()
    setHidden(globalalert, !watchglobalalert.textContent);
 }
 
-function initializePage()
-{
-   log.Debug("Initializing page to a clean slate");
-
-   //Clear out the breadcrumbs
-   breadcrumbs.innerHTML = "";
-
-   //Clear out anything that used to be there
-   maincontent.innerHTML = "";
-   maincontentinfo.innerHTML = "";
-   discussionuserlist.innerHTML = "";
-   easyShowDiscussion(false);
-   globals.discussion.current = 0;
-
-   //show the loading bar
-   unhide(maincontentloading);
-}
-
 //Finish rendering a page. For "ease", can also include information about the
 //available discussion so we can do a few things.
 function finalizePage(chain, discussion)
@@ -782,56 +906,6 @@ function finalizePage(chain, discussion)
    updateLongPoller();
 
    log.Debug("Page render finalized");
-}
-
-function setFullContentMode()
-{
-   unhide(maincontentcontainer);
-   unhide(splitmodediscussion);
-   maincontentcontainer.className += " uk-flex-1";
-
-   hide(discussionscontainer);
-   hide(splitmodecontent);
-   hide(fulldiscussionmode);
-   hide(fullcontentmode);
-}
-
-function setFullDiscussionMode()
-{
-   unhide(discussionscontainer);
-   unhide(splitmodecontent);
-
-   hide(maincontentcontainer);
-   hide(splitmodediscussion);
-   hide(fulldiscussionmode);
-   hide(fullcontentmode);
-}
-
-function setSplitMode()
-{
-   maincontentcontainer.className = 
-      maincontentcontainer.className.replace(/uk-flex-1/g, ""); 
-   unhide(discussionscontainer);
-   unhide(maincontentcontainer);
-   unhide(fulldiscussionmode);
-   unhide(fullcontentmode);
-
-   hide(splitmodecontent);
-   hide(splitmodediscussion);
-}
-
-function setHasDiscussions(has)
-{
-   if(has)
-   {
-      unhide(maincontentbar);
-      setSplitMode(); //Could be settings?
-   }
-   else
-   {
-      hide(maincontentbar);
-      setFullContentMode();
-   }
 }
 
 function updateDiscussionUserlist(listeners, users)
@@ -889,9 +963,6 @@ function setToken(token)
 
 function getUserId() { return userid.dataset.userid; }
 
-function hide(e) { e.setAttribute("hidden", ""); }
-function unhide(e) { e.removeAttribute("hidden"); }
-function setHidden(e, hidden) { if(hidden) hide(e); else unhide(e); }
 
 function getUserLink(id) { return "?p=user-" + id; }
 function getPageLink(id) { return "?p=page-" + id; }

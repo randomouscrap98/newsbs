@@ -28,6 +28,7 @@ Logger.prototype.RawLog = function(message, level)
       this.messages = this.messages.slice(-(this.maxMessages - this.maxBuffer));
 };
 
+Logger.prototype.Trace = function(message) { this.RawLog(message, "trace"); };
 Logger.prototype.Debug = function(message) { this.RawLog(message, "debug"); };
 Logger.prototype.Info = function(message) { this.RawLog(message, "info"); };
 Logger.prototype.Warn = function(message) { this.RawLog(message, "warn"); };
@@ -51,29 +52,31 @@ function BasicSpa(logger)
    //Capitals are accessible from other places
    this.logger = logger;
    this.Processors = [];
+   this.requestId = 0;
 }
 
 BasicSpa.prototype.ProcessLink = function(url)
 {
-   this.logger.Debug("Processing link " + url);
+   let rid = ++this.requestId;
+   this.logger.Debug("Processing link [" + rid + "] " + url);
 
    for(var i = 0; i < this.Processors.length; i++)
    {
-      if(this.Processors[i].Check(url))
+      if(this.Processors[i].Check(url, rid))
       {
          try
          {
-            this.Processors[i].Process(url);
+            this.Processors[i].Process(url, rid);
          }
          catch(ex)
          {
-            this.logger.Error("Could not process link " + url + ": " + ex);
+            this.logger.Error("Could not process link [" + rid + "] " + url + ": " + ex);
          }
          return true;
       }
    }
 
-   this.logger.Warn("Nothing processed link " + url);
+   this.logger.Warn("Nothing processed link [" + rid + "] " + url);
    return false;
 };
 
@@ -106,10 +109,14 @@ BasicSpa.prototype.SetHandlePopState = function()
 var Signaller = function()
 {
    this.signals = {};
+   this.handlers = {};
+   this.sid = 0;
 }
 
 Signaller.prototype.Add = function(name, data, time)
 {
+   let signalId = ++this.sid;
+
    if(!name)
       throw "Must provide name for signal!";
 
@@ -117,31 +124,53 @@ Signaller.prototype.Add = function(name, data, time)
       this.signals[name] = [];
 
    this.signals[name].push({
+      sid : signalId,
+      created : performance.now(),
       data : data,
       time : time || 0
    });
 };
 
-Signaller.prototype.ProcessAll = function(name, func, now)
+Signaller.prototype.Attach = function(name, func)
+{
+   if(!this.handlers[name])
+      this.handlers[name] = [];
+
+   if(func)
+      this.handlers[name].push(func);
+};
+
+Signaller.prototype.ProcessAll = function(name, now)
 {
    if(this.signals[name])
    {
       var now = now || performance.now();
       this.signals[name].sort((a,b) => Math.sign(a.time - b.time));
+      var i;
 
-      for(var i = 0; i < this.signals[name].length; i++)
+      for(i = 0; i < this.signals[name].length; i++)
       {
          if(this.signals[name][i].time > now)
-         {
-            //Splice now, we're done. Then exit
-            this.signals[name].splice(0, i);
-            return;
-         }
+            break;
 
-         func(this.signals[name][i].data);
+         if(this.handlers[name])
+         {
+            this.handlers[name].forEach(x => 
+               x(this.signals[name][i].data, this.signals[name][i]));
+         }
       }
 
-      this.signals[name].splice(0);
+      this.signals[name].splice(0, i);
+   }
+};
+
+Signaller.prototype.ClearOlderThan = function(time)
+{
+   for(key in this.signals)
+   {
+      this.signals[key].sort((a,b) => Math.sign(a.created - b.created));
+      var firstOK = this.signals[key].findIndex(x => x.created >= time);
+      this.signals[key].splice(0, (firstOK < 0) ? this.signals[key].length : firstOK);
    }
 };
 
