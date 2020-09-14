@@ -18,6 +18,7 @@ var attr = {
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : true, text : "Device Notifications" },
+   loadcommentonscroll : { def: true, text : "Auto load comments on scroll (buggy)" },
    watchclearnotif : {def: false, text : "Watch clear toast" },
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
@@ -1903,8 +1904,8 @@ function scrollDiscussionsAnimation(timestamp)
    var activeDiscussion = document.getElementById(getDiscussionId(getActiveDiscussion()));
 
    //TODO: Get this out of here, needs to be part of something else!
-   if(activeDiscussion && 
-      discussions.scrollTop < globals.discussion.lastScrollTop && 
+   if(discussions.scrollTop < globals.discussion.lastScrollTop && 
+      activeDiscussion && getLocalOption("loadcommentonscroll") &&
       discussions.scrollTop < getLocalOption("scrolldiscloadheight") * window.innerHeight &&
       !globals.discussion.loadingOlder && !activeDiscussion.hasAttribute(attr.atoldest))
    {
