@@ -11,7 +11,8 @@ var attr = {
    "pulsedate" : "data-maxdate",
    "pulsecount" : "data-pwcount",
    "pulsemaxid" : "data-pwmaxid",
-   "constate" : "data-connectionindicator"
+   "constate" : "data-connectionindicator",
+   "atoldest" : "data-atoldest"
 };
 
 //Will this be stored in user eventually?
@@ -25,6 +26,7 @@ var options = {
    filedisplaylimit: { def: 40, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, text: "Display pages per category" },
    initialloadcomments: { def: 30, text: "Initial comment pull" },
+   oldloadcomments : { def: 30, text: "Scroll back comment pull" },
    discussionscrollspeed : { def: 0.25, text: "Scroll animation (1 = instant)", step: 0.01 },
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
@@ -36,6 +38,7 @@ var options = {
    refreshcycle : { def: 10000, },
    discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
+   scrolldiscloadheight : {def: 1.0, step: 0.01 },
    defaultmarkup : {def:"12y"}
 };
 
@@ -1714,14 +1717,15 @@ function updateWatches(data, fullReset)
 
 function routepage_load(url, pVal, id)
 {
-   easyShowDiscussion(id);
+   var d = easyShowDiscussion(id);
+   var initload = getLocalOption("initialloadcomments");
    var pid = Number(id);
    var params = new URLSearchParams();
    params.append("requests", "content-" + JSON.stringify({"ids" : [pid], "includeAbout" : true}));
    params.append("requests", "category");
    params.append("requests", "comment-" + JSON.stringify({
       "Reverse" : true,
-      "Limit" : getLocalOption("initialloadcomments"),
+      "Limit" : initload,
       "ParentIds" : [ pid ]
    }));
    params.append("requests", "user.0createUserId.0edituserId.2createUserId");
@@ -1738,6 +1742,8 @@ function routepage_load(url, pVal, id)
          "data-format" : c.values.markupLang,
          "data-watched" : c.about.watching
       });
+      if(data.comment.length !== initload)
+         d.setAttribute(attr.atoldest, "");
       setupWatchLink(maincontent, c.id);
       finalizePage(getChain(data.category, c), 
          { "users" : users, "comments" : data.comment, "content" : c });
@@ -1889,11 +1895,56 @@ function scrollDiscussionsAnimation(timestamp)
          globals.discussion.scrollTop);
    }
 
+   var activeDiscussion = document.getElementById(getDiscussionId(getActiveDiscussion()));
+
+   //TODO: Get this out of here, needs to be part of something else!
+   if(activeDiscussion && 
+      discussions.scrollTop < globals.discussion.lastScrollTop && 
+      discussions.scrollTop < getLocalOption("scrolldiscloadheight") * window.innerHeight &&
+      !globals.discussion.loadingOlder && !activeDiscussion.hasAttribute(attr.atoldest))
+   {
+      loadOlderComments(activeDiscussion);
+   }
+
+   globals.discussion.lastScrollTop = discussions.scrollTop;
    globals.discussion.lastanimtime = timestamp;
    window.requestAnimationFrame(scrollDiscussionsAnimation);
 }
 
-//function 
+function loadOlderComments(discussion)
+{
+   globals.discussion.loadingOlder = true;
+
+   var did = getSwap(discussion, "data-discussionid");
+   log.Info("Loading older messages in " + did);
+
+   var minId = Number.MAX_SAFE_INTEGER;
+   var msgs = discussion.querySelectorAll("[data-msgid]");
+
+   for(var i = 0; i < msgs.length; i++)
+      minId = Math.min(minId, msgs[i].getAttribute("data-msgid"));
+
+   var params = new URLSearchParams();
+   params.append("requests", "comment-" + JSON.stringify({
+      "Reverse" : true,
+      "Limit" : getLocalOption("oldloadcomments"),
+      "ParentIds" : [ Number(did) ],
+      "MaxId" : Number(minId)
+   }));
+   params.append("requests", "user.0createUserId.0edituserId");
+
+   quickApi("read/chain?" + params.toString(), data =>
+   {
+      var users = idMap(data.user);
+      var oldTop = discussions.scrollTop;
+      var oldHeight = discussions.scrollHeight;
+      easyComments(data.comment, users);
+      discussions.scrollTop = oldTop + discussions.scrollHeight - oldHeight;
+   }, undefined, undefined, req =>
+   {
+      globals.discussion.loadingOlder = false;
+   });
+}
 
 //Set the discussion to scroll, and if forceTime is set, CONTINUE scrolling
 //even if the scroller shouldn't be (like the user is too far up)
@@ -1965,6 +2016,12 @@ function easyDiscussion(id)
       });
       discussions.appendChild(discussion);
 
+      var loadolder = discussion.querySelector(".loadolder");
+      loadolder.onclick = event => 
+      {
+         event.preventDefault();
+         loadOlderComments(discussion);
+      };
    }
 
    return discussion;
@@ -1989,6 +2046,7 @@ function easyShowDiscussion(id)
          globals.discussion.observer.observe(discussions);
          globals.discussion.observer.observe(d);
       }, 12);
+      return d;
    }
 }
 
@@ -2092,6 +2150,7 @@ function easyComment(comment, users)
 
 function messageControllerEvent(event)
 {
+   event.preventDefault();
    var omsg = Utilities.FindParent(event.target, x => x.hasAttribute("data-singlemessage"));
    var oframe = getFragmentFrame(omsg);
 
@@ -2142,6 +2201,8 @@ function messageControllerEvent(event)
    { 
       findSwap(msg, "data-message", createComment(commentedittext.value, commenteditformat.value));
    };
+
+   UIkit.modal(commentedit).show();
 }
 
 // **********************

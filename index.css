@@ -1,12 +1,43 @@
+:root {
+   --mainbgcolor: #FFF;
+   --maintxtcolor: #666;
+   --databarbgcolor: #444;
+   --databartxtcolor: #AAA;
+   --databartxthovcolor: #CCC;
+   --headercolor: #333;
+   --imageopacity: 1;
+   --inputbgcolor: rgba(255,255,255,0.9);
+}
 body {
    position: absolute;
-   top: 0;
-   bottom: 0;
-   left: 0;
-   right: 0;
+   top: 0; bottom: 0; left: 0; right: 0;
    overflow: hidden;
 }
-img { image-rendering: -webkit-optimize-contrast; }
+
+/* Some theming stuff */
+html, body, .uk-modal-dialog, .uk-dropdown {
+   background-color: var(--mainbgcolor);
+   color: var(--maintxtcolor);
+}
+.databar {
+   background-color: var(--databarbgcolor);
+   color: var(--databartxtcolor);
+}
+.databar a:hover { 
+   color: var(--databartxthovcolor); 
+}
+h1, h2, h3, h4, h5, h6, .uk-text-emphasis { 
+   color: var(--headercolor) !important;
+}
+img { 
+   image-rendering: -webkit-optimize-contrast; 
+   opacity: var(--imageopacity);
+}
+pre, .uk-input, .uk-select, .uk-textarea, .uk-button-default {
+   background-color: var(--inputbgcolor);
+   border: 1px solid rgba(128,128,128, 0.1);
+   color: inherit;
+}
 
 /* UIkit reconfiguring */
 code { 
@@ -14,11 +45,6 @@ code {
    background-color: rgba(128,128,128,0.07) !important;
    color: #789 !important;
    display: inline-block;
-}
-pre, .uk-input, .uk-select, .uk-textarea, .uk-button-default {
-   background-color: rgba(255,255,255,0.05);
-   border: 1px solid rgba(128,128,128, 0.1);
-   color: inherit;
 }
 .uk-button-default:focus, .uk-button-default:hover,
 .uk-checkbox {
@@ -48,12 +74,7 @@ a:hover { color: inherit; }
    border-top: 1px solid rgba(128,128,128,0.1);
 }
 /* The rest */
-.databar {
-   background-color: #444;
-   color: #AAA;
-   padding: 0 0.1em;
-}
-#topnav a:hover { color: #CCC; }
+.databar { padding: 0 0.1em; }
 [data-connectionindicator="error"] { 
    filter: hue-rotate(180deg); 
    transform: rotate(15deg);
@@ -173,6 +194,12 @@ a:hover { color: inherit; }
    margin-right: 5px !important;
 }
 /* Discussions */
+[data-discussion] {
+   position: relative;
+}
+[data-atoldest] .loadolder {
+   display: none; 
+}
 #discussionuserlist {
    background-color: rgba(128,128,128,0.05);
    border-bottom: 1px solid rgba(128,128,128,0.1);
@@ -272,18 +299,13 @@ a:hover { color: inherit; }
 }
 
 /* Dark mode? */
-body[data-theme="dark"], [data-theme="dark"] .uk-modal-dialog,
-[data-theme="dark"] .uk-dropdown {
-   background-color: #222;
-   color: #888;
+[data-theme="dark"] {
+   --mainbgcolor: #222; 
+   --maintxtcolor: #888;
+   --databarbgcolor: #111;
+   --databartxtcolor: #777;
+   --databartxthovcolor: #AAA;
+   --headercolor: #999;
+   --imageopacity: 0.9;
+   --inputbgcolor: rgba(255,255,255,0.05);
 }
-[data-theme="dark"] #topnav {
-   background-color: #111;
-   color: #777;
-}
-[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
-[data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
-[data-theme="dark"] .uk-text-emphasis { 
-   color: #999 !important; }
-[data-theme="dark"] img { opacity: 0.9; }
-

@@ -79,7 +79,7 @@ function loglevel(el, replace)
                         id="splitmodecontent"></a>
                   </div>
                </div> 
-               <div id="discussionuserlist" class="uk-flex-none">
+               <div data-utgl id="discussionuserlist" class="uk-flex-none" hidden>
                </div>
                <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
                   <ul id="discussions" class="uk-flex-1 uk-switcher" uk-overflow-auto>
@@ -278,7 +278,7 @@ function loglevel(el, replace)
                <div id="rightpanefooter" class="databar uk-flex">
                   <span class="uk-flex-none">SmileBASIC Source - 2020</span>
                   <div class="uk-width-expand">
-                     <a href="#" id="darkmodetoggle">&#x1F311;</a>
+                     <a href="#" id="darkmodetoggle" uk-tooltip="Dark mode">&#x1F311;</a>
                   </div>
                   <a href="" class="uk-flex-none" uk-toggle="target: #aboutprivacy">About/Privacy</a>
                </div>
@@ -491,27 +491,26 @@ function loglevel(el, replace)
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <li data-discussion data-discussionid="data-did" data-id="id">
+         <li data-discussion data-discussionid="data-did" data-id="id"
+            class="">
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <div data-messageframe data-userid="0" style="display: none">
                <div data-messageid="0"></div>
             </div>
+            <a href="#" class="uk-position-top-right uk-margin-small-right
+               uk-text-meta loadolder">Load older</a>
          </li>
          <li data-discussionswitch data-id="id">
             <a href="#"></a>
          </li>
-         <div data-messageframe data-userid="data-uid" class="uk-flex">
-            <div class="messageframeavatar">
-               <img data-useravatar="src">
-            </div>
+         <div data-messageframe data-userid="data-uid" class="uk-flex uk-flex-top">
+            <img class="uk-flex-none" data-useravatar="src">
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
-                  <a data-spa data-userlink="href" class="uk-flex-none">
-                     <span data-username=".textContent"></span>
-                  </a>
+                  <a data-spa data-userlink="href" class="uk-flex-none" 
+                     data-username=".textContent"></a>
                   <time class="uk-text-meta uk-width-expand uk-text-truncate
-                     uk-margin-small-left" 
-                     data-frametime=".textContent"></time>
+                     uk-margin-small-left" data-frametime=".textContent"></time>
                </div>
                <div class="messagelist"> </div>
             </div>
@@ -520,7 +519,7 @@ function loglevel(el, replace)
             data-createdate="data-cdt" data-editdate="data-edt" class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand 
                content uk-text-break"></div>
-            <a href="#" class="messagecontrol" uk-toggle="target: #commentedit" uk-icon="cog"></a>
+            <a href="#" class="messagecontrol" uk-icon="cog"></a>
          </div>
          <li data-breadcrumb>
             <a data-link="href" data-spa data-text=".textContent"></a>
