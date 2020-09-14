@@ -446,11 +446,16 @@ function setupDiscussions()
       "lastanimtime" : 0,
       "observer" : new ResizeObserver(entries => 
       {
-         if((globals.discussion.rect && globals.discussion.scrollHeight &&
-             scrollDiscussionsDistance(globals.discussion.scrollHeight) < 
-             globals.discussion.rect.height * getLocalOption("discussionscrolllock")) ||
+         var scdst = scrollDiscussionsDistance(globals.discussion.scrollHeight);
+
+         if((globals.discussion.rect && globals.discussion.scrollHeight && scdst >= 0 &&
+             scdst < (globals.discussion.rect.height * getLocalOption("discussionscrolllock"))) ||
              performance.now() < globals.discussion.scrollNow)
          {
+            //log.Warn("Setting scrollnow to " + discussions.scrollTop + " with dst: " +
+            //   scdst + ", ht: " + globals.discussion.rect.height + ", osclht: " + 
+            //   globals.discussion.scrollHeight + ", slcht: " + 
+            //   discussions.scrollHeight);
             setDiscussionScrollNow();
          }
 
@@ -1871,8 +1876,8 @@ function renderContent(elm, repl)
 function scrollDiscussionsDistance(baseHeight)
 {
    var baseHeight = baseHeight || discussions.scrollHeight;
-   return globals.discussion.rect ? baseHeight - 
-      (globals.discussion.rect.height + discussions.scrollTop) : 0;
+   return globals.discussion.rect ? (baseHeight - 
+      (globals.discussion.rect.height + discussions.scrollTop)) : 0;
 }
 
 function scrollDiscussionsAnimation(timestamp)
@@ -1918,16 +1923,20 @@ function loadOlderComments(discussion)
    var did = getSwap(discussion, "data-discussionid");
    log.Info("Loading older messages in " + did);
 
+   var loading = discussion.querySelector("[data-loadolder] [data-loading]");
+   unhide(loading);
+
    var minId = Number.MAX_SAFE_INTEGER;
    var msgs = discussion.querySelectorAll("[data-msgid]");
 
    for(var i = 0; i < msgs.length; i++)
       minId = Math.min(minId, msgs[i].getAttribute("data-msgid"));
 
+   var initload = getLocalOption("oldloadcomments");
    var params = new URLSearchParams();
    params.append("requests", "comment-" + JSON.stringify({
       "Reverse" : true,
-      "Limit" : getLocalOption("oldloadcomments"),
+      "Limit" : initload,
       "ParentIds" : [ Number(did) ],
       "MaxId" : Number(minId)
    }));
@@ -1940,9 +1949,12 @@ function loadOlderComments(discussion)
       var oldHeight = discussions.scrollHeight;
       easyComments(data.comment, users);
       discussions.scrollTop = oldTop + discussions.scrollHeight - oldHeight;
+      if(data.comment.length !== initload)
+         discussion.setAttribute(attr.atoldest, "");
    }, undefined, undefined, req =>
    {
       globals.discussion.loadingOlder = false;
+      hide(loading);
    });
 }
 
@@ -2016,7 +2028,7 @@ function easyDiscussion(id)
       });
       discussions.appendChild(discussion);
 
-      var loadolder = discussion.querySelector(".loadolder");
+      var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
       loadolder.onclick = event => 
       {
          event.preventDefault();

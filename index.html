@@ -497,8 +497,10 @@ function loglevel(el, replace)
             <div data-messageframe data-userid="0" style="display: none">
                <div data-messageid="0"></div>
             </div>
-            <a href="#" class="uk-position-top-right uk-margin-small-right
-               uk-text-meta loadolder">Load older</a>
+            <div data-loadolder class="uk-position-top-right uk-margin-small-right">
+               <div data-loading uk-spinner="ratio: 0.5" hidden></div>
+               <a href="#" data-loadmore class="uk-text-meta">Load older</a>
+            </div>
          </li>
          <li data-discussionswitch data-id="id">
             <a href="#"></a>
