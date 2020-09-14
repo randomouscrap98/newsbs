@@ -77,7 +77,6 @@ window.onload = function()
    if(ww >= getLocalOption("showsidebarminrem"))
       rightpanetoggle.click();
 
-
    setupSpa();
 
    setupDebugLog();
@@ -170,12 +169,21 @@ function setupSignalProcessors()
    ["wdom"].forEach(x => signals.AddAutoException(x));
 
    signals.Attach("wdom", data => data());
-   signals.Attach("spaclick", spaclick_load);
-   signals.Attach("spafinish", spafinish_handle);
-   signals.Attach("pageerror", pageerror_handle);
+
+   //All these things use the same name as their handler, they are emitted as
+   //events/signals in case we want more processors/etc.
+   ["pageerror", "spaclick", "spafinish"].forEach(
+      x => signals.Attach(x, window[x]));
+
+   //These are so small I don't care about them
+   signals.Attach("localsettingupdate", data => 
+   {
+      log.Info("Setting " + data.key + " to " + data.value);
+      setLocalOption(data.key, data.value);
+   });
 }
 
-function pageerror_handle(data)
+function pageerror(data)
 {
    writeDom(() =>
    {
@@ -191,7 +199,7 @@ function pageerror_handle(data)
 
 //Everything that can happen at the start of a spa click before
 //another signal needs to be emmitted (like rendering or something)
-function spaclick_load(data)
+function spaclick(data)
 {
    writeDom(() => { setLoading(topnav, true); });
 
@@ -208,6 +216,22 @@ function spaclick_load(data)
    }
 
    loadFunc(data);
+}
+
+//Handle a spa completion event, assuming all the data was loaded/etc
+function spafinish(data)
+{
+   if(data.rid === globals.spa.requestId)
+   {
+      writeDom(() =>
+      {
+         renderPage(data.route, data.applyTemplate, data.breadcrumbs);
+      });
+   }
+   else
+   {
+      log.Warn("Ignoring page finalization: " + data.url);
+   }
 }
 
 function setupSpa()
@@ -233,66 +257,14 @@ function setupSpa()
    }));
 
    globals.spa.SetHandlePopState();
-   log.Debug("Setup SPA, override handling popstate");
-
    DomDeps.spaClick = (url) => globals.spa.ClickFunction(url);
-}
 
-function spafinish_handle(data)
-{
-   if(data.rid === globals.spa.requestId)
-   {
-      writeDom(() =>
-      {
-         renderPage(data.route, data.applyTemplate, data.breadcrumbs);
-      });
-   }
-   else
-   {
-      log.Warn("Ignoring page finalization: " + data.url);
-   }
-}
-
-// ***************
-// --- ROUTING ---
-// ***************
-
-
-//Data is SPA
-function routehome_load(data)
-{
-   signals.Add("spafinish", data);
-}
-
-
-function routegeneric_load(url, pVal, id)
-{
-
+   log.Debug("Setup SPA, override handling popstate");
 }
 
 function setupDebugLog()
 {
-   UIkit.util.on('#logsparent', 'show', () =>
-   {
-      //Find the last id, only display new ones.
-      log.Debug("Debug log shown, rendering new messages");
-      var lastId = (logs.lastElementChild ?  Number(logs.lastElementChild.dataset.id) : 0);
-      var msgBase = cloneTemplate("log");
-      for(var i = 0; i < log.messages.length; i++)
-      {
-         if(log.messages[i].id > lastId)
-         {
-            var logMessage = msgBase.cloneNode(true);
-            logMessage.setAttribute("data-id", log.messages[i].id);
-            multiSwap(logMessage, {
-               "data-message": log.messages[i].message,
-               "data-level": log.messages[i].level,
-               "data-time": log.messages[i].time
-            });
-            logs.appendChild(logMessage);
-         }
-      }
-   });
+   UIkit.util.on('#logsparent', 'show', () => writeDom(() => renderLogs(log)));
    log.Debug("Setup logger display");
 }
 
@@ -304,10 +276,13 @@ function setupTechnicalInfo()
       {
          log.Debug("Received technical info from API");
 
-         multiSwap(technicalinfo, {
-            "data-apiroot": apiroot,
-            "data-apiversion": data.versions.contentapi,
-            "data-entitysystemversion": data.versions.entitysystem
+         writeDom(() =>
+         {
+            multiSwap(technicalinfo, {
+               "data-apiroot": apiroot,
+               "data-apiversion": data.versions.contentapi,
+               "data-entitysystemversion": data.versions.entitysystem
+            });
          });
       });
    }
@@ -315,7 +290,11 @@ function setupTechnicalInfo()
 
 function setupPageControls()
 {
-   var makeSet = f => function(event) { event.preventDefault(); f(); };
+   var makeSet = f => function(event) 
+   { 
+      event.preventDefault(); 
+      writeDom(f);
+   };
 
    fulldiscussionmode.onclick = makeSet(setFullDiscussionMode);
    fullcontentmode.onclick = makeSet(setFullContentMode);
@@ -329,11 +308,13 @@ function setupUserForms()
 {
    formSetupSubmit(loginform, "user/authenticate", token => login(token));
    userlogout.addEventListener("click", () => logout());
+
    formSetupSubmit(passwordresetform, "user/passwordreset/sendemail", result =>
    {
       log.Info("Password reset code sent!");
-      passwordresetstep2.click();
+      writeDom(() => passwordresetstep2.click()); //don't know if clicks need to be set up like this...
    });
+
    formSetupSubmit(passwordresetconfirmform, "user/passwordreset", token =>
    {
       notifySuccess("Password reset!");
@@ -344,6 +325,7 @@ function setupUserForms()
          return "Passwords don't match!"
       return undefined;
    });
+
    formSetupSubmit(registerform, "user/register", token =>
    {
       log.Info("Registration submitted! Sending email...");
@@ -351,13 +333,14 @@ function setupUserForms()
          () => log.Info("Registration email sent! Check your email"), 
          req => notifyError("There was a problem sending your email. However, your registration was submitted successfully."), 
          {"email" : formSerialize(registerform)["email"] });
-      registrationstep2.click();
+      writeDom(() => registrationstep2.click());
    }, formData =>
    {
       if(formData.password != formData.password2)
          return "Passwords don't match!"
       return undefined;
    });
+
    formSetupSubmit(registerconfirmform, "user/register/confirm", token =>
    {
       notifySuccess("Registration complete!");
@@ -385,70 +368,30 @@ function setupUserForms()
 
 function refreshOptions()
 {
-   log.Info("Refreshing user options");
-   userlocaloptions.innerHTML = "";
-   developerlocaloptions.innerHTML = "";
-
-   var lastType = false;
-
-   if(Notification.permission === "granted")
-      hide(allowNotifications);
-
-   //Set up options
-   for(key in options)
+   writeDom(() =>
    {
-      var o = options[key];
-      var text = o.text;
-      var prnt = userlocaloptions;
-      var templn = o.type;
-      let vconv = x => x;
-
-      if(!text) //oops, this is a developer option
-      {
-         text = key;
-         prnt = developerlocaloptions;
-      }
-
-      if(!templn)
-      {
-         var to = typeof o.def;
-         if(to === "boolean") 
-         {
-            templn = "bool";
-         }
-         else if(to === "number") 
-         {
-            templn = "number";
-            vconv = x => Number(x);
-         }
-         else 
-         {
-            templn = "raw";
-         }
-      }
-
-      let elm = cloneTemplate(templn + "option");
-      let k = key;
-      multiSwap(elm, {
-         "data-text" : o.text || key,
-         "data-input" : getLocalOption(key)
-      });
-      elm.onchange = e => { 
-         var val = vconv(getSwap(elm, "data-input"));
-         log.Info("Setting " + k + " to " + val);
-         setLocalOption(k, val);
-      };
-      finalizeTemplate(elm);
-
-      if(lastType && lastType !== templn)
-         elm.className += " uk-margin-small-top";
-      if(o.step)
-         findSwap(elm, "data-step", o.step);
-
-      lastType = templn;
-      prnt.appendChild(elm);
-   }
+      for(key in options)
+         options[key].value = getLocalOption(key);
+      renderOptions(options);
+   });
 }
+
+
+// ***************
+// --- ROUTING ---
+// ***************
+
+//Data is SPA for all these
+
+function routehome_load(data)
+{
+   signals.Add("spafinish", data);
+}
+
+// *******************
+// --- SPECIAL DOM ---
+// *******************
+
 
 function getLocalOption(key)
 {

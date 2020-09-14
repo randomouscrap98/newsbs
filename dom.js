@@ -233,3 +233,103 @@ function multiSwap(element, replacements)
       findSwap(element, key, replacements[key]);
 }
 
+// ***************
+// --- SPECIAL ---
+// ***************
+
+// Usually we don't depend on outside data formats but this is special.
+
+function renderLogs(log)
+{
+   //Find the last id, only display new ones.
+   DomDeps.log("Debug log shown, rendering new messages");
+   var lastId = (logs.lastElementChild ? Number(logs.lastElementChild.dataset.id) : 0);
+   var msgBase = cloneTemplate("log");
+   for(var i = 0; i < log.messages.length; i++)
+   {
+      if(log.messages[i].id > lastId)
+      {
+         var logMessage = msgBase.cloneNode(true);
+         logMessage.setAttribute("data-id", log.messages[i].id);
+         multiSwap(logMessage, {
+            "data-message": log.messages[i].message,
+            "data-level": log.messages[i].level,
+            "data-time": log.messages[i].time
+         });
+         logs.appendChild(logMessage);
+      }
+   }
+}
+
+function renderOptions(options)
+{
+   DomDeps.log("Refreshing user options");
+
+   userlocaloptions.innerHTML = "";
+   developerlocaloptions.innerHTML = "";
+
+   var lastType = false;
+
+   if(Notification.permission === "granted" ||
+      !Notification.requestPermission)
+   {
+      hide(allowNotifications);
+   }
+
+   //Set up options
+   for(key in options)
+   {
+      var o = options[key];
+      var text = o.text;
+      var prnt = userlocaloptions;
+      var templn = o.type;
+      let vconv = x => x;
+
+      if(!text) //oops, this is a developer option
+      {
+         text = key;
+         prnt = developerlocaloptions;
+      }
+
+      if(!templn)
+      {
+         var to = typeof o.def;
+         if(to === "boolean") 
+         {
+            templn = "bool";
+         }
+         else if(to === "number") 
+         {
+            templn = "number";
+            vconv = x => Number(x);
+         }
+         else 
+         {
+            templn = "raw";
+         }
+      }
+
+      let elm = cloneTemplate(templn + "option");
+      let k = key;
+      multiSwap(elm, {
+         "data-text" : o.text || key,
+         "data-input" : o.value //getLocalOption(key)
+      });
+      elm.onchange = e => { 
+         var val = vconv(getSwap(elm, "data-input"));
+         DomDeps.signal("localsettingupdate", 
+            { key : k, value: val, options : options });
+         //setLocalOption(k, val);
+      };
+      finalizeTemplate(elm);
+
+      if(lastType && lastType !== templn)
+         elm.className += " uk-margin-small-top";
+      if(o.step)
+         findSwap(elm, "data-step", o.step);
+
+      lastType = templn;
+      prnt.appendChild(elm);
+   }
+}
+
