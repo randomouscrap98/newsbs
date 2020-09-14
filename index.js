@@ -74,6 +74,7 @@ window.onload = function()
    setupPageControls();
    setupDiscussions();
    setupLongpoller();
+   setupTheme();
 
    setupSession();
 
@@ -501,6 +502,35 @@ function setupLongpoller()
 {
    globals.longpoller = {};
    log.Debug("Setup long poller (not started)");
+}
+
+function setupTheme()
+{
+   darkmodetoggle.onclick = event =>
+   {
+      event.preventDefault();
+      var currentTheme = document.body.getAttribute("data-theme");
+      var newTheme = false;
+
+      //This is separate just in case something weird happens in the future.
+      if(currentTheme === "dark")
+      {
+         document.body.removeAttribute("data-theme");
+      }
+      else
+      {
+         newTheme ="dark";
+         document.body.setAttribute("data-theme", newTheme);
+      }
+
+      if(newTheme)
+         localStorage.setItem("usertheme", newTheme);
+      else
+         localStorage.removeItem("usertheme");
+   };
+
+   var currentTheme = localStorage.getItem("usertheme");
+   if(currentTheme) document.body.setAttribute("data-theme", currentTheme);
 }
 
 //Set up the page and perform initial requests for being "logged in"

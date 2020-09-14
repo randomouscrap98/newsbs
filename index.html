@@ -264,20 +264,23 @@ function loglevel(el, replace)
                   </li>
                   <!-- LOC:ACTIVITY -->
                   <li id="pulseparent" class="uk-margin-large-bottom">
-                     <ul id="pulse" class="uk-list uk-list-striped"></ul>
+                     <ul id="pulse" class="uk-list uk-list-divider"></ul>
                   </li>
                   <!-- LOC:WATCHES -->
                   <li class="uk-margin-large-bottom">
-                     <ul id="watches" class="uk-list uk-list-striped"></ul>
+                     <ul id="watches" class="uk-list uk-list-divider"></ul>
                   </li>
                   <!-- LOC:LOGS -->
                   <li id="logsparent">
-                     <ul id="logs" class="uk-list uk-list-striped uk-list-collapse"></ul>
+                     <ul id="logs" class="uk-list uk-list-divider uk-list-collapse"></ul>
                   </li>
                </ul>
                <div id="rightpanefooter" class="databar uk-flex">
-                  <span class="uk-width-expand">SmileBASIC Source - 2020</span>
-                  <a href="" uk-toggle="target: #aboutprivacy">About/Privacy</a>
+                  <span class="uk-flex-none">SmileBASIC Source - 2020</span>
+                  <div class="uk-width-expand">
+                     <a href="#" id="darkmodetoggle">&#x1F311;</a>
+                  </div>
+                  <a href="" class="uk-flex-none" uk-toggle="target: #aboutprivacy">About/Privacy</a>
                </div>
             </div>
          </div>

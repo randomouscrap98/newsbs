@@ -7,9 +7,34 @@ body {
    overflow: hidden;
 }
 img { image-rendering: -webkit-optimize-contrast; }
+
+/* UIkit reconfiguring */
 code { 
    white-space: pre-wrap !important; 
-   display: block;
+   background-color: rgba(128,128,128,0.07) !important;
+   color: #789 !important;
+   display: inline-block;
+}
+pre, .uk-input, .uk-select, .uk-textarea, .uk-button-default {
+   background-color: rgba(255,255,255,0.05);
+   border: 1px solid rgba(128,128,128, 0.1);
+   color: inherit;
+}
+.uk-button-default:focus, .uk-button-default:hover,
+.uk-checkbox {
+   background-color: rgba(255,255,255,0.1);
+   border: 1px solid rgba(128,128,128, 0.3);
+   color: inherit;
+}
+.uk-modal-header {
+   background: rgba(128,128,128,0.05);
+   border-bottom: 1px solid rgba(128,128,128, 0.1);
+}
+.uk-text-meta {
+   color: rgba(128,128,128, 0.7);
+}
+hr {
+   border-top: 1px solid rgba(128,128,128, 0.2);
 }
 .nocontainer { display: contents; }
 /* Stuff that should probably be taken over by uikit */
@@ -17,7 +42,11 @@ input[type="file"] { cursor: pointer; }
 a:hover { color: inherit; }
 #postarea textarea { resize: none; }
 .noevent { pointer-events: none; }
-/*h3.uk-text-meta { float: right; display: inline; }*/
+.uk-list-divider>:nth-child(n+2) {
+   margin-top: 0;
+   padding-top: 0.45em; /* TODO: this is a repeat! */
+   border-top: 1px solid rgba(128,128,128,0.1);
+}
 /* The rest */
 .databar {
    background-color: #444;
@@ -29,9 +58,7 @@ a:hover { color: inherit; }
    filter: hue-rotate(180deg); 
    transform: rotate(15deg);
 }
-#leftpane {
-   /*background-color: lime;*/
-}
+#leftpane { }
 #rightpane {
    background-color: rgba(128,128,128,0.05);
    border-left: 2px solid rgba(128,128,128,0.1);
@@ -46,7 +73,7 @@ a:hover { color: inherit; }
 #rightpanenav {
    background-color: rgba(128,128,128,0.1);
 }
-#rightpanenav a:hover {
+#rightpanenav >:hover {
    background-color: rgba(128,255,240,0.1);
 }
 /* left-pane stuff (main content!) */
@@ -63,16 +90,21 @@ a:hover { color: inherit; }
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
    background-color: rgba(128,255,240,0.4);
+   color: #111;
 }
 #postarea {
    height: 5em;
-   background-color: rgba(128,128,128,0.05);
+   /*background-color: rgba(128,128,128,0.05);*/
    border-top: 2px solid rgba(128,128,128,0.1);
    padding-bottom: 1px;
 }
 .tabnav > div { padding: 0.1em 0; }
 .avatar { border: 1px solid rgba(128,128,128,0.5); }
 [data-routeuser] .avatar { max-width: 150px; }
+#darkmodetoggle {
+   text-decoration: none;
+   margin: 0 0.9em;
+}
 /* ------- */
 /* Logging
 /* ------- */
@@ -85,9 +117,10 @@ a:hover { color: inherit; }
    margin: 0.15em;
    opacity: 0.6;
 }
-.log_debug { color: #BBB; }
+.log_debug { opacity: 0.75; }
 .log_error { color: #C42; }
 .log_warn { color: #DA6; }
+[data-log] { padding: 0.1em 0.5em; }
 /* -------------------- */
 /* Notification special */
 /* -------------------- */
@@ -208,6 +241,7 @@ a:hover { color: inherit; }
 [data-watch="true"] path {
    fill: #EE5588; 
    color: #EE5588; 
+   opacity: 0.8;
 }
 /* CategoryLists */
 [data-pageitem]:nth-child(even) {
@@ -227,8 +261,35 @@ a:hover { color: inherit; }
    /* padding: 0.1em 0.3em; */
 }
 
+/* Scrollbar! WOW */
+::-webkit-scrollbar { width: 10px; } /* width */
+::-webkit-scrollbar-track { background: rgba(128,128,128,0.1); } /* Track */
+::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); } /* Handle */
+::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.5); } /* Handle on hover */
+
 /* Some reaction crap or whatever it's called */
 @media (min-width: 700px) { 
    #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
    [data-messageframe] [data-useravatar] { width: 60px; }
 }
+
+/* Dark mode? */
+body[data-theme="dark"], [data-theme="dark"] .uk-modal-dialog,
+[data-theme="dark"] .uk-dropdown {
+   background-color: #222;
+   color: #888;
+}
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
+[data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+[data-theme="dark"] .uk-text-emphasis {
+   color: #999 !important;
+}
+[data-theme="dark"] #topnav {
+   background-color: #111;
+   color: #777;
+}
+[data-theme="dark"] img {
+   opacity: 0.9;
+}
+
+
