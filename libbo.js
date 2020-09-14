@@ -110,8 +110,14 @@ var Signaller = function()
 {
    this.signals = {};
    this.handlers = {};
+   this.autoexceptions = [];
    this.sid = 0;
 }
+
+Signaller.prototype.AddAutoException = function(name)
+{
+   this.autoexceptions.push(name);
+};
 
 Signaller.prototype.Add = function(name, data, time)
 {
@@ -140,7 +146,16 @@ Signaller.prototype.Attach = function(name, func)
       this.handlers[name].push(func);
 };
 
-Signaller.prototype.ProcessAll = function(name, now)
+Signaller.prototype.ProcessAuto = function(now)
+{
+   for(key in this.signals)
+   {
+      if(this.autoexceptions.indexOf(key) < 0)
+         this.Process(key, now);
+   }
+};
+
+Signaller.prototype.Process = function(name, now)
 {
    if(this.signals[name])
    {
@@ -174,6 +189,7 @@ Signaller.prototype.ClearOlderThan = function(time)
    }
 };
 
+var signals = new Signaller();
 
 // ----- Utilities (various functions) -----
 

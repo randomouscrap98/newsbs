@@ -50,17 +50,11 @@ var globals = {
    reqId : 0,           //Ever increasing request id
 };
 
-var signal = new Signaller(); //Singleton signaller
-
-//Quick way to make sure I don't make typos, s are signal names
-var s = {
-   wdom : "wd",
-   rdom : "rd"
-};
-
 log.Datalog = (d,e,f) => { if(getLocalOption("datalog")) log.Trace(d,e,f); };
 log.Drawlog = (d,e,f) => { if(getLocalOption("drawlog")) log.Trace(d,e,f); };
 log.Domlog = (d,e,f) => { if(getLocalOption("domlog")) log.Trace(d,e,f); };
+DomDeps.log = log.Domlog;
+DomDeps.signal = signals.Add;
 
 window.Notification = window.Notification || {};
 
@@ -102,28 +96,25 @@ window.onload = function()
    //not "REALLY" logged in, well whatever, better than processing it twice.
    globals.spa.ProcessLink(document.location.href);
    refreshCycle();
-   beginRender();
+
+   //Begin render
+   globals.render = { lastrendertime : performance.now() };
+   requestAnimationFrame(renderLoop);
 };
 
 function refreshCycle()
 {
-   signal.Add(s.wdom, () =>
+   writeDom(() =>
    {
       refreshPWDates(pulse);
       refreshPWDates(watches);
    });
 
-   signal.ClearOlderThan(performance.now() - getLocalOption("signalcleanup"));
+   signals.ClearOlderThan(performance.now() - getLocalOption("signalcleanup"));
 
    //This is called instead of setInterval so users can change this and have it
    //update immediately
    globals.refreshCycle = setTimeout(refreshCycle, getLocalOption("refreshcycle"));
-}
-
-function beginRender()
-{
-   globals.render = { lastrendertime : performance.now() };
-   requestAnimationFrame(renderLoop);
 }
 
 function renderLoop(time)
@@ -133,10 +124,14 @@ function renderLoop(time)
       var delta = time - globals.render.lastrendertime;
 
       //FIRST, do all the stuff that requires reading the layout
+      //signal.Process("spaclick", time);
+
+      //NEXT, do stuff where the order doesn't matter
+      signals.ProcessAuto(time);
 
       //THEN, do all the stuff that requires modifying the layout,
       //DO NOT read past this point EVER!
-      signal.ProcessAll(s.wdom, time);
+      signals.ProcessAll("wdom", time);
 
       globals.render.lastrendertime = time;
       requestAnimationFrame(renderLoop);
@@ -159,121 +154,9 @@ function safety(func)
    }
 }
 
-// ************************
-// --- DOM MANIPULATION ---
-// ************************
-
 //Note: cascading dom writes should USUALLY be handled in the same frame UNLESS
 //there's something in the middle that's deferred (time set)
-function writeDom(func) { signal.Add(s.wdom, func); }
-
-//Note: NOTHING in dom manipulation uses the signal system. ONLY the signalers
-//do, this is so that these functions can be used by themselves wherever
-function hide(e) { e.setAttribute("hidden", ""); }
-function unhide(e) { e.removeAttribute("hidden"); }
-function setHidden(e, hidden) { if(hidden) hide(e); else unhide(e); }
-
-function setFullContentMode()
-{
-   log.Domlog("Set full content mode");
-
-   //writeDom(() =>
-   //{
-   unhide(maincontentcontainer);
-   unhide(splitmodediscussion);
-   maincontentcontainer.className += " uk-flex-1";
-
-   hide(discussionscontainer);
-   hide(splitmodecontent);
-   hide(fulldiscussionmode);
-   hide(fullcontentmode);
-
-   signal.Add("setcontentmode", "content");
-   //});
-}
-
-function setFullDiscussionMode()
-{
-   log.Domlog("Set full discussion mode");
-
-   //writeDom(() =>
-   //{
-   unhide(discussionscontainer);
-   unhide(splitmodecontent);
-
-   hide(maincontentcontainer);
-   hide(splitmodediscussion);
-   hide(fulldiscussionmode);
-   hide(fullcontentmode);
-
-   signal.Add("setcontentmode", "discussion");
-   //});
-}
-
-function setSplitMode()
-{
-   log.Domlog("Set split discussion/content mode");
-
-   //writeDom(() =>
-   //{
-   maincontentcontainer.className = 
-   maincontentcontainer.className.replace(/uk-flex-1/g, ""); 
-   unhide(discussionscontainer);
-   unhide(maincontentcontainer);
-   unhide(fulldiscussionmode);
-   unhide(fullcontentmode);
-
-   hide(splitmodecontent);
-   hide(splitmodediscussion);
-
-   signal.Add("setcontentmode", "split");
-   //});
-}
-
-function formatDiscussions(hasDiscussions)
-{
-   log.Domlog("Formatting page, show discussions: " + hasDiscussions);
-
-   //writeDom(() =>
-   //{
-   if(hasDiscussions)
-   {
-      unhide(maincontentbar);
-      setSplitMode(); //Could be settings?
-   }
-   else
-   {
-      hide(maincontentbar);
-      setFullContentMode();
-   }
-
-   signal.Add("formatdiscussions", hasDiscussions);
-   //});
-}
-
-function initializePage(requester)
-{
-   log.Domlog("Initializing page to a clean slate");
-
-   //writeDom(() =>
-   //{
-   //Clear out the breadcrumbs
-   breadcrumbs.innerHTML = "";
-
-   //Clear out anything that used to be there
-   maincontent.innerHTML = "";
-   maincontentinfo.innerHTML = "";
-   discussionuserlist.innerHTML = "";
-
-   //Assume there are no discussions (easier to just hide it)
-   formatDiscussions(false);
-
-   //show the loading bar
-   unhide(maincontentloading);
-
-   signal.Add("pageinitialized", requester);
-   //});
-}
+function writeDom(func) { signals.Add("wdom", func); }
 
 
 // ********************
@@ -282,67 +165,86 @@ function initializePage(requester)
 
 function setupSignalProcessors()
 {
-   signal.Attach(s.wdom, data => data());
-   //signal.Attach("spaclick", );
+   ["wdom"].forEach(x => signals.AddAutoException(x));
+   signals.Attach("wdom", data => data());
+   signals.Attach("spaclick", spaclick_load);
+   signals.Attach("pageerror", spaclick_load);
 }
 
-function spaSignalHandler()
+function pageerror_handle(data)
 {
-   //1: EVERY spa click should reinitialize the page (visually), so don't worry there. 
+   writeDom(() =>
+   {
+      initializePage();
+      signals.Add("pageerrorhandled", data);
+   });
 }
 
+//Everything that can happen at the start of a spa click before
+//another signal needs to be emmitted (like rendering or something)
+function spaclick_load(data)
+{
+   writeDom(() => { setLoading(true); });
+
+   var loadFunc = window[data.route + "_load"];
+
+   if(!loadFunc)
+   {
+      signals.Add("pageerror", {
+         sender : this,
+         message : "Couldn't find loader for page " + data.page
+         data
+      });
+      return;
+   }
+
+   loadFunc(data);
+}
 
 function setupSpa()
 {
    globals.spa = new BasicSpa(log);
-
-   //{
-   //   if(globals.spa.processingurl)
-   //   {
-   //      log.Warn("Spa busy processing '" + globals.spa.processingurl +
-   //         "', ignoring new request '" + url + "'");
-   //      return false;
-   //   }
-   //   return true;
-   //}, url =>
 
    //For now, we have ONE processor!
    globals.spa.Processors.push(new SpaProcessor(url => true, (url, rid) =>
    {
       var pVal = Utilities.GetParams(url).get("p") || "home"; 
       var pParts = pVal.split("-");
-      signal.Add("spaclick", {
+      var spadata = {
+         url : url,
          p : pVal,
-         route : pParts[0],
+         page : pParts[0],
+         route : "route" + pParts[0],
          id : pParts[1],
          rid : rid
-      });
+      };
 
-      //var route = "route" + pParts[0];
-      //var template;
-
-      //try
-      //{
-      //   template = cloneTemplate(route);
-      //}
-      //catch
-      //{
-      //   log.Error("Couldn't find route " + url);
-      //   route = "routeerror";
-      //   template = cloneTemplate(route);
-      //}
-
-      //initializePage();
-      //maincontent.appendChild(template);
-
-      //if(window[route + "_load"])
-      //   window[route + "_load"](url, pVal, pParts[1]);
-      //else
-      //   finalizePage();
+      //Alert anybody else who wants to know that we've done a click
+      signals.Add("spaclick", spadata);
    }));
 
    globals.spa.SetHandlePopState();
    log.Debug("Setup SPA, override handling popstate");
+
+   DomDeps.spaClick = globals.spa.ClickFunction;
+}
+
+// ***************
+// --- ROUTING ---
+// ***************
+
+
+//function route_initialize(url, pVal, id)
+//{
+//   writeDom(() =>
+//   {
+//
+//   });
+//}
+
+function routegeneric_load(url, pVal, id)
+{
+
 }
 
 function setupDebugLog()
@@ -1200,26 +1102,6 @@ function setupWatchClear(parent, cid)
 // ---- TEMPLATE CRAP ----
 // ***********************
 
-function cloneTemplate(name)
-{
-   var elm = document.querySelector("#templates > [data-" + name + "]");
-   if(!elm)
-      throw "No template found: " + name;
-   return elm.cloneNode(true);
-}
-
-function finalizeTemplate(elm)
-{
-   var links = elm.querySelectorAll("[data-spa]");
-   [...links].forEach(x =>
-   {
-      x.onclick = globals.spa.ClickFunction(x.href);
-   });
-   if(elm.hasAttribute("data-spa"))
-      elm.onclick = globals.spa.ClickFunction(elm.href);
-   return elm;
-}
-
 function makeError(message)
 {
    var error = cloneTemplate("error");
@@ -1259,19 +1141,6 @@ function makePWUser(user)
    return pu;
 }
 
-function makeBreadcrumbs(chain)
-{
-   chain.forEach(x =>
-   {
-      var bc = cloneTemplate("breadcrumb");
-      multiSwap(bc, {
-         "data-link" : x.content ? getPageLink(x.id) : getCategoryLink(x.id),
-         "data-text" : x.name
-      });
-      finalizeTemplate(bc);
-      breadcrumbs.appendChild(bc);
-   });
-}
 
 function makeCommentFrame(comment, users)
 {
@@ -1301,73 +1170,6 @@ function makeCommentFragment(comment)//, users)
    return fragment;
 }
 
-
-function getSwapElement(element, attribute)
-{
-   if(element.hasAttribute(attribute))
-      return element;
-
-	return element.querySelector("[" + attribute + "]");
-}
-
-//How does this work?
-//-Find an element by (assumed unique) attribute
-//-If attribute is empty, that is AN ERROR
-//-If attribute has a value, the replacement goes to where the attribute is
-// pointing
-//-If attribute starts with ., it goes to the MEMBER on the element.
-// If element doesn't have that member, try global function
-function swapBase(element, attribute, replace)
-{
-   try
-   {
-      var name = getSwapElement(element, attribute);
-      var caller = name.getAttribute(attribute);
-
-      //Oops, use the direct attribute if there's no value.
-      if(!caller)
-         throw "Bad attribute " + attribute + " (empty)";
-
-      //Oh, it's a function call! Try on the element itself first, then fall
-      //back to the window functions
-      if(caller.indexOf(".") === 0)
-      {
-         caller = caller.substr(1);
-
-         if(caller in name)
-         {
-            if(replace !== undefined)
-               name[caller] = replace;
-            else
-               return name[caller];
-         }
-         else
-         {
-            return window[caller](name, replace);
-         }
-      }
-      else
-      {
-         if(replace !== undefined)
-            name.setAttribute(caller, replace);
-         else
-            return name.getAttribute(caller);
-      }
-   }
-   catch(ex)
-   {
-      log.Error("Can't swap attribute " + attribute + " on element " + element + " : " + ex);
-   }
-}
-
-function findSwap(element, attribute, replace) { swapBase(element, attribute, replace); }
-function getSwap(element, attribute) { return swapBase(element, attribute); }
-
-function multiSwap(element, replacements)
-{
-   for(key in replacements)
-      findSwap(element, key, replacements[key]);
-}
 
 function getChain(categories, content)
 {
