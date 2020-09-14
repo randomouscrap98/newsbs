@@ -48,6 +48,14 @@ var globals = {
    reqId : 0,           //Ever increasing request id
 };
 
+var signal = new Signaller(); //Singleton signaller
+
+//Quick way to make sure I don't make typos, s are signal names
+var s = {
+   wdom : "wd",
+   rdom : "rd"
+};
+
 console.datalog = (d,e,f) => { if(getLocalOption("datalog")) console.log(d,e,f); };
 console.drawlog = (d,e,f) => { if(getLocalOption("drawlog")) console.log(d,e,f); };
 
@@ -58,6 +66,7 @@ window.onerror = function(message, source, lineno, colno, error)
    notifyError(message + "\n(" + source + ":" + lineno + ")"); 
 };
 
+//OK now we can finally load and do things?
 window.onload = function()
 {
    log.Info("Window load event");
@@ -86,18 +95,50 @@ window.onload = function()
    //the spa processor will take your login state into account. And if you're
    //not "REALLY" logged in, well whatever, better than processing it twice.
    globals.spa.ProcessLink(document.location.href);
-   refreshCycle(true);
+   refreshCycle();
+   beginRender();
 };
 
-function refreshCycle(dryRun)
+function refreshCycle()
 {
-   if(!dryRun)
+   signal.Add(s.wdom, () =>
    {
       refreshPWDates(pulse);
       refreshPWDates(watches);
-   }
+   });
 
+   //This is called instead of setInterval so users can change this and have it
+   //update immediately
    globals.refreshCycle = setTimeout(refreshCycle, getLocalOption("refreshcycle"));
+}
+
+function beginRender()
+{
+   globals.render = { lastrendertime : performance.now() };
+   requestAnimationFrame(renderLoop);
+}
+
+function renderLoop(time)
+{
+   try
+   {
+      var delta = time - globals.render.lastrendertime;
+
+      //FIRST, do all the stuff that requires reading the layout
+
+      //THEN, do all the stuff that requires modifying the layout,
+      //DO NOT read past this point EVER!
+      signal.ProcessAll(s.wdom, data => data(), time);
+
+      globals.render.lastrendertime = time;
+      requestAnimationFrame(renderLoop);
+   }
+   catch(ex)
+   {
+      UIkit.modal.alert(
+         "WEBSITE FULL CRASH: renderLoop failed with exception: " + ex)
+      console.log("renderLoop exception: ", ex);
+   }
 }
 
 function safety(func)
@@ -118,19 +159,20 @@ function setupSpa()
 {
    globals.spa = new BasicSpa(log);
 
+   //{
+   //   if(globals.spa.processingurl)
+   //   {
+   //      log.Warn("Spa busy processing '" + globals.spa.processingurl +
+   //         "', ignoring new request '" + url + "'");
+   //      return false;
+   //   }
+   //   return true;
+   //}, url =>
+
    //For now, we have ONE processor!
-   globals.spa.Processors.push(new SpaProcessor(url => 
+   globals.spa.Processors.push(new SpaProcessor(url => true, url =>
    {
-      if(globals.spa.processingurl)
-      {
-         log.Warn("Spa busy processing '" + globals.spa.processingurl +
-            "', ignoring new request '" + url + "'");
-         return false;
-      }
-      return true;
-   }, url =>
-   {
-      globals.spa.processingurl = url;
+      //globals.spa.processingurl = url;
 
       var pVal = Utilities.GetParams(url).get("p") || "home"; 
       var pParts = pVal.split("-");

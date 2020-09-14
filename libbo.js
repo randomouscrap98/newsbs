@@ -101,6 +101,50 @@ BasicSpa.prototype.SetHandlePopState = function()
    };
 };
 
+// ----- Signalling (that one paradigm ugh) -----
+
+var Signaller = function()
+{
+   this.signals = {};
+}
+
+Signaller.prototype.Add = function(name, data, time)
+{
+   if(!name)
+      throw "Must provide name for signal!";
+
+   if(!this.signals[name])
+      this.signals[name] = [];
+
+   this.signals[name].push({
+      data : data,
+      time : time || 0
+   });
+};
+
+Signaller.prototype.ProcessAll = function(name, func, now)
+{
+   if(this.signals[name])
+   {
+      var now = now || performance.now();
+      this.signals[name].sort((a,b) => Math.sign(a.time - b.time));
+
+      for(var i = 0; i < this.signals[name].length; i++)
+      {
+         if(this.signals[name][i].time > now)
+         {
+            //Splice now, we're done. Then exit
+            this.signals[name].splice(0, i);
+            return;
+         }
+
+         func(this.signals[name][i].data);
+      }
+
+      this.signals[name].splice(0);
+   }
+};
+
 
 // ----- Utilities (various functions) -----
 

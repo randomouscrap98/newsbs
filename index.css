@@ -302,7 +302,7 @@ a:hover { color: inherit; }
 [data-theme="dark"] {
    --mainbgcolor: #222; 
    --maintxtcolor: #888;
-   --databarbgcolor: #111;
+   --databarbgcolor: #191919; /*#1F1F1F;*/
    --databartxtcolor: #777;
    --databartxthovcolor: #AAA;
    --headercolor: #999;
