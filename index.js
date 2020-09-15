@@ -22,7 +22,7 @@ var options = {
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
    loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
-   quickload : { def: true, text : "Load parts of page as they are available" },
+   quickload : { def: true, text : "Fast load page as parts become available" },
    imageresolution : { def: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, text: "Display pages per category" },
@@ -668,6 +668,77 @@ function addFileUploadImage(file, num)
    fileuploadthumbnails.appendChild(fThumb);
 }
 
+
+// ************************
+// --- DISCUSSION BASIC ---
+// ************************
+
+function getDiscussion(id)
+{
+   if(!globals.discussions[id])
+   {
+      var discussion = cloneTemplate("discussion");
+      multiSwap(discussion, {
+         "data-id": getDiscussionId(id),
+         "data-discussionid": id
+      });
+
+      var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
+      loadolder.onclick = event => 
+      {
+         event.preventDefault();
+         loadOlderComments(discussion);
+      };
+
+      globals.discussions[id] = discussion;
+   }
+
+   return globals.discussions[id];
+}
+
+function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
+
+function getActiveDiscussionId()
+{
+   var d = getActiveDiscussion();
+   return d ? Number(d.getAttribute("data-did")) : null;
+}
+
+function showDiscussion(id)
+{
+   hideDiscussion(true);
+
+   writeDom(() => 
+   {
+      var d = getDiscussion(id);
+      discussions.appendChild(d);
+      globals.discussion.observer.observe(discussions);
+      globals.discussion.observer.observe(d);
+
+      signals.Add("showdiscussion", id);
+   });
+}
+
+function formatShowDiscussion(id)
+{
+   showDiscussion(id);
+   formatDiscussions(true);
+}
+
+function hideDiscussion(quiet)
+{
+   var d = getActiveDiscussion();
+
+   if(d)
+   {
+      globals.discussion.observer.disconnect();
+      writeDom(() => Utilities.RemoveElement(d));
+   }
+   else if(!quiet)
+   {
+      log.Warn("Tried to hide discussion when none was shown");
+   }
+}
 
 //Right now, this can only be called once :/
 function setupDiscussions()
@@ -1694,73 +1765,6 @@ function renderComment(elm, repl)
    return elm.getAttribute("data-rawmessage");
 }
 
-
-function getDiscussion(id)
-{
-   if(!globals.discussions[id])
-   {
-      var discussion = cloneTemplate("discussion");
-      multiSwap(discussion, {
-         "data-id": getDiscussionId(id),
-         "data-discussionid": id
-      });
-
-      var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
-      loadolder.onclick = event => 
-      {
-         event.preventDefault();
-         loadOlderComments(discussion);
-      };
-
-      globals.discussions[id] = discussion;
-   }
-
-   return globals.discussions[id];
-}
-
-function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
-
-function getActiveDiscussionId()
-{
-   var d = getActiveDiscussion();
-   return d ? Number(d.getAttribute("data-did")) : null;
-}
-
-function showDiscussion(id)
-{
-   hideDiscussion(true);
-
-   writeDom(() => 
-   {
-      var d = getDiscussion(id);
-      discussions.appendChild(d);
-      globals.discussion.observer.observe(discussions);
-      globals.discussion.observer.observe(d);
-
-      signals.Add("showdiscussion", id);
-   });
-}
-
-function formatShowDiscussion(id)
-{
-   showDiscussion(id);
-   formatDiscussions(true);
-}
-
-function hideDiscussion(quiet)
-{
-   var d = getActiveDiscussion();
-
-   if(d)
-   {
-      globals.discussion.observer.disconnect();
-      writeDom(() => Utilities.RemoveElement(d));
-   }
-   else if(!quiet)
-   {
-      log.Warn("Tried to hide discussion when none was shown");
-   }
-}
 
 
 
