@@ -52,7 +52,7 @@ var globals = {
 //Some um... global sturf uggh
 log.Datalog = (d,e,f) => { if(getLocalOption("datalog")) log.Trace(d,e,f); };
 log.Drawlog = (d,e,f) => { if(getLocalOption("drawlog")) log.Trace(d,e,f); };
-log.Domlog = (d,e,f) => { if(getLocalOption("domlog")) log.Trace(d,e,f); };
+log.Domlog =  (d,e,f) => { if(getLocalOption("domlog")) log.Trace(d,e,f); };
 
 DomDeps.log = (d,e,f) => log.Domlog(d,e,f);
 DomDeps.signal = (name, data) => signals.Add(name, data);
@@ -564,6 +564,9 @@ function routepage_load(spadat)
             d.setAttribute(attr.atoldest, "");
          setupWatchLink(templ, c.id);
          //TODO: need to add comments here and perhaps swap to discussion
+         easyShowDiscussion(c.id);
+         easyComments(data.comment, users);
+         formatDiscussions(true);
       }, getChain(data.category, c));
          //{ "users" : users, "comments" : data.comment, "content" : c });
    });
@@ -1583,13 +1586,13 @@ function scrollDiscussionsAnimation(timestamp)
       var scd = scrollDiscussionsDistance();
       var scm = Math.max(1, delta * 60 / 1000 * 
          getLocalOption("discussionscrollspeed") * Math.abs(scd));
-      console.drawlog("scd: " + scd + ", scm: " + scm + ", delta: " 
+      log.Drawlog("scd: " + scd + ", scm: " + scm + ", delta: " 
          + delta + ", dst: " + discussions.scrollTop);
       //These are added separately because eventually, our scrolltop will move
       //past the actual assigned one
       globals.discussion.scrollTop = Math.ceil(globals.discussion.scrollTop + scm);
       discussions.scrollTop = globals.discussion.scrollTop;
-      console.drawlog("New dst: " + discussions.scrollTop + ", gst: " +
+      log.Drawlog("New dst: " + discussions.scrollTop + ", gst: " +
          globals.discussion.scrollTop);
    }
 
