@@ -40,6 +40,7 @@ var options = {
    discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
    signalcleanup : {def: 10000 },
+   //logsignals : { //Eventually I'll do this?
    scrolldiscloadheight : {def: 1.0, step: 0.01 },
    defaultmarkup : {def:"12y"}
 };
@@ -180,7 +181,7 @@ function setupSignalProcessors()
    //simple-ish project. They should follow the _event convention to distinguish them
    signals.Attach("wdom", data => data());
    signals.Attach("loadoldercomments_event", data => loadOlderComments(data));
-   signals.Attach("spaclick_event", data => globals.spa.ClickFunction(data.url));
+   signals.Attach("spaclick_event", data => globals.spa.ProcessLinkContextAware(data.url));
    signals.Attach("localsettingupdate_event", data => 
    {
       log.Info("Setting " + data.key + " to " + data.value);

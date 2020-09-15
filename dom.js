@@ -213,6 +213,13 @@ function cloneTemplate(name)
    return elm.cloneNode(true);
 }
 
+function templateSpaClick(event)
+{
+   event.preventDefault();
+   console.log(event.target);
+   DomDeps.signal("spaclick_event", { element: event.target, url: event.target.href });
+}
+
 function finalizeTemplate(elm)
 {
    var links = elm.querySelectorAll("[data-spa]");
@@ -221,9 +228,7 @@ function finalizeTemplate(elm)
    if(elm.hasAttribute("data-spa"))
       linkArray.push(elm);
 
-   linkArray.forEach(x => 
-      x.onclick = () => DomDeps.signal("spaclick_event", { element: x, url: x.href }); //DomDeps.spaClick(x.href);
-   );
+   linkArray.forEach(x => { x.onclick = templateSpaClick; });
 
    return elm;
 }
@@ -500,7 +505,7 @@ function showDiscussion(id)
 
    var d = getDiscussion(id);
    discussions.appendChild(d);
-   signals.Add("showdiscussion", { id: id, discussion: d });
+   DomDeps.signal("showdiscussion", { id: id, discussion: d });
 }
 
 function formatShowDiscussion(id)
@@ -516,7 +521,7 @@ function hideDiscussion(quiet)
    if(d)
    {
       d.parentNode.removeChild(d);
-      signal("hidediscussion", { discussion: d });
+      DomDeps.signal("hidediscussion", { discussion: d });
    }
    else if(!quiet)
    {

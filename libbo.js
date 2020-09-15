@@ -80,6 +80,21 @@ BasicSpa.prototype.ProcessLink = function(url)
    return false;
 };
 
+BasicSpa.prototype.SpaContextLink = function(url)
+{
+   var hash = url.indexOf("#");
+   if(hash >= 0)
+      return url.substr(0, hash);
+   return url;
+};
+
+BasicSpa.prototype.ProcessLinkContextAware = function(url)
+{
+   if(this.SpaContextLink(url) !== this.SpaContextLink(document.location.href))
+      if(this.ProcessLink(url))
+         history.pushState({"url" : url}, url, url);
+};
+
 //Generate the click function for the given URL
 BasicSpa.prototype.ClickFunction = function(url)
 {
@@ -87,9 +102,6 @@ BasicSpa.prototype.ClickFunction = function(url)
    return function(event)
    {
       event.preventDefault();
-      if(url !== document.location.href)
-         if(me.ProcessLink(url))
-            history.pushState({"url" : url}, url, url);
    };
 };
 
