@@ -169,7 +169,7 @@ function initializePage(requester)
    formatDiscussions(false);
 
    //Clean page isn't loading...?
-   //hide(maincontentloading);
+   hide(maincontentloading);
    //setLoading(topnav, false);
 
    DomDeps.signal("pageinitialize", requester);

@@ -63,7 +63,9 @@ function loglevel(el, replace)
               "uk-width-expand uk-flex uk-flex-column uk-height-1-1 uk-overflow-hidden">
                <!-- LOC:MAINCONTENT -->
                <div id="maincontentcontainer" class="uk-inline" uk-overflow-auto>
-                  <div id="maincontentloading" class="uk-position-top-left"></div>
+                  <div id="maincontentloading" class="uk-cover"
+                     uk-spinner="ratio: 2"  hidden></div> 
+                  <!-- class="uk-position-top-left"></div>-->
                   <div id="maincontent">
                   </div>
                </div>
@@ -87,9 +89,9 @@ function loglevel(el, replace)
                   <div id="discussionuserlist"></div>
                </div>
                <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
-                  <ul id="discussions" class="uk-flex-1 uk-switcher" uk-overflow-auto>
-                     <!-- Everything in here are the in-memory discussions -->
-                  </ul>
+                  <div id="discussions" class="uk-flex-1" uk-overflow-auto> 
+                     <!-- Swap the discussions in and out of here -->
+                  </div>
                   <div id="postarea" class="uk-inline" data-utgl hidden>
                      <textarea id="postdiscussiontext" 
                         class="uk-flex-1 uk-textarea uk-width-expand uk-height-1-1"></textarea>
@@ -496,8 +498,7 @@ function loglevel(el, replace)
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <li data-discussion data-discussionid="data-did" data-id="id"
-            class="">
+         <div data-discussion data-discussionid="data-did" data-id="id" class="">
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <div data-messageframe data-userid="0" style="display: none">
                <div data-messageid="0"></div>
@@ -506,10 +507,10 @@ function loglevel(el, replace)
                <div data-loading uk-spinner="ratio: 0.5" hidden></div>
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
-         </li>
-         <li data-discussionswitch data-id="id">
+         </div>
+         <!--<li data-discussionswitch data-id="id">
             <a href="#"></a>
-         </li>
+         </li>-->
          <div data-messageframe data-userid="data-uid" class="uk-flex uk-flex-top">
             <img class="uk-flex-none" data-useravatar="src">
             <div class="messageframemain uk-width-expand">
@@ -613,8 +614,8 @@ function loglevel(el, replace)
          <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
             onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
          </button>
-         <ul id="discussionswitcher" uk-switcher="connect: #discussions">
-         </ul>
+         <!--<ul id="discussionswitcher" uk-switcher="connect: #discussions">
+         </ul>-->
       </div>
       <!-- LOC:MEMORY -->
       <div id="memory" style="display: none">

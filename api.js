@@ -294,3 +294,8 @@ function createComment(rawtext, markup) {
    return JSON.stringify({"m":markup}) + "\n" + rawtext;
 }
 
+//Does the given (agreed upon) page name type have discussions? This would be
+//user, page, category, etc (those names)
+function typeHasDiscussion(type) {
+   return type === "page" || type === "user";
+}

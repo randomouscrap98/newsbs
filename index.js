@@ -22,6 +22,7 @@ var options = {
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
    loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
+   quickload : { def: true, text : "Load parts of page as they are available" },
    imageresolution : { def: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, text: "Display pages per category" },
@@ -188,11 +189,13 @@ function setupSignalProcessors()
       setLocalOption(data.key, data.value);
    });
 
+   signals.Attach("spastart", data => quickLoad(
+      typeHasDiscussion(data.page) && data.page !== "user" ? data.id : false));
+
    signals.Attach("settheme", data => 
    {
       writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
    });
-
 }
 
 function setupSpa()
@@ -562,20 +565,32 @@ function routepage_load(spadat)
             "data-watched" : c.about.watching
          });
          setupWatchLink(templ, c.id);
-         //TODO: need to add comments here and perhaps swap to discussion
-         var d = easyShowDiscussion(c.id);
+         var d = getDiscussion(c.id); //showDiscussion(c.id); //easyShowDiscussion(c.id);
          if(data.comment.length !== initload)
             d.setAttribute(attr.atoldest, "");
          easyComments(data.comment, users);
-         formatDiscussions(true);
+         formatShowDiscussion(c.id);
       }, getChain(data.category, c));
-         //{ "users" : users, "comments" : data.comment, "content" : c });
    });
 }
 
 // *******************
 // --- SPECIAL DOM ---
 // *******************
+
+function quickLoad(discussionId)
+{
+   if(getLocalOption("quickload"))
+   {
+      writeDom(() =>
+      {
+         initializePage();
+         unhide(maincontentloading);
+         if(discussionId) //data.page === "page")
+            formatShowDiscussion(Number(discussionId));
+      });
+   }
+}
 
 function refreshOptions()
 {
@@ -657,6 +672,7 @@ function addFileUploadImage(file, num)
 //Right now, this can only be called once :/
 function setupDiscussions()
 {
+   globals.discussions = {};
    globals.discussion =
    { 
       "lastanimtime" : 0,
@@ -1678,34 +1694,16 @@ function renderComment(elm, repl)
    return elm.getAttribute("data-rawmessage");
 }
 
-function getActiveDiscussion()
-{
-   return globals.discussion.current;
-}
 
-function easyDiscussion(id)
+function getDiscussion(id)
 {
-   var eid = getDiscussionId(id);
-   var discussion = document.getElementById(eid);
-
-   if(!discussion)
+   if(!globals.discussions[id])
    {
-      var dswitch = cloneTemplate("discussionswitch");
-      findSwap(dswitch, "data-id", getDiscussionSwitchId(id));
-      discussionswitcher.appendChild(dswitch);
-
-      log.Debug("Creating container + switcher for discussion " + id);
-      discussion = cloneTemplate("discussion");
+      var discussion = cloneTemplate("discussion");
       multiSwap(discussion, {
-         "data-id": eid,
+         "data-id": getDiscussionId(id),
          "data-discussionid": id
       });
-      discussions.appendChild(discussion);
-
-   //UIkit.util.on(discussion, 'show', (e) =>
-   //{
-   //   console.log("SHOWN:", e);
-   //});
 
       var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
       loadolder.onclick = event => 
@@ -1713,33 +1711,58 @@ function easyDiscussion(id)
          event.preventDefault();
          loadOlderComments(discussion);
       };
+
+      globals.discussions[id] = discussion;
    }
 
-   return discussion;
+   return globals.discussions[id];
 }
 
-function easyShowDiscussion(id)
+function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
+
+function getActiveDiscussionId()
 {
-   //The true/false isn't necessary, just as a visual reminder that that
-   //function accepts a truthy value for whether it has discussions
-   //setHasDiscussions(id ? true : false);
-   globals.discussion.current = id; //Whatever they send, it's what the current is
+   var d = getActiveDiscussion();
+   return d ? Number(d.getAttribute("data-did")) : null;
+}
 
-   if(id)
+function showDiscussion(id)
+{
+   hideDiscussion(true);
+
+   writeDom(() => 
    {
-      var d = easyDiscussion(id);
-      setTimeout(x => 
-      {
-         document.getElementById(getDiscussionSwitchId(id)).firstElementChild.click();
+      var d = getDiscussion(id);
+      discussions.appendChild(d);
+      globals.discussion.observer.observe(discussions);
+      globals.discussion.observer.observe(d);
 
-         //Is this going to be ok???
-         globals.discussion.observer.disconnect();
-         globals.discussion.observer.observe(discussions);
-         globals.discussion.observer.observe(d);
-      }, 12);
-      return d;
+      signals.Add("showdiscussion", id);
+   });
+}
+
+function formatShowDiscussion(id)
+{
+   showDiscussion(id);
+   formatDiscussions(true);
+}
+
+function hideDiscussion(quiet)
+{
+   var d = getActiveDiscussion();
+
+   if(d)
+   {
+      globals.discussion.observer.disconnect();
+      writeDom(() => Utilities.RemoveElement(d));
+   }
+   else if(!quiet)
+   {
+      log.Warn("Tried to hide discussion when none was shown");
    }
 }
+
+
 
 function updateCommentFragment(comment, element)
 {
@@ -1795,7 +1818,7 @@ function easyComment(comment, users)
       }
 
       //Automatically create discussion?
-      var d = easyDiscussion(comment.parentId);
+      var d = getDiscussion(comment.parentId);
 
       //Starting from bottom, find place to insert.
       var comments = d.querySelectorAll("[data-messageid]");
