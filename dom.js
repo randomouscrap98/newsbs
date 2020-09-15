@@ -79,11 +79,13 @@ function formatDiscussions(hasDiscussions)
    if(hasDiscussions)
    {
       unhide(maincontentbar);
+      unhide(discussionuserlist);
       setSplitMode(); //Could be settings?
    }
    else
    {
       hide(maincontentbar);
+      hide(discussionuserlist);
       setFullContentMode();
    }
 
@@ -122,7 +124,7 @@ function initializePage(requester)
    formatDiscussions(false);
 
    //Clean page isn't loading...?
-   setLoading(topnav, false);
+   //setLoading(topnav, false);
 
    DomDeps.signal("pageinitialize", requester);
 }
@@ -232,6 +234,42 @@ function multiSwap(element, replacements)
    for(key in replacements)
       findSwap(element, key, replacements[key]);
 }
+
+
+// *************
+// --- FORMS ---
+// *************
+
+function getFormInputs(form)
+{
+   return form.querySelectorAll("input, textarea, button, select");
+}
+
+function formStart(form)
+{
+   var inputs = getFormInputs(form);
+   for(var i = 0; i < inputs.length; i++)
+      inputs[i].setAttribute("disabled", "");
+   var submit = form.querySelector("[type='submit']");
+   submit.parentNode.appendChild(cloneTemplate("spinner"));
+   var errors = form.querySelectorAll("[data-error]");
+   for(var i = 0; i < errors.length; i++)
+      errors[i].parentNode.removeChild(errors[i]);
+}
+
+function formEnd(form)
+{
+   var inputs = getFormInputs(form);
+   for(var i = 0; i < inputs.length; i++)
+      inputs[i].removeAttribute("disabled");
+   var submit = form.querySelector("[type='submit']");
+   submit.parentNode.removeChild(submit.parentNode.querySelector("[data-spinner]"));
+}
+
+
+// ******************
+// --- MAKE STUFF ---
+// ******************
 
 // ***************
 // --- SPECIAL ---

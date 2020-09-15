@@ -121,6 +121,7 @@ Signaller.prototype.AddAutoException = function(name)
 
 Signaller.prototype.Add = function(name, data, time)
 {
+   //console.log("Adding signal "+name);
    let signalId = ++this.sid;
 
    if(!name)
@@ -157,10 +158,12 @@ Signaller.prototype.ProcessAuto = function(now)
 
 Signaller.prototype.Process = function(name, now)
 {
-   if(this.signals[name])
+   if(this.signals[name] && this.signals[name].length)
    {
+      //console.log("Processing " + name);
       var now = now || performance.now();
-      this.signals[name].sort((a,b) => Math.sign(a.time - b.time));
+      this.signals[name].sort((a,b) => Math.sign(a.time - b.time) ||
+         Math.sign(a.sid - b.sid));
       var i;
 
       for(i = 0; i < this.signals[name].length; i++)

@@ -81,7 +81,10 @@ function loglevel(el, replace)
                         id="splitmodecontent"></a>
                   </div>
                </div> 
-               <div data-utgl id="discussionuserlist" class="uk-flex-none" hidden>
+               <!-- Need separate containers because lazy: one is for user
+                  toggle, the other is for page toggle -->
+               <div data-utgl class="uk-flex-none" hidden>
+                  <div id="discussionuserlist"></div>
                </div>
                <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
                   <ul id="discussions" class="uk-flex-1 uk-switcher" uk-overflow-auto>

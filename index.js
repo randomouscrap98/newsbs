@@ -74,8 +74,13 @@ window.onload = function()
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
    log.Debug("Width REM: " + ww + ", pixelRatio: " + window.devicePixelRatio);
 
-   if(ww >= getLocalOption("showsidebarminrem"))
-      rightpanetoggle.click();
+   writeDom(() =>
+   {
+      if(ww >= getLocalOption("showsidebarminrem"))
+         rightpanetoggle.click();
+
+      initializePage("pageload");
+   });
 
    setupSpa();
 
@@ -172,14 +177,26 @@ function setupSignalProcessors()
 
    //All these things use the same name as their handler, they are emitted as
    //events/signals in case we want more processors/etc.
-   ["pageerror", "spaclick", "spafinish"].forEach(
+   ["pageerror"].forEach(
       x => signals.Attach(x, window[x]));
 
-   //These are so small I don't care about them
+   //These are so small I don't care about them being directly in here
+   //signals.Attach("spastart", () => writeDom(() => { setLoading(topnav, true); }));
+   var apiSetLoading = (data, load) => 
+   {
+      if(!data.endpoint.endsWith("listen"))
+         writeDom(() => { setLoading(topnav, load); });
+   };
+   signals.Attach("apistart", data => apiSetLoading(data, true));
+   signals.Attach("apiend", data => apiSetLoading(data, false));
    signals.Attach("localsettingupdate", data => 
    {
       log.Info("Setting " + data.key + " to " + data.value);
       setLocalOption(data.key, data.value);
+   });
+   signals.Attach("settheme", data => 
+   {
+      writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
    });
 }
 
@@ -195,43 +212,6 @@ function pageerror(data)
          });
       }));
    });
-}
-
-//Everything that can happen at the start of a spa click before
-//another signal needs to be emmitted (like rendering or something)
-function spaclick(data)
-{
-   writeDom(() => { setLoading(topnav, true); });
-
-   var loadFunc = window[data.route + "_load"];
-
-   if(!loadFunc)
-   {
-      signals.Add("pageerror", {
-         sender : "spaclick_load",
-         message : "Couldn't find loader for page " + data.page,
-         data : data
-      });
-      return;
-   }
-
-   loadFunc(data);
-}
-
-//Handle a spa completion event, assuming all the data was loaded/etc
-function spafinish(data)
-{
-   if(data.rid === globals.spa.requestId)
-   {
-      writeDom(() =>
-      {
-         renderPage(data.route, data.applyTemplate, data.breadcrumbs);
-      });
-   }
-   else
-   {
-      log.Warn("Ignoring page finalization: " + data.url);
-   }
 }
 
 function setupSpa()
@@ -252,8 +232,21 @@ function setupSpa()
          rid : rid
       };
 
+      var loadFunc = window[spadata.route + "_load"];
+
+      if(!loadFunc)
+      {
+         signals.Add("pageerror", {
+            sender : "SPA process",
+            message : "Couldn't find loader for page " + data.page,
+            data : data
+         });
+         return;
+      }
+
       //Alert anybody else who wants to know that we've done a click
-      signals.Add("spaclick", spadata);
+      signals.Add("spastart", spadata);
+      loadFunc(spadata);
    }));
 
    globals.spa.SetHandlePopState();
@@ -376,38 +369,6 @@ function refreshOptions()
    });
 }
 
-
-// ***************
-// --- ROUTING ---
-// ***************
-
-//Data is SPA for all these
-
-function routehome_load(data)
-{
-   signals.Add("spafinish", data);
-}
-
-// *******************
-// --- SPECIAL DOM ---
-// *******************
-
-
-function getLocalOption(key)
-{
-   var val = localStorage.getItem("localsetting_" + key);
-   if(val === null || val === undefined)
-      return options[key].def;
-   else
-      return JSON.parse(val);
-}
-
-function setLocalOption(key, value)
-{
-   localStorage.setItem("localsetting_" + key, JSON.stringify(value));
-}
-
-
 function setupAlerts()
 {
    userinvalidatesessions.addEventListener("click", function(e)
@@ -441,7 +402,8 @@ function setupFileUpload()
    //this is the "dynamic loading" to save data: only load big images when
    //users click on them
    UIkit.util.on("#fileuploadslideshow", "beforeitemshow", function(e) {
-      e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src");
+      writeDom(() => 
+         e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src"));
    });
 
    fileuploadselect.addEventListener("click", function()
@@ -459,13 +421,14 @@ function setupFileUpload()
    });
 
    var bar = fileuploadprogress;
-   var generalError = function () {
+   var generalError = () => writeDom(() => {
       if(typeof arguments[0] == 'XMLHttpRequest')
          formError(fileuploadform, arguments[0].status + ": " + arguments[0].message);
       else
          formError(fileuploadform, arguments[0]);
       bar.setAttribute('hidden', 'hidden');
-   };
+   });
+   var generalProgress = e => writeDom(() => { bar.max = e.total; bar.value = e.loaded; });
 
    UIkit.upload('#fileuploadform', {
       url: apiroot + '/file',
@@ -473,23 +436,193 @@ function setupFileUpload()
       mime: "image/*",
       name: "file",
       beforeSend: e => { e.headers["Authorization"] = "Bearer " + getToken(); },
-      loadStart: e => { bar.removeAttribute('hidden'); bar.max = e.total; bar.value = e.loaded; },
-      progress: e => { bar.max = e.total; bar.value = e.loaded; },
-      loadEnd: e => { bar.max = e.total; bar.value = e.loaded; },
+      loadStart: e => writeDom(() => { bar.removeAttribute('hidden'); bar.max = e.total; bar.value = e.loaded; }),
+      progress: e => generalProgress,
+      loadEnd: e => generalProgress,
       error: generalError,
       fail: generalError,
       completeAll: function () {
          log.Info("Upload complete");
-         addFileUploadImage(JSON.parse(arguments[0].responseText), fileuploaditems.childElementCount);
-         setTimeout(function () { 
-            bar.setAttribute('hidden', 'hidden'); 
-            fileuploadthumbnails.lastElementChild.firstElementChild.click();
-         }, 200);
+         writeDom(() => 
+         {
+            addFileUploadImage(JSON.parse(arguments[0].responseText), fileuploaditems.childElementCount);
+            setTimeout(function () { 
+               bar.setAttribute('hidden', 'hidden'); 
+               fileuploadthumbnails.lastElementChild.firstElementChild.click();
+            }, 200); // for some reason, must wait before can click
+         });
       }
    });
 
    log.Debug("Setup all file uploading/handling");
 }
+
+function setTheme(theme)
+{
+   if(theme)
+   {
+      document.body.setAttribute("data-theme", theme);
+      localStorage.setItem("usertheme", theme);
+   }
+   else
+   {
+      document.body.removeAttribute("data-theme");
+      localStorage.removeItem("usertheme");
+   }
+   
+   signals.Add("settheme", theme);
+}
+
+function setupTheme()
+{
+   darkmodetoggle.onclick = event =>
+   {
+      event.preventDefault();
+      setTheme(document.body.getAttribute("data-theme") ? "" : "dark");
+   };
+
+   setTheme(localStorage.getItem("usertheme"));
+}
+
+
+// ***************
+// --- ROUTING ---
+// ***************
+
+//Data is SPA for all these
+
+//Handle a spa completion event, assuming all the data was loaded/etc
+function route_complete(spadat, applyTemplate, breadcrumbs)
+{
+   if(spadat.rid === globals.spa.requestId)
+   {
+      if(breadcrumbs)
+         breadcrumbs.forEach(x => x.link = x.content ? getPageLink(x.id) : getCategoryLink(x.id));
+
+      writeDom(() =>
+      {
+         renderPage(spadat.route, applyTemplate, breadcrumbs);
+      });
+   }
+   else
+   {
+      log.Warn("Ignoring page finalization: " + spadat.url);
+   }
+}
+
+function routehome_load(spadat) { route_complete(spadat); }
+
+function routecategory_load(spadat) //url, pVal, id)
+{
+   var cid = Number(spadat.id);
+   var params = new URLSearchParams();
+   params.append("requests", "content-" + JSON.stringify({
+      "parentIds" : [cid], 
+      "sort" : "editDate",
+      "reverse" : true,
+      "limit": getLocalOption("pagedisplaylimit")
+   }));
+   params.append("requests", "category");
+   params.append("requests", "user.0createUserId.0edituserId.1createUserId");
+   params.set("content", "id,name,parentId,createDate,editDate,createUserId");
+
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      log.Datalog(data);
+      var users = idMap(data.user);
+      var categories = idMap(data.category);
+      var c = categories[cid] || { "name" : "Website Root" , "id" : 0 };
+
+      route_complete(spadat, templ =>
+      {
+         var sbelm = templ.querySelector("[data-subcats]");
+         var pgelm = templ.querySelector("[data-pages]");
+
+         multiSwap(templ, {
+            "data-title" : c.name
+         });
+         data.category.filter(x => x.parentId === cid).forEach(x =>
+         {
+            var subcat = cloneTemplate("subcat");
+            multiSwap(subcat, {
+               "data-link": getCategoryLink(x.id),
+               "data-name": x.name
+            });
+            finalizeTemplate(subcat);
+            sbelm.appendChild(subcat);
+         });
+         data.content.forEach(x =>
+         {
+            var date = (new Date(x.createDate)).toLocaleDateString();
+            //if(x.editDate != x.createDate)
+            //   date = "(" + (new Date(x.editDate)).toLocaleDateString() + ")\n" + date;
+            var citem = cloneTemplate("pageitem");
+            var u = users[x.createUserId] || {};
+            multiSwap(citem, {
+               "data-link": getPageLink(x.id),
+               "data-name": x.name,
+               "data-avatar" : getAvatarLink(u.avatar, 50, true),
+               "data-userlink" : getUserLink(x.createUserId),
+               "data-time" : date
+            });
+            finalizeTemplate(citem);
+            pgelm.appendChild(citem);
+         });
+      }, getChain(data.category, c));
+   });
+}
+
+// *******************
+// --- SPECIAL DOM ---
+// *******************
+
+function setFileUploadList(page, allImages)
+{
+   writeDom(() =>
+   {
+      fileuploaditems.innerHTML = "<div uk-spinner='ratio: 3'></div>";
+      fileuploadthumbnails.innerHTML = "";
+   });
+
+   var fdl = getLocalOption("filedisplaylimit");
+   var url = "file?reverse=true&limit=" + fdl + "&skip=" + (fdl * page);
+      
+   if(!allImages)
+      url += "&createuserids=" + getUserId();
+
+   quickApi(url, files =>
+   {
+      fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1, allImages); }
+      fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages); }
+
+      writeDom(() =>
+      {
+         fileuploaditems.innerHTML = "";
+         for(var i = 0; i < files.length; i++)
+            addFileUploadImage(files[i], i);
+
+         setHidden(fileuploadnewer, page <= 0);
+         setHidden(fileuploadolder, files.length !== fdl);
+      });
+   });
+}
+
+function addFileUploadImage(file, num)
+{
+   var fItem = cloneTemplate("fupmain");
+   var fThumb = cloneTemplate("fupthumb");
+   multiSwap(fItem, { 
+      "data-imgsrc": getImageLink(file.id) 
+   });
+   multiSwap(fThumb, {
+      "data-imgsrc": getImageLink(file.id, 60, true),
+      "data-number": num,
+      "data-fileid": file.id
+   });
+   fileuploaditems.appendChild(fItem);
+   fileuploadthumbnails.appendChild(fThumb);
+}
+
 
 //Right now, this can only be called once :/
 function setupDiscussions()
@@ -564,37 +697,6 @@ function setupLongpoller()
    globals.longpoller = {};
    log.Debug("Setup long poller (not started)");
 }
-
-function handleDarkmode(dark)
-{
-   if(dark)
-   {
-      document.body.setAttribute("data-theme", "dark");
-      localStorage.setItem("usertheme", "dark");
-      darkmodetoggle.innerHTML = "&#x2600;";
-   }
-   else
-   {
-      document.body.removeAttribute("data-theme");
-      localStorage.removeItem("usertheme");
-      darkmodetoggle.innerHTML = "&#x1F311;";
-   }
-}
-
-function setupTheme()
-{
-   darkmodetoggle.onclick = event =>
-   {
-      event.preventDefault();
-      var currentTheme = document.body.getAttribute("data-theme");
-
-      handleDarkmode(!document.body.getAttribute("data-theme"));
-   };
-
-   var currentTheme = localStorage.getItem("usertheme");
-   handleDarkmode(currentTheme === "dark");
-}
-
 //Set up the page and perform initial requests for being "logged in"
 function setupSession()
 {
@@ -701,48 +803,6 @@ function refreshUserFull(always)
    }, undefined, always);
 }
 
-function setFileUploadList(page, allImages)
-{
-   fileuploaditems.innerHTML = "<div uk-spinner='ratio: 3'></div>";
-   fileuploadthumbnails.innerHTML = "";
-
-   var fdl = getLocalOption("filedisplaylimit");
-   var url = "file?reverse=true&limit=" + fdl + "&skip=" + (fdl * page);
-      
-   if(!allImages)
-      url += "&createuserids=" + getUserId();
-
-   quickApi(url, files =>
-   {
-      fileuploaditems.innerHTML = "";
-      for(var i = 0; i < files.length; i++)
-      {
-         addFileUploadImage(files[i], i);
-      }
-
-      fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1, allImages); }
-      fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages); }
-
-      setHidden(fileuploadnewer, page <= 0);
-      setHidden(fileuploadolder, files.length !== fdl);
-   });
-}
-
-function addFileUploadImage(file, num)
-{
-   var fItem = cloneTemplate("fupmain");
-   var fThumb = cloneTemplate("fupthumb");
-   multiSwap(fItem, { 
-      "data-imgsrc": getImageLink(file.id) 
-   });
-   multiSwap(fThumb, {
-      "data-imgsrc": getImageLink(file.id, 60, true),
-      "data-number": num,
-      "data-fileid": file.id
-   });
-   fileuploaditems.appendChild(fItem);
-   fileuploadthumbnails.appendChild(fThumb);
-}
 
 function updateGlobalAlert()
 {
@@ -751,30 +811,30 @@ function updateGlobalAlert()
 
 //Finish rendering a page. For "ease", can also include information about the
 //available discussion so we can do a few things.
-function finalizePage(chain, discussion)
-{
-   hide(maincontentloading);
-   globals.spa.processingurl = false;
-
-   if(chain)
-      makeBreadcrumbs(chain);
-
-   if(discussion)
-   {
-      maincontentinfo.appendChild(
-         makeStandardContentInfo(discussion.content, discussion.users));
-      easyComments(discussion.comments, discussion.users);
-      setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
-   }
-
-   finalizeTemplate(maincontent);
-
-   //At the end of it, update the long poller (no matter if there's a
-   //discussion or not, because maybe we need to EXIT the last room)
-   updateLongPoller();
-
-   log.Debug("Page render finalized");
-}
+//function finalizePage(chain, discussion)
+//{
+//   hide(maincontentloading);
+//   globals.spa.processingurl = false;
+//
+//   if(chain)
+//      makeBreadcrumbs(chain);
+//
+//   if(discussion)
+//   {
+//      maincontentinfo.appendChild(
+//         makeStandardContentInfo(discussion.content, discussion.users));
+//      easyComments(discussion.comments, discussion.users);
+//      setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
+//   }
+//
+//   finalizeTemplate(maincontent);
+//
+//   //At the end of it, update the long poller (no matter if there's a
+//   //discussion or not, because maybe we need to EXIT the last room)
+//   updateLongPoller();
+//
+//   log.Debug("Page render finalized");
+//}
 
 function updateDiscussionUserlist(listeners, users)
 {
@@ -815,6 +875,20 @@ function updateDiscussionUserlist(listeners, users)
 // ---- GENERAL UTILITIES ----
 // ***************************
 
+function getLocalOption(key)
+{
+   var val = localStorage.getItem("localsetting_" + key);
+   if(val === null || val === undefined)
+      return options[key].def;
+   else
+      return JSON.parse(val);
+}
+
+function setLocalOption(key, value)
+{
+   localStorage.setItem("localsetting_" + key, JSON.stringify(value));
+}
+
 function getToken()
 {
    var token = window.localStorage.getItem("usertoken");
@@ -830,7 +904,6 @@ function setToken(token)
 }
 
 function getUserId() { return userid.dataset.userid; }
-
 
 function getUserLink(id) { return "?p=user-" + id; }
 function getPageLink(id) { return "?p=page-" + id; }
@@ -865,32 +938,6 @@ function idMap(data)
 function sortById(a)
 {
    return a.sort((x,y) => Math.sign(x.id - y.id));
-}
-
-function getFormInputs(form)
-{
-   return form.querySelectorAll("input, textarea, button, select");
-}
-
-function formStart(form)
-{
-   var inputs = getFormInputs(form);
-   for(var i = 0; i < inputs.length; i++)
-      inputs[i].setAttribute("disabled", "");
-   var submit = form.querySelector("[type='submit']");
-   submit.parentNode.appendChild(cloneTemplate("spinner"));
-   var errors = form.querySelectorAll("[data-error]");
-   for(var i = 0; i < errors.length; i++)
-      errors[i].parentNode.removeChild(errors[i]);
-}
-
-function formEnd(form)
-{
-   var inputs = getFormInputs(form);
-   for(var i = 0; i < inputs.length; i++)
-      inputs[i].removeAttribute("disabled");
-   var submit = form.querySelector("[type='submit']");
-   submit.parentNode.removeChild(submit.parentNode.querySelector("[data-spinner]"));
 }
 
 function formError(form, error)
@@ -1172,6 +1219,9 @@ function quickApi(url, callback, error, postData, always, method, modify, nolog)
       log.Info("[" + thisreqid + "] " + method + ": " + url);
 
    var req = new XMLHttpRequest();
+
+   var apidat = { id: thisreqid, url: url, endpoint: endpoint, method : method, request : req};
+
    //This is supposedly thrown before the others
    req.addEventListener("error", function() { req.networkError = true; });
    req.addEventListener("loadend", function()
@@ -1192,6 +1242,7 @@ function quickApi(url, callback, error, postData, always, method, modify, nolog)
          //Also thrown on network error
          error(req);
       }
+      signals.Add("apiend", apidat);
    });
 
    req.open(method, url);
@@ -1204,6 +1255,8 @@ function quickApi(url, callback, error, postData, always, method, modify, nolog)
 
    if(modify)
       modify(req);
+
+   signals.Add("apistart", apidat);
 
    if(postData)
       req.send(JSON.stringify(postData));
@@ -1602,7 +1655,7 @@ function updateWatches(data, fullReset)
 // ---- Route ----
 // ***************
 
-function routepage_load(url, pVal, id)
+function routepage_load(data) //url, pVal, id)
 {
    var d = easyShowDiscussion(id);
    var initload = getLocalOption("initialloadcomments");
@@ -1682,61 +1735,6 @@ function routeuser_load(url, pVal, id)
    });
 }
 
-function routecategory_load(url, pVal, id)
-{
-   var cid = Number(id);
-   var params = new URLSearchParams();
-   params.append("requests", "content-" + JSON.stringify({
-      "parentIds" : [cid], 
-      "sort" : "editDate",
-      "reverse" : true,
-      "limit": getLocalOption("pagedisplaylimit")
-   }));
-   params.append("requests", "category");
-   params.append("requests", "user.0createUserId.0edituserId.1createUserId");
-   params.set("content", "id,name,parentId,createDate,editDate,createUserId");
-
-   quickApi("read/chain?" + params.toString(), function(data)
-   {
-      console.datalog(data);
-      var users = idMap(data.user);
-      var categories = idMap(data.category);
-      var c = categories[cid] || { "name" : "Website Root" , "id" : 0 };
-      multiSwap(maincontent, {
-         "data-title" : c.name
-      });
-      var sbelm = maincontent.querySelector("[data-subcats]");
-      var pgelm = maincontent.querySelector("[data-pages]");
-      data.category.filter(x => x.parentId === cid).forEach(x =>
-      {
-         var subcat = cloneTemplate("subcat");
-         multiSwap(subcat, {
-            "data-link": getCategoryLink(x.id),
-            "data-name": x.name
-         });
-         finalizeTemplate(subcat);
-         sbelm.appendChild(subcat);
-      });
-      data.content.forEach(x =>
-      {
-         var date = (new Date(x.createDate)).toLocaleDateString();
-         //if(x.editDate != x.createDate)
-         //   date = "(" + (new Date(x.editDate)).toLocaleDateString() + ")\n" + date;
-         var citem = cloneTemplate("pageitem");
-         var u = users[x.createUserId] || {};
-         multiSwap(citem, {
-            "data-link": getPageLink(x.id),
-            "data-name": x.name,
-            "data-avatar" : getAvatarLink(u.avatar, 50, true),
-            "data-userlink" : getUserLink(x.createUserId),
-            "data-time" : date
-         });
-         finalizeTemplate(citem);
-         pgelm.appendChild(citem);
-      });
-      finalizePage(getChain(data.category, c));
-   });
-}
 
 function renderContent(elm, repl)
 {
