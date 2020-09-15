@@ -31,6 +31,28 @@ function setConnectionState(state)
    indicator.setAttribute(constate, state || "");
 }
 
+//This is the VISIBILITY modifier, it's just how the page LOOKS. So you can
+//call this whenever, it won't do anything major.
+function setLoginState(loggedIn)
+{
+   //check current login state. User is logged in if first element (the user
+   //login section) is hidden.
+   var currentState = rightpanenav.firstElementChild.hasAttribute("hidden");
+
+   //Force an inverted state if the state isn't the same. Definitely room for
+   //timing errors here but egh whatever, sorry users (for now).
+   if(currentState != loggedIn)
+   {
+      DomDeps.log("Set login visual state to: " + loggedIn);
+      toggleuserstate.click();
+   }
+}
+
+function updateGlobalAlert()
+{
+   setHidden(globalalert, !watchglobalalert.textContent);
+}
+
 function setFullContentMode()
 {
    DomDeps.log("Set full content mode");
@@ -399,5 +421,7 @@ function renderOptions(options)
       lastType = templn;
       prnt.appendChild(elm);
    }
+
+   DomDeps.signal("optionrender", options);
 }
 

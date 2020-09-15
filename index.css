@@ -138,7 +138,7 @@ a:hover { color: inherit; }
    margin: 0.15em;
    opacity: 0.6;
 }
-.log_trace { opacity: 0.70; }
+.log_trace { opacity: 0.50; }
 .log_debug { color: #74b587; }
 .log_error { color: #C42; }
 .log_warn { color: #DA6; }

@@ -46,12 +46,14 @@ var options = {
 var globals = { 
    lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
+   longpoller : {}
 };
 
 //Some um... global sturf uggh
 log.Datalog = (d,e,f) => { if(getLocalOption("datalog")) log.Trace(d,e,f); };
 log.Drawlog = (d,e,f) => { if(getLocalOption("drawlog")) log.Trace(d,e,f); };
 log.Domlog = (d,e,f) => { if(getLocalOption("domlog")) log.Trace(d,e,f); };
+
 DomDeps.log = (d,e,f) => log.Domlog(d,e,f);
 DomDeps.signal = (name, data) => signals.Add(name, data);
 
@@ -82,14 +84,14 @@ window.onload = function()
 
    setupSpa();
 
-   setupDebugLog();
+   //Little setup here and there
+   UIkit.util.on('#logsparent', 'show', () => writeDom(() => renderLogs(log)));
+
    setupTechnicalInfo();
-   setupUserForms();
+   setupUserStuff();
    setupFileUpload();
-   setupAlerts();
    setupPageControls();
    setupDiscussions();
-   setupLongpoller();
    setupTheme();
 
    setupSession();
@@ -142,7 +144,7 @@ function renderLoop(time)
    catch(ex)
    {
       UIkit.modal.alert(
-         "WEBSITE FULL CRASH: renderLoop failed with exception: " + ex)
+         "WEBSITE FULL CRASH: renderLoop failed with exception: " + ex + " (see dev tools log)")
       console.log("renderLoop exception: ", ex);
    }
 }
@@ -157,10 +159,6 @@ function safety(func)
    }
 }
 
-//Note: cascading dom writes should USUALLY be handled in the same frame UNLESS
-//there's something in the middle that's deferred (time set)
-function writeDom(func) { signals.Add("wdom", func); }
-
 
 // ********************
 // ---- SETUP CODE ----
@@ -172,8 +170,6 @@ function setupSignalProcessors()
    ["wdom"].forEach(x => signals.AddAutoException(x));
 
    signals.Attach("wdom", data => data());
-
-   signals.Attach("pageerror", pageerror);
 
    //These are so small I don't care about them being directly in here
    var apiSetLoading = (data, load) => 
@@ -195,20 +191,7 @@ function setupSignalProcessors()
    {
       writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
    });
-}
 
-function pageerror(data)
-{
-   writeDom(() =>
-   {
-      renderPage("routeerror", template => safety(() => 
-      {
-         multiSwap(template, {
-            "data-message" : data.message,
-            "data-title" : data.sender
-         });
-      }));
-   });
 }
 
 function setupSpa()
@@ -233,11 +216,7 @@ function setupSpa()
 
       if(!loadFunc)
       {
-         signals.Add("pageerror", {
-            sender : "SPA process",
-            message : "Couldn't find loader for page " + data.page,
-            data : data
-         });
+         pageerror("SPA process", "Couldn't find loader for page " + data.page);
          return;
       }
 
@@ -250,12 +229,6 @@ function setupSpa()
    DomDeps.spaClick = (url) => globals.spa.ClickFunction(url);
 
    log.Debug("Setup SPA, override handling popstate");
-}
-
-function setupDebugLog()
-{
-   UIkit.util.on('#logsparent', 'show', () => writeDom(() => renderLogs(log)));
-   log.Debug("Setup logger display");
 }
 
 function setupTechnicalInfo()
@@ -294,7 +267,7 @@ function setupPageControls()
    log.Debug("Setup page controls");
 }
 
-function setupUserForms()
+function setupUserStuff()
 {
    formSetupSubmit(loginform, "user/authenticate", token => login(token));
    userlogout.addEventListener("click", () => logout());
@@ -339,35 +312,11 @@ function setupUserForms()
 
    userchangeavatar.addEventListener("click", function() {
       globals.fileselectcallback = function(id) {
-         quickApi("user/basic", () => refreshUserFull(), undefined, 
+         quickApi("user/basic", data => updateCurrentUserData(data), undefined, 
             { "avatar" : id }, undefined, "PUT"); 
       };
    });
 
-   allowNotifications.onclick = () => Notification.requestPermission();
-
-   refreshlocaloptions.onclick = event => {
-      event.preventDefault();
-      refreshOptions();
-   };
-
-   refreshOptions();
-
-   log.Debug("Setup all user forms");
-}
-
-function refreshOptions()
-{
-   writeDom(() =>
-   {
-      for(key in options)
-         options[key].value = getLocalOption(key);
-      renderOptions(options);
-   });
-}
-
-function setupAlerts()
-{
    userinvalidatesessions.addEventListener("click", function(e)
    {
       e.preventDefault();
@@ -383,25 +332,35 @@ function setupAlerts()
       }, () => log.Debug("Cancelled invalidate tokens"));
    });
 
-   log.Debug("Setup alerts");
+
+   allowNotifications.onclick = () => Notification.requestPermission();
+
+   refreshlocaloptions.onclick = event => {
+      event.preventDefault();
+      refreshOptions();
+   };
+
+   refreshOptions();
+
+   log.Debug("Setup all user forms");
 }
 
 function setupFileUpload()
 {
-   UIkit.util.on('#fileupload', 'beforeshow', function () {
-      log.Debug("File upload shown, refreshing images");
+   var resetFileUploadList = () => 
+   {
+      log.Debug("Refreshing file upload images");
       setFileUploadList(0, fileuploadsearchall.checked);
-   });
+      signals.Add("refreshfileupload", { page: 0, all: fileuploadsearchall.checked });
+   };
 
-   fileuploadsearchall.addEventListener("change", 
-      () => setFileUploadList(0, fileuploadsearchall.checked));
+   UIkit.util.on('#fileupload', 'beforeshow', resetFileUploadList);
+   fileuploadsearchall.addEventListener("change", resetFileUploadList);
 
    //this is the "dynamic loading" to save data: only load big images when
    //users click on them
-   UIkit.util.on("#fileuploadslideshow", "beforeitemshow", function(e) {
-      writeDom(() => 
-         e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src"));
-   });
+   UIkit.util.on("#fileuploadslideshow", "beforeitemshow", e => writeDom(() => 
+      e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src")));
 
    fileuploadselect.addEventListener("click", function()
    {
@@ -454,22 +413,6 @@ function setupFileUpload()
    log.Debug("Setup all file uploading/handling");
 }
 
-function setTheme(theme)
-{
-   if(theme)
-   {
-      document.body.setAttribute("data-theme", theme);
-      localStorage.setItem("usertheme", theme);
-   }
-   else
-   {
-      document.body.removeAttribute("data-theme");
-      localStorage.removeItem("usertheme");
-   }
-   
-   signals.Add("settheme", theme);
-}
-
 function setupTheme()
 {
    darkmodetoggle.onclick = event =>
@@ -507,6 +450,22 @@ function route_complete(spadat, applyTemplate, breadcrumbs)
    }
 }
 
+function pageerror(title, message)
+{
+   writeDom(() =>
+   {
+      renderPage("routeerror", template => safety(() => 
+      {
+         multiSwap(template, {
+            "data-message" : data.message,
+            "data-title" : data.sender
+         });
+      }));
+
+      signals.Add("pageerror", {title: title, message: message});
+   });
+}
+
 function routehome_load(spadat) { route_complete(spadat); }
 
 function routecategory_load(spadat)
@@ -526,9 +485,10 @@ function routecategory_load(spadat)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       log.Datalog(data);
+
       var users = idMap(data.user);
       var categories = idMap(data.category);
-      var c = categories[cid] || { "name" : "Website Root" , "id" : 0 };
+      var c = categories[cid] || { "name" : "Website Root", "id" : 0 };
 
       route_complete(spadat, templ =>
       {
@@ -571,7 +531,7 @@ function routecategory_load(spadat)
 
 function routepage_load(spadat)
 {
-   var d = easyShowDiscussion(spadat.id);
+   //var d = easyShowDiscussion(spadat.id);
    var initload = getLocalOption("initialloadcomments");
    var pid = Number(spadat.id);
    var params = new URLSearchParams();
@@ -588,8 +548,10 @@ function routepage_load(spadat)
    quickApi("read/chain?" + params.toString(), function(data)
    {
       log.Datalog(data);
+
       var c = data.content[0];
       var users = idMap(data.user);
+
       route_complete(spadat, templ =>
       {
          multiSwap(templ, {
@@ -601,6 +563,7 @@ function routepage_load(spadat)
          if(data.comment.length !== initload)
             d.setAttribute(attr.atoldest, "");
          setupWatchLink(templ, c.id);
+         //TODO: need to add comments here and perhaps swap to discussion
       }, getChain(data.category, c));
          //{ "users" : users, "comments" : data.comment, "content" : c });
    });
@@ -609,6 +572,35 @@ function routepage_load(spadat)
 // *******************
 // --- SPECIAL DOM ---
 // *******************
+
+function refreshOptions()
+{
+   writeDom(() =>
+   {
+      for(key in options)
+         options[key].value = getLocalOption(key);
+      renderOptions(options);
+   });
+}
+
+function setTheme(theme)
+{
+   writeDom(() =>
+   {
+      if(theme)
+      {
+         document.body.setAttribute("data-theme", theme);
+         localStorage.setItem("usertheme", theme);
+      }
+      else
+      {
+         document.body.removeAttribute("data-theme");
+         localStorage.removeItem("usertheme");
+      }
+
+      signals.Add("settheme", theme);
+   });
+}
 
 function setFileUploadList(page, allImages)
 {
@@ -646,10 +638,10 @@ function addFileUploadImage(file, num)
    var fItem = cloneTemplate("fupmain");
    var fThumb = cloneTemplate("fupthumb");
    multiSwap(fItem, { 
-      "data-imgsrc": getImageLink(file.id) 
+      "data-imgsrc": getComputedImageLink(file.id) 
    });
    multiSwap(fThumb, {
-      "data-imgsrc": getImageLink(file.id, 60, true),
+      "data-imgsrc": getComputedImageLink(file.id, 60, true),
       "data-number": num,
       "data-fileid": file.id
    });
@@ -713,12 +705,10 @@ function setupDiscussions()
 	};
 
    discussionimageselect.addEventListener("click", function() {
-      globals.fileselectcallback = function(id) {
-         //TODO: this assumes 12y format
-         postdiscussiontext.value += " !" + getImageLink(id);
+      globals.fileselectcallback = function(id) { //TODO: this assumes 12y format
+         postdiscussiontext.value += " !" + getComputedImageLink(id);
       };
    });
-
 
    //Begin the animation loop for discussion scrolling
    scrollDiscussionsAnimation(0);
@@ -726,11 +716,6 @@ function setupDiscussions()
    log.Debug("Setup discussions (scrolling/etc)");
 }
 
-function setupLongpoller()
-{
-   globals.longpoller = {};
-   log.Debug("Setup long poller (not started)");
-}
 //Set up the page and perform initial requests for being "logged in"
 function setupSession()
 {
@@ -784,41 +769,25 @@ function setupSession()
    });
 }
 
-function login(token) { setToken(token); location.reload(); }
-function logout() { setToken(null); location.reload(); }
-
 
 // **********************
 // ---- Page Modify ----
 // **********************
 
-//This is the VISIBILITY modifier, it's just how the page LOOKS. So you can
-//call this whenever, it won't do anything major.
-function setLoginState(loggedIn)
+function updateCurrentUserData(user)
 {
-   //check current login state. User is logged in if first element (the user
-   //login section) is hidden.
-   var currentState = rightpanenav.firstElementChild.hasAttribute("hidden");
-
-   //Force an inverted state if the state isn't the same. Definitely room for
-   //timing errors here but egh whatever, sorry users (for now).
-   if(currentState != loggedIn)
+   writeDom(() =>
    {
-      log.Info("Set login visual state to: " + loggedIn);
-      toggleuserstate.click();
-   }
-}
-
-function updateUserData(user)
-{
-   //Just username and avatar for now?
-   navuseravatar.src = getAvatarLink(user.avatar, 40);
-   userusername.firstElementChild.textContent = user.username;
-   userusername.href = getUserLink(user.id);
-   userid.textContent = "User ID: " + user.id;
-   userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
-   finalizeTemplate(userusername); //be careful with this!
-   //Check fields in user for certain special fields like email etc.
+      //Just username and avatar for now?
+      navuseravatar.src = getAvatarLink(user.avatar, 40);
+      userusername.firstElementChild.textContent = user.username;
+      userusername.href = getUserLink(user.id);
+      userid.textContent = "User ID: " + user.id;
+      userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
+      finalizeTemplate(userusername); //be careful with this!
+      //Check fields in user for certain special fields like email etc.
+      signals.Add("updatecurrentuser", user);
+   });
 }
 
 function refreshUserFull(always)
@@ -826,7 +795,7 @@ function refreshUserFull(always)
    //Make an API call to /me to get the latest data.
    quickApi("user/me", function(user)
    {
-      updateUserData(user);
+      updateCurrentUserData(user);
       //Don't set up the FULL session, you know? Someone else will do that
       setLoginState(true); 
    }, function(req)
@@ -835,12 +804,6 @@ function refreshUserFull(always)
       log.Error("Couldn't refresh user, deleting cached token");
       logout();
    }, undefined, always);
-}
-
-
-function updateGlobalAlert()
-{
-   setHidden(globalalert, !watchglobalalert.textContent);
 }
 
 function updateDiscussionUserlist(listeners, users)
@@ -881,6 +844,13 @@ function updateDiscussionUserlist(listeners, users)
 // ---- GENERAL UTILITIES ----
 // ***************************
 
+//Note: cascading dom writes should USUALLY be handled in the same frame UNLESS
+//there's something in the middle that's deferred (time set)
+function writeDom(func) { signals.Add("wdom", func); }
+
+function login(token) { setToken(token); location.reload(); }
+function logout() { setToken(null); location.reload(); }
+
 function getLocalOption(key)
 {
    var val = localStorage.getItem("localsetting_" + key);
@@ -919,7 +889,7 @@ function getComputedImageLink(id, size, crop, ignoreRatio)
             (ignoreRatio ? 1 : window.devicePixelRatio))); 
    }
 
-   getImageLink(id, size, crop);
+   return getImageLink(id, size, crop);
 }
 
 function getAvatarLink(id, size, ignoreRatio) { return getComputedImageLink(id, size, true, ignoreRatio); }
@@ -940,7 +910,7 @@ function sortById(a)
 
 function formError(form, error)
 {
-   form.appendChild(makeError(error));
+   writeDom(() => form.appendChild(makeError(error)));
    log.Error(error);
 }
 
@@ -1204,7 +1174,7 @@ function easyPWUser(u, parent)
    }
 
    multiSwap(pulseuser, {
-      "data-useravatar": getImageLink(u.avatar, 40, true),
+      "data-useravatar": getComputedImageLink(u.avatar, 40, true),
       "data-username": u.username
    });
 
