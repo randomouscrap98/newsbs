@@ -81,7 +81,6 @@ window.onload = function()
          rightpanetoggle.click();
 
       initializePage("pageload");
-      //unhide(maincontentloading);
    });
 
    setupSpa();
@@ -108,6 +107,21 @@ window.onload = function()
    globals.render = { lastrendertime : performance.now() };
    requestAnimationFrame(renderLoop);
 };
+
+function safety(func)
+{
+   try { func(); }
+   catch(ex)
+   {
+      notifyError("Failed: " + ex.message);
+      console.log("safety exception: ", ex);
+   }
+}
+
+
+// ***************************
+// --- CYCLES (TIMERS ETC) ---
+// ***************************
 
 function refreshCycle()
 {
@@ -151,16 +165,6 @@ function renderLoop(time)
    }
 }
 
-function safety(func)
-{
-   try { func(); }
-   catch(ex)
-   {
-      notifyError("Failed: " + ex.message);
-      console.log("safety exception: ", ex);
-   }
-}
-
 
 // ********************
 // ---- SETUP CODE ----
@@ -171,7 +175,17 @@ function setupSignalProcessors()
    //THESE signals need to be run manually, because the order matters
    ["wdom"].forEach(x => signals.AddAutoException(x));
 
+   //Some of these signals are treated as plain "events" so I don't have to do
+   //proper dependency injection and interfacing and all that, this is a 
+   //simple-ish project. They should follow the _event convention to distinguish them
    signals.Attach("wdom", data => data());
+   signals.Attach("loadoldercomments_event", data => loadOlderComments(data));
+   signals.Attach("spaclick_event", data => globals.spa.ClickFunction(data.url));
+   signals.Attach("localsettingupdate_event", data => 
+   {
+      log.Info("Setting " + data.key + " to " + data.value);
+      setLocalOption(data.key, data.value);
+   });
 
    //These are so small I don't care about them being directly in here
    var apiSetLoading = (data, load) => 
@@ -183,10 +197,14 @@ function setupSignalProcessors()
    signals.Attach("apistart", data => apiSetLoading(data, true));
    signals.Attach("apiend", data => apiSetLoading(data, false));
 
-   signals.Attach("localsettingupdate", data => 
+   signals.Attach("showdiscussion", data =>
    {
-      log.Info("Setting " + data.key + " to " + data.value);
-      setLocalOption(data.key, data.value);
+      globals.discussion.observer.observe(discussions);
+      globals.discussion.observer.observe(data.discussion);
+   });
+   signals.Attach("hidediscussion", data =>
+   {
+      globals.discussion.observer.disconnect();
    });
 
    signals.Attach("spastart", data => quickLoad(
@@ -230,7 +248,7 @@ function setupSpa()
    }));
 
    globals.spa.SetHandlePopState();
-   DomDeps.spaClick = (url) => globals.spa.ClickFunction(url);
+   //DomDeps.spaClick = (url) => globals.spa.ClickFunction(url);
 
    log.Debug("Setup SPA, override handling popstate");
 }
@@ -669,76 +687,110 @@ function addFileUploadImage(file, num)
 }
 
 
-// ************************
-// --- DISCUSSION BASIC ---
-// ************************
 
-function getDiscussion(id)
+// *********************
+// --- NOTIFICATIONS ---
+// *********************
+
+function notifyBase(message, icon, status)
 {
-   if(!globals.discussions[id])
-   {
-      var discussion = cloneTemplate("discussion");
-      multiSwap(discussion, {
-         "data-id": getDiscussionId(id),
-         "data-discussionid": id
-      });
-
-      var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
-      loadolder.onclick = event => 
-      {
-         event.preventDefault();
-         loadOlderComments(discussion);
-      };
-
-      globals.discussions[id] = discussion;
-   }
-
-   return globals.discussions[id];
-}
-
-function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
-
-function getActiveDiscussionId()
-{
-   var d = getActiveDiscussion();
-   return d ? Number(d.getAttribute("data-did")) : null;
-}
-
-function showDiscussion(id)
-{
-   hideDiscussion(true);
-
-   writeDom(() => 
-   {
-      var d = getDiscussion(id);
-      discussions.appendChild(d);
-      globals.discussion.observer.observe(discussions);
-      globals.discussion.observer.observe(d);
-
-      signals.Add("showdiscussion", id);
+   UIkit.notification({
+      "message": "<span class='uk-flex uk-flex-middle'><span uk-icon='icon: " +
+         icon + "; ratio: 1.4' class='uk-flex-none uk-text-" + status + 
+         "'></span><span class=" +
+         "'uk-width-expand uk-text-break notification-actual'>" + 
+         message + "</span></span>", 
+      "pos":"bottom-right",
+      "timeout": Math.floor(getLocalOption("notificationtimeout") * 1000)
    });
 }
 
-function formatShowDiscussion(id)
+function notifyError(error)
 {
-   showDiscussion(id);
-   formatDiscussions(true);
+   log.Error(error);
+   notifyBase(error, "close", "danger");
 }
 
-function hideDiscussion(quiet)
+function notifySuccess(message)
 {
-   var d = getActiveDiscussion();
+   log.Info("Notify: " + message);
+   notifyBase(message, "check", "success");
+}
 
-   if(d)
+function handleAlerts(comments, users)
+{
+   //Figure out the comment that will go in the header
+   if(comments && Notification.permission === "granted" && getLocalOption("displaynotifications"))
    {
-      globals.discussion.observer.disconnect();
-      writeDom(() => Utilities.RemoveElement(d));
-   }
-   else if(!quiet)
-   {
-      log.Warn("Tried to hide discussion when none was shown");
+      var alertids = getWatchLastIds();
+      var activedisc = getActiveDiscussion();
+
+      //Add our current room ONLY if it's invisible
+      if(!document.hidden) //Document is visible, NEVER alert the current room
+         delete alertids[activedisc];
+      else if(!alertids[activedisc]) //Document is invisible, alert IF it's not already in the list
+         alertids[activedisc] = 0;
+
+      var cms = sortById(comments).filter(x => alertids[x.parentId] < x.id &&
+         x.editDate === x.createDate); //NO COMMENTS
+
+      try
+      {
+         cms.forEach(x => 
+         {
+            //this may be dangerous
+            var pw = document.getElementById(getPulseId(x.parentId));
+            var name = getSwap(pw, "data-pwname");
+            var notification = new Notification(users[x.createUserId].username + ": " + name, {
+               tag : "comment" + x.id,
+               body : parseComment(x.content).t,
+               icon : getAvatarLink(users[x.createUserId].avatar, 100),
+            });
+         });
+      }
+      catch(ex)
+      {
+         log.Error("Could not send notification: " + ex);
+      }
    }
 }
+
+
+// **********************
+// ---- Page Modify ----
+// **********************
+
+function updateCurrentUserData(user)
+{
+   writeDom(() =>
+   {
+      //Just username and avatar for now?
+      navuseravatar.src = getAvatarLink(user.avatar, 40);
+      userusername.firstElementChild.textContent = user.username;
+      userusername.href = getUserLink(user.id);
+      userid.textContent = "User ID: " + user.id;
+      userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
+      finalizeTemplate(userusername); //be careful with this!
+      //Check fields in user for certain special fields like email etc.
+      signals.Add("updatecurrentuser", user);
+   });
+}
+
+
+
+
+//-------------------------------------------------
+// ***********************************************
+// ***********************************************
+// ***********************************************
+//    --- ALREADY HANDLED ABOVE THIS POINT ---
+// ***********************************************
+// ***********************************************
+// ***********************************************
+//-------------------------------------------------
+
+
+
 
 //Right now, this can only be called once :/
 function setupDiscussions()
@@ -860,26 +912,6 @@ function setupSession()
    });
 }
 
-
-// **********************
-// ---- Page Modify ----
-// **********************
-
-function updateCurrentUserData(user)
-{
-   writeDom(() =>
-   {
-      //Just username and avatar for now?
-      navuseravatar.src = getAvatarLink(user.avatar, 40);
-      userusername.firstElementChild.textContent = user.username;
-      userusername.href = getUserLink(user.id);
-      userid.textContent = "User ID: " + user.id;
-      userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
-      finalizeTemplate(userusername); //be careful with this!
-      //Check fields in user for certain special fields like email etc.
-      signals.Add("updatecurrentuser", user);
-   });
-}
 
 function refreshUserFull(always)
 {
@@ -1030,31 +1062,6 @@ function formSetupSubmit(form, endpoint, success, validate)
          req => formEnd(form)
       );
    });
-}
-
-function notifyBase(message, icon, status)
-{
-   UIkit.notification({
-      "message": "<span class='uk-flex uk-flex-middle'><span uk-icon='icon: " +
-         icon + "; ratio: 1.4' class='uk-flex-none uk-text-" + status + 
-         "'></span><span class=" +
-         "'uk-width-expand uk-text-break notification-actual'>" + 
-         message + "</span></span>", 
-      "pos":"bottom-right",
-      "timeout": Math.floor(getLocalOption("notificationtimeout") * 1000)
-   });
-}
-
-function notifyError(error)
-{
-   log.Error(error);
-   notifyBase(error, "close", "danger");
-}
-
-function notifySuccess(message)
-{
-   log.Info("Notify: " + message);
-   notifyBase(message, "check", "success");
 }
 
 
@@ -1923,43 +1930,6 @@ function messageControllerEvent(event)
    UIkit.modal(commentedit).show();
 }
 
-function handleAlerts(comments, users)
-{
-   //Figure out the comment that will go in the header
-   if(comments && Notification.permission === "granted" && getLocalOption("displaynotifications"))
-   {
-      var alertids = getWatchLastIds();
-      var activedisc = getActiveDiscussion();
-
-      //Add our current room ONLY if it's invisible
-      if(!document.hidden) //Document is visible, NEVER alert the current room
-         delete alertids[activedisc];
-      else if(!alertids[activedisc]) //Document is invisible, alert IF it's not already in the list
-         alertids[activedisc] = 0;
-
-      var cms = sortById(comments).filter(x => alertids[x.parentId] < x.id &&
-         x.editDate === x.createDate); //NO COMMENTS
-
-      try
-      {
-         cms.forEach(x => 
-         {
-            //this may be dangerous
-            var pw = document.getElementById(getPulseId(x.parentId));
-            var name = getSwap(pw, "data-pwname");
-            var notification = new Notification(users[x.createUserId].username + ": " + name, {
-               tag : "comment" + x.id,
-               body : parseComment(x.content).t,
-               icon : getAvatarLink(users[x.createUserId].avatar, 100),
-            });
-         });
-      }
-      catch(ex)
-      {
-         log.Error("Could not send notification: " + ex);
-      }
-   }
-}
 
 //A 12me thing for the renderer
 var Nav = {

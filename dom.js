@@ -3,15 +3,25 @@
 // --- DOM MANIPULATION ---
 // ************************
 
+// Note: dom.js depends on NOTHING except the html. It is purely for page setup
+// actions, such as modifying html and creating elements. It fires of signals
+// in case you want to pick up on what's happening and do extra stuff. There is
+// NO api code, logic, request, etc here.
+
+// Well, it's assumed that you'll be using UIkit I guess...
+
 //The dependencies for this file to work!
 var DomDeps = {
-   spaClick : () => { throw "Need to assign spaClick!" },
-   log : (msg) => { },           //not necessary
-   signal : (name, data) => {  } //not necessary
+   log : (msg) => { console.log(msg); },
+   signal : (name, data) => { console.log("ignoring signal " + name); }
 };
 
-//Note: NOTHING in dom manipulation uses the signal system. ONLY the signalers
-//do, this is so that these functions can be used by themselves wherever
+//Some globals that you can mess with if you want, but they are not assumed to
+//be usable except within this file. Try not to rely on the globals, use the
+//functions instead please.
+var domGlobals = {
+   discussions : {}
+};
 
 function hide(e) { e.setAttribute("hidden", ""); }
 function unhide(e) { e.removeAttribute("hidden"); }
@@ -26,18 +36,13 @@ function setLoading(e, loading)
 function addLoading()
 {
    this.count = (this.count || 0) + 1;
-   //topnav.setAttribute("data-pulsing", "");
    setLoading(topnav, true);
-   //maincontentloading.appendChild(cloneTemplate("spinner"));
 }
 function removeLoading()
 {
    addLoading.count--;
    if(!addLoading.count)
       setLoading(topnav, false);
-      //e.removeAttribute("data-pulsing");
-   //if(maincontentloading.firstElementChild)
-   //   maincontentloading.removeChild(maincontentloading.firstElementChild);
 }
 
 function setConnectionState(state)
@@ -211,12 +216,15 @@ function cloneTemplate(name)
 function finalizeTemplate(elm)
 {
    var links = elm.querySelectorAll("[data-spa]");
-   [...links].forEach(x =>
-   {
-      x.onclick = DomDeps.spaClick(x.href);
-   });
+   var linkArray = [...links];
+
    if(elm.hasAttribute("data-spa"))
-      elm.onclick = DomDeps.spaClick(elm.href);
+      linkArray.push(elm);
+
+   linkArray.forEach(x => 
+      x.onclick = () => DomDeps.signal("spaclick_event", { element: x, url: x.href }); //DomDeps.spaClick(x.href);
+   );
+
    return elm;
 }
 
@@ -368,6 +376,14 @@ function renderLogs(log)
    }
 }
 
+// Each option is required to have:
+//  "def" (default) value
+//  "value" the current value
+// Optional fields are: 
+//  "text" field to show it is a user-operable setting 
+//  "type" to specify a special type of input for display 
+//  "step" value for numeric inputs.
+
 function renderOptions(options)
 {
    DomDeps.log("Refreshing user options");
@@ -424,7 +440,7 @@ function renderOptions(options)
       });
       elm.onchange = e => { 
          var val = vconv(getSwap(elm, "data-input"));
-         DomDeps.signal("localsettingupdate", 
+         DomDeps.signal("localsettingupdate_event", 
             { key : k, value: val, options : options });
          //setLocalOption(k, val);
       };
@@ -440,5 +456,71 @@ function renderOptions(options)
    }
 
    DomDeps.signal("optionrender", options);
+}
+
+
+// ************************
+// --- DISCUSSION BASIC ---
+// ************************
+
+function getDiscussion(id)
+{
+   if(!domGlobals.discussions[id])
+   {
+      var discussion = cloneTemplate("discussion");
+      multiSwap(discussion, {
+         "data-id": getDiscussionId(id),
+         "data-discussionid": id
+      });
+
+      var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
+      loadolder.onclick = event => 
+      {
+         event.preventDefault();
+         DomDeps.signal("loadoldercomments_event", discussion);
+      };
+
+      domGlobals.discussions[id] = discussion;
+   }
+
+   return domGlobals.discussions[id];
+}
+
+function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
+
+function getActiveDiscussionId()
+{
+   var d = getActiveDiscussion();
+   return d ? Number(d.getAttribute("data-did")) : null;
+}
+
+function showDiscussion(id)
+{
+   hideDiscussion(true);
+
+   var d = getDiscussion(id);
+   discussions.appendChild(d);
+   signals.Add("showdiscussion", { id: id, discussion: d });
+}
+
+function formatShowDiscussion(id)
+{
+   showDiscussion(id);
+   formatDiscussions(true);
+}
+
+function hideDiscussion(quiet)
+{
+   var d = getActiveDiscussion();
+
+   if(d)
+   {
+      d.parentNode.removeChild(d);
+      signal("hidediscussion", { discussion: d });
+   }
+   else if(!quiet)
+   {
+      DomDeps.log("Tried to hide discussion when none was shown");
+   }
 }
 
