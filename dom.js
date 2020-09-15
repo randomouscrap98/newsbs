@@ -23,6 +23,22 @@ function setLoading(e, loading)
    else
       e.removeAttribute("data-pulsing");
 }
+function addLoading()
+{
+   this.count = (this.count || 0) + 1;
+   //topnav.setAttribute("data-pulsing", "");
+   setLoading(topnav, true);
+   //maincontentloading.appendChild(cloneTemplate("spinner"));
+}
+function removeLoading()
+{
+   addLoading.count--;
+   if(!addLoading.count)
+      setLoading(topnav, false);
+      //e.removeAttribute("data-pulsing");
+   //if(maincontentloading.firstElementChild)
+   //   maincontentloading.removeChild(maincontentloading.firstElementChild);
+}
 
 function setConnectionState(state)
 {
@@ -153,6 +169,7 @@ function initializePage(requester)
    formatDiscussions(false);
 
    //Clean page isn't loading...?
+   //hide(maincontentloading);
    //setLoading(topnav, false);
 
    DomDeps.signal("pageinitialize", requester);

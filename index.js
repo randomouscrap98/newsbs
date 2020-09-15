@@ -80,6 +80,7 @@ window.onload = function()
          rightpanetoggle.click();
 
       initializePage("pageload");
+      //unhide(maincontentloading);
    });
 
    setupSpa();
@@ -175,7 +176,7 @@ function setupSignalProcessors()
    var apiSetLoading = (data, load) => 
    {
       if(!data.endpoint.endsWith("listen"))
-         writeDom(() => { setLoading(topnav, load); });
+         writeDom(() => { if(load) addLoading(); else removeLoading(); }); //setLoading(topnav, load); });
    };
 
    signals.Attach("apistart", data => apiSetLoading(data, true));
@@ -560,11 +561,11 @@ function routepage_load(spadat)
             "data-format" : c.values.markupLang,
             "data-watched" : c.about.watching
          });
-         if(data.comment.length !== initload)
-            d.setAttribute(attr.atoldest, "");
          setupWatchLink(templ, c.id);
          //TODO: need to add comments here and perhaps swap to discussion
-         easyShowDiscussion(c.id);
+         var d = easyShowDiscussion(c.id);
+         if(data.comment.length !== initload)
+            d.setAttribute(attr.atoldest, "");
          easyComments(data.comment, users);
          formatDiscussions(true);
       }, getChain(data.category, c));
@@ -1700,6 +1701,11 @@ function easyDiscussion(id)
          "data-discussionid": id
       });
       discussions.appendChild(discussion);
+
+   //UIkit.util.on(discussion, 'show', (e) =>
+   //{
+   //   console.log("SHOWN:", e);
+   //});
 
       var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
       loadolder.onclick = event => 

@@ -108,6 +108,10 @@ a:hover { color: inherit; }
 #maincontentbarcontrols {
    float: right;
 }
+#maincontentloading > * {
+   margin-left: 0.3em;
+   margin-top: 0.3em;
+}
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
    background-color: rgba(128,255,240,0.4);
