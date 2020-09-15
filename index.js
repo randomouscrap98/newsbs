@@ -1,4 +1,3 @@
-var apiroot = "https://newdev.smilebasicsource.com/api";
 
 var actiontext = {
    "c" : "Create",
@@ -11,7 +10,6 @@ var attr = {
    "pulsedate" : "data-maxdate",
    "pulsecount" : "data-pwcount",
    "pulsemaxid" : "data-pwmaxid",
-   "constate" : "data-connectionindicator",
    "atoldest" : "data-atoldest"
 };
 
@@ -175,25 +173,24 @@ function setupSignalProcessors()
 
    signals.Attach("wdom", data => data());
 
-   //All these things use the same name as their handler, they are emitted as
-   //events/signals in case we want more processors/etc.
-   ["pageerror"].forEach(
-      x => signals.Attach(x, window[x]));
+   signals.Attach("pageerror", pageerror);
 
    //These are so small I don't care about them being directly in here
-   //signals.Attach("spastart", () => writeDom(() => { setLoading(topnav, true); }));
    var apiSetLoading = (data, load) => 
    {
       if(!data.endpoint.endsWith("listen"))
          writeDom(() => { setLoading(topnav, load); });
    };
+
    signals.Attach("apistart", data => apiSetLoading(data, true));
    signals.Attach("apiend", data => apiSetLoading(data, false));
+
    signals.Attach("localsettingupdate", data => 
    {
       log.Info("Setting " + data.key + " to " + data.value);
       setLocalOption(data.key, data.value);
    });
+
    signals.Attach("settheme", data => 
    {
       writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
@@ -512,7 +509,7 @@ function route_complete(spadat, applyTemplate, breadcrumbs)
 
 function routehome_load(spadat) { route_complete(spadat); }
 
-function routecategory_load(spadat) //url, pVal, id)
+function routecategory_load(spadat)
 {
    var cid = Number(spadat.id);
    var params = new URLSearchParams();
@@ -569,6 +566,43 @@ function routecategory_load(spadat) //url, pVal, id)
             pgelm.appendChild(citem);
          });
       }, getChain(data.category, c));
+   });
+}
+
+function routepage_load(spadat)
+{
+   var d = easyShowDiscussion(spadat.id);
+   var initload = getLocalOption("initialloadcomments");
+   var pid = Number(spadat.id);
+   var params = new URLSearchParams();
+   params.append("requests", "content-" + JSON.stringify({"ids" : [pid], "includeAbout" : true}));
+   params.append("requests", "category");
+   params.append("requests", "comment-" + JSON.stringify({
+      "Reverse" : true,
+      "Limit" : initload,
+      "ParentIds" : [ pid ]
+   }));
+   params.append("requests", "user.0createUserId.0edituserId.2createUserId");
+   params.set("category", "id,name,parentId");
+
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      log.Datalog(data);
+      var c = data.content[0];
+      var users = idMap(data.user);
+      route_complete(spadat, templ =>
+      {
+         multiSwap(templ, {
+            "data-title" : c.name,
+            "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }),
+            "data-format" : c.values.markupLang,
+            "data-watched" : c.about.watching
+         });
+         if(data.comment.length !== initload)
+            d.setAttribute(attr.atoldest, "");
+         setupWatchLink(templ, c.id);
+      }, getChain(data.category, c));
+         //{ "users" : users, "comments" : data.comment, "content" : c });
    });
 }
 
@@ -809,37 +843,9 @@ function updateGlobalAlert()
    setHidden(globalalert, !watchglobalalert.textContent);
 }
 
-//Finish rendering a page. For "ease", can also include information about the
-//available discussion so we can do a few things.
-//function finalizePage(chain, discussion)
-//{
-//   hide(maincontentloading);
-//   globals.spa.processingurl = false;
-//
-//   if(chain)
-//      makeBreadcrumbs(chain);
-//
-//   if(discussion)
-//   {
-//      maincontentinfo.appendChild(
-//         makeStandardContentInfo(discussion.content, discussion.users));
-//      easyComments(discussion.comments, discussion.users);
-//      setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
-//   }
-//
-//   finalizeTemplate(maincontent);
-//
-//   //At the end of it, update the long poller (no matter if there's a
-//   //discussion or not, because maybe we need to EXIT the last room)
-//   updateLongPoller();
-//
-//   log.Debug("Page render finalized");
-//}
-
 function updateDiscussionUserlist(listeners, users)
 {
-   var list = listeners ? listeners[getActiveDiscussion()] : false;
-   list = list || {};
+   var list = listeners ? listeners[getActiveDiscussion()] : {};
 
    for(key in list)
    {
@@ -905,26 +911,18 @@ function setToken(token)
 
 function getUserId() { return userid.dataset.userid; }
 
-function getUserLink(id) { return "?p=user-" + id; }
-function getPageLink(id) { return "?p=page-" + id; }
-function getCategoryLink(id) { return "?p=category-" + id; }
-
-function getImageLink(id, size, crop, ignoreRatio)
+function getComputedImageLink(id, size, crop, ignoreRatio)
 {
-   var img = apiroot + "/file/raw/" + id;
-   var linkch = "?";
-   if(size) 
-   { 
-      img += linkch + "size=" + Math.max(10, 
-         Math.floor(size * getLocalOption("imageresolution") * 
+   if(size)
+   {
+      size = Math.max(10, Math.floor(size * getLocalOption("imageresolution") * 
             (ignoreRatio ? 1 : window.devicePixelRatio))); 
-      linkch = "&"; 
    }
-   if(crop) { img += linkch + "crop=true"; linkch = "&"; }
-   return img;
+
+   getImageLink(id, size, crop);
 }
 
-function getAvatarLink(id, size, ignoreRatio) { return getImageLink(id, size, true, ignoreRatio); }
+function getAvatarLink(id, size, ignoreRatio) { return getComputedImageLink(id, size, true, ignoreRatio); }
 
 function idMap(data)
 {
@@ -944,20 +942,6 @@ function formError(form, error)
 {
    form.appendChild(makeError(error));
    log.Error(error);
-}
-
-function formSerialize(form)
-{
-   //TRY to get inputs by name, get values based on what kind they are.
-   var inputs = form.querySelectorAll("[name]");
-   var result = {};
-   for(var i = 0; i < inputs.length; i++)
-   {
-      var tag = inputs[i].tagName.toLowerCase();
-      if(tag === "input" || tag === "textarea")
-         result[inputs[i].getAttribute("name")] = inputs[i].value;
-   }
-   return result;
 }
 
 function formSetupSubmit(form, endpoint, success, validate)
@@ -1012,45 +996,6 @@ function notifySuccess(message)
    notifyBase(message, "check", "success");
 }
 
-function commentsToAggregate(comment)
-{
-   var comments = {};
-
-   if(comment)
-   {
-      comment.forEach(c =>
-      {
-         if(!comments[c.parentId]) 
-            comments[c.parentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : c.parentId};
-         var cm = comments[c.parentId];
-         if(cm.userIds.indexOf(c.createUserId) < 0) cm.userIds.push(c.createUserId);
-         if(c.createDate > cm.lastDate) cm.lastDate = c.createDate;
-         cm.count++;
-      });
-   }
-
-   return Object.values(comments);
-}
-
-function activityToAggregate(activitee)
-{
-   var activity = {};
-
-   if(activitee)
-   {
-      activitee.forEach(a =>
-      {
-         if(!activity[a.contentId]) 
-            activity[a.contentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : a.contentId};
-         var ac = activity[a.contentId];
-         if(ac.userIds.indexOf(a.userId) < 0) ac.userIds.push(a.userId);
-         if(a.date > ac.lastDate) ac.lastDate = a.date;
-         ac.count++;
-      });
-   }
-
-   return Object.values(activity);
-}
 
 function setupWatchLink(parent, cid)
 {
@@ -1200,70 +1145,6 @@ function getChain(categories, content)
 }
 
 
-// *************
-// ---- API ----
-// *************
-
-function quickApi(url, callback, error, postData, always, method, modify, nolog)
-{
-   let thisreqid = ++globals.reqId;
-   var endpoint = url; var epquery = url.indexOf("?");
-   if(epquery >= 0) endpoint = endpoint.substr(0, epquery);
-
-   url = apiroot + "/" + url;
-   error = error || (e => notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText));
-
-   method = method || (postData ? "POST" : "GET");
-
-   if(!nolog)
-      log.Info("[" + thisreqid + "] " + method + ": " + url);
-
-   var req = new XMLHttpRequest();
-
-   var apidat = { id: thisreqid, url: url, endpoint: endpoint, method : method, request : req};
-
-   //This is supposedly thrown before the others
-   req.addEventListener("error", function() { req.networkError = true; });
-   req.addEventListener("loadend", function()
-   {
-      log.Debug("[" + thisreqid + "]: " + req.status + " " + req.statusText + 
-         " (" + req.response.length + "b) " + endpoint);
-      if(always) 
-         always(req);
-      if(req.status <= 299 && req.status >= 200)
-      {
-         if(callback)
-            callback(req.responseText ? JSON.parse(req.responseText) : null);
-         else
-            notifySuccess("Success: " + req.status + " - " + req.responseText);
-      }
-      else
-      {
-         //Also thrown on network error
-         error(req);
-      }
-      signals.Add("apiend", apidat);
-   });
-
-   req.open(method, url);
-   req.setRequestHeader("accept", "application/json");
-   req.setRequestHeader("Content-Type", "application/json");
-
-   var token = getToken(); //Do this as late as possible "just in case" (it makes no difference though)
-   if(token)
-      req.setRequestHeader("Authorization", "Bearer " + token);
-
-   if(modify)
-      modify(req);
-
-   signals.Add("apistart", apidat);
-
-   if(postData)
-      req.send(JSON.stringify(postData));
-   else
-      req.send();
-}
-
 
 // *********************
 // ---- P/W General ----
@@ -1290,7 +1171,6 @@ function refreshPWDate(item)
 }
 
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
-function getPWUserlist(pulseitem) { return pulseitem.querySelector(".pw-users"); }
 
 function easyPWContent(c, id, parent)
 {
@@ -1335,7 +1215,6 @@ function easyPWUser(u, parent)
 // ---- Pulse ----
 // ***************
 
-function pulseId(cid) { return "pulseitem-" + cid; }
 
 var pulseUserFields = [ "create", "edit", "comment" ];
 
@@ -1404,7 +1283,7 @@ function cataloguePulse(c, u, aggregate)
 {
    //Oops, never categorized this content
    if(!aggregate[c.id])
-      aggregate[c.id] = { pulse: easyPWContent(c, pulseId(c.id), pulse) };
+      aggregate[c.id] = { pulse: easyPWContent(c, getPulseId(c.id), pulse) };
 
    //Oops, never categorized this user IN this content
    if(!aggregate[c.id][u.id])
@@ -1527,8 +1406,6 @@ function updatePulse(data, fullReset)
 // ---- Watch ----
 // ***************
 
-function watchId(cid) { return "watchitem-" + cid; }
-
 function getWatchLastIds()
 {
    var result = {};
@@ -1559,7 +1436,7 @@ function updateWatchComAct(users, comments, activity)
 {
    [...new Set(Object.keys(comments).concat(Object.keys(activity)))].forEach(cid =>
    {
-      var watchdata = document.getElementById(watchId(cid)); 
+      var watchdata = document.getElementById(getWatchId(cid)); 
 
       if(watchdata)
       {
@@ -1614,7 +1491,7 @@ function updateWatches(data, fullReset)
       for(var i = 0; i < data.watch.length; i++)
       {
          var c = contents[data.watch[i].contentId];
-         var watchdata = easyPWContent(c, watchId(c.id), watches);
+         var watchdata = easyPWContent(c, getWatchId(c.id), watches);
          setupWatchClear(watchdata, c.id);
          watchdata.setAttribute(attr.pulsemaxid, data.watch[i].lastNotificationId);
       }
@@ -1624,7 +1501,7 @@ function updateWatches(data, fullReset)
    {
       for(var i = 0; i < data.watchdelete.length; i++)
       {
-         var w = document.getElementById(watchId(data.watchdelete[i].contentId));
+         var w = document.getElementById(getWatchId(data.watchdelete[i].contentId));
          if(w) Utilities.RemoveElement(w);
       }
    }
@@ -1636,7 +1513,7 @@ function updateWatches(data, fullReset)
    {
       for(var i = 0; i < data.watchupdate.length; i++)
       {
-         var w = document.getElementById(watchId(data.watchupdate[i].contentId));
+         var w = document.getElementById(getWatchId(data.watchupdate[i].contentId));
 
          if(w) 
          {
@@ -1655,40 +1532,6 @@ function updateWatches(data, fullReset)
 // ---- Route ----
 // ***************
 
-function routepage_load(data) //url, pVal, id)
-{
-   var d = easyShowDiscussion(id);
-   var initload = getLocalOption("initialloadcomments");
-   var pid = Number(id);
-   var params = new URLSearchParams();
-   params.append("requests", "content-" + JSON.stringify({"ids" : [pid], "includeAbout" : true}));
-   params.append("requests", "category");
-   params.append("requests", "comment-" + JSON.stringify({
-      "Reverse" : true,
-      "Limit" : initload,
-      "ParentIds" : [ pid ]
-   }));
-   params.append("requests", "user.0createUserId.0edituserId.2createUserId");
-   params.set("category", "id,name,parentId");
-
-   quickApi("read/chain?" + params.toString(), function(data)
-   {
-      console.datalog(data);
-      var c = data.content[0];
-      var users = idMap(data.user);
-      multiSwap(maincontent, {
-         "data-title" : c.name,
-         "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }),
-         "data-format" : c.values.markupLang,
-         "data-watched" : c.about.watching
-      });
-      if(data.comment.length !== initload)
-         d.setAttribute(attr.atoldest, "");
-      setupWatchLink(maincontent, c.id);
-      finalizePage(getChain(data.category, c), 
-         { "users" : users, "comments" : data.comment, "content" : c });
-   });
-}
 
 //This is EXTREMELY similar to pages, think about doing something different to
 //minimize duplicate code???
@@ -1848,25 +1691,6 @@ function setDiscussionScrollNow(forceTime)
       globals.discussion.scrollNow = performance.now() + forceTime; 
 }
 
-function createComment(rawtext, markup) {
-   return JSON.stringify({"m":markup}) + "\n" + rawtext;
-}
-
-function parseComment(content) {
-   var newline = content.indexOf("\n");
-   try {
-      // try to parse the first line as JSON
-      var data = JSON.parse(newline>=0 ? content.substr(0, newline) : content);
-   } finally {
-      if (data && data.constructor == Object) { // new or legacy format
-         if (newline >= 0)
-            data.t = content.substr(newline+1); // new format
-      } else // raw
-         data = {t: content};
-      return data;
-   }
-}
-
 function renderComment(elm, repl)
 {
    if(repl)
@@ -1879,10 +1703,6 @@ function renderComment(elm, repl)
 
    return elm.getAttribute("data-rawmessage");
 }
-
-function getDiscussionId(id) { return "discussion-" + id; }
-function getDiscussionSwitchId(id) { return "discussion-" + id + "-switch"; }
-function getCommentId(id) { return "comment-" + id; }
 
 function getActiveDiscussion()
 {
@@ -1923,7 +1743,7 @@ function easyShowDiscussion(id)
 {
    //The true/false isn't necessary, just as a visual reminder that that
    //function accepts a truthy value for whether it has discussions
-   setHasDiscussions(id ? true : false);
+   //setHasDiscussions(id ? true : false);
    globals.discussion.current = id; //Whatever they send, it's what the current is
 
    if(id)
@@ -2097,158 +1917,6 @@ function messageControllerEvent(event)
    UIkit.modal(commentedit).show();
 }
 
-// **********************
-// ---- LONG POLLING ----
-// **********************
-
-function setConnectionState(state)
-{
-   state = state || "";
-   var indicator = document.querySelector("[" + attr.constate + "]");
-   indicator.setAttribute(attr.constate, state);
-}
-
-function tryAbortLongPoller()
-{
-   if(globals.longpoller.pending)
-   {
-      log.Debug("Aborting old long poller...");
-      globals.longpoller.pending.abort();
-      return true;
-   }
-
-   return false;
-}
-
-function updateLongPoller()
-{
-   log.Info("Updating long poller, may restart");
-
-   //Just always abort, if they want an update, they'll GET one
-   tryAbortLongPoller();
-
-   if(!getToken())
-      return;
-
-   var cid = getActiveDiscussion();
-
-   //A full reset haha great
-   if(cid)
-   {
-      globals.longpoller.lastlisteners = { };
-      globals.longpoller.lastlisteners[String(cid)] = { "0" : "" }; 
-   }
-   else
-   {
-      globals.longpoller.lastlisteners = null;
-   }
-
-   longpollRepeater();
-}
-
-function longpollRepeater()
-{
-   setConnectionState("connected");
-
-   var statuses = {};
-   var cid = getActiveDiscussion();
-   if(cid) statuses[String(cid)] = "online";
-   var clearNotifications = Object.keys(statuses).map(x => Number(x));
-
-   var params = new URLSearchParams();
-   params.append("actions", JSON.stringify({
-      "lastId" : globals.lastsystemid,
-      "statuses" : statuses,
-      "clearNotifications" : clearNotifications,
-      "chains" : [ "comment.0id", "activity.0id", "watch.0id",
-         "user.1createUserId.2userId", "content.1parentId.2contentId.3contentId" ]
-   }));
-
-   if(globals.longpoller.lastlisteners)
-   {
-      params.append("listeners", JSON.stringify({
-         "lastListeners" : globals.longpoller.lastlisteners,
-         "chains" : [ "user.0listeners" ]
-      }));
-   }
-
-   params.set("user","id,username,avatar");
-   params.set("content","id,name");
-
-   quickApi("read/listen?" + params.toString(), data => //success
-   {
-      if(data)
-      {
-         globals.lastsystemid = data.lastId;
-
-         var users = idMap(data.chains.user);
-         var watchlastids = getWatchLastIds();
-         updatePulse(data.chains);
-
-         if(data.chains.comment)
-         {
-            //I filter out comments from watch updates if we're currently in
-            //the room. This should be done automatically somewhere else... mmm
-            data.chains.commentaggregate = commentsToAggregate(
-               data.chains.comment.filter(x => watchlastids[x.parentId] < x.id && 
-                  clearNotifications.indexOf(x.parentId) < 0));
-            handleAlerts(data.chains.comment, users);
-            easyComments(data.chains.comment, users);
-         }
-
-         if(data.chains.activity)
-         {
-            data.chains.activityaggregate = activityToAggregate(
-               data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
-                  clearNotifications.indexOf(x.contentId) < 0));
-         }
-
-         console.datalog("watchlastids: ", watchlastids);
-         console.datalog("chatlisten: ", data);
-         updateWatches(data.chains);
-
-         if(data.listeners)
-         {
-            globals.longpoller.lastlisteners = data.listeners;
-            updateDiscussionUserlist(data.listeners, users);
-         }
-      }
-
-      longpollRepeater();
-
-   }, req => //error
-   {
-      if(req.status === 400)
-      {
-         setConnectionState("error");
-         UIkit.modal.confirm("Live updates cannot recover from error. " +
-            "Press OK to reload page.\n\nIf you " +
-            "CANCEL, the website will not function properly!").then(x =>
-         {
-            location.reload();
-         });
-      }
-      else if(req.status || req.networkError)
-      {
-         setConnectionState("error");
-         var lpr = getLocalOption("longpollerrorrestart");
-         log.Error("Long poller failed, status: " + req.status + ", retrying in " + lpr + " ms");
-         setTimeout(longpollRepeater, lpr);
-      }
-      else
-      {
-         setConnectionState("aborted");
-         log.Warn("Long poller was aborted!");
-      }
-   }, undefined, req => //Always
-   {
-      globals.longpoller.pending = false;
-   }, undefined, req => //modify
-   {
-      globals.longpoller.pending = req;
-   }, !getLocalOption("loglongpollrequest") /* Do we want this? No logging? */);
-}
-
 function handleAlerts(comments, users)
 {
    //Figure out the comment that will go in the header
@@ -2271,7 +1939,7 @@ function handleAlerts(comments, users)
          cms.forEach(x => 
          {
             //this may be dangerous
-            var pw = document.getElementById(pulseId(x.parentId));
+            var pw = document.getElementById(getPulseId(x.parentId));
             var name = getSwap(pw, "data-pwname");
             var notification = new Notification(users[x.createUserId].username + ": " + name, {
                tag : "comment" + x.id,

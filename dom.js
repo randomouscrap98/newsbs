@@ -24,6 +24,13 @@ function setLoading(e, loading)
       e.removeAttribute("data-pulsing");
 }
 
+function setConnectionState(state)
+{
+   const constate = "data-connectionindicator";
+   var indicator = document.querySelector("[" + constate + "]");
+   indicator.setAttribute(constate, state || "");
+}
+
 function setFullContentMode()
 {
    DomDeps.log("Set full content mode");
@@ -266,10 +273,33 @@ function formEnd(form)
    submit.parentNode.removeChild(submit.parentNode.querySelector("[data-spinner]"));
 }
 
+function formSerialize(form)
+{
+   //TRY to get inputs by name, get values based on what kind they are.
+   var inputs = form.querySelectorAll("[name]");
+   var result = {};
+   for(var i = 0; i < inputs.length; i++)
+   {
+      var tag = inputs[i].tagName.toLowerCase();
+      if(tag === "input" || tag === "textarea")
+         result[inputs[i].getAttribute("name")] = inputs[i].value;
+   }
+   return result;
+}
 
-// ******************
-// --- MAKE STUFF ---
-// ******************
+
+// **********************
+// --- PAGE CONSTANTS ---
+// **********************
+
+function getDiscussionId(id) { return "discussion-" + id; }
+function getDiscussionSwitchId(id) { return "discussion-" + id + "-switch"; }
+function getCommentId(id) { return "comment-" + id; }
+function getWatchId(cid) { return "watchitem-" + cid; }
+function getPulseId(cid) { return "pulseitem-" + cid; }
+
+function getPWUserlist(pulseitem) { return pulseitem.querySelector(".pw-users"); }
+
 
 // ***************
 // --- SPECIAL ---
