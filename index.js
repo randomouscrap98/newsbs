@@ -108,6 +108,7 @@ window.onload = function()
 
    globals.longpoller = new LongPoller(signals, (m, c) => logConditional(m, c, "loglongpoll"));
    globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
+   interruptSmoothScroll();
    //This setting won't apply until next load ofc
 
    setupSession();
@@ -206,13 +207,63 @@ function renderLoop(time)
       {
          baseData.old = baseData.oldScrollHeight;
          baseData.current = baseData.currentScrollHeight;
+
+         //Begin nice scroll to bottom
+         if(baseData.scrollBottom < baseData.oldClientHeight * getLocalOption("discussionscrolllock"))
+         {
+            log.Drawlog("Smooth scrolling now, all data: " + JSON.stringify(baseData));
+            globals.smoothScrollNow = discussions.scrollTop;
+         }
+         //{
+            //console.log("smooth scrolling now");
+         //}
+
          signals.Add("discussionscrollresize", baseData);
       }
       if(Math.floor(globals.discussionClientHeight) !== Math.floor(discussions.clientHeight))
       {
          baseData.old = baseData.oldClientHeight;
          baseData.current = baseData.currentClientHeight;
+
+         //Instant jump, interrupt smooth scroll
+         if(baseData.scrollBottom < getLocalOption("discussionresizelock")) 
+         {
+            if(globals.smoothScrollNow !== Number.MIN_SAFE_INTEGER)
+               log.Drawlog("Smooth scroll INTERRUPTED by instant jump");
+            interruptSmoothScroll();
+            writeDom(() => 
+            {
+               //console.log("curscrollheight", baseData.currentScrollHeight);
+               discussions.scrollTop = baseData.currentScrollHeight;
+            }); 
+         }
+
          signals.Add("discussionresize", baseData);
+      }
+
+      if(globals.smoothScrollNow !== Number.MIN_SAFE_INTEGER)
+      {
+         //console.log("why: ", globals.smoothScrollNow,
+         //   Number.MIN_SAFE_INTEGER);
+         if(Math.abs(discussions.scrollTop - globals.smoothScrollNow) <= 1)
+         {
+            //We will go at MINIMUM half framerate (to prevent huge stops from
+            //destroying the animation)
+            var cdelta = Math.min(32, delta);
+            var scm = Math.max(1, cdelta * 60 / 1000 * 
+               getLocalOption("discussionscrollspeed") * Math.abs(baseData.scrollBottom));
+            log.Drawlog("btmdistance: " + baseData.scrollBottom + ", scm: " + scm + ", delta: " 
+               + cdelta + ", scrolltop: " + discussions.scrollTop);
+            //These are added separately because eventually, our scrolltop will move
+            //past the actual assigned one
+            globals.smoothScrollNow = Math.ceil(globals.smoothScrollNow + scm);
+            writeDom(() => discussions.scrollTop = globals.smoothScrollNow);
+         }
+         else
+         {
+            interruptSmoothScroll();
+            log.Drawlog("Smooth scroll interrupted at " + baseData.scrollDiff + " from bottom")
+         }
       }
 
       globals.discussionClientHeight = discussions.clientHeight;
@@ -272,21 +323,6 @@ function setupSignalProcessors()
       });
    });
 
-   signals.Attach("discussionresize", data => 
-   {
-      if(data.scrollBottom < getLocalOption("discussionresizelock")) 
-         writeDom(() => discussions.scrollTop = discussions.scrollHeight); 
-   });
-   signals.Attach("discussionscrollresize", data =>
-   {
-      if(data.scrollBottom < 
-      signals.Add("autoscroll_event", { scrollto: data.current, });
-   });
-   signals.Attach("autoscroll_event", data =>
-   {
-
-   });
-
    //You MUST be able to assume that discussions and all that junk are fine at
    //this point.
    signals.Attach("routecomplete", data =>
@@ -313,14 +349,22 @@ function setupSignalProcessors()
 
    signals.Attach("formatdiscussions", data =>
    {
-      //Want to scroll to bottom, this performs a READ
-      discussions.scrollTop = discussions.scrollHeight;
+      //console.log("format discussion scroll now: " + discussions.scrollHeight);
+      interruptSmoothScroll();
+      var height = discussions.scrollHeight;
+      writeDom(() => discussions.scrollTop = height);
    });
 
    signals.Attach("settheme", data => 
    {
       writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
    });
+}
+
+//TODO: TEMPORARY LOCATION
+function interruptSmoothScroll()
+{
+   globals.smoothScrollNow = Number.MIN_SAFE_INTEGER;
 }
 
 function setupSpa()
