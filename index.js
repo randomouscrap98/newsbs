@@ -49,6 +49,7 @@ var options = {
 var globals = { 
    lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
+   spahistory : [],
    longpoller : {}
 };
 
@@ -147,7 +148,7 @@ function renderLoop(time)
       var delta = time - globals.render.lastrendertime;
 
       //FIRST, do all the stuff that requires reading the layout
-      //signal.Process("spaclick", time);
+      signals.Process("formatdiscussions", time);
 
       //NEXT, do stuff where the order doesn't matter
       signals.ProcessAuto(time);
@@ -175,7 +176,7 @@ function renderLoop(time)
 function setupSignalProcessors()
 {
    //THESE signals need to be run manually, because the order matters
-   ["wdom"].forEach(x => signals.AddAutoException(x));
+   ["wdom", "formatdiscussions"].forEach(x => signals.AddAutoException(x));
 
    //Some of these signals are treated as plain "events" so I don't have to do
    //proper dependency injection and interfacing and all that, this is a 
@@ -191,11 +192,7 @@ function setupSignalProcessors()
    });
 
    //Oh but there's some fun stuff I also want to do on events (not the event itself)
-   signals.Attach("spaclick_event", data => 
-   {
-      var parsed = parseLink(data.url);
-      quickLoad(typeHasDiscussion(parsed.page) && parsed.page !== "user" ? parsed.id : false);
-   });
+   signals.Attach("spastart", parsed => quickLoad(parsed));
 
    //These are so small I don't care about them being directly in here
    var apiSetLoading = (data, load) => 
@@ -215,6 +212,12 @@ function setupSignalProcessors()
    signals.Attach("hidediscussion", data =>
    {
       globals.discussion.observer.disconnect();
+   });
+   signals.Attach("formatdiscussions", data =>
+   {
+      console.log("scrolltobottom");
+      //Want to scroll to bottom, this performs a READ
+      discussions.scrollTop = discussions.scrollHeight;
    });
 
    signals.Attach("settheme", data => 
@@ -459,12 +462,15 @@ function route_complete(spadat, applyTemplate, breadcrumbs)
    if(spadat.rid === globals.spa.requestId)
    {
       if(breadcrumbs)
-         breadcrumbs.forEach(x => x.link = x.content ? getPageLink(x.id) : getCategoryLink(x.id));
+         breadcrumbs.forEach(x => x.link = x.link || (x.content ? getPageLink(x.id) : getCategoryLink(x.id)));
 
       writeDom(() =>
       {
          renderPage(spadat.route, applyTemplate, breadcrumbs);
+         globals.spahistory.push(spadat);
       });
+
+      signals.Add("routecomplete", { spa : spadat });
    }
    else
    {
@@ -516,46 +522,20 @@ function routecategory_load(spadat)
       {
          var sbelm = templ.querySelector("[data-subcats]");
          var pgelm = templ.querySelector("[data-pages]");
+         var childcats = data.category.filter(x => x.parentId === cid);
 
-         multiSwap(templ, {
-            "data-title" : c.name
-         });
-         data.category.filter(x => x.parentId === cid).forEach(x =>
-         {
-            var subcat = cloneTemplate("subcat");
-            multiSwap(subcat, {
-               "data-link": getCategoryLink(x.id),
-               "data-name": x.name
-            });
-            finalizeTemplate(subcat);
-            sbelm.appendChild(subcat);
-         });
-         data.content.forEach(x =>
-         {
-            var date = (new Date(x.createDate)).toLocaleDateString();
-            //if(x.editDate != x.createDate)
-            //   date = "(" + (new Date(x.editDate)).toLocaleDateString() + ")\n" + date;
-            var citem = cloneTemplate("pageitem");
-            var u = users[x.createUserId] || {};
-            multiSwap(citem, {
-               "data-link": getPageLink(x.id),
-               "data-name": x.name,
-               "data-avatar" : getAvatarLink(u.avatar, 50, true),
-               "data-userlink" : getUserLink(x.createUserId),
-               "data-time" : date
-            });
-            finalizeTemplate(citem);
-            pgelm.appendChild(citem);
-         });
+         multiSwap(templ, { "data-title" : c.name });
+         childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
+         data.content.forEach(x => pgelm.appendChild(makePageitem(x, users)));
       }, getChain(data.category, c));
    });
 }
 
 function routepage_load(spadat)
 {
-   //var d = easyShowDiscussion(spadat.id);
    var initload = getLocalOption("initialloadcomments");
    var pid = Number(spadat.id);
+
    var params = new URLSearchParams();
    params.append("requests", "content-" + JSON.stringify({"ids" : [pid], "includeAbout" : true}));
    params.append("requests", "category");
@@ -576,19 +556,60 @@ function routepage_load(spadat)
 
       route_complete(spadat, templ =>
       {
-         multiSwap(templ, {
-            "data-title" : c.name,
-            "data-content" : JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }),
-            "data-format" : c.values.markupLang,
-            "data-watched" : c.about.watching
-         });
-         setupWatchLink(templ, c.id);
-         var d = getDiscussion(c.id); //showDiscussion(c.id); //easyShowDiscussion(c.id);
-         if(data.comment.length !== initload)
-            d.setAttribute(attr.atoldest, "");
-         easyComments(data.comment, users);
-         formatShowDiscussion(c.id);
+         setupContentDiscussion(templ, c, data.comment, users, initload);
       }, getChain(data.category, c));
+   });
+}
+
+//This is EXTREMELY similar to pages, think about doing something different to
+//minimize duplicate code???
+function routeuser_load(spadat)
+{
+   var initload = getLocalOption("initialloadcomments");
+   var uid = Number(spadat.id);
+
+   var params = new URLSearchParams();
+   params.append("requests", "user-" + JSON.stringify({"ids" : [uid]}));
+   params.append("requests", "content-" + JSON.stringify({
+      "createUserIds" : [uid],
+      "type" : "@user.page",
+      "includeAbout" : true,
+      "limit" : 1
+   }));
+   params.append("requests", "comment.1id$ParentIds-" + JSON.stringify({
+      "Reverse" : true,
+      "Limit" : initload
+   }));
+   params.append("requests", "user.1createUserId.1edituserId.2createUserId");
+
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      log.Datalog(data);
+      var users = idMap(data.user);
+      var u = users[uid];
+      var c = data.content[0];
+      u.name = u.username;
+      u.link = getUserLink(u.id);
+
+      route_complete(spadat, templ =>
+      {
+         multiSwap(templ, {
+            "data-title" : u.username,
+            "data-avatar" : getAvatarLink(u.avatar, 100)
+         });
+
+         if(c)
+         {
+            c.name = u.username;
+            setupContentDiscussion(templ, c, data.comment, users, initload);
+         }
+         else
+         {
+            maincontentinfo.innerHTML = "No user page";
+         }
+      }, [u]);
+
+      //finalizePage([u], discussion);
    });
 }
 
@@ -609,16 +630,26 @@ function handleSetting(key, value)
    }
 }
 
-function quickLoad(discussionId)
+function quickLoad(spadat)
 {
    if(getLocalOption("quickload"))
    {
       writeDom(() =>
       {
+         //If it comes time for us to run the page init but the request that
+         //spawned us already finished, well don't initialize!!
+         if(globals.spahistory.some(x => x.rid === spadat.rid))
+         {
+            log.Warn("Tried to initialize page for quickload, but it already started!");
+            return;
+         }
          initializePage("quickload");
          unhide(maincontentloading);
-         if(discussionId) //data.page === "page")
-            formatShowDiscussion(Number(discussionId));
+         if(typeHasDiscussion(spadat.page) && spadat.page !== "user")
+         {
+            showDiscussion(Number(spadat.id));
+            formatDiscussions(true);
+         }
       });
    }
 }
@@ -718,6 +749,23 @@ function updateCurrentUserData(user)
    });
 }
 
+function setupContentDiscussion(templ, content, comments, users, initload)
+{
+   unhide(templ.querySelector(".pagecontrols"));
+   multiSwap(templ, {
+      "data-title" : content.name,
+      "data-content" : JSON.stringify({ "content" : content.content, "format" : content.values.markupLang }),
+      "data-format" : content.values.markupLang,
+      "data-watched" : content.about.watching
+   });
+   setupWatchLink(templ, content.id);
+   var d = getDiscussion(content.id);
+   if(comments.length !== initload)
+      d.setAttribute(attr.atoldest, "");
+   showDiscussion(content.id);
+   easyComments(comments, users);
+   formatDiscussions(true);
+}
 
 
 // *********************
@@ -880,6 +928,106 @@ function parseLink(url)
       id : pParts[1]
    };
 }
+
+
+// ***********************
+// ---- TEMPLATE CRAP ----
+// ***********************
+
+function makeError(message)
+{
+   var error = cloneTemplate("error");
+   findSwap(error, "data-message", message);
+   return error;
+}
+
+function makeSuccess(message)
+{
+   var success = cloneTemplate("success");
+   findSwap(error, "data-message", message);
+   return success;
+}
+
+function makeStandardContentInfo(content, users)
+{
+   var info = cloneTemplate("stdcontentinfo");
+   multiSwap(info, {
+      "data-createavatar" : getAvatarLink(users[content.createUserId].avatar, 20),
+      "data-createlink" : getUserLink(content.createUserId),
+      "data-createdate" : (new Date(content.createDate)).toLocaleString()
+   });
+   finalizeTemplate(info);
+   return info;
+}
+
+function makeSubcat(category)
+{
+   var subcat = cloneTemplate("subcat");
+   multiSwap(subcat, {
+      "data-link": getCategoryLink(category.id),
+      "data-name": category.name
+   });
+   finalizeTemplate(subcat);
+   return subcat;
+}
+
+function makePageitem(page, users)
+{
+   var citem = cloneTemplate("pageitem");
+   var u = users[page.createUserId] || {};
+   var date = (new Date(page.createDate)).toLocaleDateString();
+   multiSwap(citem, {
+      "data-link": getPageLink(page.id),
+      "data-name": page.name,
+      "data-avatar" : getAvatarLink(u.avatar, 50, true),
+      "data-userlink" : getUserLink(page.createUserId),
+      "data-time" : date
+   });
+   finalizeTemplate(citem);
+   return citem;
+}
+
+function makePWUser(user)
+{
+   var pu = cloneTemplate("pwuser");
+   pu.setAttribute("data-pwuser", user.id);
+   multiSwap(pu, {
+      "data-userlink": getUserLink(user.id)
+   });
+   UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
+      e => refreshPulseUserDisplay(e.target));
+   finalizeTemplate(pu);
+   return pu;
+}
+
+function makeCommentFrame(comment, users)
+{
+   var frame = cloneTemplate("messageframe");
+   var u = users[comment.createUserId];
+   multiSwap(frame, {
+      "data-userid": comment.createUserId,
+      "data-userlink": getUserLink(comment.createUserId),
+      "data-useravatar": getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
+      "data-username": u.username,
+      "data-frametime": (new Date(comment.createDate)).toLocaleString()
+   });
+   finalizeTemplate(frame);
+   return frame;
+}
+
+function makeCommentFragment(comment)//, users)
+{
+   var fragment = cloneTemplate("singlemessage");
+   multiSwap(fragment, {
+      "data-messageid": comment.id,
+      "data-id": getCommentId(comment.id),
+      "data-createdate": (new Date(comment.createDate)).toLocaleString(),
+      "data-editdate": (new Date(comment.editDate)).toLocaleString()
+   });
+   finalizeTemplate(fragment);
+   return fragment;
+}
+
 
 
 //-------------------------------------------------
@@ -1159,78 +1307,6 @@ function setupWatchClear(parent, cid)
          watchAlert.className = watchAlert.className.replace(/warning/g, "danger");
       });
    };
-}
-
-// ***********************
-// ---- TEMPLATE CRAP ----
-// ***********************
-
-function makeError(message)
-{
-   var error = cloneTemplate("error");
-   findSwap(error, "data-message", message);
-   return error;
-}
-
-function makeSuccess(message)
-{
-   var success = cloneTemplate("success");
-   findSwap(error, "data-message", message);
-   return success;
-}
-
-function makeStandardContentInfo(content, users)
-{
-   var info = cloneTemplate("stdcontentinfo");
-   multiSwap(info, {
-      "data-createavatar" : getAvatarLink(users[content.createUserId].avatar, 20),
-      "data-createlink" : getUserLink(content.createUserId),
-      "data-createdate" : (new Date(content.createDate)).toLocaleString()
-   });
-   finalizeTemplate(info);
-   return info;
-}
-
-function makePWUser(user)
-{
-   var pu = cloneTemplate("pwuser");
-   pu.setAttribute("data-pwuser", user.id);
-   multiSwap(pu, {
-      "data-userlink": getUserLink(user.id)
-   });
-   UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
-      e => refreshPulseUserDisplay(e.target));
-   finalizeTemplate(pu);
-   return pu;
-}
-
-
-function makeCommentFrame(comment, users)
-{
-   var frame = cloneTemplate("messageframe");
-   var u = users[comment.createUserId];
-   multiSwap(frame, {
-      "data-userid": comment.createUserId,
-      "data-userlink": getUserLink(comment.createUserId),
-      "data-useravatar": getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
-      "data-username": u.username,
-      "data-frametime": (new Date(comment.createDate)).toLocaleString()
-   });
-   finalizeTemplate(frame);
-   return frame;
-}
-
-function makeCommentFragment(comment)//, users)
-{
-   var fragment = cloneTemplate("singlemessage");
-   multiSwap(fragment, {
-      "data-messageid": comment.id,
-      "data-id": getCommentId(comment.id),
-      "data-createdate": (new Date(comment.createDate)).toLocaleString(),
-      "data-editdate": (new Date(comment.editDate)).toLocaleString()
-   });
-   finalizeTemplate(fragment);
-   return fragment;
 }
 
 
@@ -1623,50 +1699,6 @@ function updateWatches(data, fullReset)
 // ***************
 
 
-//This is EXTREMELY similar to pages, think about doing something different to
-//minimize duplicate code???
-function routeuser_load(url, pVal, id)
-{
-   var uid = Number(id);
-   var params = new URLSearchParams();
-   params.append("requests", "user-" + JSON.stringify({"ids" : [Number(id)]}));
-   params.append("requests", "content-" + JSON.stringify({
-      "createUserIds" : [Number(id)],
-      "type" : "@user.page",
-      "limit" : 1
-   }));
-   params.append("requests", "comment.1id$ParentIds-" + JSON.stringify({
-      "Reverse" : true,
-      "Limit" : getLocalOption("initialloadcomments")
-   }));
-   params.append("requests", "user.1createUserId.1edituserId.2createUserId");
-
-   quickApi("read/chain?" + params.toString(), function(data)
-   {
-      console.datalog(data);
-      var users = idMap(data.user);
-      var u = users[uid];
-      var c = data.content[0];
-      u.name = u.username;
-      multiSwap(maincontent, {
-         "data-title" : u.username,
-         "data-avatar" : getAvatarLink(u.avatar, 100),
-         "data-content" : c ? JSON.stringify({ "content" : c.content, "format" : c.values.markupLang }) : false
-      });
-      var discussion = false;
-      if(c)
-      {
-         easyShowDiscussion(c.id);
-         discussion = { "users" : users, "content" : c, "comments" : data.comment };
-      }
-      else
-      {
-         maincontentinfo.innerHTML = "No user page";
-      }
-
-      finalizePage([u], discussion);
-   });
-}
 
 
 function renderContent(elm, repl)

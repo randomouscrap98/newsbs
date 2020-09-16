@@ -508,11 +508,11 @@ function showDiscussion(id)
    DomDeps.signal("showdiscussion", { id: id, discussion: d });
 }
 
-function formatShowDiscussion(id)
-{
-   showDiscussion(id);
-   formatDiscussions(true);
-}
+//function formatShowDiscussion(id)
+//{
+//   showDiscussion(id);
+//   formatDiscussions(true);
+//}
 
 function hideDiscussion(quiet)
 {

@@ -586,6 +586,7 @@ function loglevel(el, replace)
             <p data-message=".textContent" class="uk-text-danger"></p>
          </div>
          <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
+            <!-- WARN: DUPLICATED IN ROUTEUSER -->
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
                <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
@@ -597,9 +598,17 @@ function loglevel(el, replace)
                class="uk-text-break content uk-margin-remove-top"></p>
          </div>
          <div data-routeuser class="uk-container uk-margin-top uk-margin-bottom">
-            <h1 data-title=".textContent" class="uk-inline"></h1>
+            <!-- WARN: DUPLICATED IN ROUTEPAGE -->
+            <div class="uk-flex-inline">
+               <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"></h1>
+               <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove" hidden>
+                  <li><a href="#" data-watched="data-watch" uk-icon="heart"></a></li>
+                  <li><a href="#" uk-icon="cog"></a></li>
+               </ul>
+            </div>
             <img data-avatar="src" class="uk-align-right avatar">
-            <p data-content=".renderContent" class="uk-text-break"></p>
+            <p data-content=".renderContent" data-format="data-fmt" 
+               class="uk-text-break content uk-margin-remove-top"></p>
          </div>
          <div data-routecategory class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>
