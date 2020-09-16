@@ -1,11 +1,6 @@
 
 var apiroot = "https://newdev.smilebasicsource.com/api";
 
-//var apiGlobals = {
-//   longpoll : {
-//      pending : []
-//   }
-//};
 
 // *************
 // ---- API ----
@@ -167,14 +162,16 @@ LongPoller.prototype.Repeater = function(lpdata)
       }
       else
       {
-         if(data && data.lastId)
-            lpdata.lastId = data.lastId;
+         if(data)
+         {
+            if(data.lastId)
+               lpdata.lastId = data.lastId;
+            if(data.listeners)
+               lpdata.lastListeners = data.listeners;
+         }
 
          req.rcvdata = data;
-         reqsig("longpollcomplete", req); //, "Long poll success");
-
-         if(data.listeners)
-            lpdata.lastListeners = data.listeners;
+         reqsig("longpollcomplete", req);
 
          recall();
       }
@@ -206,37 +203,12 @@ LongPoller.prototype.Repeater = function(lpdata)
    }, undefined, req => //Always
    {
       me.pending = me.pending.filter(x => x.rid !== req.rid);
+      reqsig("longpollalways", req);
    }, undefined, req => //modify
    {
       me.pending.push(req);
-      //globals.longpoller.pending = req;
-   }, me.logoutgoing); //!getLocalOption("loglongpollrequest") /* Do we want this? No logging? */);
+   }, me.logoutgoing);
 };
-//function updateLongPoller()
-//{
-//   log.Info("Updating long poller, may restart");
-//
-//   //Just always abort, if they want an update, they'll GET one
-//   tryAbortLongPoller();
-//
-//   if(!getToken())
-//      return;
-//
-//   var cid = getActiveDiscussion();
-//
-//   //A full reset haha great
-//   if(cid)
-//   {
-//      globals.longpoller.lastlisteners = { };
-//      globals.longpoller.lastlisteners[String(cid)] = { "0" : "" }; 
-//   }
-//   else
-//   {
-//      globals.longpoller.lastlisteners = null;
-//   }
-//
-//   longpollRepeater();
-//}
 
 
 // ****************

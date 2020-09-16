@@ -19,9 +19,6 @@ var DomDeps = {
 //Some globals that you can mess with if you want, but they are not assumed to
 //be usable except within this file. Try not to rely on the globals, use the
 //functions instead please.
-//var domGlobals = {
-//   discussions : {}
-//};
 
 function hide(e) { e.setAttribute("hidden", ""); }
 function unhide(e) { e.removeAttribute("hidden"); }
@@ -385,7 +382,8 @@ function renderLogs(log)
 //  "def" (default) value
 //  "value" the current value
 // Optional fields are: 
-//  "text" field to show it is a user-operable setting 
+//  "u" to signal it's a user setting
+//  "text" field to show something nice for the setting
 //  "type" to specify a special type of input for display 
 //  "step" value for numeric inputs.
 
@@ -408,16 +406,12 @@ function renderOptions(options)
    for(key in options)
    {
       var o = options[key];
-      var text = o.text;
       var prnt = userlocaloptions;
       var templn = o.type;
       let vconv = x => x;
 
-      if(!text) //oops, this is a developer option
-      {
-         text = key;
+      if(!o.u) //oops, this is a developer option
          prnt = developerlocaloptions;
-      }
 
       if(!templn)
       {
@@ -440,14 +434,14 @@ function renderOptions(options)
       let elm = cloneTemplate(templn + "option");
       let k = key;
       multiSwap(elm, {
-         "data-text" : o.text || key,
-         "data-input" : o.value //getLocalOption(key)
+         "data-text" : o.text || k,
+         "data-input" : o.value
       });
+      if(o.text) findSwap(elm, "data-name", "options." + k);
       elm.onchange = e => { 
          var val = vconv(getSwap(elm, "data-input"));
          DomDeps.signal("localsettingupdate_event", 
             { key : k, value: val, options : options });
-         //setLocalOption(k, val);
       };
       finalizeTemplate(elm);
 
@@ -488,10 +482,9 @@ function getDiscussion(id)
       };
 
       discussionmemory.appendChild(discussion);
-      //domGlobals.discussions[id] = discussion;
    }
 
-   return discussion; //domGlobals.discussions[id];
+   return discussion;
 }
 
 function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
@@ -510,12 +503,6 @@ function showDiscussion(id)
    discussions.appendChild(d);
    DomDeps.signal("showdiscussion", { id: id, discussion: d });
 }
-
-//function formatShowDiscussion(id)
-//{
-//   showDiscussion(id);
-//   formatDiscussions(true);
-//}
 
 function hideDiscussion(quiet)
 {

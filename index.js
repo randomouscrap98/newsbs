@@ -15,25 +15,25 @@ var attr = {
 
 //Will this be stored in user eventually?
 var options = {
-   displaynotifications : { def : true, text : "Device Notifications" },
-   loadcommentonscroll : { def: true, text : "Auto load comments on scroll (buggy)" },
-   quickload : { def: true, text : "Load parts of page as they become available" },
-   collapsechatinput : { def: true, text : "Collapse chat textbox" },
-   watchclearnotif : {def: false, text : "Watch clear toast" },
+   displaynotifications : { def : true, u: 1, text : "Device Notifications" },
+   loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
+   quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
+   collapsechatinput : { def: true, u: 1, text : "Collapse chat textbox" },
+   watchclearnotif : { def: false, u: 1, text : "Watch clear toast" },
+   discussionscrollspeed : { def: 0.25, u: 1, text: "Scroll animation (1 = instant)", step: 0.01 },
+   imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
+   filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
+   pagedisplaylimit: { def: 100, u: 1, text: "Display pages per category" },
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
    loglongpoll : { def: false, text : "Log longpoller events (could be many)" },
-   imageresolution : { def: 1, text: "Image resolution scale", step : 0.05 },
-   filedisplaylimit: { def: 40, text : "Image select files per page" },
-   pagedisplaylimit: { def: 100, text: "Display pages per category" },
+   forcediscussionoutofdate : {def: false, text : "Force an immediate 400 error on long poll"},
+   retrievetechnicalinfo : {def:true, text : "Pull API info on page load" },
    initialloadcomments: { def: 30, text: "Initial comment pull" },
    oldloadcomments : { def: 30, text: "Scroll back comment pull" },
-   discussionscrollspeed : { def: 0.25, text: "Scroll animation (1 = instant)", step: 0.01 },
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
-   forcediscussionoutofdate : {def: false },
-   retrievetechnicalinfo : {def:true },
    pulsepasthours : { def: 24 },
    discussionavatarsize : { def: 60 },
    showsidebarminrem : { def: 60 },
@@ -41,7 +41,6 @@ var options = {
    discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
    signalcleanup : {def: 10000 },
-   //logsignals : { //Eventually I'll do this?
    scrolldiscloadheight : {def: 1.0, step: 0.01 },
    defaultmarkup : {def:"12y"}
 };
@@ -50,7 +49,6 @@ var globals = {
    lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
    spahistory : []
-   //longpoller : {}
 };
 
 //Some um... global sturf uggh
@@ -62,6 +60,7 @@ function logConditional(d, c, o)
       if(c) console.log(c); 
    } 
 }
+
 log.Datalog = (d,c) => logConditional(d, c, "datalog");
 log.Drawlog = (d,c) => logConditional(d, c, "drawlog");
 log.Domlog =  (d,c) => logConditional(d, c, "domlog");
@@ -106,8 +105,9 @@ window.onload = function()
    setupDiscussions();
    setupTheme();
 
-   globals.longpoller = new LongPoller(signals, (msg1, msg2, msg3) => 
-      { if(getLocalOption("loglongpoll")) log.Trace(msg1, msg2, msg3); });
+   globals.longpoller = new LongPoller(signals, (m, c) => logConditional(m, c, "loglongpoll"));
+   globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
+   //This setting won't apply until next load ofc
 
    setupSession();
 
@@ -115,11 +115,11 @@ window.onload = function()
    //the spa processor will take your login state into account. And if you're
    //not "REALLY" logged in, well whatever, better than processing it twice.
    globals.spa.ProcessLink(document.location.href);
-   refreshCycle();
 
    //Begin render
    globals.render = { lastrendertime : performance.now() };
    requestAnimationFrame(renderLoop);
+   refreshCycle();
 };
 
 function safety(func)
@@ -145,11 +145,34 @@ function refreshCycle()
       refreshPWDates(watches);
    });
 
-   signals.ClearOlderThan(performance.now() - getLocalOption("signalcleanup"));
+   var ctime = getLocalOption("signalcleanup");
+   var now = performance.now();
+
+   //Oops, no rendering for a while, so process signals now.
+   if(now - globals.render.lastrendertime > Math.min(100, ctime / 3))
+   {
+      log.Debug("No rendering detected for a while, signal processing");
+      signalProcess(now);
+   }
+
+   signals.ClearOlderThan(now - ctime);
 
    //This is called instead of setInterval so users can change this and have it
    //update immediately
    globals.refreshCycle = setTimeout(refreshCycle, getLocalOption("refreshcycle"));
+}
+
+function signalProcess(now)
+{
+   //FIRST, do all the stuff that requires reading the layout
+   signals.Process("formatdiscussions", now);
+
+   //NEXT, do stuff where the order doesn't matter
+   signals.ProcessAuto(now);
+
+   //THEN, do all the stuff that requires modifying the layout,
+   //DO NOT read past this point EVER!
+   signals.Process("wdom", now);
 }
 
 function renderLoop(time)
@@ -157,17 +180,7 @@ function renderLoop(time)
    try
    {
       var delta = time - globals.render.lastrendertime;
-
-      //FIRST, do all the stuff that requires reading the layout
-      signals.Process("formatdiscussions", time);
-
-      //NEXT, do stuff where the order doesn't matter
-      signals.ProcessAuto(time);
-
-      //THEN, do all the stuff that requires modifying the layout,
-      //DO NOT read past this point EVER!
-      signals.Process("wdom", time);
-
+      signalProcess(time);
       globals.render.lastrendertime = time;
       requestAnimationFrame(renderLoop);
    }
@@ -208,6 +221,7 @@ function setupSignalProcessors()
    signals.Attach("longpollcomplete", data => writeDom(() => handleLongpollData(data))); 
    signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
    signals.Attach("longpollerror", data => writeDom(() =>setConnectionState("error")));
+   signals.Attach("longpollalways", data => { globals.lastsystemid = data.lpdata.lastId });
    signals.Attach("longpollfatal", data =>
    {
       writeDom(() => setConnectionState("error"));
@@ -512,9 +526,9 @@ function route_complete(spadat, title, applyTemplate, breadcrumbs, cid)
          if(!cid)
             hideDiscussion();
          globals.spahistory.push(spadat);
-      });
 
-      signals.Add("routecomplete", { spa : spadat });
+         signals.Add("routecomplete", { spa : spadat });
+      });
    }
    else
    {
@@ -922,7 +936,7 @@ function handleLongpollData(lpdata)
          //I filter out comments from watch updates if we're currently in
          //the room. This should be done automatically somewhere else... mmm
          data.chains.commentaggregate = commentsToAggregate(
-            data.chains.comment.filter(x => watchlastids[x.parentId] < x.id && 
+            data.chains.comment.filter(x => x.id > watchlastids[x.parentId] && 
                lpdata.clearNotifications.indexOf(x.parentId) < 0));
          handleAlerts(data.chains.comment, users);
          easyComments(data.chains.comment, users);
@@ -1712,6 +1726,7 @@ function updateWatchComAct(users, comments, activity)
 {
    [...new Set(Object.keys(comments).concat(Object.keys(activity)))].forEach(cid =>
    {
+      console.log("updating comments, activity:", comments, activity);
       var watchdata = document.getElementById(getWatchId(cid)); 
 
       if(watchdata)
@@ -1764,6 +1779,7 @@ function updateWatches(data, fullReset)
 
    if(data.watch)
    {
+      console.log("watches: ", data.watch);
       for(var i = 0; i < data.watch.length; i++)
       {
          var c = contents[data.watch[i].contentId];
@@ -2079,6 +2095,7 @@ function tryUpdateLongPoll(newStatuses)
 {
    if(newStatuses)
    {
+      console.log(newStatuses);
       if(globals.statuses && Utilities.ShallowEqual(newStatuses, globals.statuses))
       {
          log.Warn("No new statuses when updating long poll, ignoring");
