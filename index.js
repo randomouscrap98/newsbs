@@ -215,7 +215,6 @@ function setupSignalProcessors()
    });
    signals.Attach("formatdiscussions", data =>
    {
-      console.log("scrolltobottom");
       //Want to scroll to bottom, this performs a READ
       discussions.scrollTop = discussions.scrollHeight;
    });
@@ -251,7 +250,6 @@ function setupSpa()
    }));
 
    globals.spa.SetHandlePopState();
-   //DomDeps.spaClick = (url) => globals.spa.ClickFunction(url);
 
    log.Debug("Setup SPA, override handling popstate");
 }
@@ -456,9 +454,10 @@ function setupTheme()
 
 //Data is SPA for all these
 
-//Handle a spa completion event, assuming all the data was loaded/etc
-function route_complete(spadat, applyTemplate, breadcrumbs)
+//Handle a spa route completion event, assuming all the data was loaded/etc
+function route_complete(spadat, title, applyTemplate, breadcrumbs)
 {
+   //If we are the LAST request, go ahead and finalize the process.
    if(spadat.rid === globals.spa.requestId)
    {
       if(breadcrumbs)
@@ -467,6 +466,10 @@ function route_complete(spadat, applyTemplate, breadcrumbs)
       writeDom(() =>
       {
          renderPage(spadat.route, applyTemplate, breadcrumbs);
+         if(title)
+            document.title = title + " - SmileBASIC Source";
+         else
+            document.title = "SmileBASIC Source";
          globals.spahistory.push(spadat);
       });
 
@@ -518,7 +521,7 @@ function routecategory_load(spadat)
       var categories = idMap(data.category);
       var c = categories[cid] || { "name" : "Website Root", "id" : 0 };
 
-      route_complete(spadat, templ =>
+      route_complete(spadat, "Category: " + c.name, templ =>
       {
          var sbelm = templ.querySelector("[data-subcats]");
          var pgelm = templ.querySelector("[data-pages]");
@@ -554,7 +557,7 @@ function routepage_load(spadat)
       var c = data.content[0];
       var users = idMap(data.user);
 
-      route_complete(spadat, templ =>
+      route_complete(spadat, c.name, templ =>
       {
          setupContentDiscussion(templ, c, data.comment, users, initload);
       }, getChain(data.category, c));
@@ -591,7 +594,7 @@ function routeuser_load(spadat)
       u.name = u.username;
       u.link = getUserLink(u.id);
 
-      route_complete(spadat, templ =>
+      route_complete(spadat, "User: " + u.username, templ =>
       {
          multiSwap(templ, {
             "data-title" : u.username,
@@ -605,11 +608,9 @@ function routeuser_load(spadat)
          }
          else
          {
-            maincontentinfo.innerHTML = "No user page";
+            multiSwap(templ, { "data-content": "No user page" });
          }
       }, [u]);
-
-      //finalizePage([u], discussion);
    });
 }
 
@@ -765,6 +766,28 @@ function setupContentDiscussion(templ, content, comments, users, initload)
    showDiscussion(content.id);
    easyComments(comments, users);
    formatDiscussions(true);
+}
+
+//This is actually required by index.html... oogh dependencies
+function renderContent(elm, repl)
+{
+   if(repl)
+   {
+      elm.setAttribute("data-rawcontent", repl);
+      elm.innerHTML = "";
+      try
+      {
+         var content = JSON.parse(repl);
+         elm.appendChild(Parse.parseLang(content.content, content.format));
+      }
+      catch(ex)
+      {
+         log.Warn("Couldn't parse content, rendering as-is: " + ex);
+         elm.textContent = repl;
+      }
+   }
+
+   return elm.getAttribute("data-rawcontent");
 }
 
 
@@ -1693,26 +1716,6 @@ function updateWatches(data, fullReset)
    updateWatchComAct(users, comments, activity);
 }
 
-
-// ***************
-// ---- Route ----
-// ***************
-
-
-
-
-function renderContent(elm, repl)
-{
-   if(repl)
-   {
-      elm.setAttribute("data-rawcontent", repl);
-      elm.innerHTML = "";
-      var content = JSON.parse(repl);
-      elm.appendChild(Parse.parseLang(content.content, content.format));
-   }
-
-   return elm.getAttribute("data-rawcontent");
-}
 
 
 // ********************
