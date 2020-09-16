@@ -19,9 +19,9 @@ var DomDeps = {
 //Some globals that you can mess with if you want, but they are not assumed to
 //be usable except within this file. Try not to rely on the globals, use the
 //functions instead please.
-var domGlobals = {
-   discussions : {}
-};
+//var domGlobals = {
+//   discussions : {}
+//};
 
 function hide(e) { e.setAttribute("hidden", ""); }
 function unhide(e) { e.removeAttribute("hidden"); }
@@ -470,9 +470,11 @@ function renderOptions(options)
 
 function getDiscussion(id)
 {
-   if(!domGlobals.discussions[id])
+   var discussion = document.getElementById(getDiscussionId(id));
+
+   if(!discussion)
    {
-      var discussion = cloneTemplate("discussion");
+      discussion = cloneTemplate("discussion");
       multiSwap(discussion, {
          "data-id": getDiscussionId(id),
          "data-discussionid": id
@@ -485,10 +487,11 @@ function getDiscussion(id)
          DomDeps.signal("loadoldercomments_event", discussion);
       };
 
-      domGlobals.discussions[id] = discussion;
+      discussionmemory.appendChild(discussion);
+      //domGlobals.discussions[id] = discussion;
    }
 
-   return domGlobals.discussions[id];
+   return discussion; //domGlobals.discussions[id];
 }
 
 function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
@@ -520,7 +523,7 @@ function hideDiscussion(quiet)
 
    if(d)
    {
-      d.parentNode.removeChild(d);
+      discussionmemory.appendChild(d);
       DomDeps.signal("hidediscussion", { discussion: d });
    }
    else if(!quiet)

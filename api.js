@@ -1,6 +1,12 @@
 
 var apiroot = "https://newdev.smilebasicsource.com/api";
 
+//var apiGlobals = {
+//   longpoll : {
+//      pending : []
+//   }
+//};
+
 // *************
 // ---- API ----
 // *************
@@ -22,6 +28,7 @@ function quickApi(url, callback, error, postData, always, method, modify, nolog)
    var req = new XMLHttpRequest();
 
    var apidat = { id: thisreqid, url: url, endpoint: endpoint, method : method, request : req};
+   req.rid = thisreqid;
 
    //This is supposedly thrown before the others
    req.addEventListener("error", function() { req.networkError = true; });
@@ -34,7 +41,7 @@ function quickApi(url, callback, error, postData, always, method, modify, nolog)
       if(req.status <= 299 && req.status >= 200)
       {
          if(callback)
-            callback(req.responseText ? JSON.parse(req.responseText) : null);
+            callback(req.responseText ? JSON.parse(req.responseText) : null, req, apidat);
          else
             notifySuccess("Success: " + req.status + " - " + req.responseText);
       }
@@ -69,66 +76,82 @@ function quickApi(url, callback, error, postData, always, method, modify, nolog)
 // ---- LONG POLLING ----
 // **********************
 
-function tryAbortLongPoller()
+function LongPoller(signalHandler, log)
 {
-   if(globals.longpoller.pending)
-   {
-      log.Debug("Aborting old long poller...");
-      globals.longpoller.pending.abort();
-      return true;
-   }
-
-   return false;
+   this.log = log || ((msg, msg2, msg3) => console.log(msg, msg2, msg3));
+   this.pending = [];
+   this.signal = signalHandler;
+   this.errortime = 5000;
+   this.ratetimeout = 1500;
+   //this.ratelimitextra = 500;
+   this.logoutgoing = false;
+         //var lpr = getLocalOption("longpollerrorrestart");
 }
 
-function updateLongPoller()
+function LongPollData(lastId, statuses, lastListeners)
 {
-   log.Info("Updating long poller, may restart");
+   this.statuses = statuses;
+   this.lastId = lastId;
+   this.lastListeners = lastListeners;
+}
+
+LongPoller.prototype.TryAbortAll = function()
+{
+   var count = 0;
+   var me = this;
+   this.pending.forEach(x =>
+   {
+      me.log("Aborting old long poller [" + x.rid + "]...");
+      x.abortNow = true;
+      x.abort();
+      count++;
+   });
+   return count;
+};
+
+LongPoller.prototype.Update = function (lastId, statuses)
+{
+   this.log("Updating long poller, restarting with " + this.pending.length + " pending");
 
    //Just always abort, if they want an update, they'll GET one
-   tryAbortLongPoller();
+   this.TryAbortAll();
 
-   if(!getToken())
-      return;
+   var emptyLastListeners = {};
 
-   var cid = getActiveDiscussion();
+   for(key in statuses)
+      emptyLastListeners[key] = { "0" : "" };
 
-   //A full reset haha great
-   if(cid)
-   {
-      globals.longpoller.lastlisteners = { };
-      globals.longpoller.lastlisteners[String(cid)] = { "0" : "" }; 
-   }
-   else
-   {
-      globals.longpoller.lastlisteners = null;
-   }
+   this.Repeater(new LongPollData(lastId, statuses, emptyLastListeners));
+};
 
-   longpollRepeater();
-}
-
-function longpollRepeater()
+LongPoller.prototype.Repeater = function(lpdata)
 {
-   setConnectionState("connected");
+   this.signal.Add("longpollstart", lpdata);
 
-   var statuses = {};
-   var cid = getActiveDiscussion();
-   if(cid) statuses[String(cid)] = "online";
-   var clearNotifications = Object.keys(statuses).map(x => Number(x));
+   var me = this;
+   var clearNotifications = Object.keys(lpdata.statuses).map(x => Number(x)).filter(x => x > 0);
+
+   var recall = () => me.Repeater(lpdata);
+   var reqsig = (name, req, msg) => 
+   {
+      if(msg)
+         me.log(msg + " - [" + req.rid + "] status " + req.status + " " + req.statusText);
+      me.signal.Add(name, ({request:req,lpdata:lpdata,data:req.rcvdata,clearNotifications:clearNotifications}));
+   };
 
    var params = new URLSearchParams();
    params.append("actions", JSON.stringify({
-      "lastId" : globals.lastsystemid,
-      "statuses" : statuses,
+      "lastId" : lpdata.lastId,
+      "statuses" : lpdata.statuses,
       "clearNotifications" : clearNotifications,
       "chains" : [ "comment.0id", "activity.0id", "watch.0id",
          "user.1createUserId.2userId", "content.1parentId.2contentId.3contentId" ]
    }));
 
-   if(globals.longpoller.lastlisteners)
+   if(lpdata.lastListeners)
    {
       params.append("listeners", JSON.stringify({
-         "lastListeners" : globals.longpoller.lastlisteners,
+         "lastListeners" : lpdata.lastListeners,
          "chains" : [ "user.0listeners" ]
       }));
    }
@@ -136,79 +159,85 @@ function longpollRepeater()
    params.set("user","id,username,avatar");
    params.set("content","id,name");
 
-   quickApi("read/listen?" + params.toString(), data => //success
+   quickApi("read/listen?" + params.toString(), (data,req) => //success
    {
-      if(data)
+      if(req.abortNow)
       {
-         globals.lastsystemid = data.lastId;
+         reqsig("longpollabort", req, "Long poll aborted, but received data");
+      }
+      else
+      {
+         if(data && data.lastId)
+            lpdata.lastId = data.lastId;
 
-         var users = idMap(data.chains.user);
-         var watchlastids = getWatchLastIds();
-         updatePulse(data.chains);
-
-         if(data.chains.comment)
-         {
-            //I filter out comments from watch updates if we're currently in
-            //the room. This should be done automatically somewhere else... mmm
-            data.chains.commentaggregate = commentsToAggregate(
-               data.chains.comment.filter(x => watchlastids[x.parentId] < x.id && 
-                  clearNotifications.indexOf(x.parentId) < 0));
-            handleAlerts(data.chains.comment, users);
-            easyComments(data.chains.comment, users);
-         }
-
-         if(data.chains.activity)
-         {
-            data.chains.activityaggregate = activityToAggregate(
-               data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
-                  clearNotifications.indexOf(x.contentId) < 0));
-         }
-
-         console.datalog("watchlastids: ", watchlastids);
-         console.datalog("chatlisten: ", data);
-         updateWatches(data.chains);
+         req.rcvdata = data;
+         reqsig("longpollcomplete", req); //, "Long poll success");
 
          if(data.listeners)
-         {
-            globals.longpoller.lastlisteners = data.listeners;
-            updateDiscussionUserlist(data.listeners, users);
-         }
+            lpdata.lastListeners = data.listeners;
+
+         recall();
       }
-
-      longpollRepeater();
-
    }, req => //error
    {
       if(req.status === 400)
       {
-         setConnectionState("error");
-         UIkit.modal.confirm("Live updates cannot recover from error. " +
-            "Press OK to reload page.\n\nIf you " +
-            "CANCEL, the website will not function properly!").then(x =>
-         {
-            location.reload();
-         });
+         reqsig("longpollfatal", req, "Long poller failed fatally");
       }
       else if(req.status || req.networkError)
       {
-         setConnectionState("error");
-         var lpr = getLocalOption("longpollerrorrestart");
-         log.Error("Long poller failed, status: " + req.status + ", retrying in " + lpr + " ms");
-         setTimeout(longpollRepeater, lpr);
+         var timeout = me.errortime;
+         if(req.status === 429)
+         {
+            timeout = me.ratetimeout;
+            //var headers = req.getAllResponseHeaders();
+            //console.log(headers);
+            //var limitRemain = req.getResponseHeader("X-Rate-Limit-Remaining");
+            //if(limitRemain)
+            //   timeout = Number(limitRemain) + me.ratelimitextra;
+         }
+         reqsig("longpollerror", req, "Long poller failed normally, retrying in " + timeout + " ms");
+         setTimeout(recall, timeout);
       }
       else
       {
-         setConnectionState("aborted");
-         log.Warn("Long poller was aborted!");
+         reqsig("longpollabort", req, "Long poller aborted normally");
       }
    }, undefined, req => //Always
    {
-      globals.longpoller.pending = false;
+      me.pending = me.pending.filter(x => x.rid !== req.rid);
    }, undefined, req => //modify
    {
-      globals.longpoller.pending = req;
-   }, !getLocalOption("loglongpollrequest") /* Do we want this? No logging? */);
-}
+      me.pending.push(req);
+      //globals.longpoller.pending = req;
+   }, me.logoutgoing); //!getLocalOption("loglongpollrequest") /* Do we want this? No logging? */);
+};
+//function updateLongPoller()
+//{
+//   log.Info("Updating long poller, may restart");
+//
+//   //Just always abort, if they want an update, they'll GET one
+//   tryAbortLongPoller();
+//
+//   if(!getToken())
+//      return;
+//
+//   var cid = getActiveDiscussion();
+//
+//   //A full reset haha great
+//   if(cid)
+//   {
+//      globals.longpoller.lastlisteners = { };
+//      globals.longpoller.lastlisteners[String(cid)] = { "0" : "" }; 
+//   }
+//   else
+//   {
+//      globals.longpoller.lastlisteners = null;
+//   }
+//
+//   longpollRepeater();
+//}
+
 
 // ****************
 // --- ENDPOINT ---

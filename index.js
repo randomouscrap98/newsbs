@@ -23,7 +23,7 @@ var options = {
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
-   loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
+   loglongpoll : { def: false, text : "Log longpoller events (could be many)" },
    imageresolution : { def: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, text: "Display pages per category" },
@@ -49,16 +49,24 @@ var options = {
 var globals = { 
    lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
-   spahistory : [],
-   longpoller : {}
+   spahistory : []
+   //longpoller : {}
 };
 
 //Some um... global sturf uggh
-log.Datalog = (d,e,f) => { if(getLocalOption("datalog")) log.Trace(d,e,f); };
-log.Drawlog = (d,e,f) => { if(getLocalOption("drawlog")) log.Trace(d,e,f); };
-log.Domlog =  (d,e,f) => { if(getLocalOption("domlog")) log.Trace(d,e,f); };
+function logConditional(d, c, o)
+{
+   if(getLocalOption(o)) 
+   { 
+      log.Trace(d); 
+      if(c) console.log(c); 
+   } 
+}
+log.Datalog = (d,c) => logConditional(d, c, "datalog");
+log.Drawlog = (d,c) => logConditional(d, c, "drawlog");
+log.Domlog =  (d,c) => logConditional(d, c, "domlog");
 
-DomDeps.log = (d,e,f) => log.Domlog(d,e,f);
+DomDeps.log = (d,c) => log.Domlog(d, c);
 DomDeps.signal = (name, data) => signals.Add(name, data);
 
 window.Notification = window.Notification || {};
@@ -97,6 +105,9 @@ window.onload = function()
    setupPageControls();
    setupDiscussions();
    setupTheme();
+
+   globals.longpoller = new LongPoller(signals, (msg1, msg2, msg3) => 
+      { if(getLocalOption("loglongpoll")) log.Trace(msg1, msg2, msg3); });
 
    setupSession();
 
@@ -193,6 +204,34 @@ function setupSignalProcessors()
 
    //Oh but there's some fun stuff I also want to do on events (not the event itself)
    signals.Attach("spastart", parsed => quickLoad(parsed));
+   signals.Attach("longpollstart", data => writeDom(() => setConnectionState("connected")));
+   signals.Attach("longpollcomplete", data => writeDom(() => handleLongpollData(data))); 
+   signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
+   signals.Attach("longpollerror", data => writeDom(() =>setConnectionState("error")));
+   signals.Attach("longpollfatal", data =>
+   {
+      writeDom(() => setConnectionState("error"));
+      UIkit.modal.confirm("Live updates cannot recover from error. " +
+         "Press OK to reload page.\n\nIf you " +
+         "CANCEL, the website will not function properly!").then(x =>
+      {
+         location.reload();
+      });
+   });
+
+   //You MUST be able to assume that discussions and all that junk are fine at
+   //this point.
+   signals.Attach("routecomplete", data =>
+   {
+      //Don't worry about long polling at all if you're not logged in
+      if(getToken())
+      {
+         var statuses = { "-1" : "online" };
+         var cid = getActiveDiscussionId();
+         if(cid) statuses[cid] = "online";
+         tryUpdateLongPoll(statuses);
+      }
+   });
 
    //These are so small I don't care about them being directly in here
    var apiSetLoading = (data, load) => 
@@ -455,7 +494,7 @@ function setupTheme()
 //Data is SPA for all these
 
 //Handle a spa route completion event, assuming all the data was loaded/etc
-function route_complete(spadat, title, applyTemplate, breadcrumbs)
+function route_complete(spadat, title, applyTemplate, breadcrumbs, cid)
 {
    //If we are the LAST request, go ahead and finalize the process.
    if(spadat.rid === globals.spa.requestId)
@@ -470,6 +509,8 @@ function route_complete(spadat, title, applyTemplate, breadcrumbs)
             document.title = title + " - SmileBASIC Source";
          else
             document.title = "SmileBASIC Source";
+         if(!cid)
+            hideDiscussion();
          globals.spahistory.push(spadat);
       });
 
@@ -515,7 +556,7 @@ function routecategory_load(spadat)
 
    quickApi("read/chain?" + params.toString(), function(data)
    {
-      log.Datalog(data);
+      log.Datalog("see devlog for category data", data);
 
       var users = idMap(data.user);
       var categories = idMap(data.category);
@@ -552,15 +593,16 @@ function routepage_load(spadat)
 
    quickApi("read/chain?" + params.toString(), function(data)
    {
-      log.Datalog(data);
+      log.Datalog("see dev log for page data", data);
 
       var c = data.content[0];
       var users = idMap(data.user);
 
       route_complete(spadat, c.name, templ =>
       {
-         setupContentDiscussion(templ, c, data.comment, users, initload);
-      }, getChain(data.category, c));
+         finishContent(templ,c );
+         finishDiscussion(c.id, data.comment, users, initload);
+      }, getChain(data.category, c), c.id);
    });
 }
 
@@ -587,7 +629,7 @@ function routeuser_load(spadat)
 
    quickApi("read/chain?" + params.toString(), function(data)
    {
-      log.Datalog(data);
+      log.Datalog("see dev log for user data", data);
       var users = idMap(data.user);
       var u = users[uid];
       var c = data.content[0];
@@ -604,13 +646,14 @@ function routeuser_load(spadat)
          if(c)
          {
             c.name = u.username;
-            setupContentDiscussion(templ, c, data.comment, users, initload);
+            finishContent(templ, c);
+            finishDiscussion(c.id, data.comment, users, initload);
          }
          else
          {
             multiSwap(templ, { "data-content": "No user page" });
          }
-      }, [u]);
+      }, [u], c ? c.id : false);
    });
 }
 
@@ -750,7 +793,19 @@ function updateCurrentUserData(user)
    });
 }
 
-function setupContentDiscussion(templ, content, comments, users, initload)
+function finishDiscussion(cid, comments, users, initload)
+{
+   var d = getDiscussion(cid);
+   if(initload && (comments.length !== initload))
+      d.setAttribute(attr.atoldest, "");
+   showDiscussion(cid);
+   easyComments(comments, users);
+   formatDiscussions(true);
+
+   signals.Add("finishdiscussion", { cid: cid, comments: comments, users: users, initload: initload});
+}
+
+function finishContent(templ, content) //, content, comments, users, initload)
 {
    unhide(templ.querySelector(".pagecontrols"));
    multiSwap(templ, {
@@ -760,12 +815,6 @@ function setupContentDiscussion(templ, content, comments, users, initload)
       "data-watched" : content.about.watching
    });
    setupWatchLink(templ, content.id);
-   var d = getDiscussion(content.id);
-   if(comments.length !== initload)
-      d.setAttribute(attr.atoldest, "");
-   showDiscussion(content.id);
-   easyComments(comments, users);
-   formatDiscussions(true);
 }
 
 //This is actually required by index.html... oogh dependencies
@@ -858,6 +907,42 @@ function handleAlerts(comments, users)
    }
 }
 
+function handleLongpollData(lpdata)
+{
+   var data = lpdata.data;
+
+   if(data)
+   {
+      var users = idMap(data.chains.user);
+      var watchlastids = getWatchLastIds();
+      updatePulse(data.chains);
+
+      if(data.chains.comment)
+      {
+         //I filter out comments from watch updates if we're currently in
+         //the room. This should be done automatically somewhere else... mmm
+         data.chains.commentaggregate = commentsToAggregate(
+            data.chains.comment.filter(x => watchlastids[x.parentId] < x.id && 
+               lpdata.clearNotifications.indexOf(x.parentId) < 0));
+         handleAlerts(data.chains.comment, users);
+         easyComments(data.chains.comment, users);
+      }
+
+      if(data.chains.activity)
+      {
+         data.chains.activityaggregate = activityToAggregate(
+            data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
+               lpdata.clearNotifications.indexOf(x.contentId) < 0));
+      }
+
+      log.Datalog("see devlog for watchlastids", watchlastids);
+      log.Datalog("see devlog for raw chat data", data);
+      updateWatches(data.chains);
+
+      if(data.listeners)
+         updateDiscussionUserlist(data.listeners, users);
+   }
+}
 
 // ***************************
 // ---- GENERAL UTILITIES ----
@@ -1104,7 +1189,7 @@ function setupDiscussions()
       {
 			e.preventDefault();
 
-         var currentDiscussion = getActiveDiscussion();
+         var currentDiscussion = getActiveDiscussionId();
          let currentText = postdiscussiontext.value;
 
          quickApi("comment", data => { }, error =>
@@ -1177,6 +1262,8 @@ function setupSession()
 
             if(getLocalOption("forcediscussionoutofdate"))
                globals.lastsystemid -= 2000;
+
+            tryUpdateLongPoll();
          }
       });
 
@@ -1205,7 +1292,7 @@ function refreshUserFull(always)
 
 function updateDiscussionUserlist(listeners, users)
 {
-   var list = listeners ? listeners[getActiveDiscussion()] : {};
+   var list = listeners ? listeners[getActiveDiscussionId()] : {};
 
    for(key in list)
    {
@@ -1986,6 +2073,24 @@ function messageControllerEvent(event)
    };
 
    UIkit.modal(commentedit).show();
+}
+
+function tryUpdateLongPoll(newStatuses)
+{
+   if(newStatuses)
+   {
+      if(globals.statuses && Utilities.ShallowEqual(newStatuses, globals.statuses))
+      {
+         log.Warn("No new statuses when updating long poll, ignoring");
+         return;
+      }
+      globals.statuses = newStatuses;
+   }
+
+   if(globals.lastsystemid && globals.statuses)
+   {
+      globals.longpoller.Update(globals.lastsystemid, globals.statuses);
+   }
 }
 
 
