@@ -160,7 +160,7 @@ function makeBreadcrumbs(chain)
 //assuming immediately after.
 function initializePage(requester)
 {
-   DomDeps.log("Initializing page to a clean slate");
+   DomDeps.log("Initializing page to a clean slate on behalf of: " + requester);
 
    //Clear out the breadcrumbs
    breadcrumbs.innerHTML = "";
@@ -216,7 +216,7 @@ function cloneTemplate(name)
 function templateSpaClick(event)
 {
    event.preventDefault();
-   console.log(event.target);
+   //console.log(event.target);
    DomDeps.signal("spaclick_event", { element: event.target, url: event.target.href });
 }
 

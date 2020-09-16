@@ -48,6 +48,7 @@ var options = {
 var globals = { 
    lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
+   //pagestate : "initial",
    longpoller : {}
 };
 
@@ -188,11 +189,17 @@ function setupSignalProcessors()
       setLocalOption(data.key, data.value);
    });
 
+   //Oh but there's some fun stuff I also want to do on spaclick lol
+   signals.Attach("spaclick_event", data => 
+   {
+      quickLoad(typeHasDiscussion(data.page) && data.page !== "user" ? data.id : false);
+   });
+
    //These are so small I don't care about them being directly in here
    var apiSetLoading = (data, load) => 
    {
       if(!data.endpoint.endsWith("listen"))
-         writeDom(() => { if(load) addLoading(); else removeLoading(); }); //setLoading(topnav, load); });
+         writeDom(() => { if(load) addLoading(); else removeLoading(); });
    };
 
    signals.Attach("apistart", data => apiSetLoading(data, true));
@@ -207,9 +214,6 @@ function setupSignalProcessors()
    {
       globals.discussion.observer.disconnect();
    });
-
-   signals.Attach("spastart", data => quickLoad(
-      typeHasDiscussion(data.page) && data.page !== "user" ? data.id : false));
 
    signals.Attach("settheme", data => 
    {
@@ -603,7 +607,7 @@ function quickLoad(discussionId)
    {
       writeDom(() =>
       {
-         initializePage();
+         initializePage("quickload");
          unhide(maincontentloading);
          if(discussionId) //data.page === "page")
             formatShowDiscussion(Number(discussionId));
