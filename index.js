@@ -17,12 +17,13 @@ var attr = {
 var options = {
    displaynotifications : { def : true, text : "Device Notifications" },
    loadcommentonscroll : { def: true, text : "Auto load comments on scroll (buggy)" },
+   quickload : { def: true, text : "Load parts of page as they become available" },
+   collapsechatinput : { def: true, text : "Collapse chat textbox" },
    watchclearnotif : {def: false, text : "Watch clear toast" },
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
    loglongpollrequest : { def: false, text : "Log longpoller outgoing request" },
-   quickload : { def: true, text : "Fast load page as parts become available" },
    imageresolution : { def: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, text: "Display pages per category" },
@@ -48,7 +49,6 @@ var options = {
 var globals = { 
    lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
-   //pagestate : "initial",
    longpoller : {}
 };
 
@@ -187,12 +187,14 @@ function setupSignalProcessors()
    {
       log.Info("Setting " + data.key + " to " + data.value);
       setLocalOption(data.key, data.value);
+      handleSetting(data.key, data.value);
    });
 
-   //Oh but there's some fun stuff I also want to do on spaclick lol
+   //Oh but there's some fun stuff I also want to do on events (not the event itself)
    signals.Attach("spaclick_event", data => 
    {
-      quickLoad(typeHasDiscussion(data.page) && data.page !== "user" ? data.id : false);
+      var parsed = parseLink(data.url);
+      quickLoad(typeHasDiscussion(parsed.page) && parsed.page !== "user" ? parsed.id : false);
    });
 
    //These are so small I don't care about them being directly in here
@@ -228,16 +230,9 @@ function setupSpa()
    //For now, we have ONE processor!
    globals.spa.Processors.push(new SpaProcessor(url => true, (url, rid) =>
    {
-      var pVal = Utilities.GetParams(url).get("p") || "home"; 
-      var pParts = pVal.split("-");
-      var spadata = {
-         url : url,
-         p : pVal,
-         page : pParts[0],
-         route : "route" + pParts[0],
-         id : pParts[1],
-         rid : rid
-      };
+      var spadata = parseLink(url);
+      spadata.rid = rid;
+      spadata.route = "route" + spadata.page;
 
       var loadFunc = window[spadata.route + "_load"];
 
@@ -601,6 +596,19 @@ function routepage_load(spadat)
 // --- SPECIAL DOM ---
 // *******************
 
+//Set page state or whatever for the given key. It doesn't have to have
+//changed, just call this whenever you want to set the state for the key
+function handleSetting(key, value)
+{
+   if(key === "collapsechatinput")
+   {
+      if(value)
+         postdiscussiontext.removeAttribute("data-expand");
+      else
+         postdiscussiontext.setAttribute("data-expand", "");
+   }
+}
+
 function quickLoad(discussionId)
 {
    if(getLocalOption("quickload"))
@@ -620,7 +628,10 @@ function refreshOptions()
    writeDom(() =>
    {
       for(key in options)
+      {
          options[key].value = getLocalOption(key);
+         handleSetting(key, options[key].value);
+      }
       renderOptions(options);
    });
 }
@@ -689,6 +700,22 @@ function addFileUploadImage(file, num)
    });
    fileuploaditems.appendChild(fItem);
    fileuploadthumbnails.appendChild(fThumb);
+}
+
+function updateCurrentUserData(user)
+{
+   writeDom(() =>
+   {
+      //Just username and avatar for now?
+      navuseravatar.src = getAvatarLink(user.avatar, 40);
+      userusername.firstElementChild.textContent = user.username;
+      userusername.href = getUserLink(user.id);
+      userid.textContent = "User ID: " + user.id;
+      userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
+      finalizeTemplate(userusername); //be careful with this!
+      //Check fields in user for certain special fields like email etc.
+      signals.Add("updatecurrentuser", user);
+   });
 }
 
 
@@ -761,27 +788,98 @@ function handleAlerts(comments, users)
 }
 
 
-// **********************
-// ---- Page Modify ----
-// **********************
+// ***************************
+// ---- GENERAL UTILITIES ----
+// ***************************
 
-function updateCurrentUserData(user)
+//Note: cascading dom writes should USUALLY be handled in the same frame UNLESS
+//there's something in the middle that's deferred (time set)
+function writeDom(func) { signals.Add("wdom", func); }
+
+function login(token) { setToken(token); location.reload(); }
+function logout() { setToken(null); location.reload(); }
+
+function getLocalOption(key)
 {
-   writeDom(() =>
-   {
-      //Just username and avatar for now?
-      navuseravatar.src = getAvatarLink(user.avatar, 40);
-      userusername.firstElementChild.textContent = user.username;
-      userusername.href = getUserLink(user.id);
-      userid.textContent = "User ID: " + user.id;
-      userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
-      finalizeTemplate(userusername); //be careful with this!
-      //Check fields in user for certain special fields like email etc.
-      signals.Add("updatecurrentuser", user);
-   });
+   var val = localStorage.getItem("localsetting_" + key);
+   if(val === null || val === undefined)
+      return options[key].def;
+   else
+      return JSON.parse(val);
 }
 
+function setLocalOption(key, value)
+{
+   localStorage.setItem("localsetting_" + key, JSON.stringify(value));
+}
 
+function getToken()
+{
+   var token = window.localStorage.getItem("usertoken");
+   if(!token) return undefined;
+   return JSON.parse(token);
+}
+
+function setToken(token)
+{
+   if(token)
+      token = JSON.stringify(token);
+   window.localStorage.setItem("usertoken", token);
+}
+
+function getComputedImageLink(id, size, crop, ignoreRatio)
+{
+   if(size)
+   {
+      size = Math.max(10, Math.floor(size * getLocalOption("imageresolution") * 
+            (ignoreRatio ? 1 : window.devicePixelRatio))); 
+   }
+
+   return getImageLink(id, size, crop);
+}
+
+function getAvatarLink(id, size, ignoreRatio) { return getComputedImageLink(id, size, true, ignoreRatio); }
+
+function idMap(data)
+{
+   data = data || [];
+   var ds = {};
+   for(var i = 0; i < data.length; i++)
+      ds[data[i].id] = data[i];
+   return ds;
+}
+
+function sortById(a)
+{
+   return a.sort((x,y) => Math.sign(x.id - y.id));
+}
+
+function getChain(categories, content)
+{
+   //work backwards until there's no parent id
+   var crumbs = [ content ];
+   var cs = idMap(categories);
+
+   while(crumbs[0].parentId)
+      crumbs.unshift(cs[crumbs[0].parentId]);
+
+   if(!crumbs.some(x => x.id === 0))
+      crumbs = [{"name":"Root","id":0}].concat(crumbs);
+
+   return crumbs;
+}
+
+function parseLink(url)
+{
+   var pVal = Utilities.GetParams(url).get("p") || "home"; 
+   var pParts = pVal.split("-");
+   return {
+      url : url,
+      p : pVal,
+      page : pParts[0],
+      id : pParts[1]
+   };
+}
 
 
 //-------------------------------------------------
@@ -968,73 +1066,7 @@ function updateDiscussionUserlist(listeners, users)
 }
 
 
-// ***************************
-// ---- GENERAL UTILITIES ----
-// ***************************
-
-//Note: cascading dom writes should USUALLY be handled in the same frame UNLESS
-//there's something in the middle that's deferred (time set)
-function writeDom(func) { signals.Add("wdom", func); }
-
-function login(token) { setToken(token); location.reload(); }
-function logout() { setToken(null); location.reload(); }
-
-function getLocalOption(key)
-{
-   var val = localStorage.getItem("localsetting_" + key);
-   if(val === null || val === undefined)
-      return options[key].def;
-   else
-      return JSON.parse(val);
-}
-
-function setLocalOption(key, value)
-{
-   localStorage.setItem("localsetting_" + key, JSON.stringify(value));
-}
-
-function getToken()
-{
-   var token = window.localStorage.getItem("usertoken");
-   if(!token) return undefined;
-   return JSON.parse(token);
-}
-
-function setToken(token)
-{
-   if(token)
-      token = JSON.stringify(token);
-   window.localStorage.setItem("usertoken", token);
-}
-
 function getUserId() { return userid.dataset.userid; }
-
-function getComputedImageLink(id, size, crop, ignoreRatio)
-{
-   if(size)
-   {
-      size = Math.max(10, Math.floor(size * getLocalOption("imageresolution") * 
-            (ignoreRatio ? 1 : window.devicePixelRatio))); 
-   }
-
-   return getImageLink(id, size, crop);
-}
-
-function getAvatarLink(id, size, ignoreRatio) { return getComputedImageLink(id, size, true, ignoreRatio); }
-
-function idMap(data)
-{
-   data = data || [];
-   var ds = {};
-   for(var i = 0; i < data.length; i++)
-      ds[data[i].id] = data[i];
-   return ds;
-}
-
-function sortById(a)
-{
-   return a.sort((x,y) => Math.sign(x.id - y.id));
-}
 
 function formError(form, error)
 {
@@ -1201,21 +1233,6 @@ function makeCommentFragment(comment)//, users)
    return fragment;
 }
 
-
-function getChain(categories, content)
-{
-   //work backwards until there's no parent id
-   var crumbs = [ content ];
-   var cs = idMap(categories);
-
-   while(crumbs[0].parentId)
-      crumbs.unshift(cs[crumbs[0].parentId]);
-
-   if(!crumbs.some(x => x.id === 0))
-      crumbs = [{"name":"Root","id":0}].concat(crumbs);
-
-   return crumbs;
-}
 
 
 
@@ -1664,6 +1681,7 @@ function renderContent(elm, repl)
 
    return elm.getAttribute("data-rawcontent");
 }
+
 
 // ********************
 // ---- Discussion ----

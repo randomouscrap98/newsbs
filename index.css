@@ -67,7 +67,6 @@ hr {
 /* Stuff that should probably be taken over by uikit */
 input[type="file"] { cursor: pointer; }
 a:hover { color: inherit; }
-#postarea textarea { resize: none; }
 .noevent { pointer-events: none; }
 .uk-list-divider>:nth-child(n+2) {
    margin-top: 0;
@@ -117,12 +116,6 @@ a:hover { color: inherit; }
 #rightpanenav .uk-active {
    background-color: rgba(128,255,240,0.4);
    color: #111;
-}
-#postarea {
-   height: 5em;
-   /*background-color: rgba(128,128,128,0.05);*/
-   border-top: 2px solid rgba(128,128,128,0.1);
-   padding-bottom: 1px;
 }
 .tabnav > div { padding: 0.1em 0; }
 .avatar { border: 1px solid rgba(128,128,128,0.5); }
@@ -255,22 +248,23 @@ a:hover { color: inherit; }
    display: block;
    margin: 0.5em 0;
 }
-#discussionimageselect {
-   margin: 3px;
+#postarea {
+   border-top: 2px solid rgba(128,128,128,0.1);
+   padding-bottom: 1px;
+}
+#postdiscussiontext { 
+   resize: none; 
+   height: 2.2em;
 }
 [data-discussionuser] {
    display: inline-block;
 }
-#commenteditinfo {
-   white-space: pre-wrap;
-}
+#postdiscussiontext:focus, #postdiscussiontext[data-expand] { height: 5.5em; }
+#discussionimageselect { margin: 3px; }
+#commenteditinfo { white-space: pre-wrap; }
 /* Content */
-.content {
-   white-space: pre-wrap;
-}
-.pagecontrols {
-   margin-right: -15px !important;
-}
+.content { white-space: pre-wrap; }
+.pagecontrols { margin-right: -15px !important; }
 [data-watch="true"] path {
    fill: #EE5588; 
    color: #EE5588; 
@@ -305,6 +299,7 @@ a:hover { color: inherit; }
 
 /* Scrollbar! WOW */
 ::-webkit-scrollbar { width: 10px; } /* width */
+textarea::-webkit-scrollbar { width: 3px; } /* width */
 ::-webkit-scrollbar-track { background: rgba(128,128,128,0.1); } /* Track */
 ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); } /* Handle */
 ::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.5); } /* Handle on hover */
