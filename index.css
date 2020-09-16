@@ -253,6 +253,7 @@ a:hover { color: inherit; }
    padding-bottom: 1px;
 }
 #postdiscussiontext { 
+   transition: height 0.15s ease;
    resize: none; 
    height: 2.2em;
 }

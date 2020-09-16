@@ -33,6 +33,7 @@ var options = {
    initialloadcomments: { def: 30, text: "Initial comment pull" },
    oldloadcomments : { def: 30, text: "Scroll back comment pull" },
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
+   discussionresizelock : { def: 20, text: "Device pixels to snap outer container resize" },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
    pulsepasthours : { def: 24 },
    discussionavatarsize : { def: 60 },
@@ -151,7 +152,7 @@ function refreshCycle()
    //Oops, no rendering for a while, so process signals now.
    if(now - globals.render.lastrendertime > Math.min(100, ctime / 3))
    {
-      log.Debug("No rendering detected for a while, signal processing");
+      log.Trace("No rendering detected for a while, signal processing");
       signalProcess(now);
    }
 
@@ -180,6 +181,44 @@ function renderLoop(time)
    try
    {
       var delta = time - globals.render.lastrendertime;
+
+      //Always read first!!! Check stuff here and then schedule actions for
+      //later with signalling.
+      var baseData = { 
+         scrollDiff: Math.floor(discussions.scrollTop) - Math.floor(globals.discussionScrollTop),
+         scrollBottom: (globals.discussionScrollHeight - globals.discussionClientHeight - 
+                        globals.discussionScrollTop),
+         oldScrollHeight : globals.discussionScrollHeight,
+         oldScrollTop : globals.discussionScrollTop,
+         oldClientHeight : globals.discussionClientHeight,
+         currentScrollHeight : discussions.scrollHeight,
+         currentScrollTop : discussions.scrollTop,
+         currentClientHeight : discussions.clientHeight
+      };
+
+      if(baseData.scrollDiff < 0)
+      {
+         baseData.old = baseData.oldScrollTop;
+         baseData.current = baseData.currentScrollTop;
+         signals.Add("discussionscrollup", baseData);
+      }
+      if(Math.floor(globals.discussionScrollHeight) !== Math.floor(discussions.scrollHeight))
+      {
+         baseData.old = baseData.oldScrollHeight;
+         baseData.current = baseData.currentScrollHeight;
+         signals.Add("discussionscrollresize", baseData);
+      }
+      if(Math.floor(globals.discussionClientHeight) !== Math.floor(discussions.clientHeight))
+      {
+         baseData.old = baseData.oldClientHeight;
+         baseData.current = baseData.currentClientHeight;
+         signals.Add("discussionresize", baseData);
+      }
+
+      globals.discussionClientHeight = discussions.clientHeight;
+      globals.discussionScrollHeight = discussions.scrollHeight;
+      globals.discussionScrollTop = discussions.scrollTop;
+
       signalProcess(time);
       globals.render.lastrendertime = time;
       requestAnimationFrame(renderLoop);
@@ -215,8 +254,8 @@ function setupSignalProcessors()
       handleSetting(data.key, data.value);
    });
 
-   //Oh but there's some fun stuff I also want to do on events (not the event itself)
    signals.Attach("spastart", parsed => quickLoad(parsed));
+
    signals.Attach("longpollstart", data => writeDom(() => setConnectionState("connected")));
    signals.Attach("longpollcomplete", data => writeDom(() => handleLongpollData(data))); 
    signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
@@ -231,6 +270,21 @@ function setupSignalProcessors()
       {
          location.reload();
       });
+   });
+
+   signals.Attach("discussionresize", data => 
+   {
+      if(data.scrollBottom < getLocalOption("discussionresizelock")) 
+         writeDom(() => discussions.scrollTop = discussions.scrollHeight); 
+   });
+   signals.Attach("discussionscrollresize", data =>
+   {
+      if(data.scrollBottom < 
+      signals.Add("autoscroll_event", { scrollto: data.current, });
+   });
+   signals.Attach("autoscroll_event", data =>
+   {
+
    });
 
    //You MUST be able to assume that discussions and all that junk are fine at
@@ -257,15 +311,6 @@ function setupSignalProcessors()
    signals.Attach("apistart", data => apiSetLoading(data, true));
    signals.Attach("apiend", data => apiSetLoading(data, false));
 
-   signals.Attach("showdiscussion", data =>
-   {
-      globals.discussion.observer.observe(discussions);
-      globals.discussion.observer.observe(data.discussion);
-   });
-   signals.Attach("hidediscussion", data =>
-   {
-      globals.discussion.observer.disconnect();
-   });
    signals.Attach("formatdiscussions", data =>
    {
       //Want to scroll to bottom, this performs a READ
@@ -1168,34 +1213,34 @@ function makeCommentFragment(comment)//, users)
 //Right now, this can only be called once :/
 function setupDiscussions()
 {
-   globals.discussions = {};
-   globals.discussion =
-   { 
-      "lastanimtime" : 0,
-      "observer" : new ResizeObserver(entries => 
-      {
-         var scdst = scrollDiscussionsDistance(globals.discussion.scrollHeight);
+   //globals.discussions = {};
+   //globals.discussion =
+   //{ 
+   //   "lastanimtime" : 0,
+   //   "observer" : new ResizeObserver(entries => 
+   //   {
+   //      var scdst = scrollDiscussionsDistance(globals.discussion.scrollHeight);
 
-         if((globals.discussion.rect && globals.discussion.scrollHeight && scdst >= 0 &&
-             scdst < (globals.discussion.rect.height * getLocalOption("discussionscrolllock"))) ||
-             performance.now() < globals.discussion.scrollNow)
-         {
-            //log.Warn("Setting scrollnow to " + discussions.scrollTop + " with dst: " +
-            //   scdst + ", ht: " + globals.discussion.rect.height + ", osclht: " + 
-            //   globals.discussion.scrollHeight + ", slcht: " + 
-            //   discussions.scrollHeight);
-            setDiscussionScrollNow();
-         }
+   //      if((globals.discussion.rect && globals.discussion.scrollHeight && scdst >= 0 &&
+   //          scdst < (globals.discussion.rect.height * getLocalOption("discussionscrolllock"))) ||
+   //          performance.now() < globals.discussion.scrollNow)
+   //      {
+   //         //log.Warn("Setting scrollnow to " + discussions.scrollTop + " with dst: " +
+   //         //   scdst + ", ht: " + globals.discussion.rect.height + ", osclht: " + 
+   //         //   globals.discussion.scrollHeight + ", slcht: " + 
+   //         //   discussions.scrollHeight);
+   //         setDiscussionScrollNow();
+   //      }
 
-         globals.discussion.scrollHeight = discussions.scrollHeight;
+   //      globals.discussion.scrollHeight = discussions.scrollHeight;
 
-         for (let entry of entries) 
-         {
-            if(entry.target.id === "discussions")
-               globals.discussion.rect = entry.contentRect;
-         } 
-      })
-   };
+   //      for (let entry of entries) 
+   //      {
+   //         if(entry.target.id === "discussions")
+   //            globals.discussion.rect = entry.contentRect;
+   //      } 
+   //   })
+   //};
 
    postdiscussiontext.onkeypress = function(e) 
    {
@@ -1205,18 +1250,20 @@ function setupDiscussions()
 
          var currentDiscussion = getActiveDiscussionId();
          let currentText = postdiscussiontext.value;
+         var sendData = {
+            "parentId" : Number(currentDiscussion),
+            "content" : createComment(postdiscussiontext.value, getLocalOption("defaultmarkup"))
+         };
 
          quickApi("comment", data => { }, error =>
          {
             notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
             postdiscussiontext.value = currentText;
-         }, {
-            "parentId" : Number(currentDiscussion),
-            "content" : createComment(postdiscussiontext.value, getLocalOption("defaultmarkup"))
-         });
+         }, sendData);
 
          postdiscussiontext.value = "";
-         setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
+         signals.Add("sendcommentstart", sendData);
+         //setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
 		}
 	};
 
@@ -1227,7 +1274,7 @@ function setupDiscussions()
    });
 
    //Begin the animation loop for discussion scrolling
-   scrollDiscussionsAnimation(0);
+   //scrollDiscussionsAnimation(0);
 
    log.Debug("Setup discussions (scrolling/etc)");
 }
@@ -1415,7 +1462,7 @@ function setupWatchClear(parent, cid)
       event.preventDefault();
 
       watchAlert.className = watchAlert.className.replace(/danger/g, "warning");
-      console.log(watchAlert);
+      //console.log(watchAlert);
 
       if(getLocalOption("watchclearnotif"))
          notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
@@ -1726,7 +1773,7 @@ function updateWatchComAct(users, comments, activity)
 {
    [...new Set(Object.keys(comments).concat(Object.keys(activity)))].forEach(cid =>
    {
-      console.log("updating comments, activity:", comments, activity);
+      //console.log("updating comments, activity:", comments, activity);
       var watchdata = document.getElementById(getWatchId(cid)); 
 
       if(watchdata)
@@ -1779,7 +1826,7 @@ function updateWatches(data, fullReset)
 
    if(data.watch)
    {
-      console.log("watches: ", data.watch);
+      //console.log("watches: ", data.watch);
       for(var i = 0; i < data.watch.length; i++)
       {
          var c = contents[data.watch[i].contentId];
@@ -1832,41 +1879,41 @@ function scrollDiscussionsDistance(baseHeight)
       (globals.discussion.rect.height + discussions.scrollTop)) : 0;
 }
 
-function scrollDiscussionsAnimation(timestamp)
-{
-   if(Math.abs(discussions.scrollTop - globals.discussion.scrollTop) <= 1)
-   {
-      //We will go at MINIMUM half framerate (to prevent huge stops from
-      //destroying the animation)
-      var delta = Math.min(32, timestamp - globals.discussion.lastanimtime);
-      var scd = scrollDiscussionsDistance();
-      var scm = Math.max(1, delta * 60 / 1000 * 
-         getLocalOption("discussionscrollspeed") * Math.abs(scd));
-      log.Drawlog("scd: " + scd + ", scm: " + scm + ", delta: " 
-         + delta + ", dst: " + discussions.scrollTop);
-      //These are added separately because eventually, our scrolltop will move
-      //past the actual assigned one
-      globals.discussion.scrollTop = Math.ceil(globals.discussion.scrollTop + scm);
-      discussions.scrollTop = globals.discussion.scrollTop;
-      log.Drawlog("New dst: " + discussions.scrollTop + ", gst: " +
-         globals.discussion.scrollTop);
-   }
-
-   var activeDiscussion = document.getElementById(getDiscussionId(getActiveDiscussion()));
-
-   //TODO: Get this out of here, needs to be part of something else!
-   if(discussions.scrollTop < globals.discussion.lastScrollTop && 
-      activeDiscussion && getLocalOption("loadcommentonscroll") &&
-      discussions.scrollTop < getLocalOption("scrolldiscloadheight") * window.innerHeight &&
-      !globals.discussion.loadingOlder && !activeDiscussion.hasAttribute(attr.atoldest))
-   {
-      loadOlderComments(activeDiscussion);
-   }
-
-   globals.discussion.lastScrollTop = discussions.scrollTop;
-   globals.discussion.lastanimtime = timestamp;
-   window.requestAnimationFrame(scrollDiscussionsAnimation);
-}
+//function scrollDiscussionsAnimation(timestamp)
+//{
+//   if(Math.abs(discussions.scrollTop - globals.discussion.scrollTop) <= 1)
+//   {
+//      //We will go at MINIMUM half framerate (to prevent huge stops from
+//      //destroying the animation)
+//      var delta = Math.min(32, timestamp - globals.discussion.lastanimtime);
+//      var scd = scrollDiscussionsDistance();
+//      var scm = Math.max(1, delta * 60 / 1000 * 
+//         getLocalOption("discussionscrollspeed") * Math.abs(scd));
+//      log.Drawlog("scd: " + scd + ", scm: " + scm + ", delta: " 
+//         + delta + ", dst: " + discussions.scrollTop);
+//      //These are added separately because eventually, our scrolltop will move
+//      //past the actual assigned one
+//      globals.discussion.scrollTop = Math.ceil(globals.discussion.scrollTop + scm);
+//      discussions.scrollTop = globals.discussion.scrollTop;
+//      log.Drawlog("New dst: " + discussions.scrollTop + ", gst: " +
+//         globals.discussion.scrollTop);
+//   }
+//
+//   var activeDiscussion = document.getElementById(getDiscussionId(getActiveDiscussion()));
+//
+//   //TODO: Get this out of here, needs to be part of something else!
+//   if(discussions.scrollTop < globals.discussion.lastScrollTop && 
+//      activeDiscussion && getLocalOption("loadcommentonscroll") &&
+//      discussions.scrollTop < getLocalOption("scrolldiscloadheight") * window.innerHeight &&
+//      !globals.discussion.loadingOlder && !activeDiscussion.hasAttribute(attr.atoldest))
+//   {
+//      loadOlderComments(activeDiscussion);
+//   }
+//
+//   globals.discussion.lastScrollTop = discussions.scrollTop;
+//   globals.discussion.lastanimtime = timestamp;
+//   window.requestAnimationFrame(scrollDiscussionsAnimation);
+//}
 
 function loadOlderComments(discussion)
 {
@@ -1897,10 +1944,10 @@ function loadOlderComments(discussion)
    quickApi("read/chain?" + params.toString(), data =>
    {
       var users = idMap(data.user);
-      var oldTop = discussions.scrollTop;
-      var oldHeight = discussions.scrollHeight;
+      //var oldTop = discussions.scrollTop;
+      //var oldHeight = discussions.scrollHeight;
       easyComments(data.comment, users);
-      discussions.scrollTop = oldTop + discussions.scrollHeight - oldHeight;
+      //discussions.scrollTop = oldTop + discussions.scrollHeight - oldHeight;
       if(data.comment.length !== initload)
          discussion.setAttribute(attr.atoldest, "");
    }, undefined, undefined, req =>
@@ -1953,7 +2000,10 @@ function getFragmentFrame(element)
 function easyComments(comments, users)
 {
    if(comments)
+   {
       sortById(comments).forEach(x => easyComment(x, users));
+      signals.Add("easycomments", { comments: comments, users: users });
+   }
 }
 
 function easyComment(comment, users)
@@ -2095,7 +2145,6 @@ function tryUpdateLongPoll(newStatuses)
 {
    if(newStatuses)
    {
-      console.log(newStatuses);
       if(globals.statuses && Utilities.ShallowEqual(newStatuses, globals.statuses))
       {
          log.Warn("No new statuses when updating long poll, ignoring");
