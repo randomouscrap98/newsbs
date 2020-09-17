@@ -28,6 +28,7 @@ var options = {
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
    loglongpoll : { def: false, text : "Log longpoller events (could be many)" },
+   logperiodicdata : { def: false, text : "Log background data every refresh cycle" },
    forcediscussionoutofdate : {def: false, text : "Force an immediate 400 error on long poll"},
    retrievetechnicalinfo : {def:true, text : "Pull API info on page load" },
    initialloadcomments: { def: 30, text: "Initial comment pull" },
@@ -149,6 +150,17 @@ function refreshCycle()
 
    var ctime = getLocalOption("signalcleanup");
    var now = performance.now();
+
+   if(getLocalOption("logperiodicdata"))
+   {
+      var message = "Periodic data:";
+      message += "\nPollers: " + globals.longpoller.pending.map(x => "[" + x.rid + "]").join(", ");
+      message += "\nSignals: " + Object.keys(signals.signals)
+         .filter(x => signals.signals[x].length)
+         .map(x => x + "[" + signals.signals[x].length + "]").join(", ");
+      message += "\nLog buffer: " + log.messages.length;
+      log.Debug(message);
+   }
 
    //Oops, no rendering for a while, so process signals now.
    if(now - globals.render.lastrendertime > Math.min(100, ctime / 3))
@@ -2171,7 +2183,7 @@ function messageControllerEvent(event)
    { 
       quickApi("comment/" + cmid, x => notifySuccess("Comment edited"),
          x => notifyError("Couldn't edit comment: " + x.status + " - " + x.statusText),
-         {parentId : Number(getActiveDiscussion()), 
+         {parentId : Number(getActiveDiscussionId()), 
           content: createComment(commentedittext.value, commenteditformat.value)},
          undefined, /*always*/ "PUT");
       UIkit.modal(commentedit).hide();

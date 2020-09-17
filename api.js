@@ -78,8 +78,8 @@ function LongPoller(signalHandler, log)
    this.signal = signalHandler;
    this.errortime = 5000;
    this.ratetimeout = 1500;
-   //this.ratelimitextra = 500;
    this.logoutgoing = false;
+   this.recallrids = [];
          //var lpr = getLocalOption("longpollerrorrestart");
 }
 
@@ -126,7 +126,25 @@ LongPoller.prototype.Repeater = function(lpdata)
    var me = this;
    var clearNotifications = Object.keys(lpdata.statuses).map(x => Number(x)).filter(x => x > 0);
 
-   var recall = () => me.Repeater(lpdata);
+   var recall = (req) => 
+   {
+      if(!me.recallrids.some(x => x === req.rid))
+      {
+         if(!req.abortNow)
+         {
+            me.recallrids.push(req.rid);
+            me.Repeater(lpdata);
+         }
+         else
+         {
+            me.log("Tried to repeat from aborted long poller");
+         }
+      }
+      else
+      {
+         me.log("Tried to repeat long poller multiple times");
+      }
+   };
    var reqsig = (name, req, msg) => 
    {
       if(msg)
@@ -173,7 +191,7 @@ LongPoller.prototype.Repeater = function(lpdata)
          req.rcvdata = data;
          reqsig("longpollcomplete", req);
 
-         recall();
+         recall(req);
       }
    }, req => //error
    {
@@ -194,7 +212,7 @@ LongPoller.prototype.Repeater = function(lpdata)
             //   timeout = Number(limitRemain) + me.ratelimitextra;
          }
          reqsig("longpollerror", req, "Long poller failed normally, retrying in " + timeout + " ms");
-         setTimeout(recall, timeout);
+         setTimeout(() => recall(req), timeout);
       }
       else
       {
