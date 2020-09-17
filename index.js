@@ -669,8 +669,11 @@ function handleSearchResults(data)
    hide(searchusersresultscontainer);
    hide(searchcategoriesresultscontainer);
 
+   var total = 0;
+
    if(data.content && data.content.length)
    {
+      total += data.content.length;
       searchpagesresults.innerHTML = "";
       findSwap(searchpagesresultscontainer, "data-count", data.content.length);
       unhide(searchpagesresultscontainer);
@@ -684,6 +687,7 @@ function handleSearchResults(data)
    }
    if(data.user && data.user.length)
    {
+      total += data.user.length;
       searchusersresults.innerHTML = "";
       findSwap(searchusersresultscontainer, "data-count", data.user.length);
       unhide(searchusersresultscontainer);
@@ -696,6 +700,7 @@ function handleSearchResults(data)
    }
    if(data.category && data.category.length)
    {
+      total += data.category.length;
       searchcategoriesresults.innerHTML = "";
       findSwap(searchcategoriesresultscontainer, "data-count", data.category.length);
       unhide(searchcategoriesresultscontainer);
@@ -706,6 +711,8 @@ function handleSearchResults(data)
                (new Date(x.createDate)).toLocaleDateString()));
       });
    }
+
+   setHidden(nosearchresults, total);
 }
 
 //TODO: move this!
