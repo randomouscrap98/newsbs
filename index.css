@@ -68,6 +68,7 @@ code {
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 /*.uk-link { cursor: pointer; }*/
 hr { border-top: 1px solid rgba(128,128,128, 0.2); }
+a { overflow: hidden; }
 .notext { font-size: 0; } /*display: contents; }*/
 audio {
    height: 30px;
@@ -302,11 +303,10 @@ a:hover { color: inherit; }
    border: 1px solid rgba(128,128,128,0.1);
    margin-top: 5px;
 }
-/* Homepage */
-[data-homehistory] {
-   max-height: 25em;
-}
 /* History */
+/*.historybox {
+   max-height: 25em;
+}*/
 [data-historyitem] {
    padding: 0.05em 0.3em;
 }
@@ -314,8 +314,11 @@ a:hover { color: inherit; }
    background-color: rgba(128,128,128,0.05);
 }
 [data-history] {
-   background-color: rgba(128,128,128,0.02);
    padding-bottom: 1.3em;
+}
+.historycontainer {
+   background-color: rgba(128,128,128,0.02);
+   max-height: 25em;
 }
 
 /* Swag animations */

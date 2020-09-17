@@ -659,8 +659,9 @@ function loglevel(el, replace)
             <a class="uk-flex-none notext" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
          </div>
          <div data-history class="uk-inline uk-display-block">
+            <h3>Activity:</h3>
             <div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>
-            <div class="historycontainer">
+            <div class="historycontainer" uk-overflow-auto>
             </div>
             <div data-loadolder class="uk-position-bottom-right uk-margin-small-right" hidden>
                <div data-loading uk-spinner="ratio: 0.5" hidden></div>
@@ -683,7 +684,7 @@ function loglevel(el, replace)
             This website is in development! There's a lot of missing features, 
             but we're gonna keep adding stuff until it's good!</p>
             <h3><a href="?p=category-0" data-spa>Browse</a></h3>
-            <div data-homehistory uk-overflow-auto></div>
+            <div class="" data-homehistory></div>
             <a href="#" uk-toggle="#hometestarea" hidden>Test area</a>
             <div id="hometestarea" hidden>
       <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
@@ -722,6 +723,8 @@ function loglevel(el, replace)
             <img data-avatar="src" width=100 class="uk-align-right avatar">
             <p data-content=".renderContent" data-format="data-fmt" 
                class="uk-text-break content uk-margin-remove-top"></p>
+            <div data-userhistory class="uk-margin-top uk-margin-bottom">
+            </div>
          </div>
          <div data-routecategory class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>

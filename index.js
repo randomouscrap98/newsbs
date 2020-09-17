@@ -881,6 +881,13 @@ function routeuser_load(spadat)
             "data-avatar" : getAvatarLink(u.avatar, 100)
          });
 
+         var history = templ.querySelector("[data-userhistory]");
+         history.appendChild(makeActivity(s =>
+         {
+            s.userIds = [uid];
+            return s;
+         }));
+
          if(c)
          {
             c.name = u.username;
@@ -1130,7 +1137,7 @@ function renderContent(elm, repl)
    return elm.getAttribute("data-rawcontent");
 }
 
-function makeActivity(modifySearch)
+function makeActivity(modifySearch, unlimitedHeight)
 {
    modifySearch = modifySearch || (x => x);
    var activity = cloneTemplate("history");
