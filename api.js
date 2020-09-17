@@ -225,7 +225,7 @@ LongPoller.prototype.Repeater = function(lpdata)
    }, undefined, req => //modify
    {
       me.pending.push(req);
-   }, me.logoutgoing);
+   }, !me.logoutgoing);
 };
 
 

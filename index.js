@@ -28,7 +28,8 @@ var options = {
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
    loglongpoll : { def: false, text : "Log longpoller events (could be many)" },
-   logperiodicdata : { def: false, text : "Log background data every refresh cycle" },
+   loglongpollreq : { def: false, text : "Log longpoller requests" },
+   logperiodicdata : { def: false, text : "Log runtime data every refresh cycle (FREQUENT)" },
    forcediscussionoutofdate : {def: false, text : "Force an immediate 400 error on long poll"},
    retrievetechnicalinfo : {def:true, text : "Pull API info on page load" },
    initialloadcomments: { def: 30, text: "Initial comment pull" },
@@ -109,6 +110,7 @@ window.onload = function()
 
    globals.longpoller = new LongPoller(signals, (m, c) => logConditional(m, c, "loglongpoll"));
    globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
+   globals.longpoller.logoutgoing = getLocalOption("loglongpollreq");
    interruptSmoothScroll();
    //This setting won't apply until next load ofc
 
@@ -322,7 +324,11 @@ function setupSignalProcessors()
    signals.Attach("longpollstart", data => writeDom(() => setConnectionState("connected")));
    signals.Attach("longpollcomplete", data => writeDom(() => handleLongpollData(data))); 
    signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
-   signals.Attach("longpollerror", data => writeDom(() =>setConnectionState("error")));
+   signals.Attach("longpollerror", data => 
+   {
+      log.Error("Can't connect to live updates: " + request.status + " - " + request.statusText);
+      writeDom(() =>setConnectionState("error"));
+   });
    signals.Attach("longpollalways", data => { globals.lastsystemid = data.lpdata.lastId });
    signals.Attach("longpollfatal", data =>
    {
