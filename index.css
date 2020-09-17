@@ -27,7 +27,7 @@ html, body, .uk-modal-dialog, .uk-dropdown {
 .databar a:hover { 
    color: var(--databartxthovcolor); 
 }
-h1, h2, h3, h4, h5, h6, .uk-text-emphasis { 
+h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt { 
    color: var(--headercolor) !important;
 }
 img { 
@@ -39,7 +39,14 @@ pre, .uk-input, .uk-select, .uk-textarea, .uk-button-default {
    border: 1px solid rgba(128,128,128, 0.1);
    color: inherit;
 }
-
+.uk-heading-divider {
+   border-bottom: calc(.2px + .05em) solid rgba(128,128,128,0.2);
+}
+.uk-input:focus, .uk-select:focus, .uk-textarea:focus {
+   color: var(--headercolor);
+   background-color: var(--inputbgcolor);
+   /*filter: contrast(1.2);*/
+}
 /* UIkit reconfiguring */
 code { 
    white-space: pre-wrap !important; 
@@ -57,15 +64,13 @@ code {
    background: rgba(128,128,128,0.05);
    border-bottom: 1px solid rgba(128,128,128, 0.1);
 }
-.uk-text-meta {
-   color: rgba(128,128,128, 0.7);
-}
-hr {
-   border-top: 1px solid rgba(128,128,128, 0.2);
-}
+.uk-text-meta { color: rgba(128,128,128, 0.7); }
+.uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
+/*.uk-link { cursor: pointer; }*/
+hr { border-top: 1px solid rgba(128,128,128, 0.2); }
 .nocontainer { display: contents; }
 /* Stuff that should probably be taken over by uikit */
-input[type="file"] { cursor: pointer; }
+/*input[type="file"] { cursor: pointer; }*/
 a:hover { color: inherit; }
 .noevent { pointer-events: none; }
 .uk-list-divider>:nth-child(n+2) {
