@@ -1973,7 +1973,7 @@ function scrollDiscussionsDistance(baseHeight)
 
 function loadOlderComments(discussion)
 {
-   globals.discussion.loadingOlder = true;
+   globals.loadingOlderDiscussions = true;
 
    var did = getSwap(discussion, "data-discussionid");
    log.Info("Loading older messages in " + did);
@@ -2008,7 +2008,7 @@ function loadOlderComments(discussion)
          discussion.setAttribute(attr.atoldest, "");
    }, undefined, undefined, req =>
    {
-      globals.discussion.loadingOlder = false;
+      globals.loadingOlderDiscussions = false;
       hide(loading);
    });
 }
