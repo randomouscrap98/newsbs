@@ -41,16 +41,18 @@ var options = {
    discussionavatarsize : { def: 60 },
    showsidebarminrem : { def: 60 },
    refreshcycle : { def: 10000 },
-   discussionscrollnow : {def: 1000 },
+   //discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
    signalcleanup : {def: 10000 },
-   scrolldiscloadheight : {def: 1.0, step: 0.01 },
+   scrolldiscloadheight : {def: 1.5, step: 0.01 },
+   scrolldiscloadcooldown : {def: 500 },
    defaultmarkup : {def:"12y"}
 };
 
 var globals = { 
    lastsystemid : 0,    //The last id retrieved from the system for actions
    reqId : 0,           //Ever increasing request id
+   loadingOlderDiscussionsTime : 0,
    spahistory : []
 };
 
@@ -326,7 +328,7 @@ function setupSignalProcessors()
    signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
    signals.Attach("longpollerror", data => 
    {
-      log.Error("Can't connect to live updates: " + request.status + " - " + request.statusText);
+      log.Error("Can't connect to live updates: " + data.request.status + " - " + data.request.statusText);
       writeDom(() =>setConnectionState("error"));
    });
    signals.Attach("longpollalways", data => { globals.lastsystemid = data.lpdata.lastId });
@@ -371,6 +373,15 @@ function setupSignalProcessors()
       interruptSmoothScroll();
       var height = discussions.scrollHeight;
       writeDom(() => discussions.scrollTop = height);
+   });
+
+   signals.Attach("discussionscrollup", data =>
+   {
+      if(getLocalOption("loadcommentonscroll") && data.currentScrollTop <
+         getLocalOption("scrolldiscloadheight") * data.currentClientHeight)
+      {
+         loadOlderCommentsActive();
+      }
    });
 
    signals.Attach("settheme", data => 
@@ -1941,41 +1952,18 @@ function scrollDiscussionsDistance(baseHeight)
       (globals.discussion.rect.height + discussions.scrollTop)) : 0;
 }
 
-//function scrollDiscussionsAnimation(timestamp)
-//{
-//   if(Math.abs(discussions.scrollTop - globals.discussion.scrollTop) <= 1)
-//   {
-//      //We will go at MINIMUM half framerate (to prevent huge stops from
-//      //destroying the animation)
-//      var delta = Math.min(32, timestamp - globals.discussion.lastanimtime);
-//      var scd = scrollDiscussionsDistance();
-//      var scm = Math.max(1, delta * 60 / 1000 * 
-//         getLocalOption("discussionscrollspeed") * Math.abs(scd));
-//      log.Drawlog("scd: " + scd + ", scm: " + scm + ", delta: " 
-//         + delta + ", dst: " + discussions.scrollTop);
-//      //These are added separately because eventually, our scrolltop will move
-//      //past the actual assigned one
-//      globals.discussion.scrollTop = Math.ceil(globals.discussion.scrollTop + scm);
-//      discussions.scrollTop = globals.discussion.scrollTop;
-//      log.Drawlog("New dst: " + discussions.scrollTop + ", gst: " +
-//         globals.discussion.scrollTop);
-//   }
-//
-//   var activeDiscussion = document.getElementById(getDiscussionId(getActiveDiscussion()));
-//
-//   //TODO: Get this out of here, needs to be part of something else!
-//   if(discussions.scrollTop < globals.discussion.lastScrollTop && 
-//      activeDiscussion && getLocalOption("loadcommentonscroll") &&
-//      discussions.scrollTop < getLocalOption("scrolldiscloadheight") * window.innerHeight &&
-//      !globals.discussion.loadingOlder && !activeDiscussion.hasAttribute(attr.atoldest))
-//   {
-//      loadOlderComments(activeDiscussion);
-//   }
-//
-//   globals.discussion.lastScrollTop = discussions.scrollTop;
-//   globals.discussion.lastanimtime = timestamp;
-//   window.requestAnimationFrame(scrollDiscussionsAnimation);
-//}
+function loadOlderCommentsActive()
+{
+   if(!globals.loadingOlderDiscussions && 
+      globals.loadingOlderDiscussionsTime < performance.now() - 
+      getLocalOption("scrolldiscloadcooldown"))
+   {
+      var activeDiscussion = getActiveDiscussion();
+
+      if(!activeDiscussion.hasAttribute(attr.atoldest))
+         loadOlderComments(activeDiscussion);
+   }
+}
 
 function loadOlderComments(discussion)
 {
@@ -1985,7 +1973,7 @@ function loadOlderComments(discussion)
    log.Info("Loading older messages in " + did);
 
    var loading = discussion.querySelector("[data-loadolder] [data-loading]");
-   unhide(loading);
+   writeDom(() => unhide(loading));
 
    var minId = Number.MAX_SAFE_INTEGER;
    var msgs = discussion.querySelectorAll("[data-msgid]");
@@ -2006,16 +1994,28 @@ function loadOlderComments(discussion)
    quickApi("read/chain?" + params.toString(), data =>
    {
       var users = idMap(data.user);
-      //var oldTop = discussions.scrollTop;
-      //var oldHeight = discussions.scrollHeight;
-      easyComments(data.comment, users);
-      //discussions.scrollTop = oldTop + discussions.scrollHeight - oldHeight;
-      if(data.comment.length !== initload)
-         discussion.setAttribute(attr.atoldest, "");
+      writeDom(() =>
+      {
+         easyComments(data.comment, users);
+
+         if(data.comment.length !== initload)
+            discussion.setAttribute(attr.atoldest, "");
+
+         //THIS CAUSES REFLOW!!!
+         var height = discussions.scrollHeight;
+         log.Drawlog("loadOlderComments old top: " + globals.discussionScrollTop + 
+            ", old height: " + globals.discussionScrollHeight + ", new height: " + height);
+
+         //discussions.style['-webkit-overflow-scrolling'] = 'auto';
+         discussions.scrollTop = Math.max(0, globals.discussionScrollTop) + 
+            (height - globals.discussionScrollHeight);
+         //discussions.style['-webkit-overflow-scrolling'] = 'touch';
+      });
    }, undefined, undefined, req =>
    {
       globals.loadingOlderDiscussions = false;
-      hide(loading);
+      globals.loadingOlderDiscussionsTime = performance.now();
+      writeDom(() => hide(loading));
    });
 }
 
@@ -2041,9 +2041,6 @@ function renderComment(elm, repl)
 
    return elm.getAttribute("data-rawmessage");
 }
-
-
-
 
 function updateCommentFragment(comment, element)
 {

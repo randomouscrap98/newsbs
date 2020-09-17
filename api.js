@@ -80,7 +80,6 @@ function LongPoller(signalHandler, log)
    this.ratetimeout = 1500;
    this.logoutgoing = false;
    this.recallrids = [];
-         //var lpr = getLocalOption("longpollerrorrestart");
 }
 
 function LongPollData(lastId, statuses, lastListeners)
