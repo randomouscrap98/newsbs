@@ -732,7 +732,8 @@ function routepage_load(spadat)
 
       route_complete(spadat, c.name, templ =>
       {
-         finishContent(templ,c );
+         finishContent(templ, c);
+         maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c.id, data.comment, users, initload);
       }, getChain(data.category, c), c.id);
    });
@@ -779,6 +780,7 @@ function routeuser_load(spadat)
          {
             c.name = u.username;
             finishContent(templ, c);
+            maincontentinfo.appendChild(makeStandardContentInfo(c, users));
             finishDiscussion(c.id, data.comment, users, initload);
          }
          else
