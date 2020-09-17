@@ -125,6 +125,8 @@ function loglevel(el, replace)
             uk-position-bottom-right noevent"></div>
       </div>
       <div><a href="" class="uk-display-block" 
+            uk-icon="icon: search; ratio: 2"></a></div>
+      <div><a href="" class="uk-display-block" 
             uk-icon="icon: server; ratio: 2"></a></div>
                </div>
                <!-- LOC:RIGHTPANECONTENT -->
@@ -278,6 +280,90 @@ function loglevel(el, replace)
                   <!-- LOC:WATCHES -->
                   <li class="uk-margin-large-bottom">
                      <ul id="watches" class="uk-list uk-list-divider"></ul>
+                  </li>
+                  <!-- LOC:SEARCH -->
+                  <li id="searchpane" class="uk-container uk-margin-large-bottom" uk-margin>
+                     <div>
+                        <div class="uk-flex uk-flex-middle uk-margin-small-top">
+                           <form id="searchform" class="uk-width-expand uk-search uk-search-default">
+                              <a href="#" id="searchformicon" class="uk-search-icon-flip" uk-search-icon></a>
+                              <input id="searchinput" class="uk-search-input" placeholder="Search...">
+                           </form>
+                           <a href="" class="uk-margin-small-left uk-flex-none" uk-icon="cog"
+                              uk-toggle="#searchconstraints"></a>
+                        </div>
+                        <div id="searchconstraints" class="uk-padding-small" hidden uk-margin>
+                           <div class="uk-flex uk-flex-wrap" uk-margin>
+                              <label class="uk-margin-right uk-text-nowrap">
+                                 <input id="searchpagesoption" type="checkbox" 
+                                  class="uk-checkbox" checked>
+                                 <span>Pages</span>
+                              </label>
+                              <label class="uk-margin-right uk-text-nowrap">
+                                 <input id="searchusersoption" type="checkbox" 
+                                  class="uk-checkbox" checked>
+                                 <span>Users</span>
+                              </label>
+                              <label class="uk-margin-right uk-text-nowrap">
+                                 <input id="searchcategoriesoption" type="checkbox" 
+                                  class="uk-checkbox" checked>
+                                 <span>Categories</span>
+                              </label>
+                              <label class="uk-margin-right uk-text-nowrap" hidden>
+                                 <input id="searchchatoption" type="checkbox" 
+                                  class="uk-checkbox">
+                                 <span>Chat</span>
+                              </label>
+                           </div>
+                           <hr>
+                           <div class="uk-flex uk-flex-wrap" uk-margin>
+                              <label class="uk-margin-right uk-text-nowrap">
+                                 <select class="uk-select uk-width-small uk-form-small" id="searchsortoption">
+                                    <option value="id">Id</option>
+                                    <option value="createDate">Create Date</option>
+                                    <option value="editDate">Edit Date</option>
+                                 </select>
+                                 <span>Sort</span>
+                              </label>
+                              <label class="uk-margin-right uk-text-nowrap">
+                                 <input id="searchreverseoption" type="checkbox" 
+                                  class="uk-checkbox" checked>
+                                 <span>Reverse</span>
+                              </label>
+                           </div>
+                        </div>
+                     </div>
+                     <ul uk-accordion="multiple: true">
+                        <li id="searchpagesresultscontainer" hidden class="uk-open">
+                           <a class="uk-accordion-title" href="#">Pages -
+                              <span data-count=".textContent"></span></a>
+                           <div id="searchpagesresults" class="uk-accordion-content">
+                              pages
+                           </div>
+                        </li>
+                        <li id="searchusersresultscontainer" hidden class="uk-open">
+                           <a class="uk-accordion-title" href="#">Users -
+                              <span data-count=".textContent"></span></a>
+                           <div id="searchusersresults" class="uk-accordion-content">
+                              users
+                           </div>
+                        </li>
+                        <li id="searchcategoriesresultscontainer" hidden class="uk-open">
+                           <a class="uk-accordion-title" href="#">Categories -
+                              <span data-count=".textContent"></span></a>
+                           <div id="searchcategoriesresults" class="uk-accordion-content">
+                              categories
+                           </div>
+                        </li>
+                        <li id="searchchatresultscontainer" hidden class="uk-open">
+                           <a class="uk-accordion-title" href="#">Chat -
+                              <span data-count=".textContent"></span></a>
+                           <div id="searchchatresults" class="uk-accordion-content">
+                              chat
+                           </div>
+                        </li>
+                     </ul>
+                     <!--<ul id="searchpane" class="uk-list uk-list-divider"></ul>-->
                   </li>
                   <!-- LOC:LOGS -->
                   <li id="logsparent">
@@ -495,8 +581,8 @@ function loglevel(el, replace)
             </div>
          </div>
          <div data-stdcontentinfo class="uk-display-inline uk-flex uk-flex-middle uk-width-expand">
-            <a data-spa class="nocontainer" data-createlink="href">
-               <img data-createavatar="src" width=20></a>
+            <a data-spa class="uk-flex-none" data-createlink="href">
+               <img data-createavatar="src" width=20 height=20></a>
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
@@ -555,7 +641,13 @@ function loglevel(el, replace)
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
-         <a data-discussionuser class="nocontainer" data-userlink="href" data-spa>
+         <div data-searchresult class="uk-flex uk-flex-middle">
+            <img data-image="src" class="uk-flex-none" width=20>
+            <a data-spa data-name=".textContent" data-link="href" 
+             class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
+            <span data-meta=".textContent" class="uk-text-meta"></span>
+         </div>
+         <a data-discussionuser class="notext" data-userlink="href" data-spa>
             <img data-avatar="src" width=40>
          </a>
          <li data-subcat><a data-link="href" data-spa data-name=".textContent">
@@ -563,7 +655,7 @@ function loglevel(el, replace)
          <div data-pageitem class="uk-flex uk-flex-wrap uk-flex-middle">
             <a class="uk-width-expand uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
-            <a class="uk-flex-none nocontainer" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
+            <a class="uk-flex-none notext" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
          </div>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">

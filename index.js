@@ -24,6 +24,7 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, u: 1, text: "Display pages per category" },
+   /*searchresultlimit : { def: 100, u: 1, text: "Search results per type" },*/
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
@@ -109,6 +110,7 @@ window.onload = function()
    setupPageControls();
    setupDiscussions();
    setupTheme();
+   setupSearch();
 
    globals.longpoller = new LongPoller(signals, (m, c) => logConditional(m, c, "loglongpoll"));
    globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
@@ -616,6 +618,112 @@ function setupTheme()
    };
 
    setTheme(localStorage.getItem("usertheme"));
+}
+
+function setupSearch()
+{
+   searchform.onsubmit = doSearch;
+   searchformicon.onclick = doSearch;
+}
+
+function doSearch(event)
+{
+   event.preventDefault();
+
+   var params = new URLSearchParams();
+   var like = "%" + searchinput.value + "%";
+   var search = { 
+      sort: searchsortoption.value, 
+      reverse: searchreverseoption.checked,
+   };
+   var keysearch = Utilities.ShallowCopy(search);
+   search.namelike = like;
+   search.usernamelike = like;
+   keysearch.keyword = like;
+
+   if(searchpagesoption.checked)
+   {
+      params.append("requests", "content-" + JSON.stringify(search));
+      params.append("requests", "content-" + JSON.stringify(keysearch));
+   }
+   if(searchusersoption.checked)
+   {
+      params.append("requests", "user-" + JSON.stringify(search));
+   }
+   if(searchcategoriesoption.checked)
+   {
+      params.append("requests", "category-" + JSON.stringify(search));
+   }
+
+   quickApi("read/chain?" + params.toString(), function(data)
+   {
+      log.Datalog("see devlog for search data", data);
+      handleSearchResults(data);
+   });
+}
+
+//TODO: move this!
+function handleSearchResults(data)
+{
+   hide(searchpagesresultscontainer);
+   hide(searchusersresultscontainer);
+   hide(searchcategoriesresultscontainer);
+
+   if(data.content && data.content.length)
+   {
+      searchpagesresults.innerHTML = "";
+      findSwap(searchpagesresultscontainer, "data-count", data.content.length);
+      unhide(searchpagesresultscontainer);
+      data.content.forEach(x => 
+      {
+         var images = (x.values.photos || "").split(",") || [0];
+         searchpagesresults.appendChild(
+            makeSearchResult(images[0], getPageLink(x.id), x.name, 
+               (new Date(x.createDate)).toLocaleDateString()));
+      });
+   }
+   if(data.user && data.user.length)
+   {
+      searchusersresults.innerHTML = "";
+      findSwap(searchusersresultscontainer, "data-count", data.user.length);
+      unhide(searchusersresultscontainer);
+      data.user.forEach(x => 
+      {
+         searchusersresults.appendChild(
+            makeSearchResult(x.avatar, getUserLink(x.id), x.username, 
+               (new Date(x.createDate)).toLocaleDateString()));
+      });
+   }
+   if(data.category && data.category.length)
+   {
+      searchcategoriesresults.innerHTML = "";
+      findSwap(searchcategoriesresultscontainer, "data-count", data.category.length);
+      unhide(searchcategoriesresultscontainer);
+      data.category.forEach(x => 
+      {
+         searchcategoriesresults.appendChild(
+            makeSearchResult(0, getCategoryLink(x.id), x.name, 
+               (new Date(x.createDate)).toLocaleDateString()));
+      });
+   }
+}
+
+//TODO: move this!
+function makeSearchResult(imageId, link, title, meta)
+{
+   var result = cloneTemplate("searchresult");
+   var swap = {
+      "data-link": link,
+      "data-name": title,
+      "data-meta": meta
+   };
+
+   if(imageId)
+      swap["data-image"] = getAvatarLink(imageId, 20);
+
+   multiSwap(result, swap);
+   finalizeTemplate(result);
+   return result;
 }
 
 

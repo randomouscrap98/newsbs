@@ -34,9 +34,9 @@ img {
    image-rendering: -webkit-optimize-contrast; 
    opacity: var(--imageopacity);
 }
-pre, .uk-input, .uk-select, .uk-textarea, .uk-button-default {
-   background-color: var(--inputbgcolor);
-   border: 1px solid rgba(128,128,128, 0.1);
+pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default {
+   background-color: var(--inputbgcolor) !important; /* TODO: do this WITHOUT important */
+   border: 1px solid rgba(128,128,128, 0.1) !important;
    color: inherit;
 }
 .uk-heading-divider {
@@ -68,7 +68,7 @@ code {
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 /*.uk-link { cursor: pointer; }*/
 hr { border-top: 1px solid rgba(128,128,128, 0.2); }
-.nocontainer { display: contents; }
+.notext { font-size: 0; } /*display: contents; }*/
 /* Stuff that should probably be taken over by uikit */
 /*input[type="file"] { cursor: pointer; }*/
 a:hover { color: inherit; }
@@ -177,7 +177,7 @@ a:hover { color: inherit; }
 .pw-users table td:first-child { text-align: right; }
 .pw-users [aria-expanded="true"] {  filter: none; }
 [data-pwuser] img { 
-   margin: 0.4em 0.2em;   
+   margin: 6px 3px; /*0.4rem 0.2em;   */
    vertical-align: top;
    filter: opacity(0.7);
    border-radius: 5px;
@@ -287,11 +287,16 @@ a:hover { color: inherit; }
 }
 /*[data-pageitem] [data-time] { white-space: pre-wrap; }*/
 [data-pageitem] [data-avatar] {
-   margin-right: 0.2em;
-   margin-left: 0.4em;
+   margin-right: 3px;
+   margin-left: 6px;
 }
 /* User settings */
 #userlocaloptions input { }
+/* Search */
+#searchconstraints {
+   border: 1px solid rgba(128,128,128,0.1);
+   margin-top: 5px;
+}
 
 /* Swag animations */
 [data-pulsing] {

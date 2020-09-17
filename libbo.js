@@ -298,6 +298,10 @@ var Utilities =
             return false;
 
       return true;
+   },
+   ShallowCopy : function(value)
+   {
+      return JSON.parse(JSON.stringify(value));
    }
 };
 
