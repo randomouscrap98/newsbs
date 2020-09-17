@@ -658,6 +658,23 @@ function loglevel(el, replace)
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
             <a class="uk-flex-none notext" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
          </div>
+         <div data-history class="uk-inline uk-display-block">
+            <div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>
+            <div class="historycontainer">
+            </div>
+            <div data-loadolder class="uk-position-bottom-right uk-margin-small-right" hidden>
+               <div data-loading uk-spinner="ratio: 0.5" hidden></div>
+               <a href="#" data-loadmore class="uk-text-meta">Load older</a>
+            </div>
+         </div>
+         <div data-historyitem data-activityid="data-actid" class="uk-flex uk-flex-middle">
+            <img data-avatar="src" width=20 class="uk-flex-none">
+            <a data-spa data-username=".textContent" data-userlink="href" class="uk-flex-none"></a>
+            <span data-action=".textContent" class="uk-flex-none"></span>
+            <a data-spa data-contentname=".textContent" data-contentlink="href" 
+               class="uk-width-expand uk-text-truncate uk-margin-small-left uk-margin-small-right"></a>
+            <time data-time=".textContent" class="uk-text-meta"></time>
+         </div>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">
             <h1>SmileBASIC Source</h1>
@@ -666,7 +683,8 @@ function loglevel(el, replace)
             This website is in development! There's a lot of missing features, 
             but we're gonna keep adding stuff until it's good!</p>
             <h3><a href="?p=category-0" data-spa>Browse</a></h3>
-            <a href="#" uk-toggle="#hometestarea">Test area</a>
+            <div data-homehistory uk-overflow-auto></div>
+            <a href="#" uk-toggle="#hometestarea" hidden>Test area</a>
             <div id="hometestarea" hidden>
       <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
       <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
@@ -701,7 +719,7 @@ function loglevel(el, replace)
                   <li><a href="#" uk-icon="cog"></a></li>
                </ul>
             </div>
-            <img data-avatar="src" class="uk-align-right avatar">
+            <img data-avatar="src" width=100 class="uk-align-right avatar">
             <p data-content=".renderContent" data-format="data-fmt" 
                class="uk-text-break content uk-margin-remove-top"></p>
          </div>

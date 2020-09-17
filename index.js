@@ -6,6 +6,13 @@ var actiontext = {
    "d" : "Delete"
 };
 
+var activitytext = {
+   "c" : "created",
+   "r" : "read",
+   "u" : "edited",
+   "d" : "deleted"
+};
+
 var attr = {
    "pulsedate" : "data-maxdate",
    "pulsecount" : "data-pwcount",
@@ -35,6 +42,7 @@ var options = {
    retrievetechnicalinfo : {def:true, text : "Pull API info on page load" },
    initialloadcomments: { def: 30, text: "Initial comment pull" },
    oldloadcomments : { def: 30, text: "Scroll back comment pull" },
+   activityload : { def: 100, text: "Activity load count" },
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
    discussionresizelock : { def: 20, text: "Device pixels to snap outer container resize" },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
@@ -620,6 +628,43 @@ function setupTheme()
    setTheme(localStorage.getItem("usertheme"));
 }
 
+//Right now, this can only be called once :/
+function setupDiscussions()
+{
+   postdiscussiontext.onkeypress = function(e) 
+   {
+		if (!e.shiftKey && e.keyCode == 13) 
+      {
+			e.preventDefault();
+
+         var currentDiscussion = getActiveDiscussionId();
+         let currentText = postdiscussiontext.value;
+         var sendData = {
+            "parentId" : Number(currentDiscussion),
+            "content" : createComment(postdiscussiontext.value, getLocalOption("defaultmarkup"))
+         };
+
+         quickApi("comment", data => { }, error =>
+         {
+            notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
+            postdiscussiontext.value = currentText;
+         }, sendData);
+
+         postdiscussiontext.value = "";
+         signals.Add("sendcommentstart", sendData);
+         //setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
+		}
+	};
+
+   discussionimageselect.addEventListener("click", function() {
+      globals.fileselectcallback = function(id) { //TODO: this assumes 12y format
+         postdiscussiontext.value += " !" + getComputedImageLink(id);
+      };
+   });
+
+   log.Debug("Setup discussions (scrolling/etc)");
+}
+
 function setupSearch()
 {
    searchform.onsubmit = doSearch;
@@ -662,76 +707,6 @@ function doSearch(event)
    });
 }
 
-//TODO: move this!
-function handleSearchResults(data)
-{
-   hide(searchpagesresultscontainer);
-   hide(searchusersresultscontainer);
-   hide(searchcategoriesresultscontainer);
-
-   var total = 0;
-
-   if(data.content && data.content.length)
-   {
-      total += data.content.length;
-      searchpagesresults.innerHTML = "";
-      findSwap(searchpagesresultscontainer, "data-count", data.content.length);
-      unhide(searchpagesresultscontainer);
-      data.content.forEach(x => 
-      {
-         var images = (x.values.photos || "").split(",") || [0];
-         searchpagesresults.appendChild(
-            makeSearchResult(images[0], getPageLink(x.id), x.name, 
-               (new Date(x.createDate)).toLocaleDateString()));
-      });
-   }
-   if(data.user && data.user.length)
-   {
-      total += data.user.length;
-      searchusersresults.innerHTML = "";
-      findSwap(searchusersresultscontainer, "data-count", data.user.length);
-      unhide(searchusersresultscontainer);
-      data.user.forEach(x => 
-      {
-         searchusersresults.appendChild(
-            makeSearchResult(x.avatar, getUserLink(x.id), x.username, 
-               (new Date(x.createDate)).toLocaleDateString()));
-      });
-   }
-   if(data.category && data.category.length)
-   {
-      total += data.category.length;
-      searchcategoriesresults.innerHTML = "";
-      findSwap(searchcategoriesresultscontainer, "data-count", data.category.length);
-      unhide(searchcategoriesresultscontainer);
-      data.category.forEach(x => 
-      {
-         searchcategoriesresults.appendChild(
-            makeSearchResult(0, getCategoryLink(x.id), x.name, 
-               (new Date(x.createDate)).toLocaleDateString()));
-      });
-   }
-
-   setHidden(nosearchresults, total);
-}
-
-//TODO: move this!
-function makeSearchResult(imageId, link, title, meta)
-{
-   var result = cloneTemplate("searchresult");
-   var swap = {
-      "data-link": link,
-      "data-name": title,
-      "data-meta": meta
-   };
-
-   if(imageId)
-      swap["data-image"] = getAvatarLink(imageId, 20);
-
-   multiSwap(result, swap);
-   finalizeTemplate(result);
-   return result;
-}
 
 
 // ***************
@@ -776,8 +751,8 @@ function pageerror(title, message)
       renderPage("routeerror", template => safety(() => 
       {
          multiSwap(template, {
-            "data-message" : data.message,
-            "data-title" : data.sender
+            "data-message" : message,
+            "data-title" : title 
          });
       }));
 
@@ -785,7 +760,14 @@ function pageerror(title, message)
    });
 }
 
-function routehome_load(spadat) { route_complete(spadat); }
+function routehome_load(spadat) 
+{ 
+   route_complete(spadat, null, templ =>
+   {
+      var homehistory = templ.querySelector("[data-homehistory]");
+      homehistory.appendChild(makeActivity());
+   }); 
+}
 
 function routecategory_load(spadat)
 {
@@ -843,14 +825,22 @@ function routepage_load(spadat)
       log.Datalog("see dev log for page data", data);
 
       var c = data.content[0];
-      var users = idMap(data.user);
 
-      route_complete(spadat, c.name, templ =>
+      if(!c)
       {
-         finishContent(templ, c);
-         maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-         finishDiscussion(c.id, data.comment, users, initload);
-      }, getChain(data.category, c), c.id);
+         pageerror("NOT FOUND", "Couldn't find page " + pid);
+      }
+      else
+      {
+         var users = idMap(data.user);
+
+         route_complete(spadat, c.name, templ =>
+         {
+            finishContent(templ, c);
+            maincontentinfo.appendChild(makeStandardContentInfo(c, users));
+            finishDiscussion(c.id, data.comment, users, initload);
+         }, getChain(data.category, c), c.id);
+      }
    });
 }
 
@@ -921,6 +911,58 @@ function handleSetting(key, value)
       else
          postdiscussiontext.setAttribute("data-expand", "");
    }
+}
+
+function handleSearchResults(data)
+{
+   hide(searchpagesresultscontainer);
+   hide(searchusersresultscontainer);
+   hide(searchcategoriesresultscontainer);
+
+   var total = 0;
+
+   if(data.content && data.content.length)
+   {
+      total += data.content.length;
+      searchpagesresults.innerHTML = "";
+      findSwap(searchpagesresultscontainer, "data-count", data.content.length);
+      unhide(searchpagesresultscontainer);
+      data.content.forEach(x => 
+      {
+         var images = (x.values.photos || "").split(",") || [0];
+         searchpagesresults.appendChild(
+            makeSearchResult(images[0], getPageLink(x.id), x.name, 
+               (new Date(x.createDate)).toLocaleDateString()));
+      });
+   }
+   if(data.user && data.user.length)
+   {
+      total += data.user.length;
+      searchusersresults.innerHTML = "";
+      findSwap(searchusersresultscontainer, "data-count", data.user.length);
+      unhide(searchusersresultscontainer);
+      data.user.forEach(x => 
+      {
+         searchusersresults.appendChild(
+            makeSearchResult(x.avatar, getUserLink(x.id), x.username, 
+               (new Date(x.createDate)).toLocaleDateString()));
+      });
+   }
+   if(data.category && data.category.length)
+   {
+      total += data.category.length;
+      searchcategoriesresults.innerHTML = "";
+      findSwap(searchcategoriesresultscontainer, "data-count", data.category.length);
+      unhide(searchcategoriesresultscontainer);
+      data.category.forEach(x => 
+      {
+         searchcategoriesresults.appendChild(
+            makeSearchResult(0, getCategoryLink(x.id), x.name, 
+               (new Date(x.createDate)).toLocaleDateString()));
+      });
+   }
+
+   setHidden(nosearchresults, total);
 }
 
 function quickLoad(spadat)
@@ -1088,6 +1130,83 @@ function renderContent(elm, repl)
    return elm.getAttribute("data-rawcontent");
 }
 
+function makeActivity(modifySearch)
+{
+   modifySearch = modifySearch || (x => x);
+   var activity = cloneTemplate("history");
+   var activityContainer = activity.querySelector(".historycontainer");
+   var loadolder = activity.querySelector("[data-loadolder]");
+   var loadloading = activity.querySelector("[data-loading]");
+   var loadmore = activity.querySelector("[data-loadmore]");
+
+   var searchAgain = function()
+   {
+      //if(activityContainer.hasAttribute(attr.atoldest))
+      //   return;
+
+      writeDom(() => unhide(loadloading));
+
+      var initload = getLocalOption("activityload");
+      var search = { reverse : true, limit: initload };
+      var lastItem = activityContainer.lastElementChild;
+
+      if(lastItem) 
+         search.maxid = Number(lastItem.getAttribute("data-actid"));
+
+      search = modifySearch(search);
+
+      var params = new URLSearchParams();
+
+      params.append("requests", "activity-" + JSON.stringify(search));
+      params.append("requests", "content.0contentId");
+      params.append("requests", "category.0contentId");
+      params.append("requests", "user.0contentId.0userId");
+      params.set("content", "id,name"); //parentId,createDate,editDate,createUserId");
+      params.set("category", "id,name"); //parentId,createDate,editDate,createUserId");
+      params.set("user", "id,username,avatar"); //parentId,createDate,editDate,createUserId");
+
+      quickApi("read/chain?" + params.toString(), data =>
+      {
+         var users = idMap(data.user);
+         var all = idMap(data.content.concat(data.category).concat(data.user));
+
+         writeDom(() =>
+         {
+            hide(activity.querySelector(".historyloading"));            
+            hide(loadloading);
+            setHidden(loadolder, data.activity.length !== initload);
+
+            data.activity.forEach(x =>
+            {
+               var content = all[x.contentId];
+               var title = "???";
+               if(!content) 
+               {
+                  if(x.action === "d")
+                     title = x.extra;
+                  else
+                     return; //Don't show this history item
+               }
+               else
+               {
+                  title = content.name || ("User: " + content.username);
+               }
+               activityContainer.appendChild(makeHistoryItem(users[x.userId], x, title));
+            });
+         });
+      });
+   };
+
+   loadmore.onclick = function(event)
+   {
+      event.preventDefault();
+      searchAgain();
+   };
+
+   searchAgain();
+
+   return activity;
+}
 
 // *********************
 // --- NOTIFICATIONS ---
@@ -1385,7 +1504,49 @@ function makeCommentFragment(comment)//, users)
    return fragment;
 }
 
+function makeHistoryItem(user, activity, title) //users, activity, contents)
+{
+   var item = cloneTemplate("historyitem");
+   user = user || { avatar: 0, username: "???", id: 0 };
+   //var content = contents[activity.contentId];
+   //var title = content ? content.name : activity.extra;
+   var link = "#";
+   if(activity.type === "content")
+      link = getPageLink(activity.contentId);
+   else if(activity.type === "category")
+      link = getCategoryLink(activity.contentId); 
+   else if(activity.type === "user")
+      link = getUserLink(activity.contentId); 
+   multiSwap(item, {
+      "data-avatar" : getAvatarLink(user.avatar, 20),
+      "data-username" : user.username,
+      "data-userlink" : getUserLink(user.id),
+      "data-action" : activitytext[activity.action],
+      "data-contentname" : title,
+      "data-contentlink" : link,
+      "data-activityid" : activity.id,
+      "data-time" : Utilities.TimeDiff(activity.date, null, true)
+   });
+   finalizeTemplate(item);
+   return item;
+}
 
+function makeSearchResult(imageId, link, title, meta)
+{
+   var result = cloneTemplate("searchresult");
+   var swap = {
+      "data-link": link,
+      "data-name": title,
+      "data-meta": meta
+   };
+
+   if(imageId)
+      swap["data-image"] = getAvatarLink(imageId, 20);
+
+   multiSwap(result, swap);
+   finalizeTemplate(result);
+   return result;
+}
 
 //-------------------------------------------------
 // ***********************************************
@@ -1400,74 +1561,6 @@ function makeCommentFragment(comment)//, users)
 
 
 
-//Right now, this can only be called once :/
-function setupDiscussions()
-{
-   //globals.discussions = {};
-   //globals.discussion =
-   //{ 
-   //   "lastanimtime" : 0,
-   //   "observer" : new ResizeObserver(entries => 
-   //   {
-   //      var scdst = scrollDiscussionsDistance(globals.discussion.scrollHeight);
-
-   //      if((globals.discussion.rect && globals.discussion.scrollHeight && scdst >= 0 &&
-   //          scdst < (globals.discussion.rect.height * getLocalOption("discussionscrolllock"))) ||
-   //          performance.now() < globals.discussion.scrollNow)
-   //      {
-   //         //log.Warn("Setting scrollnow to " + discussions.scrollTop + " with dst: " +
-   //         //   scdst + ", ht: " + globals.discussion.rect.height + ", osclht: " + 
-   //         //   globals.discussion.scrollHeight + ", slcht: " + 
-   //         //   discussions.scrollHeight);
-   //         setDiscussionScrollNow();
-   //      }
-
-   //      globals.discussion.scrollHeight = discussions.scrollHeight;
-
-   //      for (let entry of entries) 
-   //      {
-   //         if(entry.target.id === "discussions")
-   //            globals.discussion.rect = entry.contentRect;
-   //      } 
-   //   })
-   //};
-
-   postdiscussiontext.onkeypress = function(e) 
-   {
-		if (!e.shiftKey && e.keyCode == 13) 
-      {
-			e.preventDefault();
-
-         var currentDiscussion = getActiveDiscussionId();
-         let currentText = postdiscussiontext.value;
-         var sendData = {
-            "parentId" : Number(currentDiscussion),
-            "content" : createComment(postdiscussiontext.value, getLocalOption("defaultmarkup"))
-         };
-
-         quickApi("comment", data => { }, error =>
-         {
-            notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
-            postdiscussiontext.value = currentText;
-         }, sendData);
-
-         postdiscussiontext.value = "";
-         signals.Add("sendcommentstart", sendData);
-         //setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
-		}
-	};
-
-   discussionimageselect.addEventListener("click", function() {
-      globals.fileselectcallback = function(id) { //TODO: this assumes 12y format
-         postdiscussiontext.value += " !" + getComputedImageLink(id);
-      };
-   });
-
-   //Begin the animation loop for discussion scrolling
-   //scrollDiscussionsAnimation(0);
-
-   log.Debug("Setup discussions (scrolling/etc)");
-}
 
 //Set up the page and perform initial requests for being "logged in"
 function setupSession()

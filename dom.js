@@ -249,6 +249,10 @@ function getSwapElement(element, attribute)
 function swapBase(element, attribute, replace)
 {
    var name = getSwapElement(element, attribute);
+
+   if(!name)
+      throw "Couldn't find attribute " + attribute + " in template swap";
+
    var caller = name.getAttribute(attribute);
 
    //Oops, use the direct attribute if there's no value.
