@@ -230,12 +230,6 @@ function renderLoop(time)
          currentClientHeight : discussions.clientHeight
       };
 
-      if(baseData.scrollDiff < 0)
-      {
-         baseData.old = baseData.oldScrollTop;
-         baseData.current = baseData.currentScrollTop;
-         signals.Add("discussionscrollup", baseData);
-      }
       if(Math.floor(globals.discussionScrollHeight) !== Math.floor(discussions.scrollHeight))
       {
          baseData.old = baseData.oldScrollHeight;
@@ -249,6 +243,12 @@ function renderLoop(time)
          }
 
          signals.Add("discussionscrollresize", baseData);
+      }
+      else if(baseData.scrollDiff < 0) //ONLY scrolldiff if there's not a change in scroll height
+      {
+         baseData.old = baseData.oldScrollTop;
+         baseData.current = baseData.currentScrollTop;
+         signals.Add("discussionscrollup", baseData);
       }
       if(Math.floor(globals.discussionClientHeight) !== Math.floor(discussions.clientHeight))
       {
@@ -2239,7 +2239,8 @@ function loadOlderComments(discussion)
 
    globals.api.Chain(params, apidata =>
    {
-      var data = apidata;
+      log.Datalog("check dev log for oldcomments: ", apidata);
+      var data = apidata.data;
       var users = idMap(data.user);
       writeDom(() =>
       {
