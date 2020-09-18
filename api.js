@@ -3,13 +3,11 @@
 // ---- API ----
 // *************
 
-function Api(root, signalHandler, log)
+function Api(root, signalHandler)
 {
    this.root = root;
    this.signal = signalHandler || ((n,d) => console.log("Ignoring signal " + name));
-   this.log = log || ((msg, msg2, msg3) => console.log(msg, msg2, msg3));
    this.nextrequestid = 0;
-   this.nologoutgoing = { };
    this.getToken = (() => null);
 }
 
@@ -34,9 +32,6 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    url = me.root + "/" + suburl;
    method = method || "GET";
 
-   if(!me.nologoutgoing[endpoint])
-      me.log("[" + thisreqid + "] " + method + ": " + url);
-
    var req = new XMLHttpRequest();
 
    var apidat = { rid: thisreqid, url: url, endpoint: endpoint, method : method, request : req,
@@ -51,7 +46,6 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    req.addEventListener("loadend", function()
    {
       apidat.data = req.responseText ? JSON.parse(req.responseText) : null;
-      me.log(me.FormatData(apidat) + " (" + req.response.length + "b)");
 
       if(always) 
          always(apidat);
@@ -100,6 +94,16 @@ Api.prototype.Get = function(endpoint, params, success, error, always, modify)
       params = params.toString();
 
    this.Generic(endpoint + "?" + params, success, error, always, "GET", null, modify);
+};
+
+Api.prototype.Post = function(endpoint, data, success, error, always, modify)
+{
+   this.Generic(endpoint, success, error, always, "POST", data, modify);
+};
+
+Api.prototype.Put = function(endpoint, data, success, error, always, modify)
+{
+   this.Generic(endpoint, success, error, always, "Put", data, modify);
 };
 
 Api.prototype.Chain = function(params, success, error, always, modify)

@@ -80,6 +80,7 @@ function logConditional(d, c, o)
 log.Datalog = (d,c) => logConditional(d, c, "datalog");
 log.Drawlog = (d,c) => logConditional(d, c, "drawlog");
 log.Domlog =  (d,c) => logConditional(d, c, "domlog");
+log.Apilog =  (d,c) => logConditional(d, c, "apilog");
 
 DomDeps.log = (d,c) => log.Domlog(d, c);
 DomDeps.signal = (name, data) => signals.Add(name, data);
@@ -101,8 +102,8 @@ window.onload = function()
    //These settings won't apply until next load ofc
    var signaller = (name, data) => signals.Add(name, data);
 
-   globals.api = new Api(apiroot, signaller, (d,c) => logConditional(d, c, "apilog"));
-   globals.api.nologoutgoing["read/listen"] = !getLocalOption("loglongpollreq");
+   globals.api = new Api(apiroot, signaller); //, (d,c) => logConditional(d, c, "apilog"));
+   //globals.api.nologoutgoing["read/listen"] = !getLocalOption("loglongpollreq");
    globals.api.getToken = getToken;
 
    globals.longpoller = new LongPoller(globals.api, signaller, (m, c) => logConditional(m, c, "loglongpoll"));
@@ -339,10 +340,29 @@ function setupSignalProcessors()
    });
 
    signals.Attach("spastart", parsed => quickLoad(parsed));
+
+   //These are so small I don't care about them being directly in here
+   var apiSetLoading = (data, load) => 
+   {
+      if(!data.endpoint.endsWith("listen"))
+         writeDom(() => { if(load) addLoading(); else removeLoading(); });
+   };
+
    signals.Attach("apierror", data => 
    {
       if(!data.abortNow)
          notifyError("API Error: " + globals.api.FormatData(data));
+   });
+   signals.Attach("apistart", data =>
+   {
+      apiSetLoading(data, true);
+      if(!(data.endpoint === "read/listen" && getLocalOption("loglongpollreq")))
+         log.Apilog("[" + data.rid + "] " + data.method +  ": " + data.url);
+   });
+   signals.Attach("apiend", data =>
+   {
+      apiSetLoading(data, false);
+      log.Apilog(globals.api.FormatData(data) + " (" + data.request.response.length + "b)");
    });
 
    signals.Attach("longpollstart", data => writeDom(() => setConnectionState("connected")));
@@ -378,16 +398,6 @@ function setupSignalProcessors()
          tryUpdateLongPoll(statuses);
       }
    });
-
-   //These are so small I don't care about them being directly in here
-   var apiSetLoading = (data, load) => 
-   {
-      if(!data.endpoint.endsWith("listen"))
-         writeDom(() => { if(load) addLoading(); else removeLoading(); });
-   };
-
-   signals.Attach("apistart", data => apiSetLoading(data, true));
-   signals.Attach("apiend", data => apiSetLoading(data, false));
 
    signals.Attach("formatdiscussions", data =>
    {
