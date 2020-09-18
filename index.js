@@ -23,7 +23,7 @@ var attr = {
 
 //Will this be stored in user eventually?
 var options = {
-   displaynotifications : { def : true, u: 1, text : "Device Notifications" },
+   displaynotifications : { def : false, u: 1, text : "Device Notifications" },
    loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
@@ -62,7 +62,6 @@ var options = {
 
 var globals = { 
    lastsystemid : 0,    //The last id retrieved from the system for actions
-   reqId : 0,           //Ever increasing request id
    loadingOlderDiscussionsTime : 0,
    spahistory : []
 };
@@ -325,12 +324,10 @@ function setupSignalProcessors()
    signals.Attach("wdom", data => data());
    signals.Attach("loadoldercomments_event", data => loadOlderComments(data));
    signals.Attach("spaclick_event", data => globals.spa.ProcessLinkContextAware(data.url));
-   signals.Attach("localsettingupdate_event", data => 
-   {
-      log.Info("Setting " + data.key + " to " + data.value);
-      setLocalOption(data.key, data.value);
-      handleSetting(data.key, data.value);
-   });
+   signals.Attach("localsettingupdate_event", data => setLocalOption(data.key, data.value));
+   
+   signals.Attach("setlocaloption", data => writeDom(() => handleSetting(data.key, data.value)));
+   signals.Attach("clearlocaloption", data => writeDom(() => handleSetting(data.key, data.value)));
 
    signals.Attach("spastart", parsed => quickLoad(parsed));
 
@@ -341,6 +338,10 @@ function setupSignalProcessors()
          writeDom(() => { if(load) addLoading(); else removeLoading(); });
    };
 
+   signals.Attach("apinetworkerror", apidat =>
+   {
+      log.Error("Network error occurred in API; this message is for tracking purposes");
+   });
    signals.Attach("apierror", data => 
    {
       if(!data.abortNow)
@@ -547,7 +548,19 @@ function setupUserStuff()
    });
 
 
-   allowNotifications.onclick = () => Notification.requestPermission();
+   //allowNotifications.onclick = () => Notification.requestPermission();
+   restoredefaultsettings.onclick = (e) => 
+   {
+      e.preventDefault();
+
+      UIkit.modal.confirm("You will lose all your current device settings, are you " +
+         "sure you want to reset to default?").then(function()
+      {
+         for(key in options)
+            clearLocalOption(key);
+         refreshOptions();
+      }, () => log.Debug("Cancelled invalidate tokens"));
+   };
 
    refreshlocaloptions.onclick = event => {
       event.preventDefault();
@@ -936,6 +949,28 @@ function handleSetting(key, value)
          postdiscussiontext.removeAttribute("data-expand");
       else
          postdiscussiontext.setAttribute("data-expand", "");
+   }
+   if(key === "displaynotifications" && value)
+   {
+      var undosetting = () =>
+      {
+         setLocalOption("displaynotifications", false);
+         refreshOptions();
+         notifyError("No permission to display notifications, setting forced 'off'");
+      };
+
+      if(Notification.requestPermission)
+      {
+         Notification.requestPermission().then(permission =>
+         {
+            if(permission !== "granted")
+               undosetting();
+         });
+      }
+      else
+      {
+         undosetting();
+      }
    }
 }
 
@@ -1354,9 +1389,14 @@ function writeDom(func) { signals.Add("wdom", func); }
 function login(token) { setToken(token); location.reload(); }
 function logout() { setToken(null); location.reload(); }
 
+function localOptionKey(key)
+{
+   return "localsetting_" + key;
+}
+
 function getLocalOption(key)
 {
-   var val = localStorage.getItem("localsetting_" + key);
+   var val = localStorage.getItem(localOptionKey(key));
    if(val === null || val === undefined)
       return options[key].def;
    else
@@ -1365,7 +1405,16 @@ function getLocalOption(key)
 
 function setLocalOption(key, value)
 {
-   localStorage.setItem("localsetting_" + key, JSON.stringify(value));
+   log.Info("Setting " + key + " to " + value);
+   localStorage.setItem(localOptionKey(key), JSON.stringify(value));
+   signals.Add("setlocaloption", { key : key, value : value });
+}
+
+function clearLocalOption(key)
+{
+   log.Info("Clearing option " + key);
+   localStorage.removeItem(localOptionKey(key));
+   signals.Add("clearlocaloption", { key : key, value : getLocalOption(key) });
 }
 
 function getToken()

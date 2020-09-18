@@ -400,11 +400,11 @@ function renderOptions(options)
 
    var lastType = false;
 
-   if(Notification.permission === "granted" ||
-      !Notification.requestPermission)
-   {
-      hide(allowNotifications);
-   }
+   //if(Notification.permission === "granted" ||
+   //   !Notification.requestPermission)
+   //{
+   //   hide(allowNotifications);
+   //}
 
    //Set up options
    for(key in options)
