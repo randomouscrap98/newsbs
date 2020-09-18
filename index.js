@@ -829,18 +829,17 @@ function routepage_load(spadat)
       if(!c)
       {
          pageerror("NOT FOUND", "Couldn't find page " + pid);
+         return
       }
-      else
-      {
-         var users = idMap(data.user);
 
-         route_complete(spadat, c.name, templ =>
-         {
-            finishContent(templ, c);
-            maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-            finishDiscussion(c.id, data.comment, users, initload);
-         }, getChain(data.category, c), c.id);
-      }
+      var users = idMap(data.user);
+
+      route_complete(spadat, c.name, templ =>
+      {
+         finishContent(templ, c);
+         maincontentinfo.appendChild(makeStandardContentInfo(c, users));
+         finishDiscussion(c.id, data.comment, users, initload);
+      }, getChain(data.category, c), c.id);
    });
 }
 
@@ -871,6 +870,13 @@ function routeuser_load(spadat)
       var users = idMap(data.user);
       var u = users[uid];
       var c = data.content[0];
+
+      if(!u)
+      {
+         pageerror("NOT FOUND", "Couldn't find user " + uid);
+         return;
+      }
+
       u.name = u.username;
       u.link = getUserLink(u.id);
 

@@ -86,7 +86,7 @@ function loglevel(el, replace)
                <!-- Need separate containers because lazy: one is for user
                   toggle, the other is for page toggle -->
                <div data-utgl class="uk-flex-none" hidden>
-                  <div id="discussionuserlist"></div>
+                  <div id="discussionuserlist" class="uk-flex"></div>
                </div>
                <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
                   <div id="discussions" class="uk-flex-1" uk-overflow-auto> 
@@ -109,24 +109,24 @@ function loglevel(el, replace)
                    uk-child-width-expand uk-text-center" 
                 uk-switcher="swiping: false;">
       <!-- Shifted over for convenience, want to fit on one line please -->
-      <div data-utgl><a href="" class="uk-display-block"
+      <div data-utgl uk-tooltip="Login"><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
-      <div data-utgl hidden class="uk-inline">
+      <div data-utgl hidden class="uk-inline" uk-tooltip="User">
          <a href="" class="uk-display-block"><img id="navuseravatar" 
             width="40" height="40" class="" uk-img></img></a>
          <!--<div id="connectionalert" class="uk-label uk-label-danger
             uk-position-bottom-right noevent" hidden>!</div>-->
       </div>
-      <div data-utgl hidden><a href="" class="uk-display-block" 
+      <div data-utgl hidden uk-tooltip="Recent Activity"><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
-      <div data-utgl hidden class="uk-inline">
+      <div data-utgl hidden class="uk-inline" uk-tooltip="Watch">
          <a href="" class="uk-display-block" uk-icon="icon: heart; ratio: 2"></a>
          <div id="watchglobalalert" class="uk-label uk-label-danger 
             uk-position-bottom-right noevent"></div>
       </div>
-      <div><a href="" class="uk-display-block" 
+      <div uk-tooltip="Search"><a href="" class="uk-display-block" 
             uk-icon="icon: search; ratio: 2"></a></div>
-      <div><a href="" class="uk-display-block" 
+      <div uk-tooltip="Logs"><a href="" class="uk-display-block" 
             uk-icon="icon: server; ratio: 2"></a></div>
                </div>
                <!-- LOC:RIGHTPANECONTENT -->
@@ -648,7 +648,7 @@ function loglevel(el, replace)
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
             <span data-meta=".textContent" class="uk-text-meta"></span>
          </div>
-         <a data-discussionuser class="notext" data-userlink="href" data-spa>
+         <a data-discussionuser class="" data-userlink="href" data-spa>
             <img data-avatar="src" width=40>
          </a>
          <li data-subcat><a data-link="href" data-spa data-name=".textContent">
