@@ -13,7 +13,7 @@ function Api(root, signalHandler)
 
 Api.prototype.FormatData = function(data)
 {
-   var base = " [" + data.rid + "] " + data.endpoint + ": " + 
+   var base = "[" + data.rid + "] " + data.endpoint + ": " + 
       data.request.status + " " + data.request.statusText;
    return base;
 };
@@ -117,67 +117,6 @@ Api.prototype.Listen = function(params, success, error, always, modify)
    this.Get("read/listen", params, success, error, always, modify);
 };
 
-
-function quickApi(url, callback, error, postData, always, method, modify, nolog)
-{
-   let thisreqid = ++globals.reqId;
-   var endpoint = url; var epquery = url.indexOf("?");
-   if(epquery >= 0) endpoint = endpoint.substr(0, epquery);
-
-   url = apiroot + "/" + url;
-   error = error || (e => notifyError("Error on " + url + ":\n" + e.status + " - " + e.responseText));
-
-   method = method || (postData ? "POST" : "GET");
-
-   if(!nolog)
-      log.Info("[" + thisreqid + "] " + method + ": " + url);
-
-   var req = new XMLHttpRequest();
-
-   var apidat = { id: thisreqid, url: url, endpoint: endpoint, method : method, request : req};
-   req.rid = thisreqid;
-
-   //This is supposedly thrown before the others
-   req.addEventListener("error", function() { req.networkError = true; });
-   req.addEventListener("loadend", function()
-   {
-      log.Debug("[" + thisreqid + "]: " + req.status + " " + req.statusText + 
-         " (" + req.response.length + "b) " + endpoint);
-      if(always) 
-         always(req);
-      if(req.status <= 299 && req.status >= 200)
-      {
-         if(callback)
-            callback(req.responseText ? JSON.parse(req.responseText) : null, req, apidat);
-         else
-            notifySuccess("Success: " + req.status + " - " + req.responseText);
-      }
-      else
-      {
-         //Also thrown on network error
-         error(req);
-      }
-      signals.Add("apiend", apidat);
-   });
-
-   req.open(method, url);
-   req.setRequestHeader("accept", "application/json");
-   req.setRequestHeader("Content-Type", "application/json");
-
-   var token = getToken(); //Do this as late as possible "just in case" (it makes no difference though)
-   if(token)
-      req.setRequestHeader("Authorization", "Bearer " + token);
-
-   if(modify)
-      modify(req);
-
-   signals.Add("apistart", apidat);
-
-   if(postData)
-      req.send(JSON.stringify(postData));
-   else
-      req.send();
-}
 
 // **********************
 // ---- LONG POLLING ----

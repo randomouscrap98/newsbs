@@ -26,7 +26,7 @@ var options = {
    displaynotifications : { def : true, u: 1, text : "Device Notifications" },
    loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
-   collapsechatinput : { def: true, u: 1, text : "Collapse chat textbox" },
+   collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
    watchclearnotif : { def: false, u: 1, text : "Watch clear toast" },
    discussionscrollspeed : { def: 0.25, u: 1, text: "Scroll animation (1 = instant)", step: 0.01 },
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
@@ -102,8 +102,7 @@ window.onload = function()
    //These settings won't apply until next load ofc
    var signaller = (name, data) => signals.Add(name, data);
 
-   globals.api = new Api(apiroot, signaller); //, (d,c) => logConditional(d, c, "apilog"));
-   //globals.api.nologoutgoing["read/listen"] = !getLocalOption("loglongpollreq");
+   globals.api = new Api(apiroot, signaller);
    globals.api.getToken = getToken;
 
    globals.longpoller = new LongPoller(globals.api, signaller, (m, c) => logConditional(m, c, "loglongpoll"));
@@ -350,7 +349,7 @@ function setupSignalProcessors()
    signals.Attach("apistart", data =>
    {
       apiSetLoading(data, true);
-      if(!(data.endpoint === "read/listen" && getLocalOption("loglongpollreq")))
+      if(!(data.endpoint === "read/listen" && !getLocalOption("loglongpollreq")))
          log.Apilog("[" + data.rid + "] " + data.method +  ": " + data.url);
    });
    signals.Attach("apiend", data =>
@@ -1729,7 +1728,7 @@ function formSetupSubmit(form, endpoint, success, validate)
          }
       }
 
-      globals.api.Post(endpoint, formData, success,
+      globals.api.Post(endpoint, formData, apidata => success(apidata.data),
          apidata => formError(form, apidata.request.responseText || apidata.request.status), 
          apidata => formEnd(form));
    });
