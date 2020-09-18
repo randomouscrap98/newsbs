@@ -2226,7 +2226,8 @@ function updateWatches(data, fullReset)
          {
             getPWUserlist(w).innerHTML = "";
             findSwap(w, attr.pulsecount, "");
-            w.setAttribute(attr.pulsedate, "0");
+            w.removeAttribute(attr.pulsedate);
+            //w.setAttribute(attr.pulsedate, "0");
          }
       }
    }
