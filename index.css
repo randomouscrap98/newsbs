@@ -27,7 +27,7 @@ html, body, .uk-modal-dialog, .uk-dropdown {
 .databar a:hover { 
    color: var(--databartxthovcolor); 
 }
-h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt { 
+h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt, blockquote { 
    color: var(--headercolor) !important;
 }
 img { 
