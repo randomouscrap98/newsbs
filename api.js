@@ -1,10 +1,117 @@
 
-var apiroot = "https://newdev.smilebasicsource.com/api";
-
-
 // *************
 // ---- API ----
 // *************
+
+function Api(root, signalHandler, log)
+{
+   this.root = root;
+   this.signal = signalHandler || ((n,d) => console.log("Ignoring signal " + name));
+   this.log = log || ((msg, msg2, msg3) => console.log(msg, msg2, msg3));
+   this.nextrequestid = 0;
+   this.nologoutgoing = { };
+   this.getToken = (() => null);
+}
+
+Api.prototype.FormatData = function(data)
+{
+   var base = data.endpoint + " [" + data.rid + "]: " + 
+      data.request.status + " " + data.request.statusText;
+   return base;
+};
+
+Api.prototype.Generic = function(suburl, success, error, always, method, data, modify)
+{
+   var me = this;
+
+   let thisreqid = ++me.nextrequestid;
+   var endpoint = suburl;
+   var epquery = endpoint.indexOf("?");
+
+   if(epquery >= 0) 
+      endpoint = endpoint.substr(0, epquery);
+
+   url = me.root + "/" + suburl;
+   method = method || "GET";
+
+   if(!me.nologoutgoing[endpoint])
+      me.log("[" + thisreqid + "] " + method + ": " + url);
+
+   var req = new XMLHttpRequest();
+
+   var apidat = { rid: thisreqid, url: url, endpoint: endpoint, method : method, request : req,
+      senddata : data };
+
+   //This is supposedly thrown before the others
+   req.addEventListener("error", function() 
+   {
+      apidat.networkError = true; 
+      me.signal("apinetworkerror", apidat);
+   });
+   req.addEventListener("loadend", function()
+   {
+      apidat.data = req.responseText ? JSON.parse(req.responseText) : null;
+      me.log(me.FormatData(apidat) + " (" + req.response.length + "b)");
+
+      if(always) 
+         always(apidat);
+
+      if(req.status <= 299 && req.status >= 200)
+      {
+         if(success)
+            success(apidat);
+
+         me.signal("apisuccess", apidat);
+      }
+      else
+      {
+         //Also thrown on network error
+         if(error)
+            error(apidat);
+
+         me.signal("apierror", apidat);
+      }
+
+      me.signal("apiend", apidat);
+   });
+
+   req.open(method, url);
+   req.setRequestHeader("accept", "application/json");
+   req.setRequestHeader("Content-Type", "application/json");
+
+   var token = me.getToken();
+   if(token)
+      req.setRequestHeader("Authorization", "Bearer " + token);
+
+   if(modify)
+      modify(apidat);
+
+   me.signal("apistart", apidat);
+
+   if(data)
+      req.send(JSON.stringify(postData));
+   else
+      req.send();
+};
+
+Api.prototype.Get = function(endpoint, params, success, error, always, modify)
+{
+   if(typeof params !== "string")
+      params = params.toString();
+
+   this.Generic(endpoint + "?" + params, success, error, always, "GET", null, modify);
+};
+
+Api.prototype.Chain = function(params, success, error, always, modify)
+{
+   this.Get("read/chain", params, success, error, always, modify);
+};
+
+Api.prototype.Listen = function(params, success, error, always, modify)
+{
+   this.Get("read/listen", params, success, error, always, modify);
+};
+
 
 function quickApi(url, callback, error, postData, always, method, modify, nolog)
 {
@@ -71,14 +178,14 @@ function quickApi(url, callback, error, postData, always, method, modify, nolog)
 // ---- LONG POLLING ----
 // **********************
 
-function LongPoller(signalHandler, log)
+function LongPoller(api, signalHandler, log)
 {
+   this.api = api;
+   this.signal = signalHandler || ((n,d) => console.log("Ignoring signal " + name));
    this.log = log || ((msg, msg2, msg3) => console.log(msg, msg2, msg3));
    this.pending = [];
-   this.signal = signalHandler;
    this.errortime = 5000;
    this.ratetimeout = 1500;
-   this.logoutgoing = false;
    this.recallrids = [];
 }
 
@@ -97,7 +204,7 @@ LongPoller.prototype.TryAbortAll = function()
    {
       me.log("Aborting old long poller [" + x.rid + "]...");
       x.abortNow = true;
-      x.abort();
+      x.request.abort();
       count++;
    });
    return count;
@@ -120,18 +227,19 @@ LongPoller.prototype.Update = function (lastId, statuses)
 
 LongPoller.prototype.Repeater = function(lpdata)
 {
-   this.signal.Add("longpollstart", lpdata);
-
    var me = this;
+
+   me.signal("longpollstart", lpdata);
+
    var clearNotifications = Object.keys(lpdata.statuses).map(x => Number(x)).filter(x => x > 0);
 
-   var recall = (req) => 
+   var recall = (apidat) => 
    {
-      if(!me.recallrids.some(x => x === req.rid))
+      if(!me.recallrids.some(x => x === apidat.rid))
       {
-         if(!req.abortNow)
+         if(!apidat.abortNow)
          {
-            me.recallrids.push(req.rid);
+            me.recallrids.push(apidat.rid);
             me.Repeater(lpdata);
          }
          else
@@ -144,11 +252,12 @@ LongPoller.prototype.Repeater = function(lpdata)
          me.log("Tried to repeat long poller multiple times");
       }
    };
-   var reqsig = (name, req, msg) => 
+   var reqsig = (name, apidat, msg) => 
    {
       if(msg)
-         me.log(msg + " - [" + req.rid + "] status " + req.status + " " + req.statusText);
-      me.signal.Add(name, ({request:req,lpdata:lpdata,data:req.rcvdata,clearNotifications:clearNotifications}));
+         me.log(msg + " : " + me.api.FormatData(apidat));
+      me.signal(name, ({request:apidat.request, lpdata:lpdata, data:apidat.data,
+         clearNotifications:clearNotifications}));
    };
 
    var params = new URLSearchParams();
@@ -171,14 +280,15 @@ LongPoller.prototype.Repeater = function(lpdata)
    params.set("user","id,username,avatar");
    params.set("content","id,name");
 
-   quickApi("read/listen?" + params.toString(), (data,req) => //success
+   me.api.Listen(params, (apidat) =>
    {
-      if(req.abortNow)
+      if(apidat.abortNow)
       {
-         reqsig("longpollabort", req, "Long poll aborted, but received data");
+         reqsig("longpollabort", apidat, "Long poll aborted, but received data");
       }
       else
       {
+         var data = apidat.data;
          if(data)
          {
             if(data.lastId)
@@ -187,44 +297,37 @@ LongPoller.prototype.Repeater = function(lpdata)
                lpdata.lastListeners = data.listeners;
          }
 
-         req.rcvdata = data;
-         reqsig("longpollcomplete", req);
-
-         recall(req);
+         reqsig("longpollcomplete", apidat);
+         recall(apidat);
       }
-   }, req => //error
+   }, (apidat) =>
    {
+      var req = apidat.request;
       if(req.status === 400)
       {
-         reqsig("longpollfatal", req, "Long poller failed fatally");
+         reqsig("longpollfatal", apidat, "Long poller failed fatally");
       }
       else if(req.status || req.networkError)
       {
          var timeout = me.errortime;
          if(req.status === 429)
-         {
             timeout = me.ratetimeout;
-            //var headers = req.getAllResponseHeaders();
-            //console.log(headers);
-            //var limitRemain = req.getResponseHeader("X-Rate-Limit-Remaining");
-            //if(limitRemain)
-            //   timeout = Number(limitRemain) + me.ratelimitextra;
-         }
-         reqsig("longpollerror", req, "Long poller failed normally, retrying in " + timeout + " ms");
-         setTimeout(() => recall(req), timeout);
+         reqsig("longpollerror", apidat, "Long poller failed normally, retrying in " + timeout + " ms");
+         setTimeout(() => recall(apidat), timeout);
       }
       else
       {
-         reqsig("longpollabort", req, "Long poller aborted normally");
+         reqsig("longpollabort", apidat, "Long poller aborted normally");
       }
-   }, undefined, req => //Always
+   }, (apidat) =>
    {
-      me.pending = me.pending.filter(x => x.rid !== req.rid);
-      reqsig("longpollalways", req);
-   }, undefined, req => //modify
+      //At the end, remove ourselves from the pending requests
+      me.pending = me.pending.filter(x => x.rid !== apidat.rid);
+      reqsig("longpollalways", apidat);
+   }, (apidat) =>
    {
-      me.pending.push(req);
-   }, !me.logoutgoing);
+      me.pending.push(apidat);
+   }); 
 };
 
 

@@ -1,3 +1,4 @@
+var apiroot = "https://newdev.smilebasicsource.com/api";
 
 var actiontext = {
    "c" : "Create",
@@ -35,6 +36,7 @@ var options = {
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
+   apilog : { def: true, text : "Log API calls" },
    loglongpoll : { def: false, text : "Log longpoller events (could be many)" },
    loglongpollreq : { def: false, text : "Log longpoller requests" },
    logperiodicdata : { def: false, text : "Log runtime data every refresh cycle (FREQUENT)" },
@@ -96,6 +98,17 @@ window.onload = function()
 
    setupSignalProcessors();
 
+   //These settings won't apply until next load ofc
+   var signaller = (name, data) => signals.Add(name, data);
+
+   globals.api = new Api(apiroot, signaller, (d,c) => logConditional(d, c, "apilog"));
+   globals.api.nologoutgoing["read/listen"] = !getLocalOption("loglongpollreq");
+   globals.api.getToken = getToken;
+
+   globals.longpoller = new LongPoller(globals.api, signaller, (m, c) => logConditional(m, c, "loglongpoll"));
+   globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
+   interruptSmoothScroll();
+
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
    log.Debug("Width REM: " + ww + ", pixelRatio: " + window.devicePixelRatio);
 
@@ -119,12 +132,6 @@ window.onload = function()
    setupDiscussions();
    setupTheme();
    setupSearch();
-
-   globals.longpoller = new LongPoller(signals, (m, c) => logConditional(m, c, "loglongpoll"));
-   globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
-   globals.longpoller.logoutgoing = getLocalOption("loglongpollreq");
-   interruptSmoothScroll();
-   //This setting won't apply until next load ofc
 
    setupSession();
 
@@ -332,6 +339,11 @@ function setupSignalProcessors()
    });
 
    signals.Attach("spastart", parsed => quickLoad(parsed));
+   signals.Attach("apierror", data => 
+   {
+      if(!data.abortNow)
+         notifyError("API Error: " + globals.api.FormatData(data));
+   });
 
    signals.Attach("longpollstart", data => writeDom(() => setConnectionState("connected")));
    signals.Attach("longpollcomplete", data => writeDom(() => handleLongpollData(data))); 
@@ -646,7 +658,7 @@ function setupDiscussions()
 
          quickApi("comment", data => { }, error =>
          {
-            notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
+            //notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
             postdiscussiontext.value = currentText;
          }, sendData);
 
@@ -1256,7 +1268,7 @@ function handleAlerts(comments, users)
    if(comments && Notification.permission === "granted" && getLocalOption("displaynotifications"))
    {
       var alertids = getWatchLastIds();
-      var activedisc = getActiveDiscussion();
+      var activedisc = getActiveDiscussionId();
 
       //Add our current room ONLY if it's invisible
       if(!document.hidden) //Document is visible, NEVER alert the current room
@@ -2103,7 +2115,7 @@ function updateWatchComAct(users, comments, activity)
    });
 
    Utilities.SortElements(watches,
-      x => x.getAttribute(attr.pulsedate) || "0", true);
+      x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid)), true);
 
    refreshPWDates(watches);
    updateWatchGlobalAlert();
