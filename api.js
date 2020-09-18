@@ -13,7 +13,7 @@ function Api(root, signalHandler)
 
 Api.prototype.FormatData = function(data)
 {
-   var base = data.endpoint + " [" + data.rid + "]: " + 
+   var base = " [" + data.rid + "] " + data.endpoint + ": " + 
       data.request.status + " " + data.request.statusText;
    return base;
 };

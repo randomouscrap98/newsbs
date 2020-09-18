@@ -248,9 +248,6 @@ function renderLoop(time)
             log.Drawlog("Smooth scrolling now, all data: " + JSON.stringify(baseData));
             globals.smoothScrollNow = discussions.scrollTop;
          }
-         //{
-            //console.log("smooth scrolling now");
-         //}
 
          signals.Add("discussionscrollresize", baseData);
       }
@@ -267,7 +264,6 @@ function renderLoop(time)
             interruptSmoothScroll();
             writeDom(() => 
             {
-               //console.log("curscrollheight", baseData.currentScrollHeight);
                discussions.scrollTop = baseData.currentScrollHeight;
             }); 
          }
@@ -277,8 +273,6 @@ function renderLoop(time)
 
       if(globals.smoothScrollNow !== Number.MIN_SAFE_INTEGER)
       {
-         //console.log("why: ", globals.smoothScrollNow,
-         //   Number.MIN_SAFE_INTEGER);
          if(Math.abs(discussions.scrollTop - globals.smoothScrollNow) <= 1)
          {
             //We will go at MINIMUM half framerate (to prevent huge stops from
@@ -2120,7 +2114,10 @@ function updateWatchComAct(users, comments, activity)
          if(total)
             findSwap(watchdata, attr.pulsecount, total);
 
-         watchdata.setAttribute(attr.pulsedate, maxDate);
+         if(maxDate === "0")
+            watchdata.removeAttribute(attr.pulsedate);
+         else
+            watchdata.setAttribute(attr.pulsedate, maxDate);
       }
    });
 
