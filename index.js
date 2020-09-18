@@ -455,7 +455,7 @@ function setupTechnicalInfo()
 {
    if(getLocalOption("retrievetechnicalinfo"))
    {
-      quickApi("test/info", (data) =>
+      globals.api.Get("test/info", "", (data) =>
       {
          log.Debug("Received technical info from API");
 
@@ -463,8 +463,8 @@ function setupTechnicalInfo()
          {
             multiSwap(technicalinfo, {
                "data-apiroot": apiroot,
-               "data-apiversion": data.versions.contentapi,
-               "data-entitysystemversion": data.versions.entitysystem
+               "data-apiversion": data.data.versions.contentapi,
+               "data-entitysystemversion": data.data.versions.entitysystem
             });
          });
       });
@@ -512,10 +512,10 @@ function setupUserStuff()
    formSetupSubmit(registerform, "user/register", token =>
    {
       log.Info("Registration submitted! Sending email...");
-      quickApi("user/register/sendemail", 
-         () => log.Info("Registration email sent! Check your email"), 
-         req => notifyError("There was a problem sending your email. However, your registration was submitted successfully."), 
-         {"email" : formSerialize(registerform)["email"] });
+      globals.api.Post("user/register/sendemail", 
+         {"email" : formSerialize(registerform)["email"] },
+         data => log.Info("Registration email sent! Check your email"), 
+         data => notifyError("There was a problem sending your email. However, your registration was submitted successfully."));
       writeDom(() => registrationstep2.click());
    }, formData =>
    {
@@ -531,10 +531,8 @@ function setupUserStuff()
    });
 
    userchangeavatar.addEventListener("click", function() {
-      globals.fileselectcallback = function(id) {
-         quickApi("user/basic", data => updateCurrentUserData(data), undefined, 
-            { "avatar" : id }, undefined, "PUT"); 
-      };
+      globals.fileselectcallback = id => 
+         globals.api.Put("user/basic", {avatar:id}, data => updateCurrentUserData(data.data));
    });
 
    userinvalidatesessions.addEventListener("click", function(e)
@@ -545,10 +543,7 @@ function setupUserStuff()
          "you will need to log back in to ALL devices. This is useful if you believe " +
          "someone has stolen your session token. Are you SURE you want to do this?").then(function()
       {
-         quickApi("user/invalidatealltokens", function() 
-         { 
-            logout();
-         }, undefined, "pleaseinvalidate");
+         globals.api.Post("user/invalidatealltokens", "pleaseinvalidate", data => logout());
       }, () => log.Debug("Cancelled invalidate tokens"));
    });
 
@@ -660,11 +655,10 @@ function setupDiscussions()
             "content" : createComment(postdiscussiontext.value, getLocalOption("defaultmarkup"))
          };
 
-         quickApi("comment", data => { }, error =>
+         globals.api.Post("comment", sendData, undefined, error =>
          {
-            //notifyError("Couldn't post comment! " + error.status + ": " + error.statusText);
             postdiscussiontext.value = currentText;
-         }, sendData);
+         });
 
          postdiscussiontext.value = "";
          signals.Add("sendcommentstart", sendData);
@@ -716,10 +710,10 @@ function doSearch(event)
       params.append("requests", "category-" + JSON.stringify(search));
    }
 
-   quickApi("read/chain?" + params.toString(), function(data)
+   globals.api.Chain(params, data =>
    {
       log.Datalog("see devlog for search data", data);
-      handleSearchResults(data);
+      handleSearchResults(data.data);
    });
 }
 
@@ -799,10 +793,11 @@ function routecategory_load(spadat)
    params.append("requests", "user.0createUserId.0edituserId.1createUserId");
    params.set("content", "id,name,parentId,createDate,editDate,createUserId");
 
-   quickApi("read/chain?" + params.toString(), function(data)
+   globals.api.Chain(params, function(apidata)
    {
-      log.Datalog("see devlog for category data", data);
+      log.Datalog("see devlog for category data", apidata);
 
+      var data = apidata.data;
       var users = idMap(data.user);
       var categories = idMap(data.category);
       var c = categories[cid] || { "name" : "Website Root", "id" : 0 };
@@ -836,10 +831,11 @@ function routepage_load(spadat)
    params.append("requests", "user.0createUserId.0edituserId.2createUserId");
    params.set("category", "id,name,parentId");
 
-   quickApi("read/chain?" + params.toString(), function(data)
+   globals.api.Chain(params, function(apidata)
    {
-      log.Datalog("see dev log for page data", data);
+      log.Datalog("see dev log for page data", apidata);
 
+      var data = apidata.data;
       var c = data.content[0];
 
       if(!c)
@@ -880,9 +876,11 @@ function routeuser_load(spadat)
    }));
    params.append("requests", "user.1createUserId.1edituserId.2createUserId");
 
-   quickApi("read/chain?" + params.toString(), function(data)
+   globals.api.Chain(params, function(apidata)
    {
-      log.Datalog("see dev log for user data", data);
+      log.Datalog("see dev log for user data", apidata);
+
+      var data = apidata.data;
       var users = idMap(data.user);
       var u = users[uid];
       var c = data.content[0];
@@ -1064,8 +1062,10 @@ function setFileUploadList(page, allImages)
    if(!allImages)
       url += "&createuserids=" + getUserId();
 
-   quickApi(url, files =>
+   //Api.prototype.Generic = function(suburl, success, error, always, method, data, modify)
+   globals.api.Generic(url, apidata =>
    {
+      var files = apidata.data;
       fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1, allImages); }
       fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages); }
 
@@ -1078,7 +1078,7 @@ function setFileUploadList(page, allImages)
          setHidden(fileuploadnewer, page <= 0);
          setHidden(fileuploadolder, files.length !== fdl);
       });
-   });
+   }, undefined, undefined, "GET");
 }
 
 function addFileUploadImage(file, num)
@@ -1194,8 +1194,11 @@ function makeActivity(modifySearch, unlimitedHeight)
       params.set("category", "id,name"); //parentId,createDate,editDate,createUserId");
       params.set("user", "id,username,avatar"); //parentId,createDate,editDate,createUserId");
 
-      quickApi("read/chain?" + params.toString(), data =>
+      globals.api.Chain(params, apidata =>
       {
+         log.Datalog("check dev log for activity data", apidata);
+
+         var data = apidata.data;
          var users = idMap(data.user);
          var all = idMap(data.content.concat(data.category).concat(data.user));
 
@@ -1622,9 +1625,11 @@ function setupSession()
    params.set("user","id,username,avatar");
    params.set("watch","id,contentId,lastNotificationId");
 
-   quickApi("read/chain?" + params.toString(), function(data)
+   globals.api.Chain(params, function(apidata)
    {
-      log.Datalog(data);
+      //log.Datalog(apidata);
+
+      var data = apidata.data;
 
       data.systemaggregate.forEach(x => 
       {
@@ -1650,12 +1655,12 @@ function setupSession()
 function refreshUserFull(always)
 {
    //Make an API call to /me to get the latest data.
-   quickApi("user/me", function(user)
+   globals.api.Get("user/me", "", function(apidata)
    {
-      updateCurrentUserData(user);
+      updateCurrentUserData(apidata.data);
       //Don't set up the FULL session, you know? Someone else will do that
       setLoginState(true); 
-   }, function(req)
+   }, function(apidata)
    {
       //Assume any failed user refresh means they're logged out
       log.Error("Couldn't refresh user, deleting cached token");
@@ -1724,11 +1729,9 @@ function formSetupSubmit(form, endpoint, success, validate)
          }
       }
 
-      quickApi(endpoint, success,
-         error => formError(form, error.responseText || error.status), 
-         formData,
-         req => formEnd(form)
-      );
+      globals.api.Post(endpoint, formData, success,
+         apidata => formError(form, apidata.request.responseText || apidata.request.status), 
+         apidata => formEnd(form));
    });
 }
 
@@ -1740,26 +1743,28 @@ function setupWatchLink(parent, cid)
    {
       event.preventDefault();
       var watched = getSwap(watchLink, "data-watched");
-      var failure = function(req)
+      var failure = function(apidata)
       {
          findSwap(watchLink, "data-watched", watched); //the original;
-         notifyError("Watch failed: " + req.status + " - " + req.statusText);
+         notifyError("Watch failed: " + apidata.req.status + " - " + apidata.req.statusText);
       };
       if(watched === "true")
       {
          findSwap(watchLink, "data-watched", "false");
-         quickApi("watch/" + cid + "/delete", data =>
-         {
-            log.Info("Remove watch " + cid + " successful!");
-         }, failure, {});
+         globals.api.Post("watch/" + cid + "/delete", {},
+            data =>
+            {
+               log.Info("Remove watch " + cid + " successful!");
+            }, failure);
       }
       else
       {
          findSwap(watchLink, "data-watched", "true");
-         quickApi("watch/" + cid, data =>
-         {
-            log.Info("Watch " + cid + " successful!");
-         }, failure, {});
+         globals.api.Post("watch/" + cid, {},
+            apidata =>
+            {
+               log.Info("Watch " + cid + " successful!");
+            }, failure);
       }
    };
 }
@@ -1779,13 +1784,13 @@ function setupWatchClear(parent, cid)
       if(getLocalOption("watchclearnotif"))
          notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
 
-      quickApi("watch/" + cid + "/clear", data =>
+      globals.api.Post("watch/" + cid + "/clear", {}, apidata =>
       {
          log.Info("Clear watch " + cid + " successful!");
-      }, req =>
+      }, apidata =>
       {
          notifyError("Failed to clear watches for cid " + cid);
-      }, {} /* Post data */ , () => //Always
+      }, apidata => //Always
       {
          watchAlert.className = watchAlert.className.replace(/warning/g, "danger");
       });
@@ -2233,8 +2238,9 @@ function loadOlderComments(discussion)
    }));
    params.append("requests", "user.0createUserId.0edituserId");
 
-   quickApi("read/chain?" + params.toString(), data =>
+   globals.api.Chain(params, apidata =>
    {
+      var data = apidata;
       var users = idMap(data.user);
       writeDom(() =>
       {
@@ -2253,7 +2259,7 @@ function loadOlderComments(discussion)
             (height - globals.discussionScrollHeight);
          //discussions.style['-webkit-overflow-scrolling'] = 'touch';
       });
-   }, undefined, undefined, req =>
+   }, undefined, apidata => /* always */
    {
       globals.loadingOlderDiscussions = false;
       globals.loadingOlderDiscussionsTime = performance.now();
@@ -2417,20 +2423,20 @@ function messageControllerEvent(event)
    { 
       if(confirm("Are you SURE you want to delete this comment?"))
       {
-         quickApi("comment/" + cmid + "/delete", x => notifySuccess("Comment deleted"),
-            x => notifyError("Couldn't delete comment: " + x.status + " - " + x.statusText),
-            {});
+         globals.api.Post("comment/" + cmid + "/delete", {},
+            x => notifySuccess("Comment deleted"),
+            x => notifyError("Couldn't delete comment: " + x.request.status + " - " + x.request.statusText));
          UIkit.modal(commentedit).hide();
       }
    };
 
    commenteditedit.onclick = function() 
    { 
-      quickApi("comment/" + cmid, x => notifySuccess("Comment edited"),
-         x => notifyError("Couldn't edit comment: " + x.status + " - " + x.statusText),
+      globals.api.Put("comment/" + cmid, 
          {parentId : Number(getActiveDiscussionId()), 
           content: createComment(commentedittext.value, commenteditformat.value)},
-         undefined, /*always*/ "PUT");
+         x => notifySuccess("Comment edited"),
+         x => notifyError("Couldn't edit comment: " + x.request.status + " - " + x.request.statusText));
       UIkit.modal(commentedit).hide();
    };
 

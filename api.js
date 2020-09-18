@@ -45,13 +45,13 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    });
    req.addEventListener("loadend", function()
    {
-      apidat.data = req.responseText ? JSON.parse(req.responseText) : null;
-
       if(always) 
          always(apidat);
 
       if(req.status <= 299 && req.status >= 200)
       {
+         apidat.data = req.responseText ? JSON.parse(req.responseText) : null;
+
          if(success)
             success(apidat);
 
@@ -83,13 +83,14 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    me.signal("apistart", apidat);
 
    if(data)
-      req.send(JSON.stringify(postData));
+      req.send(JSON.stringify(data));
    else
       req.send();
 };
 
 Api.prototype.Get = function(endpoint, params, success, error, always, modify)
 {
+   params = params || "";
    if(typeof params !== "string")
       params = params.toString();
 

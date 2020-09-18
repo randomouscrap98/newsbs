@@ -45,6 +45,7 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default {
 .uk-input:focus, .uk-select:focus, .uk-textarea:focus {
    color: var(--headercolor);
    background-color: var(--inputbgcolor);
+   border: 1px solid #1e87f0 !important;
    /*filter: contrast(1.2);*/
 }
 /* UIkit reconfiguring */
