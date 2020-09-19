@@ -379,6 +379,9 @@ function setupSignalProcessors()
       });
    });
 
+   //signals.Attach("watchclear", data => clearWatch(
+
+
    //You MUST be able to assume that discussions and all that junk are fine at
    //this point.
    signals.Attach("routecomplete", data =>
@@ -2206,11 +2209,14 @@ function updateWatches(data, fullReset)
 
    if(data.watchdelete)
    {
-      for(var i = 0; i < data.watchdelete.length; i++)
+      writeDom(() =>
       {
-         var w = document.getElementById(getWatchId(data.watchdelete[i].contentId));
-         if(w) Utilities.RemoveElement(w);
-      }
+         for(var i = 0; i < data.watchdelete.length; i++)
+         {
+            var w = document.getElementById(getWatchId(data.watchdelete[i].contentId));
+            if(w) Utilities.RemoveElement(w);
+         }
+      });
    }
 
    //Note that because this happens before adding, if a clear comes WITH
@@ -2218,23 +2224,27 @@ function updateWatches(data, fullReset)
    //fine, but may not reflect reality. It's hard to say, depends on the API
    if(data.watchupdate) //ALL of these are assumed to be clears right now!!
    {
-      for(var i = 0; i < data.watchupdate.length; i++)
+      writeDom(() =>
       {
-         var w = document.getElementById(getWatchId(data.watchupdate[i].contentId));
-
-         if(w) 
-         {
-            getPWUserlist(w).innerHTML = "";
-            findSwap(w, attr.pulsecount, "");
-            w.removeAttribute(attr.pulsedate);
-            //w.setAttribute(attr.pulsedate, "0");
-         }
-      }
+         for(var i = 0; i < data.watchupdate.length; i++)
+            clearWatchVisual(data.watchupdate[i].contentId);
+      });
    }
 
    updateWatchComAct(users, comments, activity);
 }
 
+function clearWatchVisual(contentId)
+{
+   var w = document.getElementById(getWatchId(contentId));
+
+   if(w) 
+   {
+      getPWUserlist(w).innerHTML = "";
+      findSwap(w, attr.pulsecount, "");
+      w.removeAttribute(attr.pulsedate);
+   }
+}
 
 
 // ********************
