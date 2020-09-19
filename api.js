@@ -251,7 +251,7 @@ LongPoller.prototype.Repeater = function(lpdata)
       {
          reqsig("longpollfatal", apidat, "Long poller failed fatally");
       }
-      else if(req.status || req.networkError)
+      else if(req.status || apidat.networkError)
       {
          var timeout = me.errortime;
          if(req.status === 429)
