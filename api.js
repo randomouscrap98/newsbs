@@ -117,6 +117,11 @@ Api.prototype.Listen = function(params, success, error, always, modify)
    this.Get("read/listen", params, success, error, always, modify);
 };
 
+Api.prototype.WatchClear = function(cid, success, error, always, modify)
+{
+   this.Post("watch/" + cid + "/clear", {}, success, error, always, modify);
+};
+
 
 // **********************
 // ---- LONG POLLING ----

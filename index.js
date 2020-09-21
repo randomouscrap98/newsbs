@@ -677,7 +677,6 @@ function setupDiscussions()
 
          postdiscussiontext.value = "";
          signals.Add("sendcommentstart", sendData);
-         //setDiscussionScrollNow(getLocalOption("discussionscrollnow"));
 		}
 	};
 
@@ -1159,6 +1158,14 @@ function finishDiscussion(cid, comments, users, initload)
    easyComments(comments, users);
    formatDiscussions(true);
 
+   if(document.getElementById(getWatchId(cid)))
+   {
+      globals.api.WatchClear(cid, apidata => 
+      {
+         log.Info("Auto-cleared notifications for " + cid);
+      });
+   }
+
    signals.Add("finishdiscussion", { cid: cid, comments: comments, users: users, initload: initload});
 }
 
@@ -1487,7 +1494,6 @@ function parseLink(url)
       id : pParts[1]
    };
 }
-
 
 // ***********************
 // ---- TEMPLATE CRAP ----
@@ -1835,7 +1841,7 @@ function setupWatchClear(parent, cid)
       if(getLocalOption("watchclearnotif"))
          notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
 
-      globals.api.Post("watch/" + cid + "/clear", {}, apidata =>
+      globals.api.WatchClear(cid, apidata =>
       {
          log.Info("Clear watch " + cid + " successful!");
       }, apidata =>
@@ -2177,12 +2183,15 @@ function updateWatchComAct(users, comments, activity)
       }
    });
 
-   Utilities.SortElements(watches,
-      x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid)), true);
+   writeDom(() =>
+   {
+      Utilities.SortElements(watches,
+         x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid)), true);
 
-   refreshPWDates(watches);
-   updateWatchGlobalAlert();
-   updateGlobalAlert();
+      refreshPWDates(watches);
+      updateWatchGlobalAlert();
+      updateGlobalAlert();
+   });
 }
 
 function updateWatches(data, fullReset)
@@ -2244,19 +2253,14 @@ function clearWatchVisual(contentId)
       findSwap(w, attr.pulsecount, "");
       w.removeAttribute(attr.pulsedate);
    }
+
+   refreshPWDate(w);
 }
 
 
 // ********************
 // ---- Discussion ----
 // ********************
-
-function scrollDiscussionsDistance(baseHeight)
-{
-   var baseHeight = baseHeight || discussions.scrollHeight;
-   return globals.discussion.rect ? (baseHeight - 
-      (globals.discussion.rect.height + discussions.scrollTop)) : 0;
-}
 
 function loadOlderCommentsActive()
 {
@@ -2325,16 +2329,6 @@ function loadOlderComments(discussion)
       globals.loadingOlderDiscussionsTime = performance.now();
       writeDom(() => hide(loading));
    });
-}
-
-//Set the discussion to scroll, and if forceTime is set, CONTINUE scrolling
-//even if the scroller shouldn't be (like the user is too far up)
-function setDiscussionScrollNow(forceTime)
-{
-   globals.discussion.scrollTop = discussions.scrollTop;
-
-   if(forceTime)
-      globals.discussion.scrollNow = performance.now() + forceTime; 
 }
 
 function renderComment(elm, repl)
