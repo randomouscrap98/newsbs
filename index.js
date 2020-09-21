@@ -24,6 +24,7 @@ var attr = {
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : false, u: 1, text : "Device Notifications" },
+   //clearwatchonview : { def : true , u: 1, text : "Clear notifications on view" },
    loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
@@ -1134,13 +1135,13 @@ function finishDiscussion(cid, comments, users, initload)
    easyComments(comments, users);
    formatDiscussions(true);
 
-   if(document.getElementById(getWatchId(cid)))
-   {
-      globals.api.WatchClear(cid, apidata => 
-      {
-         log.Info("Auto-cleared notifications for " + cid);
-      });
-   }
+   //if(getLocalOption("clearwatchonview") && document.getElementById(getWatchId(cid)))
+   //{
+   //   globals.api.WatchClear(cid, apidata => 
+   //   {
+   //      log.Info("Auto-cleared notifications for " + cid);
+   //   });
+   //}
 
    signals.Add("finishdiscussion", { cid: cid, comments: comments, users: users, initload: initload});
 }
@@ -2223,9 +2224,13 @@ function clearWatchVisual(contentId)
       getPWUserlist(w).innerHTML = "";
       findSwap(w, attr.pulsecount, "");
       w.removeAttribute(attr.pulsedate);
-   }
 
-   refreshPWDate(w);
+      refreshPWDate(w);
+
+      //Eventually fix this!
+      updateWatchGlobalAlert();
+      updateGlobalAlert();
+   }
 }
 
 
@@ -2488,6 +2493,15 @@ function tryUpdateLongPoll(newStatuses)
    if(globals.lastsystemid && globals.statuses)
    {
       globals.longpoller.Update(globals.lastsystemid, globals.statuses);
+
+      //TODO: move this to a signal perhaps?
+      writeDom(() =>
+      {
+         Object.keys(globals.statuses).forEach(x =>
+         {
+            clearWatchVisual(x);
+         });
+      });
    }
 }
 
