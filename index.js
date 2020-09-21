@@ -549,8 +549,6 @@ function setupUserStuff()
       }, () => log.Debug("Cancelled invalidate tokens"));
    });
 
-
-   //allowNotifications.onclick = () => Notification.requestPermission();
    restoredefaultsettings.onclick = (e) => 
    {
       e.preventDefault();
@@ -750,10 +748,7 @@ function route_complete(spadat, title, applyTemplate, breadcrumbs, cid)
       writeDom(() =>
       {
          renderPage(spadat.route, applyTemplate, breadcrumbs);
-         if(title)
-            document.title = title + " - SmileBASIC Source";
-         else
-            document.title = "SmileBASIC Source";
+         setTitle(title);
          if(!cid)
             hideDiscussion();
          globals.spahistory.push(spadat);
@@ -946,10 +941,7 @@ function handleSetting(key, value)
 {
    if(key === "collapsechatinput")
    {
-      if(value)
-         postdiscussiontext.removeAttribute("data-expand");
-      else
-         postdiscussiontext.setAttribute("data-expand", "");
+      setExpandableTextbox(value);
    }
    if(key === "displaynotifications" && value)
    {
@@ -982,47 +974,32 @@ function handleSearchResults(data)
    hide(searchcategoriesresultscontainer);
 
    var total = 0;
+   data.content = data.content || [];
+   data.user = data.user || [];
+   data.category = data.category || [];
 
-   if(data.content && data.content.length)
-   {
-      total += data.content.length;
-      searchpagesresults.innerHTML = "";
-      findSwap(searchpagesresultscontainer, "data-count", data.content.length);
-      unhide(searchpagesresultscontainer);
-      data.content.forEach(x => 
-      {
-         var images = (x.values.photos || "").split(",") || [0];
-         searchpagesresults.appendChild(
-            makeSearchResult(images[0], getPageLink(x.id), x.name, 
-               (new Date(x.createDate)).toLocaleDateString()));
-      });
-   }
-   if(data.user && data.user.length)
-   {
-      total += data.user.length;
-      searchusersresults.innerHTML = "";
-      findSwap(searchusersresultscontainer, "data-count", data.user.length);
-      unhide(searchusersresultscontainer);
-      data.user.forEach(x => 
-      {
-         searchusersresults.appendChild(
-            makeSearchResult(x.avatar, getUserLink(x.id), x.username, 
-               (new Date(x.createDate)).toLocaleDateString()));
-      });
-   }
-   if(data.category && data.category.length)
-   {
-      total += data.category.length;
-      searchcategoriesresults.innerHTML = "";
-      findSwap(searchcategoriesresultscontainer, "data-count", data.category.length);
-      unhide(searchcategoriesresultscontainer);
-      data.category.forEach(x => 
-      {
-         searchcategoriesresults.appendChild(
-            makeSearchResult(0, getCategoryLink(x.id), x.name, 
-               (new Date(x.createDate)).toLocaleDateString()));
-      });
-   }
+   total = data.content.length + data.user.length + data.category.length;
+
+   displaySearchResults(searchpagesresultscontainer, data.content.map(x =>
+   ({
+      imageLink : getContentImageLink(x, 20, true),
+      link : getPageLink(x.id),
+      title : x.name,
+      meta : (new Date(x.createDate)).toLocaleDateString()
+   })));
+   displaySearchResults(searchusersresultscontainer, data.user.map(x =>
+   ({
+      imageLink : getAvatarLink(x.avatar, 20),
+      link : getUserLink(x.id),
+      title : x.username,
+      meta : (new Date(x.createDate)).toLocaleDateString()
+   })));
+   displaySearchResults(searchcategoriesresultscontainer, data.category.map(x =>
+   ({
+      link : getCategoryLink(x.id),
+      title : x.name,
+      meta : (new Date(x.createDate)).toLocaleDateString()
+   })));
 
    setHidden(nosearchresults, total);
 }
@@ -1451,7 +1428,17 @@ function getComputedImageLink(id, size, crop, ignoreRatio)
    return getImageLink(id, size, crop);
 }
 
-function getAvatarLink(id, size, ignoreRatio) { return getComputedImageLink(id, size, true, ignoreRatio); }
+function getAvatarLink(id, size, ignoreRatio) 
+{ 
+   return getComputedImageLink(id, size, true, ignoreRatio); 
+}
+
+function getContentImageLink(content, size, crop, ignoreRatio)
+{
+   var images = (content.values.photos || "").split(",");
+   return images[0] ? getComputedImageLink(images[0], size, crop, ignoreRatio) : null;
+}
+
 
 function idMap(data)
 {
@@ -1619,22 +1606,7 @@ function makeHistoryItem(user, activity, title) //users, activity, contents)
    return item;
 }
 
-function makeSearchResult(imageId, link, title, meta)
-{
-   var result = cloneTemplate("searchresult");
-   var swap = {
-      "data-link": link,
-      "data-name": title,
-      "data-meta": meta
-   };
 
-   if(imageId)
-      swap["data-image"] = getAvatarLink(imageId, 20);
-
-   multiSwap(result, swap);
-   finalizeTemplate(result);
-   return result;
-}
 
 //-------------------------------------------------
 // ***********************************************

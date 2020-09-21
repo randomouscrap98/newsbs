@@ -49,6 +49,14 @@ function setConnectionState(state)
    indicator.setAttribute(constate, state || "");
 }
 
+function setTitle(title)
+{
+   if(title)
+      document.title = title + " - SmileBASIC Source";
+   else
+      document.title = "SmileBASIC Source";
+}
+
 //This is the VISIBILITY modifier, it's just how the page LOOKS. So you can
 //call this whenever, it won't do anything major.
 function setLoginState(loggedIn)
@@ -139,18 +147,12 @@ function formatDiscussions(hasDiscussions)
    DomDeps.signal("formatdiscussions", hasDiscussions);
 }
 
-function makeBreadcrumbs(chain)
+function setExpandableTextbox(expand)
 {
-   chain.forEach(x =>
-   {
-      var bc = cloneTemplate("breadcrumb");
-      multiSwap(bc, {
-         "data-link" : x.link, //x.content ? getPageLink(x.id) : getCategoryLink(x.id),
-         "data-text" : x.name
-      });
-      finalizeTemplate(bc);
-      breadcrumbs.appendChild(bc);
-   });
+   if(expand)
+      postdiscussiontext.removeAttribute("data-expand");
+   else
+      postdiscussiontext.setAttribute("data-expand", "");
 }
 
 //Set up a clean slate for someone to put content onto the page,
@@ -296,6 +298,41 @@ function multiSwap(element, replacements)
 }
 
 
+// ******************
+// - SUB-TEMPLATING -
+// ******************
+
+function makeSearchResult(imageLink, link, title, meta)
+{
+   var result = cloneTemplate("searchresult");
+   var swap = {
+      "data-link": link,
+      "data-name": title,
+      "data-meta": meta
+   };
+
+   if(imageLink)
+      swap["data-image"] = imageLink;
+
+   multiSwap(result, swap);
+   finalizeTemplate(result);
+   return result;
+}
+
+function makeBreadcrumbs(chain)
+{
+   chain.forEach(x =>
+   {
+      var bc = cloneTemplate("breadcrumb");
+      multiSwap(bc, {
+         "data-link" : x.link,
+         "data-text" : x.name
+      });
+      finalizeTemplate(bc);
+      breadcrumbs.appendChild(bc);
+   });
+}
+
 // *************
 // --- FORMS ---
 // *************
@@ -400,12 +437,6 @@ function renderOptions(options)
 
    var lastType = false;
 
-   //if(Notification.permission === "granted" ||
-   //   !Notification.requestPermission)
-   //{
-   //   hide(allowNotifications);
-   //}
-
    //Set up options
    for(key in options)
    {
@@ -461,6 +492,22 @@ function renderOptions(options)
    DomDeps.signal("optionrender", options);
 }
 
+function displaySearchResults(container, results)
+{
+   if(results.length)
+   {
+      var list = container.querySelector("[data-results]");
+
+      list.innerHTML = "";
+      findSwap(container, "data-count", results.length);
+      unhide(container);
+
+      results.forEach(x => 
+      {
+         list.appendChild(makeSearchResult(x.imageLink, x.link, x.title, x.meta));
+      });
+   }
+}
 
 // ************************
 // --- DISCUSSION BASIC ---
