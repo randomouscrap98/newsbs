@@ -182,12 +182,11 @@ function refreshCycle()
       log.Debug(message);
    }
 
-   //Oops, no rendering for a while, so process signals now.
+   //Oops, no rendering for a while, so process signals now. DON'T log this,
+   //it's not necessary. if people need to know, enable periodic data, it will
+   //tell if signals were processed
    if(now - globals.render.lastrendertime > Math.min(100, ctime / 3))
-   {
-      log.Trace("No rendering detected for a while, signal processing");
       signalProcess(now);
-   }
 
    signals.ClearOlderThan(now - ctime);
 

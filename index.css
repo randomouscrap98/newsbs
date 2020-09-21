@@ -69,7 +69,7 @@ code {
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 /*.uk-link { cursor: pointer; }*/
 hr { border-top: 1px solid rgba(128,128,128, 0.2); }
-a { overflow: hidden; }
+/* a { overflow: hidden; }*/
 .notext { font-size: 0; } /*display: contents; }*/
 audio {
    height: 30px;
