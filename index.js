@@ -331,6 +331,11 @@ function setupSignalProcessors()
 
    signals.Attach("spastart", parsed => quickLoad(parsed));
 
+   signals.Attach("setcontentmode", type =>
+   {
+      setRememberedFormat(getActiveDiscussionId(), type);
+   }); //"discussion");
+
    //These are so small I don't care about them being directly in here
    var apiSetLoading = (data, load) => 
    {
@@ -1023,7 +1028,7 @@ function quickLoad(spadat)
          if(typeHasDiscussion(spadat.page) && spadat.page !== "user")
          {
             showDiscussion(Number(spadat.id));
-            formatDiscussions(true);
+            formatRememberedDiscussion(spadat.id, true);
          }
       });
    }
@@ -1126,6 +1131,11 @@ function updateCurrentUserData(user)
    });
 }
 
+function formatRememberedDiscussion(cid, show)
+{
+   formatDiscussions(show, getRememberedFormat(cid));
+}
+
 function finishDiscussion(cid, comments, users, initload)
 {
    var d = getDiscussion(cid);
@@ -1133,15 +1143,7 @@ function finishDiscussion(cid, comments, users, initload)
       d.setAttribute(attr.atoldest, "");
    showDiscussion(cid);
    easyComments(comments, users);
-   formatDiscussions(true);
-
-   //if(getLocalOption("clearwatchonview") && document.getElementById(getWatchId(cid)))
-   //{
-   //   globals.api.WatchClear(cid, apidata => 
-   //   {
-   //      log.Info("Auto-cleared notifications for " + cid);
-   //   });
-   //}
+   formatRememberedDiscussion(cid, true);
 
    signals.Add("finishdiscussion", { cid: cid, comments: comments, users: users, initload: initload});
 }
@@ -1440,6 +1442,13 @@ function getContentImageLink(content, size, crop, ignoreRatio)
    return images[0] ? getComputedImageLink(images[0], size, crop, ignoreRatio) : null;
 }
 
+function getRememberedFormat(cid) {
+   return localStorage.getItem("halfe-fmt" + cid);
+}
+
+function setRememberedFormat(cid, type) {
+   localStorage.setItem("halfe-fmt" + cid, type);
+}
 
 function idMap(data)
 {

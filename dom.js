@@ -127,7 +127,7 @@ function setSplitMode()
    DomDeps.signal("setcontentmode", "split");
 }
 
-function formatDiscussions(hasDiscussions)
+function formatDiscussions(hasDiscussions, mode)
 {
    DomDeps.log("Formatting page, show discussions: " + hasDiscussions);
 
@@ -135,7 +135,13 @@ function formatDiscussions(hasDiscussions)
    {
       unhide(maincontentbar);
       unhide(discussionuserlist);
-      setSplitMode(); //Could be settings?
+
+      if(mode === "content")
+         setFullContentMode();
+      else if(mode === "discussion")
+         setFullDiscussionMode();
+      else
+         setSplitMode();
    }
    else
    {

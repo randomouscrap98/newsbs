@@ -7,6 +7,7 @@
    --headercolor: #333;
    --imageopacity: 1;
    --inputbgcolor: rgba(255,255,255,0.9);
+   --lightblockbgcolor : rgba(128,128,128,0.05);
 }
 body {
    position: absolute;
@@ -27,7 +28,7 @@ html, body, .uk-modal-dialog, .uk-dropdown {
 .databar a:hover { 
    color: var(--databartxthovcolor); 
 }
-h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt, blockquote { 
+h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt { 
    color: var(--headercolor) !important;
 }
 img { 
@@ -51,9 +52,19 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default {
 /* UIkit reconfiguring */
 code { 
    white-space: pre-wrap !important; 
-   background-color: rgba(128,128,128,0.07) !important;
-   color: #789 !important;
+   background-color: var(--lightblockbgcolor) !important;
    display: inline-block;
+   color: #789 !important;
+}
+blockquote { 
+   background-color: var(--lightblockbgcolor) !important;
+   margin-bottom: 0.4em; 
+   font-size: 1.0em;
+   line-height: 1.5;
+   padding: 0.5em 0.65em;
+   display: block;
+   border-radius: 0.5em;
+   color: inherit;
 }
 .uk-button-default:focus, .uk-button-default:hover,
 .uk-checkbox {
@@ -62,7 +73,7 @@ code {
    color: inherit;
 }
 .uk-modal-header {
-   background: rgba(128,128,128,0.05);
+   background-color: var(--lightblockbgcolor);
    border-bottom: 1px solid rgba(128,128,128, 0.1);
 }
 .uk-text-meta { color: rgba(128,128,128, 0.7); }
@@ -93,7 +104,7 @@ a:hover { color: inherit; }
 }
 #leftpane { }
 #rightpane {
-   background-color: rgba(128,128,128,0.05);
+   background-color: var(--lightblockbgcolor);
    border-left: 2px solid rgba(128,128,128,0.1);
    width: 30em;
    max-width: calc(100vw - 1px);
@@ -213,7 +224,7 @@ a:hover { color: inherit; }
    display: none; 
 }
 #discussionuserlist {
-   background-color: rgba(128,128,128,0.05);
+   background-color: var(--lightblockbgcolor);
    border-bottom: 1px solid rgba(128,128,128,0.1);
    border-top : 1px solid rgba(128,128,128,0.15);
    min-height: 40px; /* so it doesn't grow most of the time */
@@ -248,7 +259,7 @@ a:hover { color: inherit; }
    font-size: 0.75em;
 }
 [data-singlemessage]:focus, [data-singlemessage]:hover  {
-   background-color: rgba(127,127,127,0.05);
+   background-color: var(--lightblockbgcolor);
    border: none;
    outline: none;
 }
@@ -278,6 +289,7 @@ a:hover { color: inherit; }
 #commenteditinfo { white-space: pre-wrap; }
 /* Content */
 .content { white-space: pre-wrap; }
+.content ul { margin-bottom: 0.4em; }
 .pagecontrols { margin-right: -15px !important; }
 [data-watch="true"] path {
    fill: #EE5588; 
@@ -285,8 +297,8 @@ a:hover { color: inherit; }
    opacity: 0.8;
 }
 /* CategoryLists */
-[data-pageitem]:nth-child(even) {
-   background-color: rgba(128,128,128,0.05);
+[data-pageitem]:nth-child(even), [data-historyitem]:nth-child(even) {
+   background-color: var(--lightblockbgcolor);
 }
 [data-pageitem] [data-name] {
    font-size: 1.1em;
@@ -310,9 +322,6 @@ a:hover { color: inherit; }
 }*/
 [data-historyitem] {
    padding: 0.05em 0.3em;
-}
-[data-historyitem]:nth-child(even) {
-   background-color: rgba(128,128,128,0.05);
 }
 [data-history] {
    padding-bottom: 1.3em;
