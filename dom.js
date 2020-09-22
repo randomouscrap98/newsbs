@@ -303,6 +303,19 @@ function multiSwap(element, replacements)
       findSwap(element, key, replacements[key]);
 }
 
+function replaceTemplate(element)
+{
+   var tmpl = cloneTemplate(element.getAttribute("data-tmpl"));
+   multiSwap(tmpl, JSON.parse(element.getAttribute("data-tmpld")));
+   [...element.attributes].forEach(x =>
+   {
+      if(x.name !== "data-tmpl" && x.name !== "data-tmpld")
+         tmpl.setAttribute(x.name, x.value);
+   });
+   finalizeTemplate(tmpl);
+   element.parentNode.replaceChild(tmpl, element);
+}
+
 
 // ******************
 // - SUB-TEMPLATING -

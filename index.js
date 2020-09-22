@@ -97,6 +97,10 @@ window.onload = function()
 {
    log.Info("Window load event");
 
+   //This is SO IMPORTANT that you can't do it on a frame, has to be done now
+   var tmpls = document.querySelectorAll("[data-tmpl]");
+   [...tmpls].forEach(x => replaceTemplate(x));
+
    setupSignalProcessors();
 
    //These settings won't apply until next load ofc
@@ -975,9 +979,9 @@ function handleSetting(key, value)
 
 function handleSearchResults(data)
 {
-   hide(searchpagesresultscontainer);
-   hide(searchusersresultscontainer);
-   hide(searchcategoriesresultscontainer);
+   hide(searchpagesresults);
+   hide(searchusersresults);
+   hide(searchcategoriesresults);
 
    var total = 0;
    data.content = data.content || [];
@@ -986,21 +990,21 @@ function handleSearchResults(data)
 
    total = data.content.length + data.user.length + data.category.length;
 
-   displaySearchResults(searchpagesresultscontainer, data.content.map(x =>
+   displaySearchResults(searchpagesresults, data.content.map(x =>
    ({
       imageLink : getContentImageLink(x, 20, true),
       link : getPageLink(x.id),
       title : x.name,
       meta : (new Date(x.createDate)).toLocaleDateString()
    })));
-   displaySearchResults(searchusersresultscontainer, data.user.map(x =>
+   displaySearchResults(searchusersresults, data.user.map(x =>
    ({
       imageLink : getAvatarLink(x.avatar, 20),
       link : getUserLink(x.id),
       title : x.username,
       meta : (new Date(x.createDate)).toLocaleDateString()
    })));
-   displaySearchResults(searchcategoriesresultscontainer, data.category.map(x =>
+   displaySearchResults(searchcategoriesresults, data.category.map(x =>
    ({
       link : getCategoryLink(x.id),
       title : x.name,

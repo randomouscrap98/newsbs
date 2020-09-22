@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1600649416"></script>
-      <script src="dom.js?v=1600649416"></script>
-      <script src="api.js?v=1600649416"></script>
-      <script src="index.js?v=1600649416"></script>
-      <script src="sbs2-markup/highlight.js?v=1600649416"></script>
-      <script src="sbs2-markup/parse.js?v=1600649416"></script>
-      <script src="sbs2-markup/render.js?v=1600649416"></script>
+      <script src="libbo.js?v=1600753989"></script>
+      <script src="dom.js?v=1600753989"></script>
+      <script src="api.js?v=1600753989"></script>
+      <script src="index.js?v=1600753989"></script>
+      <script src="sbs2-markup/highlight.js?v=1600753989"></script>
+      <script src="sbs2-markup/parse.js?v=1600753989"></script>
+      <script src="sbs2-markup/render.js?v=1600753989"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1600649416" />
+      <link rel="stylesheet" href="index.css?v=1600753989" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -296,26 +296,14 @@ function loglevel(el, replace)
                         </div>
                         <div id="searchconstraints" class="uk-padding-small" hidden uk-margin>
                            <div class="uk-flex uk-flex-wrap" uk-margin>
-                              <label class="uk-margin-right uk-text-nowrap">
-                                 <input id="searchpagesoption" type="checkbox" 
-                                  class="uk-checkbox" checked>
-                                 <span>Pages</span>
-                              </label>
-                              <label class="uk-margin-right uk-text-nowrap">
-                                 <input id="searchusersoption" type="checkbox" 
-                                  class="uk-checkbox" checked>
-                                 <span>Users</span>
-                              </label>
-                              <label class="uk-margin-right uk-text-nowrap">
-                                 <input id="searchcategoriesoption" type="checkbox" 
-                                  class="uk-checkbox" checked>
-                                 <span>Categories</span>
-                              </label>
-                              <label class="uk-margin-right uk-text-nowrap" hidden>
-                                 <input id="searchchatoption" type="checkbox" 
-                                  class="uk-checkbox">
-                                 <span>Chat</span>
-                              </label>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchpagesoption", "data-text":"Pages","data-checked":true}'></div>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchusersoption", "data-text":"Users","data-checked":true}'></div>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchcategoriesoption", "data-text":"Categories","data-checked":true}'></div>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchchatoption", "data-text":"Chat","data-checked":false}' hidden></div>
                            </div>
                            <hr>
                            <div class="uk-flex uk-flex-wrap" uk-margin>
@@ -337,7 +325,15 @@ function loglevel(el, replace)
                      </div>
                      <p class="uk-padding-small" id="nosearchresults" hidden>No results...</p>
                      <ul uk-accordion="multiple: true">
-                        <li id="searchpagesresultscontainer" hidden class="uk-open">
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Pages"}'
+                             id="searchpagesresults"></div>
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Users"}'
+                             id="searchusersresults"></div>
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Categories"}'
+                             id="searchcategoriesresults"></div>
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Chat"}'
+                             id="searchchatresults"></div>
+                        <!--<li id="searchpagesresultscontainer" hidden class="uk-open">
                            <a class="uk-accordion-title" href="#">Pages -
                               <span data-count=".textContent"></span></a>
                            <div data-results id="searchpagesresults" class="uk-accordion-content">
@@ -364,7 +360,7 @@ function loglevel(el, replace)
                            <div data-results id="searchchatresults" class="uk-accordion-content">
                               chat
                            </div>
-                        </li>
+                        </li>-->
                      </ul>
                      <!--<ul id="searchpane" class="uk-list uk-list-divider"></ul>-->
                   </li>
@@ -677,6 +673,18 @@ function loglevel(el, replace)
                class="uk-width-expand uk-text-truncate uk-margin-small-left uk-margin-small-right"></a>
             <time data-time=".textContent" class="uk-text-meta"></time>
          </div>
+         <label data-searchconstraint class="uk-margin-right uk-text-nowrap">
+            <input data-checked=".checked" data-id="id" type="checkbox" class="uk-checkbox">
+            <span data-text=".textContent"></span>
+         </label>
+         <li data-searchresultsection hidden class="uk-open">
+            <a class="uk-accordion-title" href="#">
+               <span data-text=".textContent"></span> -
+               <span data-count=".textContent"></span>
+            </a>
+            <div data-results class="uk-accordion-content">
+            </div>
+         </li>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">
             <h1>SmileBASIC Source</h1>
