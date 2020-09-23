@@ -24,7 +24,6 @@ var attr = {
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : false, u: 1, text : "Device Notifications" },
-   //highcontrast : { def : false, u: 1, text : "Increase contrast" },
    loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
@@ -133,7 +132,6 @@ window.onload = function()
    setupFileUpload();
    setupPageControls();
    setupDiscussions();
-   //setupTheme();
    setupSearch();
 
    setupSession();
@@ -337,7 +335,7 @@ function setupSignalProcessors()
    signals.Attach("setcontentmode", type =>
    {
       setRememberedFormat(getActiveDiscussionId(), type);
-   }); //"discussion");
+   });
 
    //These are so small I don't care about them being directly in here
    var apiSetLoading = (data, load) => 
@@ -387,8 +385,6 @@ function setupSignalProcessors()
       });
    });
 
-   //signals.Attach("watchclear", data => clearWatch(
-
 
    //You MUST be able to assume that discussions and all that junk are fine at
    //this point.
@@ -420,11 +416,6 @@ function setupSignalProcessors()
          loadOlderCommentsActive();
       }
    });
-
-   //signals.Attach("settheme", data => 
-   //{
-   //   writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
-   //});
 }
 
 //TODO: TEMPORARY LOCATION
@@ -648,17 +639,6 @@ function setupFileUpload()
 
    log.Debug("Setup all file uploading/handling");
 }
-
-//function setupTheme()
-//{
-//   darkmodetoggle.onclick = event =>
-//   {
-//      event.preventDefault();
-//      setTheme(document.body.getAttribute("data-theme") ? "" : "dark");
-//   };
-//
-//   setTheme(localStorage.getItem("usertheme"));
-//}
 
 //Right now, this can only be called once :/
 function setupDiscussions()
@@ -942,10 +922,6 @@ function handleSetting(key, value)
    {
       setTheme(value);
    }
-   //if(key === "highcontrast")
-   //{
-   //   setHighContrast(value);
-   //}
    if(key === "displaynotifications" && value)
    {
       var undosetting = () =>
@@ -1043,25 +1019,6 @@ function refreshOptions()
       renderOptions(options);
    });
 }
-
-//function setTheme(theme)
-//{
-//   writeDom(() =>
-//   {
-//      if(theme)
-//      {
-//         document.body.setAttribute("data-theme", theme);
-//         localStorage.setItem("usertheme", theme);
-//      }
-//      else
-//      {
-//         document.body.removeAttribute("data-theme");
-//         localStorage.removeItem("usertheme");
-//      }
-//
-//      signals.Add("settheme", theme);
-//   });
-//}
 
 function setFileUploadList(page, allImages)
 {

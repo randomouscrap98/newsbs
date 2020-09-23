@@ -161,14 +161,6 @@ function setExpandableTextbox(expand)
       postdiscussiontext.setAttribute("data-expand", "");
 }
 
-//function setHighContrast(high)
-//{
-//   if(high)
-//      document.body.className += " highcontrast";
-//   else
-//      document.body.className = document.body.className.replace(/highcontrast/g, "");
-//}
-
 function setTheme(theme)
 {
    if(theme)
