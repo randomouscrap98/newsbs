@@ -289,7 +289,7 @@ a:hover { color: inherit; }
 #commenteditinfo { white-space: pre-wrap; }
 /* Content */
 .content { white-space: pre-wrap; }
-.content ul { margin-bottom: 0.4em; }
+.content ul { margin: 0.1em 0 0.4em 0; }
 .pagecontrols { margin-right: -15px !important; }
 [data-watch="true"] path {
    fill: #EE5588; 

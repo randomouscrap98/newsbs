@@ -122,6 +122,73 @@ Api.prototype.WatchClear = function(cid, success, error, always, modify)
    this.Post("watch/" + cid + "/clear", {}, success, error, always, modify);
 };
 
+Api.prototype.SearchSort = function(list, search, fieldGet, multiplier)
+{
+   if(list)
+   {
+      search = search.toLowerCase();
+      var test = new RegExp("\\b" + search + "\\b", "i");
+      multiplier = multiplier || 1;
+
+      list.forEach(x =>
+      {
+         x.searchscore = x.searchscore || 0;
+         var val = fieldGet(x).toLowerCase();
+         x.searchscore += multiplier * ((val.startsWith(search) ? 3 : 0) + 
+            (val.endsWith(search) ? 2 : 0) + 
+            (test.test(val) ? 1 : 0));
+      });
+
+      //Reverse score order, highest first (y-x)
+      list.sort((x,y) => Math.sign(y.searchscore - x.searchscore));
+   }
+};
+
+//searchops = { sort : "id/createDate/editDate", reverse : true, 
+//    value: "searchthis", search : { pages : true, users : true, categories : true} }
+Api.prototype.Search = function(searchops, success, error, always, modify)
+{
+   var me = this;
+
+   var search = { 
+      sort: searchops.sort,
+      reverse: searchops.reverse
+   };
+   var keysearch = Utilities.ShallowCopy(search);
+
+   var like = "%" + searchops.value + "%";
+   search.namelike = like;
+   search.usernamelike = like;
+   keysearch.keyword = like;
+
+   var params = new URLSearchParams();
+
+   //There HAS to be at least one search, so "search" sub-object better exist
+   if(searchops.search.pages)
+   {
+      params.append("requests", "content-" + JSON.stringify(search));
+      params.append("requests", "content-" + JSON.stringify(keysearch));
+   }
+   if(searchops.search.users) //searchusersoption.checked)
+   {
+      params.append("requests", "user-" + JSON.stringify(search));
+   }
+   if(searchops.search.categories) //searchcategoriesoption.checked)
+   {
+      params.append("requests", "category-" + JSON.stringify(search));
+   }
+
+   globals.api.Chain(params, data =>
+   {
+      //Modify the order for data so the ones that start or end with or have
+      //the search result all by itself come first.
+      this.SearchSort(data.data.content, searchops.value, x => x.name);
+      this.SearchSort(data.data.content, searchops.value, x => x.keywords.join(" "), 0.5);
+      this.SearchSort(data.data.user, searchops.value, x => x.username);
+      this.SearchSort(data.data.category, searchops.value, x => x.name);
+      success(data); 
+   }, error, always, modify);
+}
 
 // **********************
 // ---- LONG POLLING ----

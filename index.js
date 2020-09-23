@@ -706,32 +706,18 @@ function doSearch(event)
 {
    event.preventDefault();
 
-   var params = new URLSearchParams();
-   var like = "%" + searchinput.value + "%";
-   var search = { 
-      sort: searchsortoption.value, 
-      reverse: searchreverseoption.checked,
+   var searchops = {
+      reverse : searchreverseoption.checked,
+      sort: searchsortoption.value,
+      value : searchinput.value,
+      search : {
+         pages : searchpagesoption.checked,
+         users : searchusersoption.checked,
+         categories : searchcategoriesoption.checked
+      }
    };
-   var keysearch = Utilities.ShallowCopy(search);
-   search.namelike = like;
-   search.usernamelike = like;
-   keysearch.keyword = like;
 
-   if(searchpagesoption.checked)
-   {
-      params.append("requests", "content-" + JSON.stringify(search));
-      params.append("requests", "content-" + JSON.stringify(keysearch));
-   }
-   if(searchusersoption.checked)
-   {
-      params.append("requests", "user-" + JSON.stringify(search));
-   }
-   if(searchcategoriesoption.checked)
-   {
-      params.append("requests", "category-" + JSON.stringify(search));
-   }
-
-   globals.api.Chain(params, data =>
+   globals.api.Search(searchops, data =>
    {
       log.Datalog("see devlog for search data", data);
       handleSearchResults(data.data);
