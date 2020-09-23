@@ -161,6 +161,24 @@ function setExpandableTextbox(expand)
       postdiscussiontext.setAttribute("data-expand", "");
 }
 
+//function setHighContrast(high)
+//{
+//   if(high)
+//      document.body.className += " highcontrast";
+//   else
+//      document.body.className = document.body.className.replace(/highcontrast/g, "");
+//}
+
+function setTheme(theme)
+{
+   if(theme)
+      document.body.setAttribute("data-theme", theme);
+   else
+      document.body.removeAttribute("data-theme");
+
+   DomDeps.signal("settheme", theme);
+}
+
 //Set up a clean slate for someone to put content onto the page,
 //assuming immediately after.
 function initializePage(requester)
@@ -479,6 +497,10 @@ function renderOptions(options)
             templn = "number";
             vconv = x => Number(x);
          }
+         else if(o.options)
+         {
+            templn = "select";
+         }
          else 
          {
             templn = "raw";
@@ -492,6 +514,7 @@ function renderOptions(options)
          "data-input" : o.value
       });
       if(o.text) findSwap(elm, "data-name", "options." + k);
+      if(o.options) findSwap(elm, "data-options", o.options);
       elm.onchange = e => { 
          var val = vconv(getSwap(elm, "data-input"));
          DomDeps.signal("localsettingupdate_event", 

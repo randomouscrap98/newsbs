@@ -24,7 +24,7 @@ var attr = {
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : false, u: 1, text : "Device Notifications" },
-   //clearwatchonview : { def : true , u: 1, text : "Clear notifications on view" },
+   //highcontrast : { def : false, u: 1, text : "Increase contrast" },
    loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
@@ -33,7 +33,7 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, u: 1, text: "Display pages per category" },
-   /*searchresultlimit : { def: 100, u: 1, text: "Search results per type" },*/
+   theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "contrast" ]},
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
@@ -53,12 +53,11 @@ var options = {
    discussionavatarsize : { def: 60 },
    showsidebarminrem : { def: 60 },
    refreshcycle : { def: 10000 },
-   //discussionscrollnow : {def: 1000 },
    longpollerrorrestart : {def: 5000 },
    signalcleanup : {def: 10000 },
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
-   defaultmarkup : {def:"12y"}
+   defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]}
 };
 
 var globals = { 
@@ -134,7 +133,7 @@ window.onload = function()
    setupFileUpload();
    setupPageControls();
    setupDiscussions();
-   setupTheme();
+   //setupTheme();
    setupSearch();
 
    setupSession();
@@ -422,10 +421,10 @@ function setupSignalProcessors()
       }
    });
 
-   signals.Attach("settheme", data => 
-   {
-      writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
-   });
+   //signals.Attach("settheme", data => 
+   //{
+   //   writeDom(() => darkmodetoggle.innerHTML = (data === "dark") ? "&#x2600;" : "&#x1F311;");
+   //});
 }
 
 //TODO: TEMPORARY LOCATION
@@ -650,16 +649,16 @@ function setupFileUpload()
    log.Debug("Setup all file uploading/handling");
 }
 
-function setupTheme()
-{
-   darkmodetoggle.onclick = event =>
-   {
-      event.preventDefault();
-      setTheme(document.body.getAttribute("data-theme") ? "" : "dark");
-   };
-
-   setTheme(localStorage.getItem("usertheme"));
-}
+//function setupTheme()
+//{
+//   darkmodetoggle.onclick = event =>
+//   {
+//      event.preventDefault();
+//      setTheme(document.body.getAttribute("data-theme") ? "" : "dark");
+//   };
+//
+//   setTheme(localStorage.getItem("usertheme"));
+//}
 
 //Right now, this can only be called once :/
 function setupDiscussions()
@@ -939,6 +938,14 @@ function handleSetting(key, value)
    {
       setExpandableTextbox(value);
    }
+   if(key === "theme")
+   {
+      setTheme(value);
+   }
+   //if(key === "highcontrast")
+   //{
+   //   setHighContrast(value);
+   //}
    if(key === "displaynotifications" && value)
    {
       var undosetting = () =>
@@ -1037,24 +1044,24 @@ function refreshOptions()
    });
 }
 
-function setTheme(theme)
-{
-   writeDom(() =>
-   {
-      if(theme)
-      {
-         document.body.setAttribute("data-theme", theme);
-         localStorage.setItem("usertheme", theme);
-      }
-      else
-      {
-         document.body.removeAttribute("data-theme");
-         localStorage.removeItem("usertheme");
-      }
-
-      signals.Add("settheme", theme);
-   });
-}
+//function setTheme(theme)
+//{
+//   writeDom(() =>
+//   {
+//      if(theme)
+//      {
+//         document.body.setAttribute("data-theme", theme);
+//         localStorage.setItem("usertheme", theme);
+//      }
+//      else
+//      {
+//         document.body.removeAttribute("data-theme");
+//         localStorage.removeItem("usertheme");
+//      }
+//
+//      signals.Add("settheme", theme);
+//   });
+//}
 
 function setFileUploadList(page, allImages)
 {

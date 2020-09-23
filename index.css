@@ -8,6 +8,7 @@
    --imageopacity: 1;
    --inputbgcolor: rgba(255,255,255,0.9);
    --lightblockbgcolor : rgba(128,128,128,0.05);
+   --mutedtextcolor : rgba(128,128,128, 0.7);
 }
 body {
    position: absolute;
@@ -21,7 +22,7 @@ html, body, .uk-modal-dialog, .uk-dropdown {
    background-color: var(--mainbgcolor);
    color: var(--maintxtcolor);
 }
-.databar {
+.databar, .databar a {
    background-color: var(--databarbgcolor);
    color: var(--databartxtcolor);
 }
@@ -76,7 +77,7 @@ blockquote {
    background-color: var(--lightblockbgcolor);
    border-bottom: 1px solid rgba(128,128,128, 0.1);
 }
-.uk-text-meta { color: rgba(128,128,128, 0.7); }
+.uk-text-meta { color: var(--mutedtextcolor); }
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 /*.uk-link { cursor: pointer; }*/
 hr { border-top: 1px solid rgba(128,128,128, 0.2); }
@@ -366,3 +367,14 @@ textarea::-webkit-scrollbar { width: 3px; } /* width */
    --imageopacity: 0.9;
    --inputbgcolor: rgba(255,255,255,0.05);
 }
+
+[data-theme="contrast"] {
+   --mainbgcolor: #FFF;
+   --maintxtcolor: #111;
+   --databarbgcolor: #333;
+   --databartxtcolor: #FFF;
+   --databartxthovcolor: #EEE;
+   --headercolor: #000;
+   --mutedtextcolor: #666;
+}
+

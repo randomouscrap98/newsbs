@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1600841637"></script>
-      <script src="dom.js?v=1600841637"></script>
-      <script src="api.js?v=1600841637"></script>
-      <script src="index.js?v=1600841637"></script>
-      <script src="sbs2-markup/highlight.js?v=1600841637"></script>
-      <script src="sbs2-markup/parse.js?v=1600841637"></script>
-      <script src="sbs2-markup/render.js?v=1600841637"></script>
+      <script src="libbo.js?v=1600884697"></script>
+      <script src="dom.js?v=1600884697"></script>
+      <script src="api.js?v=1600884697"></script>
+      <script src="index.js?v=1600884697"></script>
+      <script src="sbs2-markup/highlight.js?v=1600884697"></script>
+      <script src="sbs2-markup/parse.js?v=1600884697"></script>
+      <script src="sbs2-markup/render.js?v=1600884697"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1600841637" />
+      <link rel="stylesheet" href="index.css?v=1600884697" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -30,6 +30,22 @@ function loglevel(el, replace)
    if(el.className.indexOf(loglevel) < 0)
       el.className += " " + loglevel;
    return loglevel;
+}
+function selectOptionSetup(el, replace)
+{
+   if(replace)
+   {
+      //Clear out the existing
+      el.innerHTML = "";
+      replace.forEach(x => //for(key in replace)
+      {
+         var option = document.createElement("option");
+         option.textContent = x; //replace[key];
+         option.setAttribute("value", x); //key);
+         el.appendChild(option);
+      });
+   }
+   return el.value;
 }
       </script>
    </head>
@@ -372,8 +388,11 @@ function loglevel(el, replace)
                <div id="rightpanefooter" class="databar uk-flex">
                   <span class="uk-flex-none">SmileBASIC Source - 2020</span>
                   <div class="uk-width-expand">
-                     <a href="#" id="darkmodetoggle" uk-tooltip="Dark mode">&#x1F311;</a>
+                     <!-- Just a space filler for now, do something with this later? -->
                   </div>
+                  <!--<div class="uk-width-expand">
+                     <a href="#" id="darkmodetoggle" uk-tooltip="Dark mode">&#x1F311;</a>
+                  </div>-->
                   <a href="" class="uk-flex-none" uk-toggle="target: #aboutprivacy">About/Privacy</a>
                </div>
             </div>
@@ -636,6 +655,14 @@ function loglevel(el, replace)
          <div data-rawoption>
             <label> <!-- data-name="uk-tooltip"> -->
                <input data-input=".value" class="uk-input uk-margin-small-right uk-width-1-2">
+               <span data-text=".textContent" data-name="uk-tooltip"></span>
+            </label>
+         </div>
+         <div data-selectoption>
+            <label> <!-- data-name="uk-tooltip"> -->
+               <select data-options=".selectOptionSetup" data-input=".value" 
+                  class="uk-select uk-margin-small-right uk-width-1-3">
+               </select>
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
