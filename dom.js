@@ -150,7 +150,7 @@ function formatDiscussions(hasDiscussions, mode)
       setFullContentMode();
    }
 
-   DomDeps.signal("formatdiscussions", hasDiscussions);
+   DomDeps.signal("formatdiscussions", { hasDiscussion : hasDiscussions, mode : mode});
 }
 
 function setExpandableTextbox(expand)

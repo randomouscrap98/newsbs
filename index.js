@@ -27,7 +27,7 @@ var options = {
    loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
-   watchclearnotif : { def: false, u: 1, text : "Watch clear toast" },
+   generaltoast : { def: true, u: 1, text : "Action toasts (mini alert)" },
    discussionscrollspeed : { def: 0.25, u: 1, text: "Scroll animation (1 = instant)", step: 0.01 },
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
@@ -334,7 +334,8 @@ function setupSignalProcessors()
 
    signals.Attach("setcontentmode", type =>
    {
-      setRememberedFormat(getActiveDiscussionId(), type);
+      if(!isPageLoading())
+         setRememberedFormat(getActiveDiscussionId(), type);
    });
 
    //These are so small I don't care about them being directly in here
@@ -502,7 +503,8 @@ function setupUserStuff()
 
    formSetupSubmit(passwordresetconfirmform, "user/passwordreset", token =>
    {
-      notifySuccess("Password reset!");
+      if(getLocalOption("generaltoast"))
+         notifySuccess("Password reset!");
       login(token);
    }, formData =>
    {
@@ -528,7 +530,8 @@ function setupUserStuff()
 
    formSetupSubmit(registerconfirmform, "user/register/confirm", token =>
    {
-      notifySuccess("Registration complete!");
+      if(getLocalOption("generaltoast"))
+         notifySuccess("Registration complete!");
       login(token);
    });
 
@@ -681,6 +684,7 @@ function setupSearch()
    searchformicon.onclick = doSearch;
 }
 
+//Tied directly to setupSearch I guess
 function doSearch(event)
 {
    event.preventDefault();
@@ -1445,6 +1449,13 @@ function parseLink(url)
    };
 }
 
+function isPageLoading()
+{
+   //This means there is an in-flight request if there are no history items
+   //with the final request id that was generated
+   return !globals.spahistory.some(x => x.rid === globals.spa.requestId);
+}
+
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
@@ -1773,7 +1784,7 @@ function setupWatchClear(parent, cid)
       watchAlert.className = watchAlert.className.replace(/danger/g, "warning");
       //console.log(watchAlert);
 
-      if(getLocalOption("watchclearnotif"))
+      if(getLocalOption("generaltoast"))
          notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
 
       globals.api.WatchClear(cid, apidata =>
@@ -2417,7 +2428,7 @@ function messageControllerEvent(event)
       if(confirm("Are you SURE you want to delete this comment?"))
       {
          globals.api.Post("comment/" + cmid + "/delete", {},
-            x => notifySuccess("Comment deleted"),
+            x => { if(getLocalOption("generaltoast")) notifySuccess("Comment deleted"); },
             x => notifyError("Couldn't delete comment: " + x.request.status + " - " + x.request.statusText));
          UIkit.modal(commentedit).hide();
       }
@@ -2428,7 +2439,7 @@ function messageControllerEvent(event)
       globals.api.Put("comment/" + cmid, 
          {parentId : Number(getActiveDiscussionId()), 
           content: createComment(commentedittext.value, commenteditformat.value)},
-         x => notifySuccess("Comment edited"),
+         x => { if(getLocalOption("generaltoast")) notifySuccess("Comment edited"); },
          x => notifyError("Couldn't edit comment: " + x.request.status + " - " + x.request.statusText));
       UIkit.modal(commentedit).hide();
    };
