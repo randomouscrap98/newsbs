@@ -302,6 +302,21 @@ var Utilities =
    ShallowCopy : function(value)
    {
       return JSON.parse(JSON.stringify(value));
-   }
+   },
+   ParseYoutube :	function (url) 
+   {
+      var result = { id : null };
+		var match = url.match(/(?:https?:\/\/)?(?:www\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/);
+      if(match)
+      {
+         result.id = match[1]
+         var start = url.match(/[&?](?:t|start)=(\w+)/);
+         var end = url.match(/[&?](?:end)=(\w+)/);
+         if(start) result.start = start;
+         if(end) result.end = end;
+         result.loop = url.match(/[&?]loop(=|&|$)/);
+      }
+		return result; 
+	}
 };
 

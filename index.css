@@ -279,7 +279,7 @@ a:hover { color: inherit; }
    visibility: visible;
 }
 [data-message] img {
-   max-height: 50vh;
+   max-height: 35vh;
    display: block;
    margin: 0.5em 0;
 }
@@ -307,6 +307,11 @@ a:hover { color: inherit; }
    color: #EE5588; 
    opacity: 0.8;
 }
+[data-youtube] { white-space: initial; }
+[data-youtubeplayer] iframe {
+   max-width: 100%; 
+   /*max-height: 35vh;*/
+}
 /* CategoryLists */
 [data-pageitem]:nth-child(even), [data-historyitem]:nth-child(even) {
    background-color: var(--lightblockbgcolor);
@@ -320,9 +325,9 @@ a:hover { color: inherit; }
    margin-right: 3px;
    margin-left: 6px;
 }
-[data-treeselector] option {
+/*[data-treeselector] option {
    font-family: monospace;
-}
+}*/
 /* User settings */
 #userlocaloptions input { }
 /* Search */

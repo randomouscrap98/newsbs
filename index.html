@@ -721,12 +721,25 @@ function retext(el, attr)
             <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
                uk-margin-small-right"></span>
          </a>
-         <select data-treeselector class="uk-select" onblur="retext(this, 'data-path')"
-            onfocus="retext(this, 'data-tree')" onchange="this.blur()"> <!-- uk-width-small">-->
+         <select data-treeselector class="uk-select">
+         <!--<select data-treeselector class="uk-select" onblur="retext(this, 'data-path')"
+           onfocus="retext(this, 'data-tree')" onchange="this.blur()"> -->
             <!--<select class="uk-select uk-width-small uk-form-small" id="searchsortoption">-->
          </select>
          <div data-categoryselect data-value="data-v">
             <div data-loading uk-spinner></div>
+         </div>
+         <div data-youtube>
+            <div class="uk-flex uk-flex-middle">
+               <a data-link="href" data-title=".textContent" class="uk-flex-none uk-text-truncate
+                  uk-margin-small-right"></a>
+               <a href="#" data-showplayer uk-icon="youtube"></a>
+               <a href="#" data-hideplayer uk-icon="close" hidden></a>
+            </div>
+         </div>
+         <div data-youtubeplayer class="uk-margin-small-top">
+            <iframe width=480 height=270 allow="autoplay; fullscreen" data-source="src"></iframe> 
+            <!-- width=360 height=270 data-source="src"></iframe>-->
          </div>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">

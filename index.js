@@ -148,8 +148,21 @@ window.onload = function()
    requestAnimationFrame(renderLoop);
    refreshCycle();
 
-   /*writeDom(() => document.getElementById("hometestarea").appendChild(makeUserSearch(x => { 
-      console.log("Selected: ", x);})));*/
+   //12's renderer replacements
+   Parse.options.youtube = (args,preview) => 
+   {
+      var url = args[""];
+      var yti = Utilities.ParseYoutube(url);
+      var parseurl = null;
+      if(yti.id)
+      {
+         parseurl = "https://www.youtube-nocookie.com/embed/"+yti.id+"?autoplay=1";
+         if (yti.start) parseurl += "&start="+yti.start;
+         if (yti.end) parseurl += "&end="+yti.end;
+         if (yti.loop) parseurl += "&loop=1&playlist="+yti.id;
+      }
+      return {block:true, node:makeYoutube(url, parseurl)};
+   };
 };
 
 function safety(func)
@@ -773,6 +786,9 @@ function routehome_load(spadat)
    {
       var homehistory = templ.querySelector("[data-homehistory]");
       homehistory.appendChild(makeActivity());
+
+      writeDom(() => templ.querySelector("[data-testarea]").appendChild(makeUserSearch(x => { 
+         console.log("Selected: ", x);})));
    }); 
 }
 
@@ -1271,7 +1287,9 @@ function makeCategorySelect(container)
    params.append("requests", "category"); // + JSON.stringify(search));
    globals.api.Chain(params, apidata =>
    {
-      apidata.data.category.push(Utilities.ShallowCopy(rootCategory));
+      var rc = Utilities.ShallowCopy(rootCategory);
+      rc.name = "Root";
+      apidata.data.category.unshift(rc);
       treeify(apidata.data.category);
       var selector = makeTreeSelector(apidata.data.category);
       container.appendChild(selector);
@@ -2591,3 +2609,4 @@ var Nav = {
       return a;
    }
 };
+

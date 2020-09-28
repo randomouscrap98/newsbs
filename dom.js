@@ -416,6 +416,48 @@ function makeTreeSelector(tree)
    return selector;
 }
 
+function makeYoutube(url, playerurl)
+{
+   var youtube = cloneTemplate("youtube");
+   multiSwap(youtube, {
+      "data-title" : url,
+      "data-link" : url
+   });
+   var showplayer = youtube.querySelector("[data-showplayer]");
+   var hideplayer = youtube.querySelector("[data-hideplayer]");
+
+   if(playerurl)
+   {
+      showplayer.onclick = e =>
+      {
+         e.preventDefault();
+         var player = cloneTemplate("youtubeplayer");
+         multiSwap(player, {
+            "data-source" : playerurl 
+         });
+         youtube.appendChild(player);
+         hide(showplayer);
+         unhide(hideplayer);
+      };
+      hideplayer.onclick = e =>
+      {
+         console.log(youtube);
+         e.preventDefault();
+         [...(youtube.querySelectorAll("[data-youtubeplayer]"))].forEach(
+            x => x.parentNode.removeChild(x));
+         unhide(showplayer);
+         hide(hideplayer);
+      };
+   }
+   else
+   {
+      hide(showplayer);
+      hide(hideplayer);
+   }
+   finalizeTemplate(youtube);
+   return youtube;
+}
+
 // *************
 // --- FORMS ---
 // *************
