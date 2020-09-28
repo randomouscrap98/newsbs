@@ -53,6 +53,7 @@ var options = {
    showsidebarminrem : { def: 60 },
    refreshcycle : { def: 10000 },
    longpollerrorrestart : {def: 5000 },
+   minisearchtimebuffer : {def:500},
    signalcleanup : {def: 10000 },
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
@@ -145,6 +146,9 @@ window.onload = function()
    globals.render = { lastrendertime : performance.now() };
    requestAnimationFrame(renderLoop);
    refreshCycle();
+
+   writeDom(() => document.getElementById("hometestarea").appendChild(makeUserSearch(x => { 
+      console.log("Selected: ", x);})));
 };
 
 function safety(func)
@@ -963,26 +967,9 @@ function handleSearchResults(data)
 
    total = data.content.length + data.user.length + data.category.length;
 
-   displaySearchResults(searchpagesresults, data.content.map(x =>
-   ({
-      imageLink : getContentImageLink(x, 20, true),
-      link : getPageLink(x.id),
-      title : x.name,
-      meta : (new Date(x.createDate)).toLocaleDateString()
-   })));
-   displaySearchResults(searchusersresults, data.user.map(x =>
-   ({
-      imageLink : getAvatarLink(x.avatar, 20),
-      link : getUserLink(x.id),
-      title : x.username,
-      meta : (new Date(x.createDate)).toLocaleDateString()
-   })));
-   displaySearchResults(searchcategoriesresults, data.category.map(x =>
-   ({
-      link : getCategoryLink(x.id),
-      title : x.name,
-      meta : (new Date(x.createDate)).toLocaleDateString()
-   })));
+   displaySearchResults(searchpagesresults, mapSearchContent(data.content));
+   displaySearchResults(searchusersresults, mapSearchUser(data.user));
+   displaySearchResults(searchcategoriesresults, mapSearchCategories(data.category));
 
    setHidden(nosearchresults, total);
 }
@@ -1219,6 +1206,57 @@ function makeActivity(modifySearch, unlimitedHeight)
    searchAgain();
 
    return activity;
+}
+
+function makeMiniSearch(baseSearch, dataMap, onSelect, placeholder)
+{
+   var s = cloneTemplate("minisearch");
+   placeholder = placeholder || "Search";
+
+   findSwap(s, "data-placeholder", placeholder);
+   finalizeTemplate(s);
+
+   var input = s.querySelector("[data-search]");
+   var results = s.querySelector("[data-results]");
+
+   input.oninput = function(e)
+   {
+      let sv = input.value;
+
+      setTimeout(function()
+      {
+         //Ignore strokes that weren't the last one
+         if(sv === input.value)
+         {
+            if(sv)
+            {
+               baseSearch.value = sv;
+               globals.api.Search(baseSearch, (data) =>
+               {
+                  displayMiniSearchResults(results, dataMap(data.data), onSelect);
+               });
+            }
+            else
+            {
+               displayMiniSearchResults(results, []);
+            }
+         }
+      }, getLocalOption("minisearchtimebuffer"));
+   };
+
+   return s;
+}
+
+function makeUserSearch(onSelect)
+{
+   return makeMiniSearch({search:{users:true}}, data => 
+      data.user.map(x =>
+      ({
+         id : x.id,
+         imageLink : getAvatarLink(x.avatar, 20),
+         name : x.username
+      })),
+      onSelect, "Search Users");
 }
 
 // *********************
@@ -2479,6 +2517,38 @@ function tryUpdateLongPoll(newStatuses)
    }
 }
 
+function mapSearchContent(content, imgsize)
+{
+   imgsize = imgsize || 20;
+   return content.map(x =>
+   ({
+      imageLink : getContentImageLink(x, imgsize, true),
+      link : getPageLink(x.id),
+      title : x.name,
+      meta : (new Date(x.createDate)).toLocaleDateString()
+   }));
+}
+function mapSearchUser(users, imgsize)
+{
+   imgsize = imgsize || 20;
+   return users.map(x =>
+   ({
+      imageLink : getAvatarLink(x.avatar, imgsize),
+      link : getUserLink(x.id),
+      title : x.username,
+      meta : (new Date(x.createDate)).toLocaleDateString()
+   }));
+}
+function mapSearchCategories(categories, imgsize)
+{
+   imgsize = imgsize || 20;
+   return categories.map(x =>
+   ({
+      link : getCategoryLink(x.id),
+      title : x.name,
+      meta : (new Date(x.createDate)).toLocaleDateString()
+   }));
+}
 
 //A 12me thing for the renderer
 var Nav = {

@@ -47,6 +47,23 @@ function selectOptionSetup(el, replace)
    }
    return el.value;
 }
+function showdrop(el, show)
+{
+   var dd = el.nextElementSibling;
+   dd.style.width = el.clientWidth + "px";
+   dd.style.minHeight = "0px";
+
+   console.log("showdrop ", show);
+
+   if(show)
+   {
+      UIkit.drop(dd).show();
+   }
+   else
+   {
+      setTimeout(() => UIkit.drop(dd).hide(0), 300);
+   }
+}
       </script>
    </head>
    <!-- LOC:BODY -->
@@ -349,34 +366,6 @@ function selectOptionSetup(el, replace)
                              id="searchcategoriesresults"></div>
                         <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Chat"}'
                              id="searchchatresults"></div>
-                        <!--<li id="searchpagesresultscontainer" hidden class="uk-open">
-                           <a class="uk-accordion-title" href="#">Pages -
-                              <span data-count=".textContent"></span></a>
-                           <div data-results id="searchpagesresults" class="uk-accordion-content">
-                              pages
-                           </div>
-                        </li>
-                        <li id="searchusersresultscontainer" hidden class="uk-open">
-                           <a class="uk-accordion-title" href="#">Users -
-                              <span data-count=".textContent"></span></a>
-                           <div data-results id="searchusersresults" class="uk-accordion-content">
-                              users
-                           </div>
-                        </li>
-                        <li id="searchcategoriesresultscontainer" hidden class="uk-open">
-                           <a class="uk-accordion-title" href="#">Categories -
-                              <span data-count=".textContent"></span></a>
-                           <div data-results id="searchcategoriesresults" class="uk-accordion-content">
-                              categories
-                           </div>
-                        </li>
-                        <li id="searchchatresultscontainer" hidden class="uk-open">
-                           <a class="uk-accordion-title" href="#">Chat -
-                              <span data-count=".textContent"></span></a>
-                           <div data-results id="searchchatresults" class="uk-accordion-content">
-                              chat
-                           </div>
-                        </li>-->
                      </ul>
                      <!--<ul id="searchpane" class="uk-list uk-list-divider"></ul>-->
                   </li>
@@ -712,6 +701,18 @@ function selectOptionSetup(el, replace)
             <div data-results class="uk-accordion-content">
             </div>
          </li>
+         <div data-minisearch "uk-inline"> <!-- class="uk-inline">-->
+            <input data-search class="uk-search-input" type="search" data-placeholder="placeholder"
+             onfocus="showdrop(this, true)" onblur="showdrop(this, false)">
+            <div uk-drop="mode: none" class="uk-card uk-card-default
+               uk-margin-remove" data-results uk-overflow-auto>
+            </div>
+         </div>
+         <a data-minisearchresult class="uk-flex uk-flex-middle hover uk-link-text">
+            <img data-image="src" class="uk-flex-none" width=20>
+            <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
+               uk-margin-small-right"></span>
+         </a>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">
             <h1>SmileBASIC Source</h1>
@@ -721,8 +722,9 @@ function selectOptionSetup(el, replace)
             but we're gonna keep adding stuff until it's good!</p>
             <h3><a href="?p=category-0" data-spa>Browse</a></h3>
             <div class="" data-homehistory></div>
-            <a href="#" uk-toggle="#hometestarea" hidden>Test area</a>
+            <a href="#" uk-toggle="#hometestarea" >Test area</a>
             <div id="hometestarea" hidden>
+               <!--<div data-tmpl="minisearch" data-tmpld='{"data-placeholder":"search or whatever"}'></div>-->
       <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
       <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
       <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>

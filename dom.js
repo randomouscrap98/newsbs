@@ -348,6 +348,18 @@ function makeSearchResult(imageLink, link, title, meta)
    return result;
 }
 
+function makeMiniSearchResult(imageLink, name, onclick)
+{
+   var sr = cloneTemplate("minisearchresult");
+   multiSwap(sr, {
+      "data-image": imageLink,
+      "data-name": name
+   });
+   finalizeTemplate(sr);
+   sr.onclick = onclick;
+   return sr;
+}
+
 function makeBreadcrumbs(chain)
 {
    chain.forEach(x =>
@@ -501,12 +513,12 @@ function renderOptions(options)
 
       let elm = cloneTemplate(templn + "option");
       let k = key;
-      multiSwap(elm, {
+      if(o.text) findSwap(elm, "data-name", "options." + k);
+      if(o.options) findSwap(elm, "data-options", o.options);
+      multiSwap(elm, { //PUT THIS LAST so input happens AFTEr options
          "data-text" : o.text || k,
          "data-input" : o.value
       });
-      if(o.text) findSwap(elm, "data-name", "options." + k);
-      if(o.options) findSwap(elm, "data-options", o.options);
       elm.onchange = e => { 
          var val = vconv(getSwap(elm, "data-input"));
          DomDeps.signal("localsettingupdate_event", 
@@ -540,6 +552,26 @@ function displaySearchResults(container, results)
       {
          list.appendChild(makeSearchResult(x.imageLink, x.link, x.title, x.meta));
       });
+   }
+}
+
+function displayMiniSearchResults(container, results, onSelect)
+{
+   container.innerHTML = "";
+
+   if(results.length)
+   {
+      results.forEach(x => 
+      {
+         container.appendChild(makeMiniSearchResult(
+            x.imageLink, x.name, () => onSelect(x)));
+      });
+   }
+   else
+   {
+      var p = document.createElement("p");
+      p.textContent="No results...";
+      container.appendChild(p);
    }
 }
 

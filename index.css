@@ -8,6 +8,7 @@
    --imageopacity: 1;
    --inputbgcolor: rgba(255,255,255,0.9);
    --lightblockbgcolor : rgba(128,128,128,0.05);
+   --outlinecolor : rgba(128,128,128,0.1);
    --mutedtextcolor : rgba(128,128,128, 0.7);
 }
 body {
@@ -38,7 +39,7 @@ img {
 }
 pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default {
    background-color: var(--inputbgcolor) !important; /* TODO: do this WITHOUT important */
-   border: 1px solid rgba(128,128,128, 0.1) !important;
+   border: 1px solid var(--outlinecolor) !important;
    color: inherit;
 }
 .uk-heading-divider {
@@ -49,6 +50,9 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default {
    background-color: var(--inputbgcolor);
    border: 1px solid #1e87f0 !important;
    /*filter: contrast(1.2);*/
+}
+.hover:hover {
+   background-color: var(--lightblockbgcolor);
 }
 /* UIkit reconfiguring */
 code { 
@@ -75,9 +79,14 @@ blockquote {
 }
 .uk-modal-header {
    background-color: var(--lightblockbgcolor);
-   border-bottom: 1px solid rgba(128,128,128, 0.1);
+   border-bottom: 1px solid var(--outlinecolor);
 }
 .uk-text-meta { color: var(--mutedtextcolor); }
+.uk-card-default {
+   box-shadow: none;
+   border: 1px solid var(--outlinecolor);
+   background-color: var(--mainbgcolor);
+}
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 /*.uk-link { cursor: pointer; }*/
 hr { border-top: 1px solid rgba(128,128,128, 0.2); }
@@ -95,7 +104,7 @@ a:hover { color: inherit; }
 .uk-list-divider>:nth-child(n+2) {
    margin-top: 0;
    padding-top: 0.45em; /* TODO: this is a repeat! */
-   border-top: 1px solid rgba(128,128,128,0.1);
+   border-top: 1px solid var(--outlinecolor);
 }
 /* Basic page structure */
 .databar { padding: 0 0.1em; }
@@ -106,7 +115,7 @@ a:hover { color: inherit; }
 #leftpane { }
 #rightpane {
    background-color: var(--lightblockbgcolor);
-   border-left: 2px solid rgba(128,128,128,0.1);
+   border-left: 2px solid var(--outlinecolor);
    width: 30em;
    max-width: calc(100vw - 1px);
    min-width: 10em;
@@ -116,14 +125,14 @@ a:hover { color: inherit; }
    padding: 0 0.5em;
 }
 #rightpanenav {
-   background-color: rgba(128,128,128,0.1);
+   background-color: var(--outlinecolor);
 }
 #rightpanenav >:hover {
    background-color: rgba(128,255,240,0.1);
 }
 /* left-pane stuff (main content!) */
 #maincontentbar {
-   background-color: rgba(128,128,128,0.1);
+   background-color: var(--outlinecolor);
    padding: 0.1em;
 }
 #maincontentbar img {
@@ -170,7 +179,7 @@ a:hover { color: inherit; }
 /* Notification special */
 /* -------------------- */
 .uk-notification-message {
-   border: 2px solid rgba(128,128,128,0.1);
+   border: 2px solid var(--outlinecolor);
 }
 .notification-actual {
    padding-left: 0.5em;
@@ -185,7 +194,7 @@ a:hover { color: inherit; }
    margin-bottom: 0.25em;
 }
 .pw-users {
-   background-color: rgba(127,127,127,0.1);
+   background-color: var(--outlinecolor);
    margin-right: 1em;
    padding: 0 0.3em;
    border-radius: 5px;
@@ -226,8 +235,8 @@ a:hover { color: inherit; }
 }
 #discussionuserlist {
    background-color: var(--lightblockbgcolor);
-   border-bottom: 1px solid rgba(128,128,128,0.1);
-   border-top : 1px solid rgba(128,128,128,0.15);
+   border-bottom: 1px solid var(--outlinecolor);
+   border-top : 1px solid var(--outlinecolor); /*rgba(128,128,128,0.15);*/
    min-height: 40px; /* so it doesn't grow most of the time */
 }
 #discussionuserlist::after {
@@ -274,7 +283,7 @@ a:hover { color: inherit; }
    margin: 0.5em 0;
 }
 #postarea {
-   border-top: 2px solid rgba(128,128,128,0.1);
+   border-top: 2px solid var(--outlinecolor);
    padding-bottom: 1px;
 }
 #postdiscussiontext { 
@@ -314,9 +323,17 @@ a:hover { color: inherit; }
 #userlocaloptions input { }
 /* Search */
 #searchconstraints {
-   border: 1px solid rgba(128,128,128,0.1);
+   border: 1px solid var(--outlinecolor);
    margin-top: 5px;
 }
+[data-minisearch] [data-results] {
+   box-sizing: content-box;
+   min-height: 0;
+   max-height: 190px;
+}
+/*[data-minisearchresult] {
+   text-decoration: none;
+}*/
 /* History */
 /*.historybox {
    max-height: 25em;
