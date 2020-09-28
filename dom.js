@@ -245,6 +245,11 @@ function finalizeTemplate(elm)
 
    linkArray.forEach(x => { x.onclick = templateSpaClick; });
 
+   var tmpls = elm.querySelectorAll("[data-tmpl]");
+   [...tmpls].forEach(x => replaceTemplate(x));
+
+   DomDeps.signal("finalizetemplate", { element:elm });
+
    return elm;
 }
 
@@ -372,6 +377,43 @@ function makeBreadcrumbs(chain)
       finalizeTemplate(bc);
       breadcrumbs.appendChild(bc);
    });
+}
+
+function recurseTreeSelector(node, selector, path, processed)
+{
+   if(!processed.some(x => x.id === node.id))
+   {
+      var option = document.createElement("option");
+      var level = path.length;
+      var newPath = path.slice();
+      newPath.push(node);
+      option.value = node.id;
+      option.setAttribute("data-name", node.name);
+      option.setAttribute("data-path", newPath.map(x => x.name).join(" / "));
+      option.setAttribute("data-tree", ((level > 0) ? ("| ".repeat(level - 1) + "|-") : "") + node.name);
+      option.setAttribute("title", node.description);
+      option.textContent = option.getAttribute("data-path");
+      selector.appendChild(option);
+      processed.push(node);
+      node.children.forEach(x => recurseTreeSelector(x, selector, newPath, processed));
+   }
+   //node.children.sort((a, b) => Math.sign(a.id - b.id));
+}
+
+function makeTreeSelector(tree)
+{
+   var selector = cloneTemplate("treeselector");
+   var rootNodes = tree.filter(x => x.id === 0);
+
+   if(!rootNodes.length)
+      throw "Can't make a tree without an id 0 root node!";
+
+   //We're TRUSTING that the tree's 0 id is the root or whatever. Otherwise
+   //this entire thing breaks down.
+   rootNodes.forEach(x => recurseTreeSelector(x, selector, [], []));
+
+   finalizeTemplate(selector);
+   return selector;
 }
 
 // *************

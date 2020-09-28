@@ -21,6 +21,8 @@ var attr = {
    "atoldest" : "data-atoldest"
 };
 
+var rootCategory = { "name" : "Website Root", "id" : 0 }; //, "parentId" : undefined };
+
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : false, u: 1, text : "Device Notifications" },
@@ -53,7 +55,7 @@ var options = {
    showsidebarminrem : { def: 60 },
    refreshcycle : { def: 10000 },
    longpollerrorrestart : {def: 5000 },
-   minisearchtimebuffer : {def:500},
+   minisearchtimebuffer : {def:200},
    signalcleanup : {def: 10000 },
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
@@ -97,8 +99,7 @@ window.onload = function()
    log.Info("Window load event");
 
    //This is SO IMPORTANT that you can't do it on a frame, has to be done now
-   var tmpls = document.querySelectorAll("[data-tmpl]");
-   [...tmpls].forEach(x => replaceTemplate(x));
+   finalizeTemplate(website);
 
    setupSignalProcessors();
 
@@ -147,8 +148,8 @@ window.onload = function()
    requestAnimationFrame(renderLoop);
    refreshCycle();
 
-   writeDom(() => document.getElementById("hometestarea").appendChild(makeUserSearch(x => { 
-      console.log("Selected: ", x);})));
+   /*writeDom(() => document.getElementById("hometestarea").appendChild(makeUserSearch(x => { 
+      console.log("Selected: ", x);})));*/
 };
 
 function safety(func)
@@ -388,6 +389,11 @@ function setupSignalProcessors()
       {
          location.reload();
       });
+   });
+   signals.Attach("finalizetemplate", data =>
+   {
+      if(data.element.hasAttribute("data-categoryselect"))
+         makeCategorySelect(data.element);
    });
 
 
@@ -791,7 +797,7 @@ function routecategory_load(spadat)
       var data = apidata.data;
       var users = idMap(data.user);
       var categories = idMap(data.category);
-      var c = categories[cid] || { "name" : "Website Root", "id" : 0 };
+      var c = categories[cid] || rootCategory; //{ "name" : "Website Root", "id" : 0 };
 
       route_complete(spadat, "Category: " + c.name, templ =>
       {
@@ -1259,6 +1265,23 @@ function makeUserSearch(onSelect)
       onSelect, "Search Users");
 }
 
+function makeCategorySelect(container)
+{
+   var params = new URLSearchParams();
+   params.append("requests", "category"); // + JSON.stringify(search));
+   globals.api.Chain(params, apidata =>
+   {
+      apidata.data.category.push(Utilities.ShallowCopy(rootCategory));
+      treeify(apidata.data.category);
+      var selector = makeTreeSelector(apidata.data.category);
+      container.appendChild(selector);
+      hide(container.querySelector("[data-loading]"));
+      var selected = container.getAttribute("data-v");
+      if(selected)
+         selector.value = selected;
+   });
+}
+
 // *********************
 // --- NOTIFICATIONS ---
 // *********************
@@ -1473,6 +1496,15 @@ function getChain(categories, content)
       crumbs = [{"name":"Root","id":0}].concat(crumbs);
 
    return crumbs;
+}
+
+function treeify(categories)
+{
+   //Ultra inefficient n^2, don't care at all.
+   categories.forEach(x =>
+   {
+      x.children = categories.filter(y => y.parentId === x.id);
+   });
 }
 
 function parseLink(url)

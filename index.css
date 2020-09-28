@@ -30,7 +30,8 @@ html, body, .uk-modal-dialog, .uk-dropdown {
 .databar a:hover { 
    color: var(--databartxthovcolor); 
 }
-h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt { 
+h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt,
+.uk-accordion-title { 
    color: var(--headercolor) !important;
 }
 img { 
@@ -318,6 +319,9 @@ a:hover { color: inherit; }
 [data-pageitem] [data-avatar] {
    margin-right: 3px;
    margin-left: 6px;
+}
+[data-treeselector] option {
+   font-family: monospace;
 }
 /* User settings */
 #userlocaloptions input { }
