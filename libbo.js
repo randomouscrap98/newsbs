@@ -317,6 +317,14 @@ var Utilities =
          result.loop = url.match(/[&?]loop(=|&|$)/);
       }
 		return result; 
-	}
+	},
+   SetSelected : function(select, value)
+   {
+      var options = select.querySelectorAll("option");
+
+      for(var i = 0; i < options.length; i++)
+         if(options[i].value === value)
+            select.selectedIndex = i;
+   }
 };
 

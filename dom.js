@@ -400,9 +400,9 @@ function recurseTreeSelector(node, selector, path, processed)
    //node.children.sort((a, b) => Math.sign(a.id - b.id));
 }
 
-function makeTreeSelector(tree)
+function fillTreeSelector(tree, selector)
 {
-   var selector = cloneTemplate("treeselector");
+   //var selector = cloneTemplate("treeselector");
    var rootNodes = tree.filter(x => x.id === 0);
 
    if(!rootNodes.length)

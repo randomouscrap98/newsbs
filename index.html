@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1601306327"></script>
-      <script src="dom.js?v=1601306327"></script>
-      <script src="api.js?v=1601306327"></script>
-      <script src="index.js?v=1601306327"></script>
-      <script src="sbs2-markup/highlight.js?v=1601306327"></script>
-      <script src="sbs2-markup/parse.js?v=1601306327"></script>
-      <script src="sbs2-markup/render.js?v=1601306327"></script>
+      <script src="libbo.js?v=1601322797"></script>
+      <script src="dom.js?v=1601322797"></script>
+      <script src="api.js?v=1601322797"></script>
+      <script src="index.js?v=1601322797"></script>
+      <script src="sbs2-markup/highlight.js?v=1601322797"></script>
+      <script src="sbs2-markup/parse.js?v=1601322797"></script>
+      <script src="sbs2-markup/render.js?v=1601322797"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1601306327" />
+      <link rel="stylesheet" href="index.css?v=1601322797" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -46,6 +46,18 @@ function selectOptionSetup(el, replace)
       });
    }
    return el.value;
+}
+function deferredselect(el, replace)
+{
+   if(replace)
+   {
+      //Set the value so the select MIGHT update
+      el.value = replace;
+      el.setAttribute("data-dv", replace); //This is so we can pull it out later if needed
+   }
+
+   //But always return what WE know the value to be
+   return el.getAttribute("data-dv"); //el.value;
 }
 function showdrop(el, show)
 {
@@ -721,13 +733,12 @@ function retext(el, attr)
             <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
                uk-margin-small-right"></span>
          </a>
-         <select data-treeselector class="uk-select">
-         <!--<select data-treeselector class="uk-select" onblur="retext(this, 'data-path')"
-           onfocus="retext(this, 'data-tree')" onchange="this.blur()"> -->
-            <!--<select class="uk-select uk-width-small uk-form-small" id="searchsortoption">-->
-         </select>
-         <div data-categoryselect data-value="data-v">
+         <div data-categoryselect>
             <div data-loading uk-spinner></div>
+            <!-- This is a SPECIAL select and will ALWAYS have its options
+               filled AFTERWARDS, as a result, a special function must be used
+               for setting the value-->
+            <select class="uk-select" data-value=".deferredselect"></select>
          </div>
          <div data-youtube>
             <div class="uk-flex uk-flex-middle">
@@ -739,7 +750,6 @@ function retext(el, attr)
          </div>
          <div data-youtubeplayer class="uk-margin-small-top">
             <iframe width=480 height=270 allow="autoplay; fullscreen" data-source="src"></iframe> 
-            <!-- width=360 height=270 data-source="src"></iframe>-->
          </div>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">

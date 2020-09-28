@@ -1281,22 +1281,25 @@ function makeUserSearch(onSelect)
       onSelect, "Search Users");
 }
 
+//Fill the given container with a category selector, assuming NO categories 
+//are known (they will be pulled, the category select has a loading indicator)
 function makeCategorySelect(container)
 {
    var params = new URLSearchParams();
-   params.append("requests", "category"); // + JSON.stringify(search));
+   params.append("requests", "category");
    globals.api.Chain(params, apidata =>
    {
       var rc = Utilities.ShallowCopy(rootCategory);
       rc.name = "Root";
       apidata.data.category.unshift(rc);
       treeify(apidata.data.category);
-      var selector = makeTreeSelector(apidata.data.category);
-      container.appendChild(selector);
-      hide(container.querySelector("[data-loading]"));
-      var selected = container.getAttribute("data-v");
-      if(selected)
-         selector.value = selected;
+      writeDom(() =>
+      {
+         fillTreeSelector(apidata.data.category, container.querySelector("select"));
+         hide(container.querySelector("[data-loading]"));
+         //Update the value again since we didn't have options before
+         findSwap(container, "data-value", getSwap(container, "data-value"));
+      });
    });
 }
 
