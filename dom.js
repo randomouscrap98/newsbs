@@ -243,7 +243,10 @@ function finalizeTemplate(elm)
    if(elm.hasAttribute("data-spa"))
       linkArray.push(elm);
 
-   linkArray.forEach(x => { x.onclick = templateSpaClick; });
+   linkArray.forEach(x => { 
+      x.onclick = templateSpaClick; 
+      x.removeAttribute("data-spa");
+   });
 
    var tmpls = elm.querySelectorAll("[data-tmpl]");
    [...tmpls].forEach(x => replaceTemplate(x));
@@ -328,6 +331,7 @@ function replaceTemplate(element)
          tmpl.setAttribute(x.name, x.value);
    });
    finalizeTemplate(tmpl);
+   DomDeps.signal("replacetemplate", { original: element, replacement: tmpl });
    element.parentNode.replaceChild(tmpl, element);
 }
 

@@ -403,14 +403,13 @@ function setupSignalProcessors()
          location.reload();
       });
    });
-   signals.Attach("finalizetemplate", data =>
-   {
-      if(data.element.hasAttribute("data-categoryselect") && 
-         !data.element.hasAttribute("data-deferred"))
-      {
-         makeCategorySelect(data.element);
-      }
-   });
+   //signals.Attach("replacetemplate", data =>
+   //{
+   //   if(data.replacement.hasAttribute("data-categoryselect"))
+   //   {
+   //      makeCategorySelect(data.replacement, data.original.categories);
+   //   }
+   //});
 
 
    //You MUST be able to assume that discussions and all that junk are fine at
@@ -953,7 +952,7 @@ function routecategoryedit_load(spadat)
       params.append("requests", "user.0permissions.0localsupers");
    }
 
-   params.set("user", "id,name,avatar");
+   params.set("user", "id,username,avatar");
 
    globals.api.Chain(params, function(apidata)
    {
@@ -968,7 +967,18 @@ function routecategoryedit_load(spadat)
 
       route_complete(spadat, title, templ =>
       {
-         multiSwap(templ, { "data-title" : title });
+         multiSwap(templ, { 
+            "data-title" : title //,
+            //"data-categoryselect" : makeCategorySelect(data.category)
+         });
+         var cselect = templ.querySelector('[data-categoryselect]');
+         cselect.appendChild(makeCategorySelect(data.category, "parentId"));
+         //cselect.categories = data.category;
+
+         if(cid && categories[cid])
+         {
+            //replace a LOT of fields wow
+         }
       });
    });
 }
@@ -1267,6 +1277,43 @@ function makeActivity(modifySearch, unlimitedHeight)
    return activity;
 }
 
+function makeCategorySelect(categories, name)
+{
+   var container = cloneTemplate("categoryselect");
+
+   var completion = (c) =>
+   {
+      var rc = Utilities.ShallowCopy(rootCategory);
+      rc.name = "Root";
+      c.unshift(rc);
+      treeify(c);
+      writeDom(() =>
+      {
+         fillTreeSelector(c, container.querySelector("select"));
+         hide(container.querySelector("[data-loading]"));
+         //Update the value again since we didn't have options before
+         multiSwap(container, {
+            "data-value": getSwap(container, "data-value"),
+            "data-name" : name
+         });
+      });
+   };
+
+   if(categories)
+   {
+      completion(categories);
+   }
+   else
+   {
+      var params = new URLSearchParams();
+      params.append("requests", "category");
+      globals.api.Chain(params, apidata => completion(apidata.data.category));
+   }
+
+   console.log(container);
+   return container;
+}
+
 function makeMiniSearch(baseSearch, dataMap, onSelect, placeholder)
 {
    var s = cloneTemplate("minisearch");
@@ -1318,27 +1365,36 @@ function makeUserSearch(onSelect)
       onSelect, "Search Users");
 }
 
-//Fill the given container with a category selector, assuming NO categories 
-//are known (they will be pulled, the category select has a loading indicator)
-function makeCategorySelect(container)
-{
-   var params = new URLSearchParams();
-   params.append("requests", "category");
-   globals.api.Chain(params, apidata =>
-   {
-      var rc = Utilities.ShallowCopy(rootCategory);
-      rc.name = "Root";
-      apidata.data.category.unshift(rc);
-      treeify(apidata.data.category);
-      writeDom(() =>
-      {
-         fillTreeSelector(apidata.data.category, container.querySelector("select"));
-         hide(container.querySelector("[data-loading]"));
-         //Update the value again since we didn't have options before
-         findSwap(container, "data-value", getSwap(container, "data-value"));
-      });
-   });
-}
+////Fill the given container with a category selector, assuming NO categories 
+////are known (they will be pulled, the category select has a loading indicator)
+//function makeCategorySelect(container, categories)
+//{
+//   var completion = (c) =>
+//   {
+//      var rc = Utilities.ShallowCopy(rootCategory);
+//      rc.name = "Root";
+//      c.unshift(rc);
+//      treeify(c);
+//      writeDom(() =>
+//      {
+//         fillTreeSelector(c, container.querySelector("select"));
+//         hide(container.querySelector("[data-loading]"));
+//         //Update the value again since we didn't have options before
+//         findSwap(container, "data-value", getSwap(container, "data-value"));
+//      });
+//   };
+//
+//   if(categories)
+//   {
+//      completion(categories);
+//   }
+//   else
+//   {
+//      var params = new URLSearchParams();
+//      params.append("requests", "category");
+//      globals.api.Chain(params, apidata => completion(apidata.data.category));
+//   }
+//}
 
 // *********************
 // --- NOTIFICATIONS ---

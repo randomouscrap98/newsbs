@@ -8,8 +8,10 @@
    --imageopacity: 1;
    --inputbgcolor: rgba(255,255,255,0.9);
    --lightblockbgcolor : rgba(128,128,128,0.05);
+   --blockbgcolor: rgba(128,128,128,0.1);
    --outlinecolor : rgba(128,128,128,0.1);
    --mutedtextcolor : rgba(128,128,128, 0.7);
+   --tabselectcolor: rgba(128,255,240,0.4);
 }
 body {
    position: fixed; /*absolute;*/
@@ -31,7 +33,7 @@ html, body, .uk-modal-dialog, .uk-dropdown {
    color: var(--databartxthovcolor); 
 }
 h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt,
-.uk-accordion-title { 
+.uk-accordion-title, .uk-form-label { 
    color: var(--headercolor) !important;
 }
 img { 
@@ -126,14 +128,14 @@ a:hover { color: inherit; }
    padding: 0 0.5em;
 }
 #rightpanenav {
-   background-color: var(--outlinecolor);
+   background-color: var(--blockbgcolor);
 }
 #rightpanenav >:hover {
    background-color: rgba(128,255,240,0.1);
 }
 /* left-pane stuff (main content!) */
 #maincontentbar {
-   background-color: var(--outlinecolor);
+   background-color: var(--blockbgcolor);
    padding: 0.1em;
 }
 #maincontentbar img {
@@ -148,7 +150,7 @@ a:hover { color: inherit; }
 }
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
-   background-color: rgba(128,255,240,0.4);
+   background-color: var(--tabselectcolor); /*rgba(128,255,240,0.4);*/
    color: #111;
 }
 .tabnav > div { padding: 0.1em 0; }
@@ -195,7 +197,7 @@ a:hover { color: inherit; }
    margin-bottom: 0.25em;
 }
 .pw-users {
-   background-color: var(--outlinecolor);
+   background-color: var(--blockbgcolor);
    margin-right: 1em;
    padding: 0 0.3em;
    border-radius: 5px;
@@ -405,5 +407,8 @@ textarea::-webkit-scrollbar { width: 3px; } /* width */
    --databartxthovcolor: #EEE;
    --headercolor: #000;
    --mutedtextcolor: #666;
+   --outlinecolor: #555;
+   --blockbgcolor: #ffef97; /*#FFFF77;*/
+   --tabselectcolor: #32d2c0; /*rgba(128,255,240,0.4);*/
 }
 
