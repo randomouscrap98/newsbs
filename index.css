@@ -209,16 +209,17 @@ a:hover { color: inherit; }
    margin: 6px 3px; /*0.4rem 0.2em;   */
    vertical-align: top;
    filter: opacity(0.7);
-   border-radius: 5px;
+   /*border-radius: 5px;*/
+   border-radius: 2px;
 }
 [data-username] {
    margin: 0 0.4em;
 }
 
-#navuseravatar
+/*#navuseravatar
 {
    border-radius: 8px;
-}
+}*/
 /* Breadcrumb/nav special (uikit default replacements) */
 /*#breadcrumbs [data-breadcrumb] { padding-top: 0.15em; }*/
 #breadcrumbs a { line-height: 1.0em; }
@@ -243,9 +244,11 @@ a:hover { color: inherit; }
 #discussionuserlist::after {
    content: "Viewing";
    margin: 0.5em 1em;
+   margin-left: auto;
    font-size: 0.7em;
    color: rgba(128,128,128,0.5);
    float: right;
+   display: block;
 }
 #discussionscontainer {
    min-height: 45%;

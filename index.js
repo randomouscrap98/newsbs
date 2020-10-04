@@ -405,8 +405,11 @@ function setupSignalProcessors()
    });
    signals.Attach("finalizetemplate", data =>
    {
-      if(data.element.hasAttribute("data-categoryselect"))
+      if(data.element.hasAttribute("data-categoryselect") && 
+         !data.element.hasAttribute("data-deferred"))
+      {
          makeCategorySelect(data.element);
+      }
    });
 
 
@@ -463,7 +466,7 @@ function setupSpa()
 
       if(!loadFunc)
       {
-         pageerror("SPA process", "Couldn't find loader for page " + data.page);
+         pageerror("SPA process", "Couldn't find loader for page " + spadata.page);
          return;
       }
 
@@ -933,6 +936,40 @@ function routeuser_load(spadat)
             multiSwap(templ, { "data-content": "No user page" });
          }
       }, [u], c ? c.id : false);
+   });
+}
+
+function routecategoryedit_load(spadat)
+{
+   var cid = Number(spadat.id);
+   var params = new URLSearchParams();
+
+   //Just ALWAYS pull all the categories, it's just a given
+   params.append("requests", "category");
+
+   //But pull special category data when we're editing (the user permissions)
+   if(cid)
+   {
+      params.append("requests", "user.0permissions.0localsupers");
+   }
+
+   params.set("user", "id,name,avatar");
+
+   globals.api.Chain(params, function(apidata)
+   {
+      log.Datalog("see devlog for categoryedit data", apidata);
+
+      var data = apidata.data;
+      var users = idMap(data.user);
+      var categories = idMap(data.category);
+
+      var title = "Category: " + (cid ? cid : "New");
+      //var c = categories[cid] || rootCategory; //{ "name" : "Website Root", "id" : 0 };
+
+      route_complete(spadat, title, templ =>
+      {
+         multiSwap(templ, { "data-title" : title });
+      });
    });
 }
 

@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1601322797"></script>
-      <script src="dom.js?v=1601322797"></script>
-      <script src="api.js?v=1601322797"></script>
-      <script src="index.js?v=1601322797"></script>
-      <script src="sbs2-markup/highlight.js?v=1601322797"></script>
-      <script src="sbs2-markup/parse.js?v=1601322797"></script>
-      <script src="sbs2-markup/render.js?v=1601322797"></script>
+      <script src="libbo.js?v=1601840623"></script>
+      <script src="dom.js?v=1601840623"></script>
+      <script src="api.js?v=1601840623"></script>
+      <script src="index.js?v=1601840623"></script>
+      <script src="sbs2-markup/highlight.js?v=1601840623"></script>
+      <script src="sbs2-markup/parse.js?v=1601840623"></script>
+      <script src="sbs2-markup/render.js?v=1601840623"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1601322797" />
+      <link rel="stylesheet" href="index.css?v=1601840623" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -139,7 +139,7 @@ function retext(el, attr)
                <!-- Need separate containers because lazy: one is for user
                   toggle, the other is for page toggle -->
                <div data-utgl class="uk-flex-none" hidden>
-                  <div id="discussionuserlist" class="uk-flex"></div>
+                  <div id="discussionuserlist" class="uk-flex uk-flex-wrap"></div>
                </div>
                <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
                   <div id="discussions" class="uk-flex-1" uk-overflow-auto> 
@@ -681,7 +681,7 @@ function retext(el, attr)
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
             <span data-meta=".textContent" class="uk-text-meta"></span>
          </div>
-         <a data-discussionuser class="" data-userlink="href" data-spa>
+         <a data-discussionuser class="uk-flex-none" data-userlink="href" data-spa>
             <img data-avatar="src" width=40>
          </a>
          <li data-subcat><a data-link="href" data-spa data-name=".textContent">
@@ -809,6 +809,28 @@ function retext(el, attr)
             </li>
             <div data-pages class="uk-margin-top">
             </div>
+         </div>
+         <div data-routecategoryedit class="uk-container uk-margin-top uk-margin-bottom">
+            <div >
+               <form onsubmit="return false">
+                  <fieldset class="uk-fieldset" uk-margin>
+                     <legend class="uk-legend" data-title=".textContent"></legend>
+                     <label>
+                        <input class="uk-input" placeholder="Category Name" name="name"
+                         class="uk-form-large">
+                     </label>
+                     <label>
+                        <textarea class="uk-textarea" placeholder="Category Description" 
+                           name="description"></textarea>
+                     </label>
+                  </fieldset>
+               </form>
+            </div>
+            <!--<h1 data-title=".textContent" class="uk-inline"></h1>
+            <li data-subcats class="uk-list uk-list-square uk-list-collapse">
+            </li>
+            <div data-pages class="uk-margin-top">
+            </div>-->
          </div>
       </div>
       <!-- LOC:CONTROLS -->
