@@ -969,6 +969,7 @@ function routecategoryedit_load(spadat)
 
       var title = "Category: " + (cid ? cid : "New");
       var baseData = false;
+      var newPid = Utilities.GetParams(spadat.url).get("pid");
 
       if(cid && categories[cid])
          baseData = categories[cid];
@@ -979,12 +980,9 @@ function routecategoryedit_load(spadat)
             "data-title" : title
          });
          var cselect = templ.querySelector('[data-categoryselect]');
-         cselect.appendChild(makeCategorySelect(data.category, "parentId"));
-         //cselect.categories = data.category;
+         cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
 
          formFill(templ, baseData);
-
-         var newPid = Utilities.GetParams(spadat.url).get("pid");
 
          if(!baseData && newPid !== null)
             formFill(templ, { "parentId": newPid });

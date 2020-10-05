@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1601861487"></script>
-      <script src="dom.js?v=1601861487"></script>
-      <script src="api.js?v=1601861487"></script>
-      <script src="index.js?v=1601861487"></script>
-      <script src="sbs2-markup/highlight.js?v=1601861487"></script>
-      <script src="sbs2-markup/parse.js?v=1601861487"></script>
-      <script src="sbs2-markup/render.js?v=1601861487"></script>
+      <script src="libbo.js?v=1601867371"></script>
+      <script src="dom.js?v=1601867371"></script>
+      <script src="api.js?v=1601867371"></script>
+      <script src="index.js?v=1601867371"></script>
+      <script src="sbs2-markup/highlight.js?v=1601867371"></script>
+      <script src="sbs2-markup/parse.js?v=1601867371"></script>
+      <script src="sbs2-markup/render.js?v=1601867371"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1601861487" />
+      <link rel="stylesheet" href="index.css?v=1601867371" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -829,35 +829,31 @@ function retext(el, attr)
             <h1 data-title=".textContent" class="uk-inline"></h1>
             <div>
                <form onsubmit="return false" class="uk-form-stacked">
-                  <!--<fieldset class="uk-fieldset" uk-margin>
-                  <legend class="uk-legend" data-title=".textContent"></legend>-->
-      <div class="uk-form-controls" uk-margin>
-         <label class="uk-form-label" uk-margin>
-            <span>Name</span>
-            <input class="uk-input uk-form-large" name="name">
-         </label>
-         <label class="uk-form-label" uk-margin>
-            <span>Description</span>
-            <textarea rows=3 class="uk-textarea" name="description"></textarea>
-         </label>
-         <label class="uk-form-label" uk-margin>
-            <span>Parent Category</span>
-            <div data-categoryselect></div>
-         </label>
-      <!--<div data-tmpl="categoryselect" data-tmpld='{"data-name":"parentId"}'>
-      </div>-->
-         <input type="submit" value="Submit" class="uk-button uk-button-primary">
-      </div>
-      <!--</fieldset>-->
+   <div class="uk-form-controls" uk-margin>
+      <label class="uk-form-label" uk-margin>
+         <span>Name</span>
+         <input class="uk-input uk-form-large" name="name">
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Description</span>
+         <textarea rows=3 class="uk-textarea uk-resize-vertical" name="description"></textarea>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Parent Category</span>
+         <div data-categoryselect name="parentId"></div>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Local Supers</span>
+         <div data-localsupers name="localSupers"></div>
+         <p class="uk-text-meta">Each local super user has edit and delete
+          permissions on all pages at any level under this category</p>
+      </label>
+      <input type="submit" value="Submit" class="uk-button uk-button-primary">
+   </div>
                </form>
                <p class="uk-text-meta">Note: you may be unable to edit or
                create new categories depending on your permissions.</p>
             </div>
-            <!--<h1 data-title=".textContent" class="uk-inline"></h1>
-            <li data-subcats class="uk-list uk-list-square uk-list-collapse">
-            </li>
-            <div data-pages class="uk-margin-top">
-            </div>-->
          </div>
       </div>
       <!-- LOC:CONTROLS -->
