@@ -500,10 +500,34 @@ function formSerialize(form)
    for(var i = 0; i < inputs.length; i++)
    {
       var tag = inputs[i].tagName.toLowerCase();
-      if(tag === "input" || tag === "textarea")
+      if(tag === "input" || tag === "textarea" || tag==="select")
          result[inputs[i].getAttribute("name")] = inputs[i].value;
    }
    return result;
+}
+
+function formFill(form, data)
+{
+   if(!data)
+      return;
+
+   //TRY to get inputs by name
+   var inputs = form.querySelectorAll("[name]");
+   for(var i = 0; i < inputs.length; i++)
+   {
+      var key = inputs[i].getAttribute("name");
+      console.log("KEY: ", key);
+
+      if(key in data)
+      {
+         var tag = inputs[i].tagName.toLowerCase();
+         if(tag === "input" || tag === "textarea" || tag==="select")
+         {
+            console.log("setting form " + key  + " to " + data[key]);
+            inputs[i].value = data[key];
+         }
+      }
+   }
 }
 
 

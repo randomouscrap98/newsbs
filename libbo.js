@@ -303,6 +303,15 @@ var Utilities =
    {
       return JSON.parse(JSON.stringify(value));
    },
+   MergeInto : function (base, newthing) 
+   {
+      var keys = Object.keys(newthing);
+
+      for (let key of keys)
+         base[key] = newthing[key];
+
+      return base;
+   },
    ParseYoutube :	function (url) 
    {
       var result = { id : null };

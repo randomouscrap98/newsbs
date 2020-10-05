@@ -823,7 +823,12 @@ function routecategory_load(spadat)
          var pgelm = templ.querySelector("[data-pages]");
          var childcats = data.category.filter(x => x.parentId === cid);
 
-         multiSwap(templ, { "data-title" : c.name });
+         multiSwap(templ, { 
+            "data-title" : c.name ,
+            "data-editlink" : "?p=categoryedit-" + cid,
+            "data-newlink" : "?p=categoryedit&pid=" + cid,
+            "data-description" : c.description
+         });
          childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
          data.content.forEach(x => pgelm.appendChild(makePageitem(x, users)));
       }, getChain(data.category, c));
@@ -963,23 +968,32 @@ function routecategoryedit_load(spadat)
       var categories = idMap(data.category);
 
       var title = "Category: " + (cid ? cid : "New");
-      //var c = categories[cid] || rootCategory; //{ "name" : "Website Root", "id" : 0 };
+      var baseData = false;
+
+      if(cid && categories[cid])
+         baseData = categories[cid];
 
       route_complete(spadat, title, templ =>
       {
          multiSwap(templ, { 
-            "data-title" : title //,
-            //"data-categoryselect" : makeCategorySelect(data.category)
+            "data-title" : title
          });
          var cselect = templ.querySelector('[data-categoryselect]');
          cselect.appendChild(makeCategorySelect(data.category, "parentId"));
          //cselect.categories = data.category;
 
-         if(cid && categories[cid])
+         formFill(templ, baseData);
+
+         var newPid = Utilities.GetParams(spadat.url).get("pid");
+
+         if(!baseData && newPid !== null)
+            formFill(templ, { "parentId": newPid });
+
+         formSetupSubmit(templ.querySelector("form"), "category", c =>
          {
-            //replace a LOT of fields wow
-         }
-      });
+            globals.spa.ProcessLinkContextAware(getCategoryLink(c.id));
+         }, false, baseData);
+      }, baseData ? getChain(data.category, baseData) : undefined);
    });
 }
 
@@ -1281,36 +1295,25 @@ function makeCategorySelect(categories, name)
 {
    var container = cloneTemplate("categoryselect");
 
-   var completion = (c) =>
-   {
-      var rc = Utilities.ShallowCopy(rootCategory);
-      rc.name = "Root";
-      c.unshift(rc);
-      treeify(c);
-      writeDom(() =>
-      {
-         fillTreeSelector(c, container.querySelector("select"));
-         hide(container.querySelector("[data-loading]"));
-         //Update the value again since we didn't have options before
-         multiSwap(container, {
-            "data-value": getSwap(container, "data-value"),
-            "data-name" : name
-         });
-      });
-   };
+   var rc = Utilities.ShallowCopy(rootCategory);
+   rc.name = "Root";
+   categories.unshift(rc);
+   treeify(categories);
 
-   if(categories)
-   {
-      completion(categories);
-   }
-   else
-   {
-      var params = new URLSearchParams();
-      params.append("requests", "category");
-      globals.api.Chain(params, apidata => completion(apidata.data.category));
-   }
+   fillTreeSelector(categories, container.querySelector("select"));
+   hide(container.querySelector("[data-loading]"));
+   //Update the value again since we didn't have options before
+   multiSwap(container, {
+      "data-value": getSwap(container, "data-value"),
+      "data-name" : name
+   });
 
-   console.log(container);
+   finalizeTemplate(container);
+
+   //   var params = new URLSearchParams();
+   //   params.append("requests", "category");
+   //   globals.api.Chain(params, apidata => completion(apidata.data.category));
+
    return container;
 }
 
@@ -1897,7 +1900,7 @@ function formError(form, error)
    log.Error(error);
 }
 
-function formSetupSubmit(form, endpoint, success, validate)
+function formSetupSubmit(form, endpoint, success, validate, baseData)
 {
    form.addEventListener("submit", function(event)
    {
@@ -1916,7 +1919,17 @@ function formSetupSubmit(form, endpoint, success, validate)
          }
       }
 
-      globals.api.Post(endpoint, formData, apidata => success(apidata.data),
+      var func = globals.api.Post.bind(globals.api);
+      var data = formData;
+
+      if(baseData)
+      {
+         func = globals.api.Put.bind(globals.api);
+         data = Utilities.MergeInto(baseData, formData);
+         endpoint += "/" + baseData.id;
+      }
+
+      func(endpoint, data, apidata => success(apidata.data),
          apidata => formError(form, apidata.request.responseText || apidata.request.status), 
          apidata => formEnd(form));
    });

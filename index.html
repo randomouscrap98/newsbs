@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1601852729"></script>
-      <script src="dom.js?v=1601852729"></script>
-      <script src="api.js?v=1601852729"></script>
-      <script src="index.js?v=1601852729"></script>
-      <script src="sbs2-markup/highlight.js?v=1601852729"></script>
-      <script src="sbs2-markup/parse.js?v=1601852729"></script>
-      <script src="sbs2-markup/render.js?v=1601852729"></script>
+      <script src="libbo.js?v=1601861487"></script>
+      <script src="dom.js?v=1601861487"></script>
+      <script src="api.js?v=1601861487"></script>
+      <script src="index.js?v=1601861487"></script>
+      <script src="sbs2-markup/highlight.js?v=1601861487"></script>
+      <script src="sbs2-markup/parse.js?v=1601861487"></script>
+      <script src="sbs2-markup/render.js?v=1601861487"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1601852729" />
+      <link rel="stylesheet" href="index.css?v=1601861487" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -805,7 +805,21 @@ function retext(el, attr)
             </div>
          </div>
          <div data-routecategory class="uk-container uk-margin-top uk-margin-bottom">
-            <h1 data-title=".textContent" class="uk-inline"></h1>
+            <div class="uk-flex">
+               <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
+               <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
+                  <li>
+                     <a href="#" uk-icon="cog"></a>
+                     <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
+                        <ul class="uk-list uk-margin-remove-bottom">
+                           <li><a data-editlink="href">Edit Category</a></li>
+                           <li><a data-newlink="href">Add Category</a></li>
+                        </ul>
+                     </div>
+                  </li>
+               </ul>
+            </div>
+            <p class="uk-text-meta" data-description=".textContent"></p>
             <li data-subcats class="uk-list uk-list-square uk-list-collapse">
             </li>
             <div data-pages class="uk-margin-top">
