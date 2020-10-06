@@ -21,7 +21,8 @@ var attr = {
    "atoldest" : "data-atoldest"
 };
 
-var rootCategory = { "name" : "Website Root", "id" : 0 }; //, "parentId" : undefined };
+var rootCategory = { name : "Website Root", id : 0 }; //, "parentId" : undefined };
+var everyoneUser = { username: "|Everyone|", avatar: 0, id: 0};
 
 //Will this be stored in user eventually?
 var options = {
@@ -59,7 +60,8 @@ var options = {
    signalcleanup : {def: 10000 },
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
-   defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]}
+   defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]},
+   defaultpermissions: {def:"cr"}
 };
 
 var globals = { 
@@ -972,6 +974,7 @@ function routecategoryedit_load(spadat)
 
       var data = apidata.data;
       var users = idMap(data.user);
+      users[0] = Utilities.ShallowCopy(everyoneUser);
       var categories = idMap(data.category);
 
       var title = "Category: " + (cid ? cid : "New");
@@ -990,15 +993,20 @@ function routecategoryedit_load(spadat)
          cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
 
          var lsupers = templ.querySelector('[data-localsupers]');
-         lsupers.appendChild(makeBasicUserCollection(lsupers.getAttribute("name")));
+         lsupers.appendChild(makeUserCollection(lsupers.getAttribute("name")));
+
+         var perms = templ.querySelector('[data-permissions]');
+         perms.appendChild(makeUserCollection(perms.getAttribute("name"), true));
 
          if(baseData)
          {
             formFill(templ, baseData);
 
-            baseData.localSupers.forEach(x => 
+            baseData.localSupers.forEach(x => {
+               if(users[x]) addPermissionUser(users[x],lsupers); });
+            Object.keys(baseData.permissions).forEach(x => 
             {
-               if(users[x]) addBasicUserCollection(users[x],lsupers);
+               if(users[x]) addPermissionUser(users[x],perms, baseData.permissions[x]);
             });
          }
          else
@@ -1388,12 +1396,13 @@ function makeUserSearch(onSelect)
       onSelect, "Search Users");
 }
 
-function makeBasicUserCollection(name) //, container)
+function makeUserCollection(name, showperms) //, container)
 {
    var fragment = new DocumentFragment();
    var base = cloneTemplate("collection");
    fragment.appendChild(base);
-   fragment.appendChild(makeUserSearch(x => addBasicUserCollection(x.user, base)));
+   fragment.appendChild(makeUserSearch(x => addPermissionUser(x.user, base, 
+      showperms ? getLocalOption("defaultpermissions") : undefined)));
    multiSwap(base, {
       "data-name" : name
    });
@@ -1401,13 +1410,16 @@ function makeBasicUserCollection(name) //, container)
    return fragment;
 }
 
-function addBasicUserCollection(user, list)
+function addPermissionUser(user, list, permissions)
 {
    if(!list.hasAttribute("data-collection"))
       list = list.querySelector("[data-collection]");
-   list.appendChild(makeCollectionItem(
-      makeBasicUserResult(getAvatarLink(user.avatar, 20), user.username), 
-      () => user.id));
+   var showperms = (permissions !== undefined);
+   var permuser = makePermissionUser(
+      getAvatarLink(user.avatar, 20), user.username, permissions);
+   list.appendChild(makeCollectionItem(permuser,
+      x => showperms ? getSwap(x, "data-value") : user.id, 
+      showperms ? String(user.id) : undefined));
 }
 
 

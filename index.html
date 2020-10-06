@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602003839"></script>
-      <script src="dom.js?v=1602003839"></script>
-      <script src="api.js?v=1602003839"></script>
-      <script src="index.js?v=1602003839"></script>
-      <script src="sbs2-markup/highlight.js?v=1602003839"></script>
-      <script src="sbs2-markup/parse.js?v=1602003839"></script>
-      <script src="sbs2-markup/render.js?v=1602003839"></script>
+      <script src="libbo.js?v=1602025122"></script>
+      <script src="dom.js?v=1602025122"></script>
+      <script src="api.js?v=1602025122"></script>
+      <script src="index.js?v=1602025122"></script>
+      <script src="sbs2-markup/highlight.js?v=1602025122"></script>
+      <script src="sbs2-markup/parse.js?v=1602025122"></script>
+      <script src="sbs2-markup/render.js?v=1602025122"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602003839" />
+      <link rel="stylesheet" href="index.css?v=1602025122" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -561,6 +561,39 @@ function retext(el, attr)
                </div>
             </div>
          </div>
+         <div id="permissionexplain" uk-modal>
+            <div class="uk-modal-dialog" uk-overflow-auto>
+               <button class="uk-modal-close-default" type="button" uk-close></button>
+               <div class="uk-modal-header">
+                  <h2 class="uk-modal-title">
+   <span uk-icon="icon: question; ratio: 2.5" class="uk-margin-small-right"></span>
+   About Permissions
+                  </h2>
+               </div>
+               <div class="uk-modal-body" uk-margin>
+                  <p>Pages and categories can be assigned permissions to
+                  restrict access. Permissions are CRUD (Create, Read, Update,
+                  Delete), and can be assigned for "everyone" (uid 0) or per
+                  user.</p>
+                  <p><b>Create:</b> allows posting INSIDE the thing (comments
+                  on pages, pages inside categories)</p>
+                  <p><b>Read:</b> allows viewing of the category or page (it
+                  will not show up ANYWHERE for people who don't have this
+                  permission: activity, search, etc; it basically doesn't exist)</p>
+                  <p><b>Update:</b> allows editing of the category or page</p>
+                  <p><b>Delete:</b> same as above but for deletion</p>
+                  <p>For example, most pages are created with permissions "CR"
+                  for uid 0 (everyone). This means everyone can post comments
+                  (create) and read the page. To create a private page, remove
+                  the "everyone" permission entirely.</p>
+                  <p><b>NOTE:</b>"Super" users (admins) have create, update,
+                  and delete permissions but NOT read, so they CANNOT read
+                  private pages. The owner of the page or category (the
+                  "creator") always has all permissions, even if none are
+                  specified.</p>
+               </div>
+            </div>
+         </div>
       </div>
       <!-- LOC:TEMPLATES -->
       <div id="templates" style="display: none">
@@ -751,6 +784,13 @@ function retext(el, attr)
             <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
                uk-margin-small-right"></span>
          </a>
+         <div data-permissionuser class="uk-flex uk-flex-middle">
+            <img data-image="src" class="uk-flex-none" width=20>
+            <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
+               uk-margin-small-right uk-text-truncate"></span>
+            <input data-permission data-value=".value" placeholder="CRUD"
+                class="uk-margin-small-right myinput uk-flex-none" >
+         </div>
          <div data-categoryselect>
             <div data-loading uk-spinner></div>
             <!-- This is a SPECIAL select and will ALWAYS have its options
@@ -772,7 +812,7 @@ function retext(el, attr)
          <div data-collection uk-sortable data-name="name" 
             class="uk-margin-small-bottom">
          </div>
-         <div data-collectionitem class="uk-flex uk-card uk-card-default">
+         <div data-collectionitem class="uk-flex uk-flex-middle uk-card uk-card-default">
             <div data-item class="uk-width-expand"></div>
             <a href="#" uk-icon="close" class="uk-text-danger uk-flex-none"
       onclick="event.preventDefault();var p=this.parentNode;p.parentNode.removeChild(p);"></a>
@@ -874,10 +914,18 @@ function retext(el, attr)
          <input class="uk-input" name="values.allowedTypes">
       </label>
       <label class="uk-form-label" uk-margin>
+         <span class="uk-flex uk-flex-middle">
+            <span class="uk-margin-small-right">Permissions:</span> 
+            <a href="#" uk-toggle="#permissionexplain" class="uk-flex-none uk-text-primary"
+               uk-icon="icon: question; ratio: 0.75">
+            </a>
+         </span>
+         <div data-permissions name="permissions">
+         </div>
+      </label>
+      <label class="uk-form-label" uk-margin>
          <span>Local Supers:</span>
          <div data-localsupers name="localSupers">
-            <!--<div uk-sortable data-collection name="localSupers"
-               class="uk-margin-small-bottom"></div>-->
          </div>
          <p class="uk-text-meta">Each local super user has edit and delete
           permissions on all pages at any level under this category</p>

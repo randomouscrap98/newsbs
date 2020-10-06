@@ -370,9 +370,19 @@ function makeMiniSearchResult(imageLink, name, onclick)
    return sr;
 }
 
-function makeBasicUserResult(imageLink, name)
+function makePermissionUser(imageLink, name, permissions)
 {
-   return makeMiniSearchResult(imageLink, name, e => e.preventDefault());
+   var sr = cloneTemplate("permissionuser");
+   multiSwap(sr, {
+      "data-image": imageLink,
+      "data-name": name
+   });
+   if(permissions !== undefined)
+      findSwap(sr, "data-value", permissions);
+   else
+      hide(sr.querySelector("[data-permission]"));
+   finalizeTemplate(sr);
+   return sr;
 }
 
 function makeBreadcrumbs(chain)
@@ -513,23 +523,6 @@ function formEnd(form)
 //https://stackoverflow.com/a/6394168/1066474
 function formIndex(obj,is, value) 
 {
-   //var b = obj;
-
-   //is.split('.').forEach(x =>
-      //{
-         //   if(value !== undefined && !(x in b))
-            //      b[x] = {};
-
-         //   if(!(x in b))
-            //      return;
-
-         //   b = b[x];
-   //});
-
-   //return b;
-
-   //var path = is.split('.');
-   //
    if (typeof is == 'string')
    {
       return formIndex(obj,is.split('.'), value);
@@ -569,9 +562,9 @@ function formSerialize(form, base)
          {
             var key = x.getAttribute('data-key');
             if(key)
-               val[key] = x.getValue();
+               val[key] = x.getValue(x);
             else
-               val.push(x.getValue());
+               val.push(x.getValue(x));
          });
          result[name] = val;
       }
@@ -590,7 +583,17 @@ function formFill(form, data)
    for(var i = 0; i < inputs.length; i++)
    {
       var key = inputs[i].getAttribute("name");
-      var val = formIndex(data, key);
+      var val = undefined;
+
+      try
+      {
+         val = formIndex(data, key);
+      }
+      catch(ex)
+      {
+         DomDeps.log("FORM WARNING: can't fill field " + key + ": " + ex.message);
+         continue;
+      }
       //console.log("KEY: ", key);
 
       if(val !== undefined)

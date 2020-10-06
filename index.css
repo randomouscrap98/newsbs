@@ -33,14 +33,15 @@ html, body, .uk-modal-dialog, .uk-dropdown {
    color: var(--databartxthovcolor); 
 }
 h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt,
-.uk-accordion-title, .uk-form-label { 
+.uk-accordion-title, .uk-form-label, .myinput { 
    color: var(--headercolor) !important;
 }
 img { 
    image-rendering: -webkit-optimize-contrast; 
    opacity: var(--imageopacity);
 }
-pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default {
+pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default,
+.myinput {
    background-color: var(--inputbgcolor) !important; /* TODO: do this WITHOUT important */
    border: 1px solid var(--outlinecolor) !important;
    color: inherit;
@@ -371,6 +372,12 @@ a:hover { color: inherit; }
    padding: 1em;
    background: var(--lightblockbgcolor);
    border-radius: 3px;
+}
+[data-collectionitem] {
+   margin-bottom: 0.1em;
+}
+input[data-permission] {
+   width: 4em;
 }
 
 /* Swag animations */
