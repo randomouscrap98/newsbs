@@ -80,6 +80,9 @@ blockquote {
    border: 1px solid rgba(128,128,128, 0.3);
    color: inherit;
 }
+.uk-modal {
+   z-index: 1030; /* WARN: this puts them above dropdowns! */
+}
 .uk-modal-header {
    background-color: var(--lightblockbgcolor);
    border-bottom: 1px solid var(--outlinecolor);

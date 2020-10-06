@@ -829,6 +829,13 @@ function routecategory_load(spadat)
             "data-newlink" : "?p=categoryedit&pid=" + cid,
             "data-description" : c.description
          });
+
+         templ.querySelector("[data-viewraw]").onclick = e =>
+         {
+            e.preventDefault();
+            displayRaw(c.name, JSON.stringify(c, null, 2));
+         };
+
          childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
          data.content.forEach(x => pgelm.appendChild(makePageitem(x, users)));
       }, getChain(data.category, c));
@@ -1447,6 +1454,13 @@ function notifySuccess(message)
 {
    log.Info("Notify: " + message);
    notifyBase(message, "check", "success");
+}
+
+function displayRaw(title, raw)
+{
+   rawmodaltitle.textContent = title;
+   rawmodalraw.textContent = raw;
+   UIkit.modal(rawmodal).show();
 }
 
 function handleAlerts(comments, users)

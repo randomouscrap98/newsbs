@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1601867371"></script>
-      <script src="dom.js?v=1601867371"></script>
-      <script src="api.js?v=1601867371"></script>
-      <script src="index.js?v=1601867371"></script>
-      <script src="sbs2-markup/highlight.js?v=1601867371"></script>
-      <script src="sbs2-markup/parse.js?v=1601867371"></script>
-      <script src="sbs2-markup/render.js?v=1601867371"></script>
+      <script src="libbo.js?v=1601957866"></script>
+      <script src="dom.js?v=1601957866"></script>
+      <script src="api.js?v=1601957866"></script>
+      <script src="index.js?v=1601957866"></script>
+      <script src="sbs2-markup/highlight.js?v=1601957866"></script>
+      <script src="sbs2-markup/parse.js?v=1601957866"></script>
+      <script src="sbs2-markup/render.js?v=1601957866"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1601867371" />
+      <link rel="stylesheet" href="index.css?v=1601957866" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -472,6 +472,18 @@ function retext(el, attr)
                </div>
             </div>
          </div>
+         <!-- LOC: RAWMODAL -->
+         <div id="rawmodal" uk-modal>
+            <div class="uk-modal-dialog">
+               <button class="uk-modal-close-default" type="button" uk-close></button>
+               <div class="uk-modal-header">
+                  <h2 class="uk-modal-title" id="rawmodaltitle"></h2>
+               </div>
+               <div class="uk-modal-body" uk-overflow-auto>
+                  <pre id="rawmodalraw"></pre>
+               </div>
+            </div>
+         </div>
          <!-- LOC: FILEUPLOAD -->
          <div id="fileupload" uk-modal>
             <div class="uk-modal-dialog" uk-overflow-auto>
@@ -827,6 +839,7 @@ function retext(el, attr)
                         <ul class="uk-list uk-margin-remove-bottom">
                            <li><a data-editlink="href">Edit Category</a></li>
                            <li><a data-newlink="href">Add Category</a></li>
+                           <li><a href="#" data-viewraw>Raw Data</a></li>
                         </ul>
                      </div>
                   </li>
