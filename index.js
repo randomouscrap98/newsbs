@@ -1926,7 +1926,7 @@ function formSetupSubmit(form, endpoint, success, validate, baseData)
       event.preventDefault();
       formStart(form);
 
-      var formData = formSerialize(form);
+      var formData = formSerialize(form, baseData);
       if(validate) 
       {
          var error = validate(formData);
@@ -1939,16 +1939,16 @@ function formSetupSubmit(form, endpoint, success, validate, baseData)
       }
 
       var func = globals.api.Post.bind(globals.api);
-      var data = formData;
+      //var data = formData;
 
       if(baseData)
       {
          func = globals.api.Put.bind(globals.api);
-         data = Utilities.MergeInto(baseData, formData);
+         //data = Utilities.MergeInto(baseData, formData);
          endpoint += "/" + baseData.id;
       }
 
-      func(endpoint, data, apidata => success(apidata.data),
+      func(endpoint, formData, apidata => success(apidata.data),
          apidata => formError(form, apidata.request.responseText || apidata.request.status), 
          apidata => formEnd(form));
    });

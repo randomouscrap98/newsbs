@@ -451,7 +451,7 @@ function makeYoutube(url, playerurl)
       };
       hideplayer.onclick = e =>
       {
-         console.log(youtube);
+         //console.log(youtube);
          e.preventDefault();
          [...(youtube.querySelectorAll("[data-youtubeplayer]"))].forEach(
             x => x.parentNode.removeChild(x));
@@ -510,11 +510,49 @@ function formEnd(form)
    submit.parentNode.removeChild(submit.parentNode.querySelector("[data-spinner]"));
 }
 
-function formSerialize(form)
+//https://stackoverflow.com/a/6394168/1066474
+function formIndex(obj,is, value) 
+{
+   //var b = obj;
+
+   //is.split('.').forEach(x =>
+      //{
+         //   if(value !== undefined && !(x in b))
+            //      b[x] = {};
+
+         //   if(!(x in b))
+            //      return;
+
+         //   b = b[x];
+   //});
+
+   //return b;
+
+   //var path = is.split('.');
+   //
+   if (typeof is == 'string')
+   {
+      return formIndex(obj,is.split('.'), value);
+   }
+   else
+   {
+      if(value !== undefined && !(is[0] in obj))
+         obj[is[0]] = {};
+
+      if (is.length==1 && value!==undefined)
+         return obj[is[0]] = value;
+      else if (is.length==0)
+         return obj;
+      else
+         return formIndex(obj[is[0]],is.slice(1), value);
+   }
+}
+
+function formSerialize(form, base)
 {
    //TRY to get inputs by name, get values based on what kind they are.
    var inputs = form.querySelectorAll("[name]");
-   var result = {};
+   var result = base || {};
    for(var i = 0; i < inputs.length; i++)
    {
       var elm = inputs[i];
@@ -522,7 +560,7 @@ function formSerialize(form)
       var name = elm.getAttribute('name');
       if(tag === "input" || tag === "textarea" || tag==="select")
       {
-         result[name] = elm.value;
+         formIndex(result, name, elm.value);
       }
       else if(elm.hasAttribute("data-collection"))
       {
@@ -538,6 +576,7 @@ function formSerialize(form)
          result[name] = val;
       }
    }
+   //console.log("form:", result);
    return result;
 }
 
@@ -551,15 +590,16 @@ function formFill(form, data)
    for(var i = 0; i < inputs.length; i++)
    {
       var key = inputs[i].getAttribute("name");
-      console.log("KEY: ", key);
+      var val = formIndex(data, key);
+      //console.log("KEY: ", key);
 
-      if(key in data)
+      if(val !== undefined)
       {
          var tag = inputs[i].tagName.toLowerCase();
          if(tag === "input" || tag === "textarea" || tag==="select")
          {
-            console.log("setting form " + key  + " to " + data[key]);
-            inputs[i].value = data[key];
+            DomDeps.log("setting form " + key  + " to " + val);
+            inputs[i].value = val;
          }
       }
    }
