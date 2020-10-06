@@ -222,7 +222,8 @@ function renderPage(route, applyTemplate, breadcrumbs)
 
 function cloneTemplate(name)
 {
-   var elm = document.querySelector("#templates > [data-" + name + "]");
+   //var templates = document.getElementById("templates");
+   var elm = templates.querySelector("#templates > [data-" + name + "]");
    if(!elm)
       throw "No template found: " + name;
    return elm.cloneNode(true);

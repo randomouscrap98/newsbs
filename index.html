@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1601957866"></script>
-      <script src="dom.js?v=1601957866"></script>
-      <script src="api.js?v=1601957866"></script>
-      <script src="index.js?v=1601957866"></script>
-      <script src="sbs2-markup/highlight.js?v=1601957866"></script>
-      <script src="sbs2-markup/parse.js?v=1601957866"></script>
-      <script src="sbs2-markup/render.js?v=1601957866"></script>
+      <script src="libbo.js?v=1601963003"></script>
+      <script src="dom.js?v=1601963003"></script>
+      <script src="api.js?v=1601963003"></script>
+      <script src="index.js?v=1601963003"></script>
+      <script src="sbs2-markup/highlight.js?v=1601963003"></script>
+      <script src="sbs2-markup/parse.js?v=1601963003"></script>
+      <script src="sbs2-markup/render.js?v=1601963003"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1601957866" />
+      <link rel="stylesheet" href="index.css?v=1601963003" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -769,7 +769,8 @@ function retext(el, attr)
          <div data-youtubeplayer class="uk-margin-small-top">
             <iframe width=480 height=270 allow="autoplay; fullscreen" data-source="src"></iframe> 
          </div>
-         <div data-collection uk-sortable data-name="name">
+         <div data-collection uk-sortable data-name="name" 
+            class="uk-margin-small-bottom">
          </div>
          <div data-collectionitem class="uk-flex uk-card uk-card-default">
             <div data-item class="uk-width-expand"></div>
@@ -870,9 +871,9 @@ function retext(el, attr)
       </label>
       <label class="uk-form-label" uk-margin>
          <span>Local Supers:</span>
-         <div data-localsupers>
-            <div uk-sortable data-collection name="localSupers"
-               class="uk-margin-small-bottom"></div>
+         <div data-localsupers name="localSupers">
+            <!--<div uk-sortable data-collection name="localSupers"
+               class="uk-margin-small-bottom"></div>-->
          </div>
          <p class="uk-text-meta">Each local super user has edit and delete
           permissions on all pages at any level under this category</p>

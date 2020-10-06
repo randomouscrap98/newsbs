@@ -990,14 +990,7 @@ function routecategoryedit_load(spadat)
          cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
 
          var lsupers = templ.querySelector('[data-localsupers]');
-         var lsuperlist = lsupers.querySelector("[name]");
-         var adduser = (id, avatarLink, name) =>
-         {
-            lsuperlist.appendChild(
-               makeCollectionItem(makeBasicUserResult(avatarLink, name), () => id)
-            );
-         };
-         lsupers.appendChild(makeUserSearch(x => adduser(x.id, x.imageLink, x.name)));
+         lsupers.appendChild(makeBasicUserCollection(lsupers.getAttribute("name")));
 
          if(baseData)
          {
@@ -1005,9 +998,7 @@ function routecategoryedit_load(spadat)
 
             baseData.localSupers.forEach(x => 
             {
-               var user = users[x];
-               if(user)
-                  adduser(user.id, getAvatarLink(user.avatar, 20), user.username);
+               if(users[x]) addBasicUserCollection(users[x],lsupers);
             });
          }
          else
@@ -1391,41 +1382,34 @@ function makeUserSearch(onSelect)
       ({
          id : x.id,
          imageLink : getAvatarLink(x.avatar, 20),
-         name : x.username
+         name : x.username,
+         user : x
       })),
       onSelect, "Search Users");
 }
 
-////Fill the given container with a category selector, assuming NO categories 
-////are known (they will be pulled, the category select has a loading indicator)
-//function makeCategorySelect(container, categories)
-//{
-//   var completion = (c) =>
-//   {
-//      var rc = Utilities.ShallowCopy(rootCategory);
-//      rc.name = "Root";
-//      c.unshift(rc);
-//      treeify(c);
-//      writeDom(() =>
-//      {
-//         fillTreeSelector(c, container.querySelector("select"));
-//         hide(container.querySelector("[data-loading]"));
-//         //Update the value again since we didn't have options before
-//         findSwap(container, "data-value", getSwap(container, "data-value"));
-//      });
-//   };
-//
-//   if(categories)
-//   {
-//      completion(categories);
-//   }
-//   else
-//   {
-//      var params = new URLSearchParams();
-//      params.append("requests", "category");
-//      globals.api.Chain(params, apidata => completion(apidata.data.category));
-//   }
-//}
+function makeBasicUserCollection(name) //, container)
+{
+   var fragment = new DocumentFragment();
+   var base = cloneTemplate("collection");
+   fragment.appendChild(base);
+   fragment.appendChild(makeUserSearch(x => addBasicUserCollection(x.user, base)));
+   multiSwap(base, {
+      "data-name" : name
+   });
+   finalizeTemplate(base);
+   return fragment;
+}
+
+function addBasicUserCollection(user, list)
+{
+   if(!list.hasAttribute("data-collection"))
+      list = list.querySelector("[data-collection]");
+   list.appendChild(makeCollectionItem(
+      makeBasicUserResult(getAvatarLink(user.avatar, 20), user.username), 
+      () => user.id));
+}
+
 
 // *********************
 // --- NOTIFICATIONS ---
