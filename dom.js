@@ -369,6 +369,11 @@ function makeMiniSearchResult(imageLink, name, onclick)
    return sr;
 }
 
+function makeBasicUserResult(imageLink, name)
+{
+   return makeMiniSearchResult(imageLink, name, e => e.preventDefault());
+}
+
 function makeBreadcrumbs(chain)
 {
    chain.forEach(x =>
@@ -462,6 +467,18 @@ function makeYoutube(url, playerurl)
    return youtube;
 }
 
+function makeCollectionItem(element, getValue, key)
+{
+   var item = cloneTemplate("collectionitem");
+   item.querySelector("[data-item]").appendChild(element);
+   if(key)
+      item.setAttribute("data-key", key);
+   finalizeTemplate(item);
+   item.getValue = getValue;
+   return item;
+}
+
+
 // *************
 // --- FORMS ---
 // *************
@@ -499,9 +516,26 @@ function formSerialize(form)
    var result = {};
    for(var i = 0; i < inputs.length; i++)
    {
-      var tag = inputs[i].tagName.toLowerCase();
+      var elm = inputs[i];
+      var tag = elm.tagName.toLowerCase();
+      var name = elm.getAttribute('name');
       if(tag === "input" || tag === "textarea" || tag==="select")
-         result[inputs[i].getAttribute("name")] = inputs[i].value;
+      {
+         result[name] = elm.value;
+      }
+      else if(elm.hasAttribute("data-collection"))
+      {
+         var val = elm.querySelector("[data-key]") ? {} : [];
+         [...elm.querySelectorAll("[data-collectionitem]")].forEach(x =>
+         {
+            var key = x.getAttribute('data-key');
+            if(key)
+               val[key] = x.getValue();
+            else
+               val.push(x.getValue());
+         });
+         result[name] = val;
+      }
    }
    return result;
 }

@@ -982,10 +982,33 @@ function routecategoryedit_load(spadat)
          var cselect = templ.querySelector('[data-categoryselect]');
          cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
 
-         formFill(templ, baseData);
+         var lsupers = templ.querySelector('[data-localsupers]');
+         var lsuperlist = lsupers.querySelector("[name]");
+         var adduser = (id, avatarLink, name) =>
+         {
+            lsuperlist.appendChild(
+               makeCollectionItem(makeBasicUserResult(avatarLink, name), () => id)
+            );
+         };
+         lsupers.appendChild(makeUserSearch(x => adduser(x.id, x.imageLink, x.name)));
 
-         if(!baseData && newPid !== null)
-            formFill(templ, { "parentId": newPid });
+         if(baseData)
+         {
+            formFill(templ, baseData);
+
+            baseData.localSupers.forEach(x => 
+            {
+               var user = users[x];
+               if(user)
+                  adduser(user.id, getAvatarLink(user.avatar, 20), user.username);
+            });
+         }
+         else
+         {
+            if(newPid !== null)
+               formFill(templ, { "parentId": newPid });
+         }
+
 
          formSetupSubmit(templ.querySelector("form"), "category", c =>
          {
@@ -1340,7 +1363,7 @@ function makeMiniSearch(baseSearch, dataMap, onSelect, placeholder)
                baseSearch.value = sv;
                globals.api.Search(baseSearch, (data) =>
                {
-                  displayMiniSearchResults(results, dataMap(data.data), onSelect);
+                  displayMiniSearchResults(results, dataMap(data.data), x => onSelect(x));
                });
             }
             else

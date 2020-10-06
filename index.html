@@ -73,7 +73,12 @@ function showdrop(el, show)
    }
    else
    {
-      setTimeout(() => UIkit.drop(dd).hide(0), 300);
+      el.blur();
+      setTimeout(() => 
+      {
+         UIkit.drop(dd).hide(0);
+         el.blur();
+      }, 300);
    }
 }
 function retext(el, attr)
@@ -723,7 +728,8 @@ function retext(el, attr)
          </li>
          <div data-minisearch "uk-inline"> <!-- class="uk-inline">-->
             <input data-search class="uk-search-input" type="search" data-placeholder="placeholder"
-             onfocus="showdrop(this, true)" onblur="showdrop(this, false)">
+             onfocus="showdrop(this, true)" onblur="showdrop(this, false)"
+             onclick="showdrop(this, true)">
             <div uk-drop="mode: none" class="uk-card uk-card-default
                uk-margin-remove" data-results uk-overflow-auto>
             </div>
@@ -750,6 +756,13 @@ function retext(el, attr)
          </div>
          <div data-youtubeplayer class="uk-margin-small-top">
             <iframe width=480 height=270 allow="autoplay; fullscreen" data-source="src"></iframe> 
+         </div>
+         <div data-collection uk-sortable data-name="name">
+         </div>
+         <div data-collectionitem class="uk-flex uk-card uk-card-default">
+            <div data-item class="uk-width-expand"></div>
+            <a href="#" uk-icon="close" class="uk-text-danger uk-flex-none"
+      onclick="event.preventDefault();var p=this.parentNode;p.parentNode.removeChild(p);"></a>
          </div>
          <!-- LOC:ROUTES -->
          <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">
@@ -828,23 +841,26 @@ function retext(el, attr)
          <div data-routecategoryedit class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>
             <div>
-               <form onsubmit="return false" class="uk-form-stacked">
+               <form onsubmit="return false" class="uk-form-stacked pageform">
    <div class="uk-form-controls" uk-margin>
       <label class="uk-form-label" uk-margin>
-         <span>Name</span>
+         <span>Name:</span>
          <input class="uk-input uk-form-large" name="name">
       </label>
       <label class="uk-form-label" uk-margin>
-         <span>Description</span>
+         <span>Description:</span>
          <textarea rows=3 class="uk-textarea uk-resize-vertical" name="description"></textarea>
       </label>
       <label class="uk-form-label" uk-margin>
-         <span>Parent Category</span>
+         <span>Parent Category:</span>
          <div data-categoryselect name="parentId"></div>
       </label>
       <label class="uk-form-label" uk-margin>
-         <span>Local Supers</span>
-         <div data-localsupers name="localSupers"></div>
+         <span>Local Supers:</span>
+         <div data-localsupers>
+            <div uk-sortable data-collection name="localSupers"
+               class="uk-margin-small-bottom"></div>
+         </div>
          <p class="uk-text-meta">Each local super user has edit and delete
           permissions on all pages at any level under this category</p>
       </label>

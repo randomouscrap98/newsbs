@@ -91,6 +91,7 @@ blockquote {
    background-color: var(--mainbgcolor);
 }
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
+.uk-sortable-empty { min-height: unset; }
 /*.uk-link { cursor: pointer; }*/
 hr { border-top: 1px solid rgba(128,128,128, 0.2); }
 /* a { overflow: hidden; }*/
@@ -361,6 +362,12 @@ a:hover { color: inherit; }
 .historycontainer {
    background-color: rgba(128,128,128,0.02);
    max-height: 25em;
+}
+
+.pageform {
+   padding: 1em;
+   background: var(--lightblockbgcolor);
+   border-radius: 3px;
 }
 
 /* Swag animations */
