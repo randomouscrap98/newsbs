@@ -368,11 +368,16 @@ a:hover { color: inherit; }
    max-height: 25em;
 }
 
-.pageform {
-   padding: 1em;
+.lightblock {
+   display: block;
    background: var(--lightblockbgcolor);
    border-radius: 3px;
+   padding: 1em;
 }
+
+.pageform {
+}
+
 [data-collectionitem] {
    margin-bottom: 0.1em;
 }

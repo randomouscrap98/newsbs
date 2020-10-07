@@ -222,11 +222,15 @@ function renderPage(route, applyTemplate, breadcrumbs)
 
 function cloneTemplate(name)
 {
-   //var templates = document.getElementById("templates");
-   var elm = templates.querySelector("#templates > [data-" + name + "]");
+   var templates = document.getElementById("templates");
+   var elm = templates.content.getElementById(name); 
+   //querySelector("#templates > [data-" + name + "]");
    if(!elm)
       throw "No template found: " + name;
-   return elm.cloneNode(true);
+   var f = elm.cloneNode(true);
+   f.removeAttribute("id");
+   f.setAttribute("data-" + name, "");
+   return f;
 }
 
 function templateSpaClick(event)

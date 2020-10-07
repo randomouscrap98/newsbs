@@ -823,6 +823,7 @@ function routecategory_load(spadat)
       {
          var sbelm = templ.querySelector("[data-subcats]");
          var pgelm = templ.querySelector("[data-pages]");
+         var description = templ.querySelector("[data-description]");
          var childcats = data.category.filter(x => x.parentId === cid);
 
          multiSwap(templ, { 
@@ -837,6 +838,13 @@ function routecategory_load(spadat)
             e.preventDefault();
             displayRaw(c.name, JSON.stringify(c, null, 2));
          };
+
+         if(!childcats.length)
+            hide(sbelm);
+         if(!c.description)
+            hide(description);
+         if(data.content.length)
+            hide(pgelm.querySelector("[data-nopages]"));
 
          childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
          data.content.forEach(x => pgelm.appendChild(makePageitem(x, users)));

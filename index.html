@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602025122"></script>
-      <script src="dom.js?v=1602025122"></script>
-      <script src="api.js?v=1602025122"></script>
-      <script src="index.js?v=1602025122"></script>
-      <script src="sbs2-markup/highlight.js?v=1602025122"></script>
-      <script src="sbs2-markup/parse.js?v=1602025122"></script>
-      <script src="sbs2-markup/render.js?v=1602025122"></script>
+      <script src="libbo.js?v=1602031352"></script>
+      <script src="dom.js?v=1602031352"></script>
+      <script src="api.js?v=1602031352"></script>
+      <script src="index.js?v=1602031352"></script>
+      <script src="sbs2-markup/highlight.js?v=1602031352"></script>
+      <script src="sbs2-markup/parse.js?v=1602031352"></script>
+      <script src="sbs2-markup/render.js?v=1602031352"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602025122" />
+      <link rel="stylesheet" href="index.css?v=1602031352" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -596,26 +596,26 @@ function retext(el, attr)
          </div>
       </div>
       <!-- LOC:TEMPLATES -->
-      <div id="templates" style="display: none">
-         <li data-log class="uk-flex uk-text-break">
+      <template id="templates" style="display: none">
+         <li id="log" class="uk-flex uk-text-break">
             <span data-message=".textContent" data-level=".loglevel" class="uk-width-expand"></span>
             <time data-time=".textContent" class=""></time>
          </li>
-         <div data-error class="uk-alert-danger uk-text-break" uk-alert>
+         <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
             <a class="uk-alert-close" uk-close></a>
             <p data-message=".textContent"></p>
          </div>
-         <div data-success class="uk-alert-success uk-text-break" uk-alert>
+         <div id="success" class="uk-alert-success uk-text-break" uk-alert>
             <a class="uk-alert-close" uk-close></a>
             <p data-message=".textContent"></p>
          </div>
-         <div data-spinner uk-spinner></div>
-         <li data-fupmain><img data-imgsrc="data-src" width="" height="" alt=""
+         <div id="spinner" uk-spinner></div>
+         <li id="fupmain"><img data-imgsrc="data-src" width="" height="" alt=""
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
-         <li data-fupthumb data-fileid="data-fid" data-number="uk-slideshow-item"><a href="#">
+         <li id="fupthumb" data-fileid="data-fid" data-number="uk-slideshow-item"><a href="#">
             <img data-imgsrc="src" width="60" alt=""></a></li>
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
-         <li data-pw data-contentid="data-cid">
+         <li id="pw" data-contentid="data-cid">
             <div class="uk-flex uk-flex-middle">
                <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis
                   uk-margin-right" data-spa data-pwname=".textContent"></a>
@@ -631,7 +631,7 @@ function retext(el, attr)
          </li>
          <!-- Dropdowns HAVE to be inside a uk-inline element! This DOES NOT
               WORK without that!! -->
-         <div data-pwuser class="uk-inline">
+         <div id="pwuser" class="uk-inline">
             <img data-useravatar="src" class="" width=20 height=20>
             <div uk-dropdown>
                <a data-userlink="href" data-spa data-username=".textContent"></a>
@@ -657,13 +657,13 @@ function retext(el, attr)
                </table>
             </div>
          </div>
-         <div data-stdcontentinfo class="uk-display-inline uk-flex uk-flex-middle uk-width-expand">
+         <div id="stdcontentinfo" class="uk-display-inline uk-flex uk-flex-middle uk-width-expand">
             <a data-spa class="uk-flex-none" data-createlink="href">
                <img data-createavatar="src" width=20 height=20></a>
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <div data-discussion data-discussionid="data-did" data-id="id" class="">
+         <div id="discussion" data-discussionid="data-did" data-id="id" class="">
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <div data-messageframe data-userid="0" style="display: none">
                <div data-messageid="0"></div>
@@ -676,7 +676,7 @@ function retext(el, attr)
          <!--<li data-discussionswitch data-id="id">
             <a href="#"></a>
          </li>-->
-         <div data-messageframe data-userid="data-uid" class="uk-flex uk-flex-top">
+         <div id="messageframe" data-userid="data-uid" class="uk-flex uk-flex-top">
             <img class="uk-flex-none" data-useravatar="src">
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
@@ -688,36 +688,36 @@ function retext(el, attr)
                <div class="messagelist"> </div>
             </div>
          </div>
-         <div tabindex="2" data-singlemessage data-messageid="data-msgid" data-id="id" 
+         <div id="singlemessage" tabindex="2" data-messageid="data-msgid" data-id="id" 
             data-createdate="data-cdt" data-editdate="data-edt" class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand 
                content uk-text-break"></div>
             <a href="#" class="messagecontrol" uk-icon="cog"></a>
          </div>
-         <li data-breadcrumb>
+         <li id="breadcrumb">
             <a data-link="href" data-spa data-text=".textContent"></a>
          </li>
-         <a data-sbslink data-link="href" data-spa></a>
-         <div data-booloption>
+         <a id="sbslink" data-link="href" data-spa></a>
+         <div id="booloption">
             <label> <!-- data-name="uk-tooltip"> -->
                <input data-input=".checked" type="checkbox" class="uk-checkbox uk-margin-right">
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
-         <div data-numberoption>
+         <div id="numberoption">
             <label> <!-- data-name="uk-tooltip"> -->
                <input data-input=".value" type="number" data-step="step"
                   class="uk-input uk-margin-small-right uk-width-1-4">
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
-         <div data-rawoption>
+         <div id="rawoption">
             <label> <!-- data-name="uk-tooltip"> -->
                <input data-input=".value" class="uk-input uk-margin-small-right uk-width-1-2">
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
-         <div data-selectoption>
+         <div id="selectoption">
             <label> <!-- data-name="uk-tooltip"> -->
                <select data-options=".selectOptionSetup" data-input=".value" 
                   class="uk-select uk-margin-small-right uk-width-1-3">
@@ -725,23 +725,23 @@ function retext(el, attr)
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
-         <div data-searchresult class="uk-flex uk-flex-middle">
+         <div id="searchresult" class="uk-flex uk-flex-middle">
             <img data-image="src" class="uk-flex-none" width=20>
             <a data-spa data-name=".textContent" data-link="href" 
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
             <span data-meta=".textContent" class="uk-text-meta"></span>
          </div>
-         <a data-discussionuser class="uk-flex-none" data-userlink="href" data-spa>
+         <a id="discussionuser" class="uk-flex-none" data-userlink="href" data-spa>
             <img data-avatar="src" width=40>
          </a>
-         <li data-subcat><a data-link="href" data-spa data-name=".textContent">
-         </a></li>
-         <div data-pageitem class="uk-flex uk-flex-wrap uk-flex-middle">
+         <li id="subcat"><a data-link="href" data-spa data-name=".textContent">
+            </a></li>
+         <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
             <a class="uk-width-expand uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
             <a class="uk-flex-none notext" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
          </div>
-         <div data-history class="uk-display-block">
+         <div id="history" class="uk-display-block">
             <h4>Activity:</h4>
             <div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>
             <div class="historycontainer" uk-overflow-auto>
@@ -751,7 +751,7 @@ function retext(el, attr)
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
          </div>
-         <div data-historyitem data-activityid="data-actid" class="uk-flex uk-flex-middle">
+         <div id="historyitem" data-activityid="data-actid" class="uk-flex uk-flex-middle">
             <img data-avatar="src" width=20 class="uk-flex-none">
             <a data-spa data-username=".textContent" data-userlink="href" class="uk-flex-none"></a>
             <span data-action=".textContent" class="uk-flex-none"></span>
@@ -759,11 +759,11 @@ function retext(el, attr)
                class="uk-width-expand uk-text-truncate uk-margin-small-left uk-margin-small-right"></a>
             <time data-time=".textContent" class="uk-text-meta"></time>
          </div>
-         <label data-searchconstraint class="uk-margin-right uk-text-nowrap">
+         <label id="searchconstraint" class="uk-margin-right uk-text-nowrap">
             <input data-checked=".checked" data-id="id" type="checkbox" class="uk-checkbox">
             <span data-text=".textContent"></span>
          </label>
-         <li data-searchresultsection hidden class="uk-open">
+         <li id="searchresultsection" hidden class="uk-open">
             <a class="uk-accordion-title" href="#">
                <span data-text=".textContent"></span> -
                <span data-count=".textContent"></span>
@@ -771,7 +771,7 @@ function retext(el, attr)
             <div data-results class="uk-accordion-content">
             </div>
          </li>
-         <div data-minisearch "uk-inline"> <!-- class="uk-inline">-->
+         <div id="minisearch" "uk-inline"> <!-- class="uk-inline">-->
             <input data-search class="uk-search-input" type="search" data-placeholder="placeholder"
              onfocus="showdrop(this, true)" onblur="showdrop(this, false)"
              onclick="showdrop(this, true)">
@@ -779,26 +779,26 @@ function retext(el, attr)
                uk-margin-remove" data-results uk-overflow-auto>
             </div>
          </div>
-         <a data-minisearchresult class="uk-flex uk-flex-middle hover uk-link-text">
+         <a id="minisearchresult" class="uk-flex uk-flex-middle hover uk-link-text">
             <img data-image="src" class="uk-flex-none" width=20>
             <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
                uk-margin-small-right"></span>
          </a>
-         <div data-permissionuser class="uk-flex uk-flex-middle">
+         <div id="permissionuser" class="uk-flex uk-flex-middle">
             <img data-image="src" class="uk-flex-none" width=20>
             <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
                uk-margin-small-right uk-text-truncate"></span>
             <input data-permission data-value=".value" placeholder="CRUD"
                 class="uk-margin-small-right myinput uk-flex-none" >
          </div>
-         <div data-categoryselect>
+         <div id="categoryselect">
             <div data-loading uk-spinner></div>
             <!-- This is a SPECIAL select and will ALWAYS have its options
                filled AFTERWARDS, as a result, a special function must be used
                for setting the value-->
             <select class="uk-select" data-name="name" data-value=".deferredselect"></select>
          </div>
-         <div data-youtube>
+         <div id="youtube">
             <div class="uk-flex uk-flex-middle">
                <a data-link="href" data-title=".textContent" class="uk-text-truncate
                   uk-margin-small-right" target="_blank"></a>
@@ -806,19 +806,19 @@ function retext(el, attr)
                <a href="#" class="uk-flex-none" data-hideplayer uk-icon="close" hidden></a>
             </div>
          </div>
-         <div data-youtubeplayer class="uk-margin-small-top">
+         <div id="youtubeplayer" class="uk-margin-small-top">
             <iframe width=480 height=270 allow="autoplay; fullscreen" data-source="src"></iframe> 
          </div>
-         <div data-collection uk-sortable data-name="name" 
+         <div id="collection" uk-sortable data-name="name" 
             class="uk-margin-small-bottom">
          </div>
-         <div data-collectionitem class="uk-flex uk-flex-middle uk-card uk-card-default">
+         <div id="collectionitem" class="uk-flex uk-flex-middle uk-card uk-card-default">
             <div data-item class="uk-width-expand"></div>
             <a href="#" uk-icon="close" class="uk-text-danger uk-flex-none"
       onclick="event.preventDefault();var p=this.parentNode;p.parentNode.removeChild(p);"></a>
          </div>
          <!-- LOC:ROUTES -->
-         <div data-routehome class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
             <h1>SmileBASIC Source</h1>
             <p>A community for talking about SmileBASIC, where you can create 
             BASIC programs on your Nintendo 3DS, Wii U, and Switch! 
@@ -839,11 +839,11 @@ function retext(el, attr)
          onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
             </div>
          </div>
-         <div data-routeerror class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routeerror" class="uk-container uk-margin-top uk-margin-bottom">
             <h1>ERROR - <span data-title=".textContent"></span></h1>
             <p data-message=".textContent" class="uk-text-danger"></p>
          </div>
-         <div data-routepage class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routepage" class="uk-container uk-margin-top uk-margin-bottom">
             <!-- WARN: DUPLICATED IN ROUTEUSER -->
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
@@ -855,7 +855,7 @@ function retext(el, attr)
             <p data-content=".renderContent" data-format="data-fmt" 
                class="uk-text-break content uk-margin-remove-top"></p>
          </div>
-         <div data-routeuser class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routeuser" class="uk-container uk-margin-top uk-margin-bottom">
             <!-- WARN: DUPLICATED IN ROUTEPAGE -->
             <div class="uk-flex-inline">
                <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"></h1>
@@ -870,7 +870,7 @@ function retext(el, attr)
             <div data-userhistory class="uk-margin-top uk-margin-bottom">
             </div>
          </div>
-         <div data-routecategory class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom">
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
                <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
@@ -886,16 +886,19 @@ function retext(el, attr)
                   </li>
                </ul>
             </div>
-            <p class="uk-text-meta" data-description=".textContent"></p>
-            <li data-subcats class="uk-list uk-list-square uk-list-collapse">
-            </li>
+            <p class="uk-text-meta uk-margin-remove-top" data-description=".textContent"></p>
+            <li data-subcats class="lightblock uk-list uk-list-square uk-list-collapse"></li>
             <div data-pages class="uk-margin-top">
+               <p data-nopages class="">
+                  <span uk-icon="icon: database" class="uk-margin-small-right"></span>
+                  <span>No pages</span>
+               </p>
             </div>
          </div>
-         <div data-routecategoryedit class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routecategoryedit" class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>
             <div>
-               <form onsubmit="return false" class="uk-form-stacked pageform">
+               <form onsubmit="return false" class="uk-form-stacked pageform lightblock">
    <div class="uk-form-controls" uk-margin>
       <label class="uk-form-label" uk-margin>
          <span>Name:</span>
@@ -937,7 +940,7 @@ function retext(el, attr)
                create new categories depending on your permissions.</p>
             </div>
          </div>
-      </div>
+      </template>
       <!-- LOC:CONTROLS -->
       <div id="controls" style="display: none">
          <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
