@@ -885,6 +885,11 @@ function routepage_load(spadat)
 
       route_complete(spadat, c.name, templ =>
       {
+         templ.querySelector("[data-viewraw]").onclick = e =>
+         {
+            e.preventDefault();
+            displayRaw(c.name, JSON.stringify(c, null, 2));
+         };
          finishContent(templ, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c.id, data.comment, users, initload);
@@ -1408,9 +1413,20 @@ function makeUserCollection(name, showperms) //, container)
 {
    var fragment = new DocumentFragment();
    var base = cloneTemplate("collection");
+   var addpu = x => addPermissionUser(x.user, base, 
+      showperms ? getLocalOption("defaultpermissions") : undefined);
    fragment.appendChild(base);
-   fragment.appendChild(makeUserSearch(x => addPermissionUser(x.user, base, 
-      showperms ? getLocalOption("defaultpermissions") : undefined)));
+   fragment.appendChild(makeUserSearch(addpu));
+   if(showperms)
+   {
+      var addeveryone = cloneTemplate("addeveryone");
+      addeveryone.onclick = e =>
+      {
+         e.preventDefault();
+         addpu({user:Utilities.ShallowCopy(everyoneUser)});
+      };
+      fragment.appendChild(addeveryone);
+   }
    multiSwap(base, {
       "data-name" : name
    });

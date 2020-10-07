@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602031352"></script>
-      <script src="dom.js?v=1602031352"></script>
-      <script src="api.js?v=1602031352"></script>
-      <script src="index.js?v=1602031352"></script>
-      <script src="sbs2-markup/highlight.js?v=1602031352"></script>
-      <script src="sbs2-markup/parse.js?v=1602031352"></script>
-      <script src="sbs2-markup/render.js?v=1602031352"></script>
+      <script src="libbo.js?v=1602035098"></script>
+      <script src="dom.js?v=1602035098"></script>
+      <script src="api.js?v=1602035098"></script>
+      <script src="index.js?v=1602035098"></script>
+      <script src="sbs2-markup/highlight.js?v=1602035098"></script>
+      <script src="sbs2-markup/parse.js?v=1602035098"></script>
+      <script src="sbs2-markup/render.js?v=1602035098"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602031352" />
+      <link rel="stylesheet" href="index.css?v=1602035098" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -131,14 +131,14 @@ function retext(el, attr)
                   <div id="maincontentinfo" class="uk-flex uk-width-expand">
                   </div>
                   <div id="maincontentbarcontrols" class="uk-flex uk-height-1-1 uk-flex-middle">
-                     <a href="#" class="" uk-icon="icon: triangle-up; ratio: 1.2" 
-                        id="fulldiscussionmode"></a>
-                     <a href="#" class="" uk-icon="icon: triangle-down; ratio: 1.2" 
-                        id="fullcontentmode"></a>
-                     <a href="#" class="" uk-icon="icon: comments; ratio: 1.1" 
-                        id="splitmodediscussion"></a>
-                     <a href="#" class="" uk-icon="icon: file-text; ratio: 1.2" 
-                        id="splitmodecontent"></a>
+                     <a href="#" class="ufk-text-primary" id="fulldiscussionmode"
+                        uk-icon="icon: triangle-up; ratio: 1.2"></a>
+                     <a href="#" class="ufk-text-primary" id="fullcontentmode"
+                        uk-icon="icon: triangle-down; ratio: 1.2"></a>
+                     <a href="#" class="ufk-text-primary" id="splitmodediscussion"
+                        uk-icon="icon: comments; ratio: 1.1" ></a>
+                     <a href="#" class="ufk-text-primary" id="splitmodecontent"
+                        uk-icon="icon: file-text; ratio: 1.2" ></a>
                   </div>
                </div> 
                <!-- Need separate containers because lazy: one is for user
@@ -473,7 +473,7 @@ function retext(el, attr)
             </div>
          </div>
          <!-- LOC: RAWMODAL -->
-         <div id="rawmodal" uk-modal>
+         <div id="rawmodal" class="uk-modal-container" uk-modal>
             <div class="uk-modal-dialog">
                <button class="uk-modal-close-default" type="button" uk-close></button>
                <div class="uk-modal-header">
@@ -586,7 +586,7 @@ function retext(el, attr)
                   for uid 0 (everyone). This means everyone can post comments
                   (create) and read the page. To create a private page, remove
                   the "everyone" permission entirely.</p>
-                  <p><b>NOTE:</b>"Super" users (admins) have create, update,
+                  <p><b>NOTE:</b> "Super" users (admins) have create, update,
                   and delete permissions but NOT read, so they CANNOT read
                   private pages. The owner of the page or category (the
                   "creator") always has all permissions, even if none are
@@ -786,7 +786,7 @@ function retext(el, attr)
          </a>
          <div id="permissionuser" class="uk-flex uk-flex-middle">
             <img data-image="src" class="uk-flex-none" width=20>
-            <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
+            <span data-name=".textContent" class="uk-width-small uk-margin-small-left 
                uk-margin-small-right uk-text-truncate"></span>
             <input data-permission data-value=".value" placeholder="CRUD"
                 class="uk-margin-small-right myinput uk-flex-none" >
@@ -812,6 +812,7 @@ function retext(el, attr)
          <div id="collection" uk-sortable data-name="name" 
             class="uk-margin-small-bottom">
          </div>
+         <a id="addeveryone" href="#">Add global permission</a>
          <div id="collectionitem" class="uk-flex uk-flex-middle uk-card uk-card-default">
             <div data-item class="uk-width-expand"></div>
             <a href="#" uk-icon="close" class="uk-text-danger uk-flex-none"
@@ -849,7 +850,15 @@ function retext(el, attr)
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
                <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
                   <li><a href="#" data-watched="data-watch" uk-icon="heart"></a></li>
-                  <li><a href="#" uk-icon="cog"></a></li>
+                  <li>
+                     <a href="#" uk-icon="cog"></a>
+                     <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
+                        <ul class="uk-list uk-margin-remove-bottom">
+                           <!--<li><a data-editlink="href" data-spa>Edit Page</a></li>-->
+                           <li><a href="#" data-viewraw>Raw Data</a></li>
+                        </ul>
+                     </div>
+                  </li>
                </ul>
             </div>
             <p data-content=".renderContent" data-format="data-fmt" 
@@ -878,8 +887,8 @@ function retext(el, attr)
                      <a href="#" uk-icon="cog"></a>
                      <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
                         <ul class="uk-list uk-margin-remove-bottom">
-                           <li><a data-editlink="href">Edit Category</a></li>
-                           <li><a data-newlink="href">Add Category</a></li>
+                           <li><a data-editlink="href" data-spa>Edit Category</a></li>
+                           <li><a data-newlink="href" data-spa>Add Category</a></li>
                            <li><a href="#" data-viewraw>Raw Data</a></li>
                         </ul>
                      </div>

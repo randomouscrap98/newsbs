@@ -148,6 +148,11 @@ a:hover { color: inherit; }
 }
 #maincontentbarcontrols {
    float: right;
+   /*color: blue;*/
+   /*border-radius: 3px;
+   background-color: var(--lightblockbgcolor);
+   padding: 0.05em 0.4em;
+   color: var(--headercolor);*/
 }
 #maincontentloading > * {
    margin-left: 0.3em;
@@ -383,6 +388,9 @@ a:hover { color: inherit; }
 }
 input[data-permission] {
    width: 4em;
+}
+[data-addeveryone] {
+   margin-left: 0.2em;
 }
 
 /* Swag animations */
