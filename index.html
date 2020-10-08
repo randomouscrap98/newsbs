@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602120004"></script>
-      <script src="dom.js?v=1602120004"></script>
-      <script src="api.js?v=1602120004"></script>
-      <script src="index.js?v=1602120004"></script>
-      <script src="sbs2-markup/highlight.js?v=1602120004"></script>
-      <script src="sbs2-markup/parse.js?v=1602120004"></script>
-      <script src="sbs2-markup/render.js?v=1602120004"></script>
+      <script src="libbo.js?v=1602129238"></script>
+      <script src="dom.js?v=1602129238"></script>
+      <script src="api.js?v=1602129238"></script>
+      <script src="index.js?v=1602129238"></script>
+      <script src="sbs2-markup/highlight.js?v=1602129238"></script>
+      <script src="sbs2-markup/parse.js?v=1602129238"></script>
+      <script src="sbs2-markup/render.js?v=1602129238"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602120004" />
+      <link rel="stylesheet" href="index.css?v=1602129238" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -675,11 +675,8 @@ function retext(el, attr)
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
          </div>
-         <!--<li data-discussionswitch data-id="id">
-            <a href="#"></a>
-         </li>-->
          <div id="messageframe" data-userid="data-uid" class="uk-flex uk-flex-top">
-            <img class="uk-flex-none" data-useravatar="src">
+            <img class="uk-flex-none avatar" data-useravatar="src">
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
                   <a data-spa data-userlink="href" class="uk-flex-none" 
@@ -829,8 +826,13 @@ function retext(el, attr)
             but we're gonna keep adding stuff until it's good!</p>
             <h3><a href="?p=category-0" data-spa>Browse</a></h3>
             <div class="" data-homehistory></div>
-            <a href="#" uk-toggle="[data-testarea]">Test area</a>
-            <div data-testarea hidden>
+            <a href="?p=test" data-spa>Test area</a>
+         </div>
+         <div id="routeerror" class="uk-container uk-margin-top uk-margin-bottom">
+            <h1>ERROR - <span data-title=".textContent"></span></h1>
+            <p data-message=".textContent" class="uk-text-danger"></p>
+         </div>
+         <div id="routetest" class="uk-container uk-margin-top uk-margin-bottom">
                <!--<div data-tmpl="categoryselect"
                   data-tmpld='{"data-value":503}'></div>-->
                <!--<div data-tmpl="minisearch" data-tmpld='{"data-placeholder":"search or whatever"}'></div>-->
@@ -840,11 +842,6 @@ function retext(el, attr)
       <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
       <button
          onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
-            </div>
-         </div>
-         <div id="routeerror" class="uk-container uk-margin-top uk-margin-bottom">
-            <h1>ERROR - <span data-title=".textContent"></span></h1>
-            <p data-message=".textContent" class="uk-text-danger"></p>
          </div>
          <div id="routepage" class="uk-container uk-margin-top uk-margin-bottom">
             <!-- WARN: DUPLICATED IN ROUTEUSER -->

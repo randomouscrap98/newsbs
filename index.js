@@ -790,8 +790,14 @@ function routehome_load(spadat)
    {
       var homehistory = templ.querySelector("[data-homehistory]");
       homehistory.appendChild(makeActivity());
+   }); 
+}
 
-      writeDom(() => templ.querySelector("[data-testarea]").appendChild(makeUserSearch(x => { 
+function routetest_load(spadat) 
+{ 
+   route_complete(spadat, null, templ =>
+   {
+      writeDom(() => templ.appendChild(makeUserSearch(x => { 
          console.log("Selected: ", x);})));
    }); 
 }
@@ -1097,6 +1103,8 @@ function routepageedit_load(spadat)
          }
          else
          {
+            addPermissionUser(users[0],perms, getLocalOption("defaultpermissions"));
+
             if(newPid !== null)
                formFill(templ, { "parentId": newPid });
          }

@@ -355,7 +355,7 @@ function getUserLink(id) { return "?p=user-" + id; }
 function getPageLink(id) { return "?p=page-" + id; }
 function getCategoryLink(id) { return "?p=category-" + id; }
 
-function getImageLink(id, size, crop, ignoreRatio)
+function getImageLink(id, size, crop)
 {
    var img = apiroot + "/file/raw/" + id;
    var linkch = "?";

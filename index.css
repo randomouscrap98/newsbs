@@ -139,9 +139,6 @@ a:hover { color: inherit; }
    background-color: rgba(128,255,240,0.1);
 }
 /* left-pane stuff (main content!) */
-/*#maincontent {
-   position: unset;
-}*/
 #maincontentbar {
    background-color: var(--blockbgcolor);
    padding: 0.1em;
@@ -151,29 +148,18 @@ a:hover { color: inherit; }
 }
 #maincontentbarcontrols {
    float: right;
-   /*color: blue;*/
-   /*border-radius: 3px;
-   background-color: var(--lightblockbgcolor);
-   padding: 0.05em 0.4em;
-   color: var(--headercolor);*/
-}
-#maincontentloading { /*> * {*/
-   /*margin-left: 0.3em;
-   margin-top: 0.3em;*/
-   /*position: absolute;*/
-   /*width: 100%;
-   text-align: center;*/
-   /*margin-top: 3em;
-   margin-left: 3em;*/
 }
 
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
-   background-color: var(--tabselectcolor); /*rgba(128,255,240,0.4);*/
+   background-color: var(--tabselectcolor);
    color: #111;
 }
 .tabnav > div { padding: 0.1em 0; }
-.avatar { border: 1px solid rgba(128,128,128,0.5); }
+.avatar { 
+   border: 1px solid rgba(128,128,128,0.5); 
+   box-sizing: content-box;
+}
 [data-routeuser] .avatar { max-width: 150px; }
 #darkmodetoggle {
    text-decoration: none;
@@ -237,10 +223,6 @@ a:hover { color: inherit; }
    margin: 0 0.4em;
 }
 
-/*#navuseravatar
-{
-   border-radius: 8px;
-}*/
 /* Breadcrumb/nav special (uikit default replacements) */
 /*#breadcrumbs [data-breadcrumb] { padding-top: 0.15em; }*/
 #breadcrumbs a { line-height: 1.0em; }
@@ -276,9 +258,7 @@ a:hover { color: inherit; }
 }
 [data-messageframe] [data-useravatar] {
    margin: 0.3em;
-   border: 1px solid rgba(127,127,127, 0.5);
    width: 30px;
-   box-sizing: content-box;
 }
 [data-messageframe] .messagelist {
    padding: 0.0em 0.5em 0.5em 0.5em;
@@ -401,6 +381,21 @@ input[data-permission] {
 [data-addeveryone] {
    margin-left: 0.2em;
 }
+
+.content pre { margin: 0.25em 0; }
+pre .keyword { font-weight: bold; }
+
+pre .name, pre .statement { color: #7FF5EF; }
+pre .string { color: #ea5e5e; }
+pre .number { color: #f359ab; }
+pre .keyword, pre .to-step, pre .word-operator { color: #2494f0; }
+pre .comment { color: #72e265; }
+pre .variable { color: #ba8ee2; }
+pre .function { color: #8d7ff5; }
+pre .backslash { color: #777; }
+pre .operator, pre .equals { color: #777; }
+pre .label { color: #f4963e; }
+pre .constant { color: #aeb5c2; }
 
 /* Swag animations */
 [data-pulsing] {
