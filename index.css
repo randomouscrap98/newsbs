@@ -160,6 +160,7 @@ a:hover { color: inherit; }
    border: 1px solid rgba(128,128,128,0.5); 
    box-sizing: content-box;
 }
+#navuseravatar { border-radius: 5px; }
 [data-routeuser] .avatar { max-width: 150px; }
 #darkmodetoggle {
    text-decoration: none;
@@ -385,17 +386,17 @@ input[data-permission] {
 .content pre { margin: 0.25em 0; }
 pre .keyword { font-weight: bold; }
 
-pre .name, pre .statement { color: #7FF5EF; }
-pre .string { color: #ea5e5e; }
-pre .number { color: #f359ab; }
-pre .keyword, pre .to-step, pre .word-operator { color: #2494f0; }
-pre .comment { color: #72e265; }
-pre .variable { color: #ba8ee2; }
-pre .function { color: #8d7ff5; }
+pre .name, pre .statement { color: #56e8e1; }
+pre .string { color: #d86161; }
+pre .number { color: #ce4a90; }
+pre .keyword, pre .to-step, pre .word-operator { color: #41a9ff; }
+pre .comment { color: #86c367; }
+pre .variable { color: #aa76d2; }
+pre .function { color: #777bec; }
 pre .backslash { color: #777; }
 pre .operator, pre .equals { color: #777; }
-pre .label { color: #f4963e; }
-pre .constant { color: #aeb5c2; }
+pre .label { color: #e68225; }
+pre .constant { color: #7caee2; }
 
 /* Swag animations */
 [data-pulsing] {
