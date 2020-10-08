@@ -561,7 +561,7 @@ function formSerialize(form, base)
       }
       else if(elm.hasAttribute("data-collection"))
       {
-         var val = elm.querySelector("[data-key]") ? {} : [];
+         var val = elm.hasAttribute("data-keys") ? {} : [];
          [...elm.querySelectorAll("[data-collectionitem]")].forEach(x =>
          {
             var key = x.getAttribute('data-key');

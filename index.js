@@ -830,6 +830,7 @@ function routecategory_load(spadat)
             "data-title" : c.name ,
             "data-editlink" : "?p=categoryedit-" + cid,
             "data-newlink" : "?p=categoryedit&pid=" + cid,
+            "data-newpagelink" : "?p=pageedit&pid=" + cid,
             "data-description" : c.description
          });
 
@@ -1035,6 +1036,74 @@ function routecategoryedit_load(spadat)
          formSetupSubmit(templ.querySelector("form"), "category", c =>
          {
             globals.spa.ProcessLinkContextAware(getCategoryLink(c.id));
+         }, false, baseData);
+      }, baseData ? getChain(data.category, baseData) : undefined);
+   });
+}
+
+function routepageedit_load(spadat)
+{
+   var pid = Number(spadat.id);
+   var params = new URLSearchParams();
+
+   //Just ALWAYS pull all the categories, it's just a given
+   params.append("requests", "category");
+
+   //But pull special page data when we're editing (the user permissions)
+   if(pid)
+   {
+      params.append("requests", "content-" + JSON.stringify({ids:[pid]}));
+      params.append("requests", "user.1permissions.1createuserid.1edituserid");
+   }
+
+   params.set("user", "id,username,avatar");
+   params.set("category", "id,name,parentId");
+
+   globals.api.Chain(params, function(apidata)
+   {
+      log.Datalog("see devlog for pageedit data", apidata);
+
+      var data = apidata.data;
+      var users = idMap(data.user);
+      users[0] = Utilities.ShallowCopy(everyoneUser);
+      var categories = idMap(data.category);
+      var content = idMap(data.content);
+
+      var title = "Page: " + (pid ? pid : "New");
+      var baseData = false;
+      var newPid = Utilities.GetParams(spadat.url).get("pid");
+
+      if(pid && content[pid])
+         baseData = content[pid];
+
+      route_complete(spadat, title, templ =>
+      {
+         multiSwap(templ, { 
+            "data-title" : title
+         });
+         var cselect = templ.querySelector('[data-categoryselect]');
+         cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
+
+         var perms = templ.querySelector('[data-permissions]');
+         perms.appendChild(makeUserCollection(perms.getAttribute("name"), true));
+
+         if(baseData)
+         {
+            formFill(templ, baseData);
+
+            Object.keys(baseData.permissions).forEach(x => {
+               if(users[x]) addPermissionUser(users[x],perms, baseData.permissions[x]);
+            });
+         }
+         else
+         {
+            if(newPid !== null)
+               formFill(templ, { "parentId": newPid });
+         }
+
+         formSetupSubmit(templ.querySelector("form"), "content", p =>
+         {
+            globals.spa.ProcessLinkContextAware(getPageLink(p.id));
          }, false, baseData);
       }, baseData ? getChain(data.category, baseData) : undefined);
    });
@@ -1422,6 +1491,7 @@ function makeUserCollection(name, showperms) //, container)
    fragment.appendChild(makeUserSearch(addpu));
    if(showperms)
    {
+      base.setAttribute("data-keys", "");
       var addeveryone = cloneTemplate("addeveryone");
       addeveryone.onclick = e =>
       {
