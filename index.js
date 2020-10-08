@@ -890,6 +890,9 @@ function routepage_load(spadat)
             e.preventDefault();
             displayRaw(c.name, JSON.stringify(c, null, 2));
          };
+         multiSwap(templ, {
+            "data-editlink" : "?p=pageedit-" + pid,
+         });
          finishContent(templ, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c.id, data.comment, users, initload);

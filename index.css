@@ -139,6 +139,9 @@ a:hover { color: inherit; }
    background-color: rgba(128,255,240,0.1);
 }
 /* left-pane stuff (main content!) */
+/*#maincontent {
+   position: unset;
+}*/
 #maincontentbar {
    background-color: var(--blockbgcolor);
    padding: 0.1em;
@@ -154,10 +157,16 @@ a:hover { color: inherit; }
    padding: 0.05em 0.4em;
    color: var(--headercolor);*/
 }
-#maincontentloading > * {
-   margin-left: 0.3em;
-   margin-top: 0.3em;
+#maincontentloading { /*> * {*/
+   /*margin-left: 0.3em;
+   margin-top: 0.3em;*/
+   /*position: absolute;*/
+   /*width: 100%;
+   text-align: center;*/
+   /*margin-top: 3em;
+   margin-left: 3em;*/
 }
+
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
    background-color: var(--tabselectcolor); /*rgba(128,255,240,0.4);*/

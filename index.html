@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602035098"></script>
-      <script src="dom.js?v=1602035098"></script>
-      <script src="api.js?v=1602035098"></script>
-      <script src="index.js?v=1602035098"></script>
-      <script src="sbs2-markup/highlight.js?v=1602035098"></script>
-      <script src="sbs2-markup/parse.js?v=1602035098"></script>
-      <script src="sbs2-markup/render.js?v=1602035098"></script>
+      <script src="libbo.js?v=1602117872"></script>
+      <script src="dom.js?v=1602117872"></script>
+      <script src="api.js?v=1602117872"></script>
+      <script src="index.js?v=1602117872"></script>
+      <script src="sbs2-markup/highlight.js?v=1602117872"></script>
+      <script src="sbs2-markup/parse.js?v=1602117872"></script>
+      <script src="sbs2-markup/render.js?v=1602117872"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602035098" />
+      <link rel="stylesheet" href="index.css?v=1602117872" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -120,9 +120,11 @@ function retext(el, attr)
             <div id="leftpane" class=
               "uk-width-expand uk-flex uk-flex-column uk-height-1-1 uk-overflow-hidden">
                <!-- LOC:MAINCONTENT -->
-               <div id="maincontentcontainer" class="uk-inline" uk-overflow-auto>
-                  <div id="maincontentloading" class="uk-cover"
-                     uk-spinner="ratio: 2"  hidden></div> 
+               <div id="maincontentcontainer" uk-overflow-auto>
+                  <div id="maincontentloading" class="uk-text-meta uk-flex uk-flex-middle" hidden>
+                     <span class="uk-text-large uk-padding-small">Loading...</span>
+                     <div uk-spinner></div>
+                  </div> 
                   <!-- class="uk-position-top-left"></div>-->
                   <div id="maincontent">
                   </div>
@@ -854,7 +856,7 @@ function retext(el, attr)
                      <a href="#" uk-icon="cog"></a>
                      <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
                         <ul class="uk-list uk-margin-remove-bottom">
-                           <!--<li><a data-editlink="href" data-spa>Edit Page</a></li>-->
+                           <li><a data-editlink="href" data-spa>Edit Page</a></li>
                            <li><a href="#" data-viewraw>Raw Data</a></li>
                         </ul>
                      </div>
@@ -947,6 +949,40 @@ function retext(el, attr)
                </form>
                <p class="uk-text-meta">Note: you may be unable to edit or
                create new categories depending on your permissions.</p>
+            </div>
+         </div>
+         <div id="routepageedit" class="uk-container uk-margin-top uk-margin-bottom">
+            <h1 data-title=".textContent" class="uk-inline"></h1>
+            <div>
+               <form onsubmit="return false" class="uk-form-stacked pageform lightblock">
+   <div class="uk-form-controls" uk-margin>
+      <label class="uk-form-label" uk-margin>
+         <span>Name:</span>
+         <input class="uk-input uk-form-large" name="name">
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Content:</span>
+         <textarea rows=15 class="uk-textarea uk-resize-vertical" name="content"></textarea>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Parent Category:</span>
+         <div data-categoryselect name="parentId"></div>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span class="uk-flex uk-flex-middle">
+            <span class="uk-margin-small-right">Permissions:</span> 
+            <a href="#" uk-toggle="#permissionexplain" class="uk-flex-none uk-text-primary"
+               uk-icon="icon: question; ratio: 0.75">
+            </a>
+         </span>
+         <div data-permissions name="permissions">
+         </div>
+      </label>
+      <input type="submit" value="Submit" class="uk-button uk-button-primary">
+   </div>
+               </form>
+               <p class="uk-text-meta">Note: you may be unable to edit or
+               create new pages depending on your permissions.</p>
             </div>
          </div>
       </template>
