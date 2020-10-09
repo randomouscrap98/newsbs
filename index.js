@@ -2409,7 +2409,7 @@ function getWatchLastIds()
 
 function updateWatchGlobalAlert()
 {
-   var counts = watches.querySelectorAll("[" + attr.pulsecount + "]");
+   var counts = watches.querySelectorAll("[data-pw]"); 
    var sum = 0;
    [...counts].forEach(x => sum += (Number(getSwap(x, attr.pulsecount)) || 0));
    watchglobalalert.textContent = sum ? String(sum) : "";
