@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602226039"></script>
-      <script src="dom.js?v=1602226039"></script>
-      <script src="api.js?v=1602226039"></script>
-      <script src="index.js?v=1602226039"></script>
-      <script src="sbs2-markup/highlight.js?v=1602226039"></script>
-      <script src="sbs2-markup/parse.js?v=1602226039"></script>
-      <script src="sbs2-markup/render.js?v=1602226039"></script>
+      <script src="libbo.js?v=1602227837"></script>
+      <script src="dom.js?v=1602227837"></script>
+      <script src="api.js?v=1602227837"></script>
+      <script src="index.js?v=1602227837"></script>
+      <script src="sbs2-markup/highlight.js?v=1602227837"></script>
+      <script src="sbs2-markup/parse.js?v=1602227837"></script>
+      <script src="sbs2-markup/render.js?v=1602227837"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602226039" />
+      <link rel="stylesheet" href="index.css?v=1602227837" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -494,7 +494,7 @@ function retext(el, attr)
                   <h2 class="uk-modal-title" id="previewmodaltitle"></h2>
                </div>
                <div class="uk-modal-body" uk-overflow-auto>
-                  <div id="previewmodalpreview"></div>
+                  <div id="previewmodalpreview" class="content"></div>
                </div>
             </div>
          </div>
@@ -978,15 +978,15 @@ function retext(el, attr)
       <label class="uk-form-label" uk-margin>
          <span>Content:</span>
          <textarea rows=15 class="uk-textarea uk-resize-vertical" name="content"></textarea>
-         <div class="uk-flex uk-flex-middle">
-            <span>Markup:</span>
-            <select name="values.markupLang" class="uk-select uk-margin-small-left uk-margin-small-right">
-               <option value="12y" selected>12y</option>
-               <option value="plaintext">plaintext</option>
-            </select>
-            <button data-preview class="uk-button uk-button-default">Preview</button>
-         </div>
       </label>
+      <div class="uk-flex uk-flex-middle" uk-margin>
+         <label class="uk-form-label uk-margin-small-right">Markup:</label>
+         <select name="values.markupLang" class="uk-select uk-margin-small-right">
+            <option value="12y" selected>12y</option>
+            <option value="plaintext">plaintext</option>
+         </select>
+         <button data-preview class="uk-button uk-button-default">Preview</button>
+      </div>
       <label class="uk-form-label" uk-margin>
          <span>Parent Category:</span>
          <div data-categoryselect name="parentId"></div>
