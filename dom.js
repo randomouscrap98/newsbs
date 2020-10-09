@@ -294,7 +294,6 @@ function swapBase(element, attribute, replace)
 
    var template = element.getAttribute("data-template");
    var funcname = "tmplswap_" + attribute;
-   //var elmname = funcname + "_element";
    var dattr = "data-" + attribute;
 
    //See if the function for get/set is already there. If not, set it UP
@@ -303,9 +302,25 @@ function swapBase(element, attribute, replace)
       var velm = getSwapElement(element, dattr);
 
       if(!velm)
-         throw "Couldn't find attribute " + attribute + " in template " + template;
+      {
+         //Maybe it's in a deeper template?
+         var found = false;
+         [...element.querySelectorAll("[data-template]")].forEach(x =>
+         {
+            try
+            {
+               //This will find the FIRST available field, BE CAREFUL!!
+               if(!found)
+                  found = swapBase(x, attribute, replace);
+            }
+            catch {}
+         });
 
-      //element[elmname] = velm;
+         if(found)
+            return found;
+
+         throw "Couldn't find attribute " + attribute + " in template " + template;
+      }
 
       //Do most of the work now so you don't do it every time it accesses
       var value = velm.getAttribute(dattr);
@@ -347,43 +362,6 @@ function swapBase(element, attribute, replace)
    }
 
    return element[funcname](replace);
-
-   //var name = getSwapElement(element, attribute);
-
-   //if(!name)
-   //   throw "Couldn't find attribute " + attribute + " in template swap";
-
-   //var caller = name.getAttribute(attribute);
-
-   //Oops, use the direct attribute if there's no value.
-   //if(!caller)
-   //   throw "Bad attribute " + attribute + " (empty)";
-
-   ////Oh, it's a function call! Try on the element itself first, then fall
-   ////back to the window functions
-   //if(caller.indexOf(".") === 0)
-   //{
-   //   caller = caller.substr(1);
-
-   //   if(caller in name)
-   //   {
-   //      if(replace !== undefined)
-   //         name[caller] = replace;
-   //      else
-   //         return name[caller];
-   //   }
-   //   else
-   //   {
-   //      return window[caller](name, replace);
-   //   }
-   //}
-   //else
-   //{
-   //   if(replace !== undefined)
-   //      name.setAttribute(caller, replace);
-   //   else
-   //      return name.getAttribute(caller);
-   //}
 }
 
 function findSwap(element, attribute, replace) { swapBase(element, attribute, replace); }
