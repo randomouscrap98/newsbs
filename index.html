@@ -667,9 +667,13 @@ function retext(el, attr)
          <!-- ROOT discussion, holds the whole thing? -->
          <div id="discussion" data-discussionid="data-did" data-id="id" class="">
             <!-- A placeholder, so inserting will always have a place to stop searching -->
-            <div data-messageframe data-userid="0" style="display: none">
-               <div data-messageid="0"></div>
+            <div data-tmpl="messageframe" data-tmpld='{"userid":"0"}' style="display: none">
+               <div data-tmpl="singlemessage" data-tmpld='{"messageid":"0"}'>
+               </div>
             </div>
+            <!--<div data-messageframe data-userid="0" style="display: none">
+               <div data-messageid="0"></div>
+            </div>-->
             <div data-loadolder class="uk-position-top-right uk-margin-small-right">
                <div data-loading uk-spinner="ratio: 0.5" hidden></div>
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
@@ -750,7 +754,7 @@ function retext(el, attr)
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
          </div>
-         <div id="historyitem" data-activityid="data-actid" class="uk-flex uk-flex-middle">
+         <div id="historyitem" data-activityid class="uk-flex uk-flex-middle">
             <img data-avatar="src" width=20 class="uk-flex-none">
             <a data-spa data-username=".textContent" data-userlink="href"
                class="uk-flex-none username"></a>

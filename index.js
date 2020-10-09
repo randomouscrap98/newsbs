@@ -405,14 +405,6 @@ function setupSignalProcessors()
          location.reload();
       });
    });
-   //signals.Attach("replacetemplate", data =>
-   //{
-   //   if(data.replacement.hasAttribute("data-categoryselect"))
-   //   {
-   //      makeCategorySelect(data.replacement, data.original.categories);
-   //   }
-   //});
-
 
    //You MUST be able to assume that discussions and all that junk are fine at
    //this point.
@@ -492,9 +484,9 @@ function setupTechnicalInfo()
          writeDom(() =>
          {
             multiSwap(technicalinfo, {
-               "data-apiroot": apiroot,
-               "data-apiversion": data.data.versions.contentapi,
-               "data-entitysystemversion": data.data.versions.entitysystem
+               apiroot: apiroot,
+               apiversion: data.data.versions.contentapi,
+               entitysystemversion: data.data.versions.entitysystem
             });
          });
       });
@@ -628,7 +620,7 @@ function setupFileUpload()
       if(globals.fileselectcallback)
       {
          //for safety, remove callback
-         globals.fileselectcallback(getSwap(selectedImage, "data-fileid")); 
+         globals.fileselectcallback(getSwap(selectedImage, "fileid")); 
          globals.fileselectcallback = false;
       }
    });
@@ -775,8 +767,8 @@ function pageerror(title, message)
       renderPage("routeerror", template => safety(() => 
       {
          multiSwap(template, {
-            "data-message" : message,
-            "data-title" : title 
+            message : message,
+            title : title 
          });
       }));
 
@@ -827,17 +819,19 @@ function routecategory_load(spadat)
 
       route_complete(spadat, "Category: " + c.name, templ =>
       {
+         //Some of these attributes GO AWAY as soon as you access them with
+         //getSwap/multiSwap, BE CAREFUL
          var sbelm = templ.querySelector("[data-subcats]");
          var pgelm = templ.querySelector("[data-pages]");
          var description = templ.querySelector("[data-description]");
          var childcats = data.category.filter(x => x.parentId === cid);
 
          multiSwap(templ, { 
-            "data-title" : c.name ,
-            "data-editlink" : "?p=categoryedit-" + cid,
-            "data-newlink" : "?p=categoryedit&pid=" + cid,
-            "data-newpagelink" : "?p=pageedit&pid=" + cid,
-            "data-description" : c.description
+            title : c.name ,
+            editlink : "?p=categoryedit-" + cid,
+            newlink : "?p=categoryedit&pid=" + cid,
+            newpagelink : "?p=pageedit&pid=" + cid,
+            description : c.description
          });
 
          templ.querySelector("[data-viewraw]").onclick = e =>
@@ -898,7 +892,7 @@ function routepage_load(spadat)
             displayRaw(c.name, JSON.stringify(c, null, 2));
          };
          multiSwap(templ, {
-            "data-editlink" : "?p=pageedit-" + pid,
+            editlink : "?p=pageedit-" + pid,
          });
          finishContent(templ, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
@@ -949,8 +943,8 @@ function routeuser_load(spadat)
       route_complete(spadat, "User: " + u.username, templ =>
       {
          multiSwap(templ, {
-            "data-title" : u.username,
-            "data-avatar" : getAvatarLink(u.avatar, 100)
+            title : u.username,
+            avatar : getAvatarLink(u.avatar, 100)
          });
 
          var history = templ.querySelector("[data-userhistory]");
@@ -969,7 +963,7 @@ function routeuser_load(spadat)
          }
          else
          {
-            multiSwap(templ, { "data-content": "No user page" });
+            multiSwap(templ, { content: "No user page" });
          }
       }, [u], c ? c.id : false);
    });
@@ -1010,7 +1004,7 @@ function routecategoryedit_load(spadat)
       route_complete(spadat, title, templ =>
       {
          multiSwap(templ, { 
-            "data-title" : title
+            title : title
          });
          var cselect = templ.querySelector('[data-categoryselect]');
          cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
@@ -1085,7 +1079,7 @@ function routepageedit_load(spadat)
       route_complete(spadat, title, templ =>
       {
          multiSwap(templ, { 
-            "data-title" : title
+            title : title
          });
          var cselect = templ.querySelector('[data-categoryselect]');
          cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
@@ -1252,12 +1246,12 @@ function addFileUploadImage(file, num)
    var fItem = cloneTemplate("fupmain");
    var fThumb = cloneTemplate("fupthumb");
    multiSwap(fItem, { 
-      "data-imgsrc": getComputedImageLink(file.id) 
+      imgsrc: getComputedImageLink(file.id) 
    });
    multiSwap(fThumb, {
-      "data-imgsrc": getComputedImageLink(file.id, 60, true),
-      "data-number": num,
-      "data-fileid": file.id
+      imgsrc: getComputedImageLink(file.id, 60, true),
+      number: num,
+      fileid: file.id
    });
    fileuploaditems.appendChild(fItem);
    fileuploadthumbnails.appendChild(fThumb);
@@ -1300,10 +1294,10 @@ function finishContent(templ, content) //, content, comments, users, initload)
 {
    unhide(templ.querySelector(".pagecontrols"));
    multiSwap(templ, {
-      "data-title" : content.name,
-      "data-content" : JSON.stringify({ "content" : content.content, "format" : content.values.markupLang }),
-      "data-format" : content.values.markupLang,
-      "data-watched" : content.about.watching
+      title : content.name,
+      content : JSON.stringify({ "content" : content.content, "format" : content.values.markupLang }),
+      format : content.values.markupLang,
+      watched : content.about.watching
    });
    setupWatchLink(templ, content.id);
 }
@@ -1341,9 +1335,6 @@ function makeActivity(modifySearch, unlimitedHeight)
 
    var searchAgain = function()
    {
-      //if(activityContainer.hasAttribute(attr.atoldest))
-      //   return;
-
       writeDom(() => unhide(loadloading));
 
       var initload = getLocalOption("activityload");
@@ -1351,7 +1342,7 @@ function makeActivity(modifySearch, unlimitedHeight)
       var lastItem = activityContainer.lastElementChild;
 
       if(lastItem) 
-         search.maxid = Number(lastItem.getAttribute("data-actid"));
+         search.maxid = Number(getSwap(lastItem, "activityid")); //lastItem.getAttribute("data-actid"));
 
       search = modifySearch(search);
 
@@ -1361,9 +1352,9 @@ function makeActivity(modifySearch, unlimitedHeight)
       params.append("requests", "content.0contentId");
       params.append("requests", "category.0contentId");
       params.append("requests", "user.0contentId.0userId");
-      params.set("content", "id,name"); //parentId,createDate,editDate,createUserId");
-      params.set("category", "id,name"); //parentId,createDate,editDate,createUserId");
-      params.set("user", "id,username,avatar"); //parentId,createDate,editDate,createUserId");
+      params.set("content", "id,name");
+      params.set("category", "id,name");
+      params.set("user", "id,username,avatar");
 
       globals.api.Chain(params, apidata =>
       {
@@ -1424,15 +1415,11 @@ function makeCategorySelect(categories, name)
    hide(container.querySelector("[data-loading]"));
    //Update the value again since we didn't have options before
    multiSwap(container, {
-      "data-value": getSwap(container, "data-value"),
-      "data-name" : name
+      value: getSwap(container, "value"),
+      name : name
    });
 
    finalizeTemplate(container);
-
-   //   var params = new URLSearchParams();
-   //   params.append("requests", "category");
-   //   globals.api.Chain(params, apidata => completion(apidata.data.category));
 
    return container;
 }
@@ -1442,7 +1429,7 @@ function makeMiniSearch(baseSearch, dataMap, onSelect, placeholder)
    var s = cloneTemplate("minisearch");
    placeholder = placeholder || "Search";
 
-   findSwap(s, "data-placeholder", placeholder);
+   findSwap(s, "placeholder", placeholder);
    finalizeTemplate(s);
 
    var input = s.querySelector("[data-search]");
@@ -1509,7 +1496,7 @@ function makeUserCollection(name, showperms) //, container)
       fragment.appendChild(addeveryone);
    }
    multiSwap(base, {
-      "data-name" : name
+      name : name
    });
    finalizeTemplate(base);
    return fragment;
@@ -1523,7 +1510,7 @@ function addPermissionUser(user, list, permissions)
    var permuser = makePermissionUser(
       getAvatarLink(user.avatar, 20), user.username, permissions);
    list.appendChild(makeCollectionItem(permuser,
-      x => showperms ? getSwap(x, "data-value") : user.id, 
+      x => showperms ? getSwap(x, "value") : user.id, 
       showperms ? String(user.id) : undefined));
 }
 
@@ -1587,7 +1574,7 @@ function handleAlerts(comments, users)
          {
             //this may be dangerous
             var pw = document.getElementById(getPulseId(x.parentId));
-            var name = getSwap(pw, "data-pwname");
+            var name = getSwap(pw, "pwname");
             var notification = new Notification(users[x.createUserId].username + ": " + name, {
                tag : "comment" + x.id,
                body : parseComment(x.content).t,
@@ -1786,14 +1773,14 @@ function isPageLoading()
 function makeError(message)
 {
    var error = cloneTemplate("error");
-   findSwap(error, "data-message", message);
+   findSwap(error, "message", message);
    return error;
 }
 
 function makeSuccess(message)
 {
    var success = cloneTemplate("success");
-   findSwap(error, "data-message", message);
+   findSwap(error, "message", message);
    return success;
 }
 
@@ -1801,9 +1788,9 @@ function makeStandardContentInfo(content, users)
 {
    var info = cloneTemplate("stdcontentinfo");
    multiSwap(info, {
-      "data-createavatar" : getAvatarLink(users[content.createUserId].avatar, 20),
-      "data-createlink" : getUserLink(content.createUserId),
-      "data-createdate" : (new Date(content.createDate)).toLocaleString()
+      createavatar : getAvatarLink(users[content.createUserId].avatar, 20),
+      createlink : getUserLink(content.createUserId),
+      createdate : (new Date(content.createDate)).toLocaleString()
    });
    finalizeTemplate(info);
    return info;
@@ -1813,8 +1800,8 @@ function makeSubcat(category)
 {
    var subcat = cloneTemplate("subcat");
    multiSwap(subcat, {
-      "data-link": getCategoryLink(category.id),
-      "data-name": category.name
+      link: getCategoryLink(category.id),
+      name: category.name
    });
    finalizeTemplate(subcat);
    return subcat;
@@ -1826,11 +1813,11 @@ function makePageitem(page, users)
    var u = users[page.createUserId] || {};
    var date = (new Date(page.createDate)).toLocaleDateString();
    multiSwap(citem, {
-      "data-link": getPageLink(page.id),
-      "data-name": page.name,
-      "data-avatar" : getAvatarLink(u.avatar, 50, true),
-      "data-userlink" : getUserLink(page.createUserId),
-      "data-time" : date
+      link: getPageLink(page.id),
+      name: page.name,
+      avatar : getAvatarLink(u.avatar, 50, true),
+      userlink : getUserLink(page.createUserId),
+      time : date
    });
    finalizeTemplate(citem);
    return citem;
@@ -1841,7 +1828,7 @@ function makePWUser(user)
    var pu = cloneTemplate("pwuser");
    pu.setAttribute("data-pwuser", user.id);
    multiSwap(pu, {
-      "data-userlink": getUserLink(user.id)
+      userlink: getUserLink(user.id)
    });
    UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
       e => refreshPulseUserDisplay(e.target));
@@ -1854,11 +1841,11 @@ function makeCommentFrame(comment, users)
    var frame = cloneTemplate("messageframe");
    var u = users[comment.createUserId];
    multiSwap(frame, {
-      "data-userid": comment.createUserId,
-      "data-userlink": getUserLink(comment.createUserId),
-      "data-useravatar": getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
-      "data-username": u.username,
-      "data-frametime": (new Date(comment.createDate)).toLocaleString()
+      userid: comment.createUserId,
+      userlink: getUserLink(comment.createUserId),
+      useravatar: getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
+      username: u.username,
+      frametime: (new Date(comment.createDate)).toLocaleString()
    });
    finalizeTemplate(frame);
    return frame;
@@ -1868,10 +1855,10 @@ function makeCommentFragment(comment)//, users)
 {
    var fragment = cloneTemplate("singlemessage");
    multiSwap(fragment, {
-      "data-messageid": comment.id,
-      "data-id": getCommentId(comment.id),
-      "data-createdate": (new Date(comment.createDate)).toLocaleString(),
-      "data-editdate": (new Date(comment.editDate)).toLocaleString()
+      messageid: comment.id,
+      id: getCommentId(comment.id),
+      createdate: (new Date(comment.createDate)).toLocaleString(),
+      editdate: (new Date(comment.editDate)).toLocaleString()
    });
    finalizeTemplate(fragment);
    return fragment;
@@ -1891,14 +1878,14 @@ function makeHistoryItem(user, activity, title) //users, activity, contents)
    else if(activity.type === "user")
       link = getUserLink(activity.contentId); 
    multiSwap(item, {
-      "data-avatar" : getAvatarLink(user.avatar, 20),
-      "data-username" : user.username,
-      "data-userlink" : getUserLink(user.id),
-      "data-action" : activitytext[activity.action],
-      "data-contentname" : title,
-      "data-contentlink" : link,
-      "data-activityid" : activity.id,
-      "data-time" : Utilities.TimeDiff(activity.date, null, true)
+      avatar : getAvatarLink(user.avatar, 20),
+      username : user.username,
+      userlink : getUserLink(user.id),
+      action : activitytext[activity.action],
+      contentname : title,
+      contentlink : link,
+      activityid : activity.id,
+      time : Utilities.TimeDiff(activity.date, null, true)
    });
    finalizeTemplate(item);
    return item;
@@ -2008,8 +1995,8 @@ function updateDiscussionUserlist(listeners, users)
       {
          existing = cloneTemplate("discussionuser");
          multiSwap(existing, {
-            "data-avatar" : avatar,
-            "data-userlink" : getUserLink(uid)
+            avatar : avatar,
+            userlink : getUserLink(uid)
          });
          finalizeTemplate(existing);
          discussionuserlist.appendChild(existing);
@@ -2017,7 +2004,7 @@ function updateDiscussionUserlist(listeners, users)
 
       existing.setAttribute("data-uid", uid);
       existing.setAttribute("data-status", list[uid]);
-      findSwap(existing, "data-avatar", avatar);
+      findSwap(existing, "avatar", avatar);
    }
 
    [...discussionuserlist.querySelectorAll("[data-uid]")].forEach(x => 
@@ -2157,7 +2144,7 @@ function refreshPWDate(item)
          message += " ago";
    }
 
-   findSwap(item, "data-pwtime", message);
+   findSwap(item, "pwtime", message);
 }
 
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
@@ -2171,14 +2158,14 @@ function easyPWContent(c, id, parent)
       pulsedata = cloneTemplate("pw");
       pulsedata.id = id;
       multiSwap(pulsedata, {
-         "data-pwlink": getPageLink(c.id),
-         "data-contentid" : c.id
+         pwlink: getPageLink(c.id),
+         contentid : c.id
       });
       parent.appendChild(finalizeTemplate(pulsedata));
    }
 
    //Update the content name now, might as well
-   findSwap(pulsedata, "data-pwname", c.name);
+   findSwap(pulsedata, "pwname", c.name);
 
    return pulsedata;
 }
@@ -2194,8 +2181,8 @@ function easyPWUser(u, parent)
    }
 
    multiSwap(pulseuser, {
-      "data-useravatar": getComputedImageLink(u.avatar, 40, true),
-      "data-username": u.username
+      useravatar: getComputedImageLink(u.avatar, 40, true),
+      username: u.username
    });
 
    return pulseuser;
@@ -2216,9 +2203,9 @@ function getPulseUserData(userElem)
    {
       var elem = userElem.querySelector("[data-" + pulseUserFields[i] + "]");
       result[pulseUserFields[i]] = {
-         "count" : Number(elem.getAttribute("data-count")),
-         "lastdate" : elem.getAttribute("data-lastdate"),
-         "firstdate" : elem.getAttribute("data-firstdate")
+         count : Number(elem.getAttribute("data-count")),
+         lastdate : elem.getAttribute("data-lastdate"),
+         firstdate : elem.getAttribute("data-firstdate")
       };
    }
 
@@ -2401,7 +2388,7 @@ function getWatchLastIds()
    var result = {};
    [...watches.querySelectorAll("[data-pw]")].forEach(x =>
    {
-      result[Number(getSwap(x, "data-contentid"))] =
+      result[Number(getSwap(x, "contentid"))] =
          Number(x.getAttribute(attr.pulsemaxid));
    });
    return result;
@@ -2562,7 +2549,7 @@ function loadOlderComments(discussion)
 {
    globals.loadingOlderDiscussions = true;
 
-   var did = getSwap(discussion, "data-discussionid");
+   var did = getSwap(discussion, "discussionid");
    log.Info("Loading older messages in " + did);
 
    var loading = discussion.querySelector("[data-loadolder] [data-loading]");
@@ -2572,15 +2559,19 @@ function loadOlderComments(discussion)
    var msgs = discussion.querySelectorAll("[data-messageid]");
 
    for(var i = 0; i < msgs.length; i++)
-      minId = Math.min(minId, msgs[i].getAttribute("data-messageid"));
+   {
+      var messageId = Number(msgs[i].getAttribute("data-messageid"));
+      if(messageId > 0)
+         minId = Math.min(minId, messageId);
+   }
 
    var initload = getLocalOption("oldloadcomments");
    var params = new URLSearchParams();
    params.append("requests", "comment-" + JSON.stringify({
-      "Reverse" : true,
-      "Limit" : initload,
-      "ParentIds" : [ Number(did) ],
-      "MaxId" : Number(minId)
+      Reverse : true,
+      Limit : initload,
+      ParentIds : [ Number(did) ],
+      MaxId : Number(minId)
    }));
    params.append("requests", "user.0createUserId.0edituserId");
 
@@ -2631,9 +2622,9 @@ function updateCommentFragment(comment, element)
 {
    //nothing for now, but there might be other things
    multiSwap(element, {
-      "data-message": comment.content,
+      message: comment.content,
    });
-   findSwap(element, "data-editdate", (new Date(comment.editDate).toLocaleString()));
+   findSwap(element, "editdate", (new Date(comment.editDate).toLocaleString()));
 }
 
 function getFragmentFrame(element)
@@ -2689,6 +2680,8 @@ function easyComment(comment, users)
       //Starting from bottom, find place to insert.
       var comments = d.querySelectorAll("[data-messageid]");
       var insertAfter = false;
+
+      //console.log(d, comments);
 
       for(var i = comments.length - 1; i >= 0; i--)
       {

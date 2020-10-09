@@ -383,6 +383,7 @@ function replaceTemplate(element)
          tmpl.setAttribute(x.name, x.value);
    });
    finalizeTemplate(tmpl);
+   [...element.childNodes].forEach(x => tmpl.appendChild(x));
    DomDeps.signal("replacetemplate", { original: element, replacement: tmpl });
    element.parentNode.replaceChild(tmpl, element);
 }
@@ -850,6 +851,7 @@ function getDiscussion(id)
          DomDeps.signal("loadoldercomments_event", discussion);
       };
 
+      finalizeTemplate(discussion);
       discussionmemory.appendChild(discussion);
    }
 
