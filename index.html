@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602227837"></script>
-      <script src="dom.js?v=1602227837"></script>
-      <script src="api.js?v=1602227837"></script>
-      <script src="index.js?v=1602227837"></script>
-      <script src="sbs2-markup/highlight.js?v=1602227837"></script>
-      <script src="sbs2-markup/parse.js?v=1602227837"></script>
-      <script src="sbs2-markup/render.js?v=1602227837"></script>
+      <script src="libbo.js?v=1602276144"></script>
+      <script src="dom.js?v=1602276144"></script>
+      <script src="api.js?v=1602276144"></script>
+      <script src="index.js?v=1602276144"></script>
+      <script src="sbs2-markup/highlight.js?v=1602276144"></script>
+      <script src="sbs2-markup/parse.js?v=1602276144"></script>
+      <script src="sbs2-markup/render.js?v=1602276144"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602227837" />
+      <link rel="stylesheet" href="index.css?v=1602276144" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -322,10 +322,10 @@ function retext(el, attr)
                                  <a href="#" id="refreshlocaloptions" 
                                     class="uk-align-right uk-text-small">Refresh</a>
                               </h4>
-                              <div id="userlocaloptions"> </div>
+                              <div id="userlocaloptions" class="settings"> </div>
                               <a class="uk-display-block" uk-toggle="#developerlocaloptions">
                                  Developer Options</a>
-                              <div id="developerlocaloptions" hidden></div>
+                              <div id="developerlocaloptions" class="settings" hidden></div>
                               <button id="restoredefaultsettings" 
                                  class="uk-button uk-button-default">Restore Defaults</button>
                               <!--<button id="allowNotifications" 
@@ -714,28 +714,30 @@ function retext(el, attr)
          </li>
          <a id="sbslink" data-link="href" data-spa></a>
          <div id="booloption">
-            <label> <!-- data-name="uk-tooltip"> -->
-               <input data-input=".checked" type="checkbox" class="uk-checkbox uk-margin-right">
+            <label class="uk-flex uk-flex-middle">
+               <input data-input=".checked" type="checkbox" class="uk-checkbox 
+                  uk-flex-none uk-margin-right">
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
          <div id="numberoption">
-            <label> <!-- data-name="uk-tooltip"> -->
+            <label class="uk-flex uk-flex-middle">
                <input data-input=".value" type="number" data-step="step"
-                  class="uk-input uk-margin-small-right uk-width-1-4">
+                  class="uk-input uk-margin-small-right uk-width-1-4 uk-flex-none">
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
          <div id="rawoption">
-            <label> <!-- data-name="uk-tooltip"> -->
-               <input data-input=".value" class="uk-input uk-margin-small-right uk-width-1-2">
+            <label class="uk-flex uk-flex-middle">
+               <input data-input=".value" class="uk-input uk-margin-small-right uk-width-1-2
+                  uk-flex-none">
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>
          </div>
          <div id="selectoption">
-            <label> <!-- data-name="uk-tooltip"> -->
+            <label class="uk-flex uk-flex-middle">
                <select data-options=".selectOptionSetup" data-input=".value" 
-                  class="uk-select uk-margin-small-right uk-width-1-3">
+                  class="uk-select uk-margin-small-right uk-width-1-3 uk-flex-none">
                </select>
                <span data-text=".textContent" data-name="uk-tooltip"></span>
             </label>

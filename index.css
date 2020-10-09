@@ -10,6 +10,7 @@
    --lightblockbgcolor : rgba(128,128,128,0.05);
    --blockbgcolor: rgba(128,128,128,0.1);
    --outlinecolor : rgba(128,128,128,0.1);
+   --tableoutlinecolor: rgba(128,128,128,0.2);
    --mutedtextcolor : rgba(128,128,128, 0.7);
    --tabselectcolor: rgba(128,255,240,0.4);
 
@@ -207,7 +208,7 @@ a:hover { color: inherit; }
 /* -------------------------------------------------- */
 [data-pw] { padding: 0.45em 0.9em 0.5em 0.9em; }
 .pwname {
-   font-size: 1.3em;
+   font-size: 1.1em; /* 1.3em */
    margin-bottom: 0.25em;
 }
 .pw-users {
@@ -318,7 +319,7 @@ a:hover { color: inherit; }
 .content ul { margin: 0.1em 0 0.4em 0; }
 .pagecontrols { margin-right: -15px !important; }
 .tableContainer table, .tableContainer td, .tableContainer th {
-   border: 1px solid var(--outlinecolor);
+   border: 1px solid var(--tableoutlinecolor);
    border-collapse: collapse;
 }
 .tableContainer td {
@@ -360,6 +361,8 @@ a:hover { color: inherit; }
 }*/
 /* User settings */
 #userlocaloptions input { }
+.settings .uk-input, .settings .uk-select { height: 2.1em; }
+.settings { font-size: 0.9em; }
 /* Search */
 #searchconstraints {
    border: 1px solid var(--outlinecolor);
@@ -468,6 +471,7 @@ textarea::-webkit-scrollbar { width: 3px; } /* width */
    --headercolor: #000;
    --mutedtextcolor: #666;
    --outlinecolor: #555;
+   --tableoutlinecolor: #444;
    --blockbgcolor: #ffef97; /*#FFFF77;*/
    --tabselectcolor: #32d2c0; /*rgba(128,255,240,0.4);*/
 
