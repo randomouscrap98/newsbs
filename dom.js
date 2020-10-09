@@ -375,12 +375,18 @@ function multiSwap(element, replacements)
 
 function replaceTemplate(element)
 {
+   var replaceMerges = [ "class" ];
    var tmpl = cloneTemplate(element.getAttribute("data-tmpl"));
    multiSwap(tmpl, JSON.parse(element.getAttribute("data-tmpld")));
    [...element.attributes].forEach(x =>
    {
       if(x.name !== "data-tmpl" && x.name !== "data-tmpld")
-         tmpl.setAttribute(x.name, x.value);
+      {
+         var v = x.value;
+         if(replaceMerges.indexOf(x.name) >= 0)
+            v = (tmpl.getAttribute(x.name) || "") + " " + v;
+         tmpl.setAttribute(x.name, v);
+      }
    });
    finalizeTemplate(tmpl);
    [...element.childNodes].forEach(x => tmpl.appendChild(x));

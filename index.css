@@ -12,6 +12,14 @@
    --outlinecolor : rgba(128,128,128,0.1);
    --mutedtextcolor : rgba(128,128,128, 0.7);
    --tabselectcolor: rgba(128,255,240,0.4);
+
+   --bgred: rgba(255,50,50,0.3); 
+   --bgblue: rgba(50,150,255,0.3); 
+   --bggreen: rgba(50,255,50,0.3); 
+   --bgyellow: rgba(255,255,50,0.3); 
+   --bgorange: rgba(255,150,50,0.3); 
+   --bggray: rgba(128,128,128,0.1); 
+   --bgpurple: rgba(200,50,255,0.3); 
 }
 body {
    position: fixed; /*absolute;*/
@@ -309,6 +317,20 @@ a:hover { color: inherit; }
 .content { white-space: pre-wrap; }
 .content ul { margin: 0.1em 0 0.4em 0; }
 .pagecontrols { margin-right: -15px !important; }
+.tableContainer table, .tableContainer td, .tableContainer th {
+   border: 1px solid var(--outlinecolor);
+   border-collapse: collapse;
+}
+.tableContainer td {
+   padding: 0.2em 0.3em;
+}
+[data-bgcolor="red"] { background-color: var(--bgred); }
+[data-bgcolor="blue"] { background-color: var(--bgblue); }
+[data-bgcolor="green"] { background-color: var(--bggreen); }
+[data-bgcolor="yellow"] { background-color: var(--bgyellow); }
+[data-bgcolor="orange"] { background-color: var(--bgorange); }
+[data-bgcolor="gray"] { background-color: var(--bggray); }
+[data-bgcolor="purple"] { background-color: var(--bgpurple); }
 [data-watched="true"] path {
    fill: #EE5588; 
    color: #EE5588; 
@@ -448,5 +470,13 @@ textarea::-webkit-scrollbar { width: 3px; } /* width */
    --outlinecolor: #555;
    --blockbgcolor: #ffef97; /*#FFFF77;*/
    --tabselectcolor: #32d2c0; /*rgba(128,255,240,0.4);*/
+
+   --bgred: rgba(255,0,0,0.5);
+   --bgblue: rgba(0,0,255,0.5);
+   --bggreen: rgba(0,255,0,0.5);
+   --bgyellow: rgba(255,255,0,0.5); 
+   --bgorange: rgba(255,150,0,0.5); 
+   --bggray: rgba(128,128,128,0.3); 
+   --bgpurple: rgba(200,0,255,0.5); 
 }
 

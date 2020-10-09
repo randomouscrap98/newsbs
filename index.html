@@ -814,6 +814,17 @@ function retext(el, attr)
                for setting the value-->
             <select class="uk-select" data-name="name" data-value=".deferredselect"></select>
          </div>
+         <select id="markupselect" data-name="name" class="uk-select">
+            <option value="12y" selected>12y</option>
+            <option value="plaintext">plaintext</option>
+         </select>
+         <select id="pagetypeselect" data-name="name" class="uk-select">
+            <option value="@page" selected>General Page</option>
+            <option value="@page.program">Program</option>
+            <option value="@page.documentation">Documentation</option>
+            <option value="@discussion">General Discussion</option>
+            <option value="@discussion.question">Question</option>
+         </select>
          <div id="youtube">
             <div class="uk-flex uk-flex-middle">
                <a data-link="href" data-title=".textContent" class="uk-text-truncate
@@ -976,17 +987,27 @@ function retext(el, attr)
          <input class="uk-input uk-form-large" name="name">
       </label>
       <label class="uk-form-label" uk-margin>
+         <span>Page Type:</span>
+         <div data-tmpl="pagetypeselect" data-tmpld='{"name":"type"}' class="uk-form-large"></div>
+      </label>
+      <label class="uk-form-label" uk-margin>
          <span>Content:</span>
          <textarea rows=15 class="uk-textarea uk-resize-vertical" name="content"></textarea>
       </label>
-      <div class="uk-flex uk-flex-middle" uk-margin>
+      <label class="uk-form-label" uk-margin>
+         <span>Markup:</span>
+         <div class="uk-flex uk-flex-middle">
+            <div data-tmpl="markupselect" data-tmpld='{"name":"values.markupLang"}' 
+               class="uk-margin-small-right"></div>
+            <button data-preview class="uk-button uk-button-default">Preview</button>
+         </div>
+      </label>
+      <!--<div class="uk-flex uk-flex-middle" uk-margin>
          <label class="uk-form-label uk-margin-small-right">Markup:</label>
-         <select name="values.markupLang" class="uk-select uk-margin-small-right">
-            <option value="12y" selected>12y</option>
-            <option value="plaintext">plaintext</option>
-         </select>
+         <div data-tmpl="markupselect" data-tmpld='{"name":"values.markupLang"}' 
+            class="uk-margin-small-right"></div>
          <button data-preview class="uk-button uk-button-default">Preview</button>
-      </div>
+      </div>-->
       <label class="uk-form-label" uk-margin>
          <span>Parent Category:</span>
          <div data-categoryselect name="parentId"></div>
