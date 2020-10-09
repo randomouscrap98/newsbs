@@ -2569,10 +2569,10 @@ function loadOlderComments(discussion)
    writeDom(() => unhide(loading));
 
    var minId = Number.MAX_SAFE_INTEGER;
-   var msgs = discussion.querySelectorAll("[data-msgid]");
+   var msgs = discussion.querySelectorAll("[data-messageid]");
 
    for(var i = 0; i < msgs.length; i++)
-      minId = Math.min(minId, msgs[i].getAttribute("data-msgid"));
+      minId = Math.min(minId, msgs[i].getAttribute("data-messageid"));
 
    var initload = getLocalOption("oldloadcomments");
    var params = new URLSearchParams();
@@ -2734,18 +2734,18 @@ function messageControllerEvent(event)
    var omsg = Utilities.FindParent(event.target, x => x.hasAttribute("data-singlemessage"));
    var oframe = getFragmentFrame(omsg);
 
-   var msg = omsg.cloneNode(true);
-   var frame = oframe.cloneNode(true);
+   var msg = copyExistingTemplate(omsg); //.cloneNode(true);
+   var frame = copyExistingTemplate(oframe); //.cloneNode(true);
    var msglist = frame.querySelector(".messagelist");
    msglist.innerHTML = "";
    msglist.appendChild(msg);
    Utilities.RemoveElement(msg.querySelector(".messagecontrol"));
 
-   var cmid = getSwap(msg, "data-messageid");
-   var rawcm = getSwap(msg, "data-message"); 
-   var msgdate = getSwap(msg, "data-createdate");
-   var msgedate = getSwap(msg, "data-editdate");
-   findSwap(frame, "data-frametime", msgdate);
+   var cmid = getSwap(omsg, "data-messageid");
+   var rawcm = getSwap(omsg, "data-message"); 
+   var msgdate = getSwap(omsg, "data-createdate");
+   var msgedate = getSwap(omsg, "data-editdate");
+   findSwap(oframe, "data-frametime", msgdate);
 
    commenteditpreview.innerHTML = "";
    commenteditpreview.appendChild(frame);
@@ -2753,7 +2753,7 @@ function messageControllerEvent(event)
    var parsedcm = parseComment(rawcm);
    commentedittext.value = parsedcm.t;
    commenteditformat.value = parsedcm.m;
-   commenteditinfo.textContent = "ID: " + cmid + "  UID: " + getSwap(frame, "data-userid");
+   commenteditinfo.textContent = "ID: " + cmid + "  UID: " + getSwap(oframe, "data-userid");
    if(msgedate !== msgdate) commenteditinfo.textContent += "  Edited: " + msgedate;
 
    commenteditdelete.onclick = function() 

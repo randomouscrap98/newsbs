@@ -229,7 +229,8 @@ function cloneTemplate(name)
       throw "No template found: " + name;
    var f = elm.cloneNode(true);
    f.removeAttribute("id");
-   f.setAttribute("data-" + name, "");
+   f.setAttribute("data-" + name, "");    //!Legacy!
+   f.setAttribute("data-template", name); //use this from now on
    return f;
 }
 
@@ -279,42 +280,110 @@ function getSwapElement(element, attribute)
 // If element doesn't have that member, try global function
 function swapBase(element, attribute, replace)
 {
-   var name = getSwapElement(element, attribute);
+   //First, find parent (could be us). This COULD throw some errors, that's OK
+   //because we WANT this to fail if there's no template, that's bad
+   while(!element.hasAttribute("data-template"))
+   {
+      element = element.parentNode;
+      if(!(element && element.hasAttribute))
+         throw "No template found for attribute " + attribute;
+   }
 
-   if(!name)
-      throw "Couldn't find attribute " + attribute + " in template swap";
+   if(attribute.indexOf("data-") === 0)
+      attribute = attribute.substr("data-".length);
 
-   var caller = name.getAttribute(attribute);
+   var template = element.getAttribute("data-template");
+   var funcname = "tmplswap_" + attribute;
+   //var elmname = funcname + "_element";
+   var dattr = "data-" + attribute;
+
+   //See if the function for get/set is already there. If not, set it UP
+   if(!(funcname in element))
+   {
+      var velm = getSwapElement(element, dattr);
+
+      if(!velm)
+         throw "Couldn't find attribute " + attribute + " in template " + template;
+
+      //element[elmname] = velm;
+
+      //Do most of the work now so you don't do it every time it accesses
+      var value = velm.getAttribute(dattr);
+      var func = null;
+
+      if(!value)
+         value = dattr; //Use itself
+
+      //Starting with "." means a function call
+      if(value.indexOf(".") === 0)
+      {
+         value = value.substr(1);
+
+         if(value in velm)
+         {
+            func = rpl =>
+            {
+               if(rpl !== undefined) velm[value] = rpl;
+               return velm[value];
+            };
+         }
+         else
+         {
+            func = rpl => window[value](velm, rpl);
+         }
+      }
+      else 
+      {
+         func = rpl => 
+         {
+            //WARN: captures the element "velm", is this safe??
+            if(rpl !== undefined) velm.setAttribute(value, rpl);
+            return velm.getAttribute(value);
+         };
+      }
+
+      element[funcname] = func;
+      velm.removeAttribute(dattr);
+   }
+
+   return element[funcname](replace);
+
+   //var name = getSwapElement(element, attribute);
+
+   //if(!name)
+   //   throw "Couldn't find attribute " + attribute + " in template swap";
+
+   //var caller = name.getAttribute(attribute);
 
    //Oops, use the direct attribute if there's no value.
-   if(!caller)
-      throw "Bad attribute " + attribute + " (empty)";
+   //if(!caller)
+   //   throw "Bad attribute " + attribute + " (empty)";
 
-   //Oh, it's a function call! Try on the element itself first, then fall
-   //back to the window functions
-   if(caller.indexOf(".") === 0)
-   {
-      caller = caller.substr(1);
+   ////Oh, it's a function call! Try on the element itself first, then fall
+   ////back to the window functions
+   //if(caller.indexOf(".") === 0)
+   //{
+   //   caller = caller.substr(1);
 
-      if(caller in name)
-      {
-         if(replace !== undefined)
-            name[caller] = replace;
-         else
-            return name[caller];
-      }
-      else
-      {
-         return window[caller](name, replace);
-      }
-   }
-   else
-   {
-      if(replace !== undefined)
-         name.setAttribute(caller, replace);
-      else
-         return name.getAttribute(caller);
-   }
+   //   if(caller in name)
+   //   {
+   //      if(replace !== undefined)
+   //         name[caller] = replace;
+   //      else
+   //         return name[caller];
+   //   }
+   //   else
+   //   {
+   //      return window[caller](name, replace);
+   //   }
+   //}
+   //else
+   //{
+   //   if(replace !== undefined)
+   //      name.setAttribute(caller, replace);
+   //   else
+   //      return name.getAttribute(caller);
+   //}
 }
 
 function findSwap(element, attribute, replace) { swapBase(element, attribute, replace); }
@@ -338,6 +407,17 @@ function replaceTemplate(element)
    finalizeTemplate(tmpl);
    DomDeps.signal("replacetemplate", { original: element, replacement: tmpl });
    element.parentNode.replaceChild(tmpl, element);
+}
+
+function copyExistingTemplate(element)
+{
+   var copy = cloneTemplate(element.getAttribute("data-template"));
+   Object.keys(element).filter(x => x.indexOf("tmplswap_") === 0).forEach(x =>
+   {
+      var field = x.substr("tmplswap_".length);
+      findSwap(copy, field, getSwap(element, field));
+   });
+   return copy;
 }
 
 

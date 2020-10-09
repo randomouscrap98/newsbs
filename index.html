@@ -458,7 +458,7 @@ function retext(el, attr)
    <p>And a big thank you to: Yttria, 12me21, MasterR3C0RD, many
    more (please let me know if you want to be in this list)</p>
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
-   <dl id="technicalinfo" class="uk-description-list uk-text-break">
+   <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -600,7 +600,7 @@ function retext(el, attr)
       <!-- LOC:TEMPLATES -->
       <template id="templates" style="display: none">
          <li id="log" class="uk-flex uk-text-break">
-            <span data-message=".textContent" data-level=".loglevel" class="uk-width-expand"></span>
+            <span data-message=".textContent" data-level=".loglevel" class="uk-width-expand logmessage"></span>
             <time data-time=".textContent" class=""></time>
          </li>
          <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
@@ -619,7 +619,7 @@ function retext(el, attr)
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li id="pw" data-contentid="data-cid">
             <div class="uk-flex uk-flex-middle">
-               <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis
+               <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis pwname
                   uk-margin-right" data-spa data-pwname=".textContent"></a>
                <a data-clearcount href="#">
                   <span data-pwcount=".textContent" class="uk-label uk-label-danger"></span>
@@ -636,7 +636,7 @@ function retext(el, attr)
          <div id="pwuser" class="uk-inline">
             <img data-useravatar="src" class="" width=20 height=20>
             <div uk-dropdown>
-               <a data-userlink="href" data-spa data-username=".textContent"></a>
+               <a data-userlink="href" data-spa class="username" data-username=".textContent"></a>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
                      style="display: none"> 
@@ -679,7 +679,7 @@ function retext(el, attr)
             <img class="uk-flex-none avatar" data-useravatar="src">
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
-                  <a data-spa data-userlink="href" class="uk-flex-none" 
+                  <a data-spa data-userlink="href" class="uk-flex-none username" 
                      data-username=".textContent"></a>
                   <time class="uk-text-meta uk-width-expand uk-text-truncate
                      uk-margin-small-left" data-frametime=".textContent"></time>
@@ -687,8 +687,8 @@ function retext(el, attr)
                <div class="messagelist"> </div>
             </div>
          </div>
-         <div id="singlemessage" tabindex="2" data-messageid="data-msgid" data-id="id" 
-            data-createdate="data-cdt" data-editdate="data-edt" class="uk-flex">
+         <div id="singlemessage" tabindex="2" data-messageid data-id="id" 
+            data-createdate data-editdate class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand 
                content uk-text-break"></div>
             <a href="#" class="messagecontrol" uk-icon="cog"></a>
@@ -736,9 +736,9 @@ function retext(el, attr)
          <li id="subcat"><a data-link="href" data-spa data-name=".textContent">
             </a></li>
          <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
-            <a class="uk-width-expand uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
+            <a class="uk-width-expand title uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
-            <a class="uk-flex-none notext" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
+            <a class="uk-flex-none notext avatar" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
          </div>
          <div id="history" class="uk-display-block">
             <h4>Activity:</h4>
@@ -752,7 +752,8 @@ function retext(el, attr)
          </div>
          <div id="historyitem" data-activityid="data-actid" class="uk-flex uk-flex-middle">
             <img data-avatar="src" width=20 class="uk-flex-none">
-            <a data-spa data-username=".textContent" data-userlink="href" class="uk-flex-none"></a>
+            <a data-spa data-username=".textContent" data-userlink="href"
+               class="uk-flex-none username"></a>
             <span data-action=".textContent" class="uk-flex-none"></span>
             <a data-spa data-contentname=".textContent" data-contentlink="href" 
                class="uk-width-expand uk-text-truncate uk-margin-small-left uk-margin-small-right"></a>
@@ -848,7 +849,7 @@ function retext(el, attr)
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
                <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
-                  <li><a href="#" data-watched="data-watch" uk-icon="heart"></a></li>
+                  <li><a href="#" data-watched uk-icon="heart"></a></li>
                   <li>
                      <a href="#" uk-icon="cog"></a>
                      <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
@@ -868,7 +869,7 @@ function retext(el, attr)
             <div class="uk-flex-inline">
                <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"></h1>
                <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove" hidden>
-                  <li><a href="#" data-watched="data-watch" uk-icon="heart"></a></li>
+                  <li><a href="#" data-watched uk-icon="heart"></a></li>
                   <li><a href="#" uk-icon="cog"></a></li>
                </ul>
             </div>
