@@ -616,7 +616,12 @@ function formSerialize(form, base)
       var name = elm.getAttribute('name');
       if(tag === "input" || tag === "textarea" || tag==="select")
       {
-         formIndex(result, name, elm.value);
+         var val = elm.value;
+
+         if(elm.hasAttribute("data-list"))
+            val = val.replace(/,/g, " ").split(" ").filter(x => x);
+
+         formIndex(result, name, val);
       }
       else if(elm.hasAttribute("data-collection"))
       {
@@ -645,7 +650,8 @@ function formFill(form, data)
    var inputs = form.querySelectorAll("[name]");
    for(var i = 0; i < inputs.length; i++)
    {
-      var key = inputs[i].getAttribute("name");
+      var elm = inputs[i];
+      var key = elm.getAttribute("name");
       var val = undefined;
 
       try
@@ -661,11 +667,14 @@ function formFill(form, data)
 
       if(val !== undefined)
       {
-         var tag = inputs[i].tagName.toLowerCase();
+         var tag = elm.tagName.toLowerCase();
          if(tag === "input" || tag === "textarea" || tag==="select")
          {
+            if(elm.hasAttribute("data-list"))
+               val = val.join(" ");
+
             DomDeps.log("setting form " + key  + " to " + val);
-            inputs[i].value = val;
+            elm.value = val;
          }
       }
    }

@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602217074"></script>
-      <script src="dom.js?v=1602217074"></script>
-      <script src="api.js?v=1602217074"></script>
-      <script src="index.js?v=1602217074"></script>
-      <script src="sbs2-markup/highlight.js?v=1602217074"></script>
-      <script src="sbs2-markup/parse.js?v=1602217074"></script>
-      <script src="sbs2-markup/render.js?v=1602217074"></script>
+      <script src="libbo.js?v=1602226039"></script>
+      <script src="dom.js?v=1602226039"></script>
+      <script src="api.js?v=1602226039"></script>
+      <script src="index.js?v=1602226039"></script>
+      <script src="sbs2-markup/highlight.js?v=1602226039"></script>
+      <script src="sbs2-markup/parse.js?v=1602226039"></script>
+      <script src="sbs2-markup/render.js?v=1602226039"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602217074" />
+      <link rel="stylesheet" href="index.css?v=1602226039" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -483,6 +483,18 @@ function retext(el, attr)
                </div>
                <div class="uk-modal-body" uk-overflow-auto>
                   <pre id="rawmodalraw"></pre>
+               </div>
+            </div>
+         </div>
+         <!-- LOC: RAWMODAL -->
+         <div id="previewmodal" class="uk-modal-container" uk-modal>
+            <div class="uk-modal-dialog">
+               <button class="uk-modal-close-default" type="button" uk-close></button>
+               <div class="uk-modal-header">
+                  <h2 class="uk-modal-title" id="previewmodaltitle"></h2>
+               </div>
+               <div class="uk-modal-body" uk-overflow-auto>
+                  <div id="previewmodalpreview"></div>
                </div>
             </div>
          </div>
@@ -966,6 +978,14 @@ function retext(el, attr)
       <label class="uk-form-label" uk-margin>
          <span>Content:</span>
          <textarea rows=15 class="uk-textarea uk-resize-vertical" name="content"></textarea>
+         <div class="uk-flex uk-flex-middle">
+            <span>Markup:</span>
+            <select name="values.markupLang" class="uk-select uk-margin-small-left uk-margin-small-right">
+               <option value="12y" selected>12y</option>
+               <option value="plaintext">plaintext</option>
+            </select>
+            <button data-preview class="uk-button uk-button-default">Preview</button>
+         </div>
       </label>
       <label class="uk-form-label" uk-margin>
          <span>Parent Category:</span>
@@ -980,6 +1000,10 @@ function retext(el, attr)
          </span>
          <div data-permissions name="permissions">
          </div>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Keywords (space separated):</span>
+         <input class="uk-input" data-list name="keywords"></input>
       </label>
       <input type="submit" value="Submit" class="uk-button uk-button-primary">
    </div>

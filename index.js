@@ -1087,6 +1087,13 @@ function routepageedit_load(spadat)
          var perms = templ.querySelector('[data-permissions]');
          perms.appendChild(makeUserCollection(perms.getAttribute("name"), true));
 
+         templ.querySelector('[data-preview]').onclick = (e) =>
+         {
+            e.preventDefault();
+            var form = formSerialize(templ, baseData);
+            displayPreview(form.name, form.content, form.values.markupLang);
+         };
+
          if(baseData)
          {
             formFill(templ, baseData);
@@ -1549,6 +1556,14 @@ function displayRaw(title, raw)
    rawmodaltitle.textContent = title;
    rawmodalraw.textContent = raw;
    UIkit.modal(rawmodal).show();
+}
+
+function displayPreview(title, rawcontent, format)
+{
+   previewmodaltitle.textContent = title;
+   previewmodalpreview.innerHTML = "";
+   previewmodalpreview.appendChild(Parse.parseLang(rawcontent, format));
+   UIkit.modal(previewmodal).show();
 }
 
 function handleAlerts(comments, users)
