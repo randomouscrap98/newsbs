@@ -58,6 +58,7 @@ var options = {
    longpollerrorrestart : {def: 5000 },
    minisearchtimebuffer : {def:200},
    signalcleanup : {def: 10000 },
+   autohidesidebar : { def: 0.8, step: 0.01 },
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
    defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]},
@@ -350,7 +351,12 @@ function setupSignalProcessors()
    signals.Attach("setlocaloption", data => writeDom(() => handleSetting(data.key, data.value)));
    signals.Attach("clearlocaloption", data => writeDom(() => handleSetting(data.key, data.value)));
 
-   signals.Attach("spastart", parsed => quickLoad(parsed));
+   signals.Attach("spastart", parsed => 
+   {
+      if((rightpane.clientWidth / window.innerWidth) > getLocalOption("autohidesidebar"))
+         writeDom(() => hide(rightpane));
+      quickLoad(parsed);
+   });
 
    signals.Attach("setcontentmode", type =>
    {
