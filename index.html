@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602297335"></script>
-      <script src="dom.js?v=1602297335"></script>
-      <script src="api.js?v=1602297335"></script>
-      <script src="index.js?v=1602297335"></script>
-      <script src="sbs2-markup/highlight.js?v=1602297335"></script>
-      <script src="sbs2-markup/parse.js?v=1602297335"></script>
-      <script src="sbs2-markup/render.js?v=1602297335"></script>
+      <script src="libbo.js?v=1602316548"></script>
+      <script src="dom.js?v=1602316548"></script>
+      <script src="api.js?v=1602316548"></script>
+      <script src="index.js?v=1602316548"></script>
+      <script src="sbs2-markup/highlight.js?v=1602316548"></script>
+      <script src="sbs2-markup/parse.js?v=1602316548"></script>
+      <script src="sbs2-markup/render.js?v=1602316548"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602297335" />
+      <link rel="stylesheet" href="index.css?v=1602316548" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -852,12 +852,13 @@ function retext(el, attr)
             <option value="12y" selected>12y</option>
             <option value="plaintext">plaintext</option>
          </select>
+         <!-- The order here is the order I want them on the homepage too -->
          <select id="pagetypeselect" data-name="name" class="uk-select">
-            <option value="@page" selected>General Page</option>
             <option value="@page.program">Program</option>
+            <option value="@discussion">Chat</option>
+            <option value="@page.tutorial">Tutorial</option>
             <option value="@page.documentation">Documentation</option>
-            <option value="@discussion">General Discussion</option>
-            <option value="@discussion.question">Question</option>
+            <option value="@page" selected>General Page</option>
          </select>
          <div id="youtube">
             <div class="uk-flex uk-flex-middle">
@@ -917,6 +918,7 @@ function retext(el, attr)
                      <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
                         <ul class="uk-list uk-margin-remove-bottom">
                            <li><a data-editlink="href" data-spa>Edit Page</a></li>
+                           <li><a href="#" data-deleteaction=".simpleAction">Delete Page</a></li>
                            <li><a href="#" data-viewraw>Raw Data</a></li>
                         </ul>
                      </div>
@@ -951,6 +953,7 @@ function retext(el, attr)
                         <ul class="uk-list uk-margin-remove-bottom">
                            <li><a data-editlink="href" data-spa>Edit Category</a></li>
                            <li><a data-newlink="href" data-spa>Add Category</a></li>
+                           <li><a href="#" data-deleteaction=".simpleAction">Delete Category</a></li>
                            <li><a data-newpagelink="href" data-spa>Add Page (MOVING!)</a></li>
                            <li><a href="#" data-viewraw>Raw Data</a></li>
                         </ul>

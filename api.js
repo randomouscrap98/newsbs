@@ -107,6 +107,11 @@ Api.prototype.Put = function(endpoint, data, success, error, always, modify)
    this.Generic(endpoint, success, error, always, "Put", data, modify);
 };
 
+Api.prototype.Delete = function(endpoint, id, success, error, always, modify)
+{
+   this.Generic(endpoint + "/" + id, success, error, always, "DELETE", null, modify);
+};
+
 Api.prototype.Chain = function(params, success, error, always, modify)
 {
    this.Get("read/chain", params, success, error, always, modify);

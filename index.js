@@ -837,6 +837,13 @@ function routecategory_load(spadat)
             editlink : "?p=categoryedit-" + cid,
             newlink : "?p=categoryedit&pid=" + cid,
             newpagelink : "?p=pageedit&pid=" + cid,
+            deleteaction : (e) =>
+            {
+               if(confirm("Are you SURE you want to delete this category?"))
+               {
+                  globals.api.Delete("category", cid, () => location.href = getCategoryLink(c.parentId));
+               }
+            },
             description : c.description
          });
 
@@ -899,6 +906,13 @@ function routepage_load(spadat)
          };
          multiSwap(templ, {
             editlink : "?p=pageedit-" + pid,
+            deleteaction : (e) =>
+            {
+               if(confirm("Are you SURE you want to delete this page?"))
+               {
+                  globals.api.Delete("content", pid, () => location.href = getCategoryLink(c.parentId));
+               }
+            },
          });
          finishContent(templ, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
@@ -1420,16 +1434,17 @@ function makeActivity(modifySearch, unlimitedHeight)
    return activity;
 }
 
-function makeCategorySelect(categories, name)
+function makeCategorySelect(categories, name, includeRoot)
 {
    var container = cloneTemplate("categoryselect");
 
    var rc = Utilities.ShallowCopy(rootCategory);
    rc.name = "Root";
    categories.unshift(rc);
+
    treeify(categories);
 
-   fillTreeSelector(categories, container.querySelector("select"));
+   fillTreeSelector(categories, container.querySelector("select"), includeRoot);
    hide(container.querySelector("[data-loading]"));
    //Update the value again since we didn't have options before
    multiSwap(container, {
