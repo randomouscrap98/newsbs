@@ -84,6 +84,13 @@ blockquote {
    border-radius: 0.5em;
    color: inherit;
 }
+.content h1, .content h2, .content h3 {
+   margin-top: 10px;
+   margin-bottom: 10px;
+}
+.content h4, .content h5, .content h3 {
+   margin-top: 0px;
+}
 .uk-button-default:focus, .uk-button-default:hover,
 .uk-checkbox {
    background-color: rgba(255,255,255,0.1);

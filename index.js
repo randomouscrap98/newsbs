@@ -21,7 +21,7 @@ var attr = {
    "atoldest" : "data-atoldest"
 };
 
-var rootCategory = { name : "Website Root", id : 0 }; //, "parentId" : undefined };
+var rootCategory = { name : "Root", id : 0 }; //, "parentId" : undefined };
 var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 
 //Will this be stored in user eventually?
@@ -812,7 +812,7 @@ function routecategory_load(spadat)
    }));
    params.append("requests", "category");
    params.append("requests", "user.0createUserId.0edituserId.1createUserId");
-   params.set("content", "id,name,parentId,createDate,editDate,createUserId");
+   params.set("content", "id,name,type,parentId,createDate,editDate,createUserId");
 
    globals.api.Chain(params, function(apidata)
    {
@@ -1027,7 +1027,7 @@ function routecategoryedit_load(spadat)
             title : title
          });
          var cselect = templ.querySelector('[data-categoryselect]');
-         cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
+         cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name"), true));
 
          var lsupers = templ.querySelector('[data-localsupers]');
          lsupers.appendChild(makeUserCollection(lsupers.getAttribute("name")));
@@ -1048,6 +1048,8 @@ function routecategoryedit_load(spadat)
          }
          else
          {
+            addPermissionUser(users[0],perms, getLocalOption("defaultpermissions"));
+
             if(newPid !== null)
                formFill(templ, { "parentId": newPid });
          }
@@ -1102,7 +1104,7 @@ function routepageedit_load(spadat)
             title : title
          });
          var cselect = templ.querySelector('[data-categoryselect]');
-         cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name")));
+         cselect.appendChild(makeCategorySelect(data.category, cselect.getAttribute("name"), true));
 
          var perms = templ.querySelector('[data-permissions]');
          perms.appendChild(makeUserCollection(perms.getAttribute("name"), true));
@@ -1439,7 +1441,7 @@ function makeCategorySelect(categories, name, includeRoot)
    var container = cloneTemplate("categoryselect");
 
    var rc = Utilities.ShallowCopy(rootCategory);
-   rc.name = "Root";
+   //rc.name = "Root";
    categories.unshift(rc);
 
    treeify(categories);
@@ -1888,6 +1890,7 @@ function makePageitem(page, users)
    var u = users[page.createUserId] || {};
    var date = (new Date(page.createDate)).toLocaleDateString();
    multiSwap(citem, {
+      type: page.type,
       link: getPageLink(page.id),
       name: page.name,
       avatar : getAvatarLink(u.avatar, 50, true),
