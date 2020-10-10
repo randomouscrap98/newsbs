@@ -22,7 +22,7 @@ var attr = {
 };
 
 var rootCategory = { name : "Website Root", id : 0 }; //, "parentId" : undefined };
-var everyoneUser = { username: "|Everyone|", avatar: 0, id: 0};
+var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 
 //Will this be stored in user eventually?
 var options = {
@@ -1087,6 +1087,9 @@ function routepageedit_load(spadat)
          var perms = templ.querySelector('[data-permissions]');
          perms.appendChild(makeUserCollection(perms.getAttribute("name"), true));
 
+         var imgselect = templ.querySelector('[data-imageselect]');
+         imgselect.appendChild(makeImageCollection(imgselect.getAttribute("name")));
+
          templ.querySelector('[data-preview]').onclick = (e) =>
          {
             e.preventDefault();
@@ -1101,6 +1104,8 @@ function routepageedit_load(spadat)
             Object.keys(baseData.permissions).forEach(x => {
                if(users[x]) addPermissionUser(users[x],perms, baseData.permissions[x]);
             });
+
+            (baseData.values.photos || "").split(",").filter(x => x).forEach(x => addImageItem(x, imgselect));
          }
          else
          {
@@ -1515,12 +1520,46 @@ function addPermissionUser(user, list, permissions)
       list = list.querySelector("[data-collection]");
    var showperms = (permissions !== undefined);
    var permuser = makePermissionUser(
-      getAvatarLink(user.avatar, 20), user.username, permissions);
+      user.avatar !== null ? getAvatarLink(user.avatar, 50) : null, user.username, 
+      permissions, user.id === 0);
    list.appendChild(makeCollectionItem(permuser,
       x => showperms ? getSwap(x, "value") : user.id, 
       showperms ? String(user.id) : undefined));
 }
 
+function makeImageCollection(name)
+{
+   var fragment = new DocumentFragment();
+   var base = cloneTemplate("collection");
+   var select = cloneTemplate("imageselect");
+   multiSwap(select, {
+      action : () => { globals.fileselectcallback = id => addImageItem(id, base) }
+   });
+   multiSwap(base, {
+      name : name
+   });
+   base.setAttribute('data-condense', "true");
+   finalizeTemplate(base);
+   finalizeTemplate(select);
+   //var addimg = x => addImageItem(x.user, base, 
+   //   showperms ? getLocalOption("defaultpermissions") : undefined);
+   fragment.appendChild(base);
+   fragment.appendChild(select);
+   return fragment;
+}
+
+function addImageItem(id, list)
+{
+   if(!list.hasAttribute("data-collection"))
+      list = list.querySelector("[data-collection]");
+   var img = cloneTemplate("imageitem");
+   multiSwap(img, {
+      src : getComputedImageLink(id, 200),
+      id : id
+   });
+   finalizeTemplate(img);
+   list.appendChild(makeCollectionItem(img, x => id, undefined, true));
+}
 
 // *********************
 // --- NOTIFICATIONS ---

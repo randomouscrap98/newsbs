@@ -402,8 +402,19 @@ a:hover { color: inherit; }
 }
 
 [data-collectionitem] {
-   margin-bottom: 0.1em;
+   margin: 0 0.3em 0.1em 0;
+   /*margin-bottom: 0.1em;*/
 }
+[data-special="true"] span {
+   color: #1bace4;
+   font-weight: bold;
+}
+[data-collectionitem][data-inline="true"] {
+   display: inline-flex;
+}
+/*[data-special="true"] img {
+   background: url(globe.svg) no-repeat;
+}*/
 input[data-permission] {
    width: 4em;
 }

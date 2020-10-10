@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602276144"></script>
-      <script src="dom.js?v=1602276144"></script>
-      <script src="api.js?v=1602276144"></script>
-      <script src="index.js?v=1602276144"></script>
-      <script src="sbs2-markup/highlight.js?v=1602276144"></script>
-      <script src="sbs2-markup/parse.js?v=1602276144"></script>
-      <script src="sbs2-markup/render.js?v=1602276144"></script>
+      <script src="libbo.js?v=1602296183"></script>
+      <script src="dom.js?v=1602296183"></script>
+      <script src="api.js?v=1602296183"></script>
+      <script src="index.js?v=1602296183"></script>
+      <script src="sbs2-markup/highlight.js?v=1602296183"></script>
+      <script src="sbs2-markup/parse.js?v=1602296183"></script>
+      <script src="sbs2-markup/render.js?v=1602296183"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602276144" />
+      <link rel="stylesheet" href="index.css?v=1602296183" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -47,6 +47,35 @@ function selectOptionSetup(el, replace)
    }
    return el.value;
 }
+function simpleAction(el, replace)
+{
+   if(replace)
+   {
+      if(!el.simpact)
+      {
+         el.addEventListener("click", (e) =>
+         {
+            e.preventDefault();
+            el.simpact(el);
+         });
+      }
+      el.simpact = replace;
+   }
+   return el.simpact;
+}
+//function simpleAction(el, replace)
+//{
+//   if(replace)
+//   {
+//      el.simpact = replace;
+//      el.onclick = (e) =>
+//      {
+//         e.preventDefault();
+//         el.simpact(el);
+//      };
+//   }
+//   return el.simpact;
+//}
 function deferredselect(el, replace)
 {
    if(replace)
@@ -802,13 +831,16 @@ function retext(el, attr)
             <span data-name=".textContent" class="uk-width-expand uk-margin-small-left 
                uk-margin-small-right"></span>
          </a>
-         <div id="permissionuser" class="uk-flex uk-flex-middle">
-            <img data-image="src" class="uk-flex-none" width=20>
+         <div id="permissionuser" class="uk-flex uk-flex-middle" data-special>
+            <img data-image="src" class="uk-flex-none" width=25 height=25>
             <span data-name=".textContent" class="uk-width-small uk-margin-small-left 
                uk-margin-small-right uk-text-truncate"></span>
             <input data-permission data-value=".value" placeholder="CRUD"
                 class="uk-margin-small-right myinput uk-flex-none" >
          </div>
+         <img id="imageitem" data-id data-src="src">
+         <button id="imageselect" class="uk-button uk-button-default"
+            data-action=".simpleAction" type="button" uk-toggle="target: #fileupload">Upload / Pick</button>
          <div id="categoryselect">
             <div data-loading uk-spinner></div>
             <!-- This is a SPECIAL select and will ALWAYS have its options
@@ -842,7 +874,8 @@ function retext(el, attr)
             class="uk-margin-small-bottom">
          </div>
          <a id="addeveryone" href="#">Add global permission</a>
-         <div id="collectionitem" class="uk-flex uk-flex-middle uk-card uk-card-default">
+         <div id="collectionitem" class="uk-flex uk-flex-middle uk-card uk-card-default"
+            data-inline>
             <div data-item class="uk-width-expand"></div>
             <a href="#" uk-icon="close" class="uk-text-danger uk-flex-none"
       onclick="event.preventDefault();var p=this.parentNode;p.parentNode.removeChild(p);"></a>
@@ -990,7 +1023,7 @@ function retext(el, attr)
       </label>
       <label class="uk-form-label" uk-margin>
          <span>Page Type:</span>
-         <div data-tmpl="pagetypeselect" data-tmpld='{"name":"type"}' class="uk-form-large"></div>
+         <div data-tmpl="pagetypeselect" data-tmpld='{"name":"type"}'></div>
       </label>
       <label class="uk-form-label" uk-margin>
          <span>Content:</span>
@@ -1004,16 +1037,12 @@ function retext(el, attr)
             <button data-preview class="uk-button uk-button-default">Preview</button>
          </div>
       </label>
-      <!--<div class="uk-flex uk-flex-middle" uk-margin>
-         <label class="uk-form-label uk-margin-small-right">Markup:</label>
-         <div data-tmpl="markupselect" data-tmpld='{"name":"values.markupLang"}' 
-            class="uk-margin-small-right"></div>
-         <button data-preview class="uk-button uk-button-default">Preview</button>
-      </div>-->
       <label class="uk-form-label" uk-margin>
          <span>Parent Category:</span>
          <div data-categoryselect name="parentId"></div>
       </label>
+      <label class="uk-form-label" uk-margin>Images:</label>
+      <div data-imageselect name="values.photos"></div>
       <label class="uk-form-label" uk-margin>
          <span class="uk-flex uk-flex-middle">
             <span class="uk-margin-small-right">Permissions:</span> 
@@ -1021,8 +1050,7 @@ function retext(el, attr)
                uk-icon="icon: question; ratio: 0.75">
             </a>
          </span>
-         <div data-permissions name="permissions">
-         </div>
+         <div data-permissions name="permissions"></div>
       </label>
       <label class="uk-form-label" uk-margin>
          <span>Keywords (space separated):</span>

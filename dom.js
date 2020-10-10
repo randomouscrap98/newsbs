@@ -439,13 +439,16 @@ function makeMiniSearchResult(imageLink, name, onclick)
    return sr;
 }
 
-function makePermissionUser(imageLink, name, permissions)
+function makePermissionUser(imageLink, name, permissions, special)
 {
    var sr = cloneTemplate("permissionuser");
    multiSwap(sr, {
-      "data-image": imageLink,
       "data-name": name
    });
+   if(imageLink)
+      findSwap(sr, "image", imageLink);
+   if(special)
+      findSwap(sr, "special", true);
    if(permissions !== undefined)
       findSwap(sr, "data-value", permissions);
    else
@@ -547,13 +550,16 @@ function makeYoutube(url, playerurl)
    return youtube;
 }
 
-function makeCollectionItem(element, getValue, key)
+function makeCollectionItem(element, getValue, key, inline)
 {
    var item = cloneTemplate("collectionitem");
    item.querySelector("[data-item]").appendChild(element);
    if(key)
       item.setAttribute("data-key", key);
+   if(inline)
+      findSwap(item, "inline", "true");
    finalizeTemplate(item);
+
    item.getValue = getValue;
    return item;
 }
@@ -620,18 +626,14 @@ function formSerialize(form, base)
       var elm = inputs[i];
       var tag = elm.tagName.toLowerCase();
       var name = elm.getAttribute('name');
+      var val = undefined;
       if(tag === "input" || tag === "textarea" || tag==="select")
       {
-         var val = elm.value;
-
-         if(elm.hasAttribute("data-list"))
-            val = val.replace(/,/g, " ").split(" ").filter(x => x);
-
-         formIndex(result, name, val);
+         val = elm.value;
       }
       else if(elm.hasAttribute("data-collection"))
       {
-         var val = elm.hasAttribute("data-keys") ? {} : [];
+         val = elm.hasAttribute("data-keys") ? {} : [];
          [...elm.querySelectorAll("[data-collectionitem]")].forEach(x =>
          {
             var key = x.getAttribute('data-key');
@@ -640,8 +642,16 @@ function formSerialize(form, base)
             else
                val.push(x.getValue(x));
          });
-         result[name] = val;
+         //result[name] = val;
       }
+      //Why are these opposite? Just badness: a "list" is something a USER
+      //entered, so we accept both spaces and commas. But in general, we want
+      //true lists to be separated by commas
+      if(elm.hasAttribute("data-list"))
+         val = val.replace(/,/g, " ").split(" ").filter(x => x);
+      else if(elm.hasAttribute("data-condense"))
+         val = val.join(","); //replace(/,/g, " ").split(" ").filter(x => x);
+      formIndex(result, name, val);
    }
    //console.log("form:", result);
    return result;
