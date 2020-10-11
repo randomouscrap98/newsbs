@@ -216,12 +216,12 @@ a:hover { color: inherit; }
 [data-pw] { padding: 0.45em 0.9em 0.5em 0.9em; }
 .pwnamerow {
    font-size: 1.1em; /* 1.3em */
-   margin-bottom: 0.45em;
+   margin-bottom: 0.25em;
 }
 .pw-users {
-   background-color: var(--blockbgcolor);
+   /*background-color: var(--blockbgcolor);*/
    margin-right: 1em;
-   padding: 0 0.3em;
+   /*padding: 0 0.3em;*/
    border-radius: 5px;
 }
 .pw-users [uk-dropdown] { padding: 0.5em; }

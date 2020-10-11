@@ -2468,9 +2468,10 @@ function updatePulse(data, fullReset)
       for(var i = 0; i < data.comment.length; i++)
       {
          var c = data.comment[i];
-         if(c.createUserId) //need to check in case deleted comment
+         var ct = contents[c.parentId];
+         if(c.createUserId && ct) //need to check in case deleted comment or deleted content
          {
-            var d = cataloguePulse(contents[c.parentId], users[c.createUserId], aggregate);
+            var d = cataloguePulse(ct, users[c.createUserId], aggregate);
             updatePulseCatalogue(d.comment, c.createDate);
          }
       }
@@ -2481,8 +2482,11 @@ function updatePulse(data, fullReset)
       for(var i = 0; i < data.activity.length; i++)
       {
          var a = data.activity[i];
+         var ct = contents[a.contentId];
          //Activity type is broken, needs to be fixed. This check is a temporary stopgap
-         if(a.userId > 0 && a.type==="content") //need to check in case system
+         //Also, you COULD get activity for content that doesn't exist anymore,
+         //maybe it was deleted? We don't care about deleted content in pulse
+         if(a.userId > 0 && a.type==="content" && ct) //need to check in case system
          {
             var d = cataloguePulse(contents[a.contentId], users[a.userId], aggregate);
 
