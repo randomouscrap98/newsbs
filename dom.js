@@ -683,7 +683,6 @@ function formFill(form, data)
          DomDeps.log("FORM WARNING: can't fill field " + key + ": " + ex.message);
          continue;
       }
-      //console.log("KEY: ", key);
 
       if(val !== undefined)
       {

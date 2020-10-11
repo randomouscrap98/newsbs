@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602369646"></script>
-      <script src="dom.js?v=1602369646"></script>
-      <script src="api.js?v=1602369646"></script>
-      <script src="index.js?v=1602369646"></script>
-      <script src="sbs2-markup/highlight.js?v=1602369646"></script>
-      <script src="sbs2-markup/parse.js?v=1602369646"></script>
-      <script src="sbs2-markup/render.js?v=1602369646"></script>
+      <script src="libbo.js?v=1602455377"></script>
+      <script src="dom.js?v=1602455377"></script>
+      <script src="api.js?v=1602455377"></script>
+      <script src="index.js?v=1602455377"></script>
+      <script src="sbs2-markup/highlight.js?v=1602455377"></script>
+      <script src="sbs2-markup/parse.js?v=1602455377"></script>
+      <script src="sbs2-markup/render.js?v=1602455377"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602369646" />
+      <link rel="stylesheet" href="index.css?v=1602455377" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -48,12 +48,12 @@ function selectOptionSetup(el, replace)
    return el.value;
 }
 var ttoic = { 
-   "chat" : "commenting", "@discussion": "commenting",
-   "resource" : "file-text", "@page": "file-text", "@page.resource": "file-text",
-   "documentation" : "tag", "@page.documentation" : "tag",
-   "program" : "laptop", "@page.program" : "laptop",
-   "tutorial" : "question", "@page.tutorial" : "question",
-   "userpage" : "user", "@page.user" : "user", "@user.page" : "user"
+   "chat" : "commenting", //"@discussion": "commenting",
+   "resource" : "file-text", //"@page": "file-text", "@page.resource": "file-text",
+   "documentation" : "tag", //"@page.documentation" : "tag",
+   "program" : "laptop", //"@page.program" : "laptop",
+   "tutorial" : "question", //"@page.tutorial" : "question",
+   "userpage" : "user" //"@page.user" : "user", "@user.page" : "user"
 };
 function typeToIcon(el, replace)
 {
@@ -680,7 +680,9 @@ function retext(el, attr)
             <img data-imgsrc="src" width="60" alt=""></a></li>
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li id="pw" data-contentid="data-cid">
-            <div class="uk-flex uk-flex-middle">
+            <div class="pwnamerow uk-flex uk-flex-middle">
+               <span class="uk-flex-none uk-margin-small-right" data-type=".typeToIcon" 
+                  uk-icon="ratio: 1.0"></span>
                <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis pwname
                   uk-margin-right" data-spa data-pwname=".textContent"></a>
                <a data-clearcount href="#">
@@ -885,7 +887,8 @@ function retext(el, attr)
             <option value="chat">Chat</option>
             <option value="tutorial">Tutorial</option>
             <option value="documentation">Documentation</option>
-            <option value="resource" selected>General Page</option>
+            <option value="resource">General Page</option>
+            <option value="userpage" hidden>User Page</option>
          </select>
          <div id="youtube">
             <div class="uk-flex uk-flex-middle">
@@ -902,6 +905,19 @@ function retext(el, attr)
             class="uk-margin-small-bottom">
          </div>
          <a id="addeveryone" href="#">Add global permission</a>
+         <ul id="pagecontrols" class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
+            <li><a href="#" data-watched uk-icon="heart"></a></li>
+            <li>
+               <a href="#" uk-icon="cog"></a>
+               <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
+                  <ul class="uk-list uk-margin-remove-bottom">
+                     <li><a data-editlink="href" data-spa>Edit Page</a></li>
+                     <li><a href="#" data-deleteaction=".simpleAction">Delete Page</a></li>
+                     <li><a href="#" data-viewraw>Raw Data</a></li>
+                  </ul>
+               </div>
+            </li>
+         </ul>
          <div id="collectionitem" class="uk-flex uk-flex-middle uk-card uk-card-default"
             data-inline>
             <div data-item class="uk-width-expand"></div>
@@ -938,19 +954,7 @@ function retext(el, attr)
             <!-- WARN: DUPLICATED IN ROUTEUSER -->
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
-               <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
-                  <li><a href="#" data-watched uk-icon="heart"></a></li>
-                  <li>
-                     <a href="#" uk-icon="cog"></a>
-                     <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
-                        <ul class="uk-list uk-margin-remove-bottom">
-                           <li><a data-editlink="href" data-spa>Edit Page</a></li>
-                           <li><a href="#" data-deleteaction=".simpleAction">Delete Page</a></li>
-                           <li><a href="#" data-viewraw>Raw Data</a></li>
-                        </ul>
-                     </div>
-                  </li>
-               </ul>
+               <div data-tmpl="pagecontrols"></div>
             </div>
             <p data-content=".renderContent" data-format="data-fmt" 
                class="uk-text-break content uk-margin-remove-top"></p>
@@ -959,13 +963,10 @@ function retext(el, attr)
             <!-- WARN: DUPLICATED IN ROUTEPAGE -->
             <div class="uk-flex-inline">
                <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"></h1>
-               <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove" hidden>
-                  <li><a href="#" data-watched uk-icon="heart"></a></li>
-                  <li><a href="#" uk-icon="cog"></a></li>
-               </ul>
+               <div data-tmpl="pagecontrols" hidden></div>
             </div>
             <img data-avatar="src" width=100 class="uk-align-right avatar">
-            <p data-content=".renderContent" data-format="data-fmt" 
+            <p data-content=".renderContent" data-directcontent=".innerHTML" data-format="data-fmt" 
                class="uk-text-break content uk-margin-remove-top"></p>
             <div data-userhistory class="uk-margin-top uk-margin-bottom">
             </div>
@@ -1047,11 +1048,11 @@ function retext(el, attr)
             <div>
                <form onsubmit="return false" class="uk-form-stacked pageform lightblock">
    <div class="uk-form-controls" uk-margin>
-      <label class="uk-form-label" uk-margin>
+      <label data-pagename class="uk-form-label" uk-margin>
          <span>Name:</span>
          <input class="uk-input uk-form-large" name="name">
       </label>
-      <label class="uk-form-label" uk-margin>
+      <label data-pagetype class="uk-form-label" uk-margin>
          <span>Page Type:</span>
          <div data-tmpl="pagetypeselect" data-tmpld='{"name":"type"}'></div>
       </label>
@@ -1067,7 +1068,7 @@ function retext(el, attr)
             <button data-preview class="uk-button uk-button-default">Preview</button>
          </div>
       </label>
-      <label class="uk-form-label" uk-margin>
+      <label data-pagecategory class="uk-form-label" uk-margin>
          <span>Parent Category:</span>
          <div data-categoryselect name="parentId"></div>
       </label>

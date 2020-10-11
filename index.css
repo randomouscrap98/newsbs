@@ -214,9 +214,9 @@ a:hover { color: inherit; }
 /* Pulse styling (should really just use uikit stuff) */
 /* -------------------------------------------------- */
 [data-pw] { padding: 0.45em 0.9em 0.5em 0.9em; }
-.pwname {
+.pwnamerow {
    font-size: 1.1em; /* 1.3em */
-   margin-bottom: 0.25em;
+   margin-bottom: 0.45em;
 }
 .pw-users {
    background-color: var(--blockbgcolor);

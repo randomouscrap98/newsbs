@@ -899,21 +899,6 @@ function routepage_load(spadat)
 
       route_complete(spadat, c.name, templ =>
       {
-         templ.querySelector("[data-viewraw]").onclick = e =>
-         {
-            e.preventDefault();
-            displayRaw(c.name, JSON.stringify(c, null, 2));
-         };
-         multiSwap(templ, {
-            editlink : "?p=pageedit-" + pid,
-            deleteaction : (e) =>
-            {
-               if(confirm("Are you SURE you want to delete this page?"))
-               {
-                  globals.api.Delete("content", pid, () => location.href = getCategoryLink(c.parentId));
-               }
-            },
-         });
          finishContent(templ, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c.id, data.comment, users, initload);
@@ -932,7 +917,7 @@ function routeuser_load(spadat)
    params.append("requests", "user-" + JSON.stringify({"ids" : [uid]}));
    params.append("requests", "content-" + JSON.stringify({
       "createUserIds" : [uid],
-      "type" : "@user.page",
+      "type" : "userpage",
       "includeAbout" : true,
       "limit" : 1
    }));
@@ -983,7 +968,12 @@ function routeuser_load(spadat)
          }
          else
          {
-            multiSwap(templ, { content: "No user page" });
+            //Find the first "content" and fill it with something custom,
+            //PLEASE BE CAREFUL
+            multiSwap(templ, { 
+               directcontent : 'No user page' + 
+                  (getUserId() === u.id ?  ', <a href="?p=pageedit&type=userpage">Create one</a>' : "")
+            });
          }
       }, [u], c ? c.id : false);
    });
@@ -1094,12 +1084,16 @@ function routepageedit_load(spadat)
       var title = "Page: " + (pid ? pid : "New");
       var baseData = false;
       var newPid = Utilities.GetParams(spadat.url).get("pid");
+      var newType = Utilities.GetParams(spadat.url).get("type");
 
       if(pid && content[pid])
          baseData = content[pid];
 
       route_complete(spadat, title, templ =>
       {
+         //Need to pull in the widgets, hope it's ok
+         finalizeTemplate(templ);
+
          multiSwap(templ, { 
             title : title
          });
@@ -1111,6 +1105,24 @@ function routepageedit_load(spadat)
 
          var imgselect = templ.querySelector('[data-imageselect]');
          imgselect.appendChild(makeImageCollection(imgselect.getAttribute("name")));
+
+         var refreshForm = (c) =>
+         {
+            var isUserpage = c.type === "userpage";
+            setHidden(templ.querySelector("[data-pagetype]"), isUserpage);
+            setHidden(templ.querySelector("[data-pagename]"), isUserpage);
+            setHidden(templ.querySelector("[data-pagecategory]"), isUserpage);
+
+            if(isUserpage)
+            {
+               formFill(templ, {"name" : getUsername() + "'s userpage"});
+               findSwap(templ, "title", getUsername() + ": Userpage");
+            }
+            else
+            {
+               findSwap(templ, "title", title);
+            }
+         };
 
          templ.querySelector('[data-preview]').onclick = (e) =>
          {
@@ -1128,18 +1140,29 @@ function routepageedit_load(spadat)
             });
 
             (baseData.values.photos || "").split(",").filter(x => x).forEach(x => addImageItem(x, imgselect));
+
+            refreshForm(baseData);
          }
          else
          {
             addPermissionUser(users[0],perms, getLocalOption("defaultpermissions"));
+            var newfill = {};
 
             if(newPid !== null)
-               formFill(templ, { "parentId": newPid });
+               newfill.parentId = newPid;
+            if(newType !== null)
+               newfill.type = newType;
+
+            formFill(templ, newfill);
+            refreshForm(newfill);
          }
 
          formSetupSubmit(templ.querySelector("form"), "content", p =>
          {
-            globals.spa.ProcessLinkContextAware(getPageLink(p.id));
+            if(p.type === "userpage")
+               globals.spa.ProcessLinkContextAware(getUserLink(p.createUserId));
+            else
+               globals.spa.ProcessLinkContextAware(getPageLink(p.id));
          }, false, baseData);
       }, baseData ? getChain(data.category, baseData) : undefined);
    });
@@ -1298,6 +1321,7 @@ function updateCurrentUserData(user)
       //Just username and avatar for now?
       navuseravatar.src = getAvatarLink(user.avatar, 40);
       userusername.firstElementChild.textContent = user.username;
+      userusername.setAttribute("data-username", user.username);
       userusername.href = getUserLink(user.id);
       userid.textContent = "User ID: " + user.id;
       userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
@@ -1326,12 +1350,33 @@ function finishDiscussion(cid, comments, users, initload)
 
 function finishContent(templ, content) //, content, comments, users, initload)
 {
-   unhide(templ.querySelector(".pagecontrols"));
+   //Need to finish the template now, hopefully running it twice isn't a big deal
+   finalizeTemplate(templ);
+   var pagecontrols = templ.querySelector(".pagecontrols");
+   unhide(pagecontrols);
+   templ.querySelector("[data-viewraw]").onclick = e =>
+   {
+      e.preventDefault();
+      displayRaw(content.name, JSON.stringify(content, null, 2));
+   };
    multiSwap(templ, {
       title : content.name,
       content : JSON.stringify({ "content" : content.content, "format" : content.values.markupLang }),
-      format : content.values.markupLang,
-      watched : content.about.watching
+      format : content.values.markupLang
+   });
+   //TODO: CAREFUL! This assumes something about the page structure, and that's
+   //not the point of the templating system! You should probably tie the
+   //functions to the CLOSEST template to the query selected item when doing swap
+   multiSwap(pagecontrols, {
+      editlink : "?p=pageedit-" + content.id,
+      watched : content.about.watching,
+      deleteaction : (e) =>
+      {
+         if(confirm("Are you SURE you want to delete this page?"))
+         {
+            globals.api.Delete("content", content.id, () => location.href = getCategoryLink(content.parentId));
+         }
+      }
    });
    setupWatchLink(templ, content.id);
 }
@@ -2012,7 +2057,7 @@ function setupSession()
    params.append("requests", "content.2contentId.1parentId.3contentId");
    params.append("requests", "user.2userId.1createUserId.4userIds.5userIds");
    params.set("comment","id,parentId,createUserId,createDate");
-   params.set("content","id,name");
+   params.set("content","id,name,type");
    params.set("user","id,username,avatar");
    params.set("watch","id,contentId,lastNotificationId");
 
@@ -2092,8 +2137,8 @@ function updateDiscussionUserlist(listeners, users)
    });
 }
 
-
-function getUserId() { return userid.dataset.userid; }
+function getUserId() { return Number(userid.dataset.userid); }
+function getUsername() { return userusername.dataset.username; }
 
 function formError(form, error)
 {
@@ -2147,12 +2192,12 @@ function setupWatchLink(parent, cid)
       var failure = function(apidata)
       {
          findSwap(watchLink, "data-watched", watched); //the original;
-         notifyError("Watch failed: " + apidata.req.status + " - " + apidata.req.statusText);
+         notifyError("Watch failed: " + apidata.request.status + " - " + apidata.request.statusText);
       };
       if(watched === "true")
       {
          findSwap(watchLink, "data-watched", "false");
-         globals.api.Post("watch/" + cid + "/delete", {},
+         globals.api.Delete("watch", cid,
             data =>
             {
                log.Info("Remove watch " + cid + " successful!");
@@ -2237,6 +2282,7 @@ function easyPWContent(c, id, parent)
       pulsedata.id = id;
       multiSwap(pulsedata, {
          pwlink: getPageLink(c.id),
+         type: c.type,
          contentid : c.id
       });
       parent.appendChild(finalizeTemplate(pulsedata));
@@ -2915,6 +2961,11 @@ function mapSearchCategories(categories, imgsize)
       meta : (new Date(x.createDate)).toLocaleDateString()
    }));
 }
+
+/*function addCategoryListParam(params)
+{
+   params.set("content","id,name,type");
+}*/
 
 //A 12me thing for the renderer
 var Nav = {
