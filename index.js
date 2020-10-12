@@ -2282,14 +2282,16 @@ function easyPWContent(c, id, parent)
       pulsedata.id = id;
       multiSwap(pulsedata, {
          pwlink: getPageLink(c.id),
-         type: c.type,
          contentid : c.id
       });
       parent.appendChild(finalizeTemplate(pulsedata));
    }
 
    //Update the content name now, might as well
-   findSwap(pulsedata, "pwname", c.name);
+   multiSwap(pulsedata, {
+      pwname : c.name,
+      type : c.type
+   });
 
    return pulsedata;
 }

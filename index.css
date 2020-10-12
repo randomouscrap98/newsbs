@@ -353,6 +353,9 @@ a:hover { color: inherit; }
 [data-pageitem]:nth-child(even), [data-historyitem]:nth-child(even) {
    background-color: var(--lightblockbgcolor);
 }
+[data-pageitem] .pageicon {
+   margin: 0 0.3em;
+}
 [data-pageitem] .title {
    font-size: 1.1em;
    padding: 0.2em;
