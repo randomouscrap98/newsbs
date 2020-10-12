@@ -334,6 +334,11 @@ var Utilities =
       for(var i = 0; i < options.length; i++)
          if(options[i].value === value)
             select.selectedIndex = i;
+   },
+   ScrollToBottom : function(element)
+   {
+      //Firefox literally doesn't accept numbesr that are TOO big
+      element.scrollTop = 9999999; //Number.MAX_SAFE_INTEGER;
    }
 };
 

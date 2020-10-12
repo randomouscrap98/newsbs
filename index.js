@@ -240,9 +240,15 @@ function renderLoop(time)
       //Always read first!!! Check stuff here and then schedule actions for
       //later with signalling.
       var baseData = { 
+         //Scrolldiff is current difference between this frame and last frame
+         //(determines current scroll direction)
          scrollDiff: Math.floor(discussions.scrollTop) - Math.floor(globals.discussionScrollTop),
-         scrollBottom: (globals.discussionScrollHeight - globals.discussionClientHeight - 
+         //Scroll bottom is how close to the bottom the scroller is (old and
+         //current for different needs)
+         oldScrollBottom: (globals.discussionScrollHeight - globals.discussionClientHeight - 
                         globals.discussionScrollTop),
+         currentScrollBottom: (discussions.scrollHeight - discussions.clientHeight - 
+                        discussions.scrollTop),
          oldScrollHeight : globals.discussionScrollHeight,
          oldScrollTop : globals.discussionScrollTop,
          oldClientHeight : globals.discussionClientHeight,
@@ -251,57 +257,63 @@ function renderLoop(time)
          currentClientHeight : discussions.clientHeight
       };
 
-      if(Math.floor(globals.discussionScrollHeight) !== Math.floor(discussions.scrollHeight))
-      {
-         baseData.old = baseData.oldScrollHeight;
-         baseData.current = baseData.currentScrollHeight;
+      //NOTE: USE BASEDATA WHENEVER POSSIBLE IN THIS SECTION
 
+      //The actual discussion CONTAINER (the square on screen, not the list
+      //with messages) changed sizes, maybe due to the sidebar openeing / etc.
+      //These resizes override other types of resizes... or should they?
+      if(Math.floor(baseData.currentClientHeight) !== Math.floor(baseData.oldClientHeight))
+      {
+         //Instant jump, interrupt smooth scroll
+         if(baseData.oldScrollBottom < getLocalOption("discussionresizelock")) 
+         {
+            if(!isSmoothScrollInterrupted())
+               log.Drawlog("Smooth scroll INTERRUPTED by instant jump due to overall discussion resize: " +
+                  "oldClientHeight: " + baseData.oldClientHeight + ", current: " + baseData.currentClientHeight);
+            interruptSmoothScroll();
+            scrollBottom(discussions);
+         }
+
+         signals.Add("discussionresize", baseData);
+      }
+      //This should be activated on ANY inner discussion resize (so like images
+      //loading or messages getting added, etc)
+      else if(Math.floor(baseData.oldScrollHeight) !== Math.floor(baseData.currentScrollHeight))
+      {
          //Begin nice scroll to bottom
-         if(baseData.scrollBottom < baseData.oldClientHeight * getLocalOption("discussionscrolllock"))
+         if(baseData.oldScrollBottom < baseData.oldClientHeight * getLocalOption("discussionscrolllock"))
          {
             log.Drawlog("Smooth scrolling now, all data: " + JSON.stringify(baseData));
+            if(baseData.currentScrollBottom <= 0)
+            {
+               log.Warn("ScrollTop snapped to bottom without our input (is this a browser bug?), forcing " +
+                  "scroll anyway by manipulating baseData");
+               baseData.currentScrollTop = baseData.oldScrollTop;
+               baseData.currentScrollBottom = baseData.currentScrollHeight - baseData.oldScrollHeight;
+            }
             globals.smoothScrollNow = discussions.scrollTop;
          }
 
          signals.Add("discussionscrollresize", baseData);
       }
+      //We only detect scrolling up/down when the discussion hasn't changed sizes, is this acceptable?
       else if(baseData.scrollDiff < 0) //ONLY scrolldiff if there's not a change in scroll height
       {
-         baseData.old = baseData.oldScrollTop;
-         baseData.current = baseData.currentScrollTop;
          signals.Add("discussionscrollup", baseData);
       }
-      if(Math.floor(globals.discussionClientHeight) !== Math.floor(discussions.clientHeight))
+
+      //This is the smooth scroller!
+      if(!isSmoothScrollInterrupted())
       {
-         baseData.old = baseData.oldClientHeight;
-         baseData.current = baseData.currentClientHeight;
-
-         //Instant jump, interrupt smooth scroll
-         if(baseData.scrollBottom < getLocalOption("discussionresizelock")) 
-         {
-            if(globals.smoothScrollNow !== Number.MIN_SAFE_INTEGER)
-               log.Drawlog("Smooth scroll INTERRUPTED by instant jump");
-            interruptSmoothScroll();
-            writeDom(() => 
-            {
-               discussions.scrollTop = baseData.currentScrollHeight;
-            }); 
-         }
-
-         signals.Add("discussionresize", baseData);
-      }
-
-      if(globals.smoothScrollNow !== Number.MIN_SAFE_INTEGER)
-      {
-         if(Math.abs(discussions.scrollTop - globals.smoothScrollNow) <= 1)
+         if(Math.abs(baseData.currentScrollTop - globals.smoothScrollNow) <= 1)
          {
             //We will go at MINIMUM half framerate (to prevent huge stops from
             //destroying the animation)
             var cdelta = Math.min(32, delta);
             var scm = Math.max(1, cdelta * 60 / 1000 * 
-               getLocalOption("discussionscrollspeed") * Math.abs(baseData.scrollBottom));
-            log.Drawlog("btmdistance: " + baseData.scrollBottom + ", scm: " + scm + ", delta: " 
-               + cdelta + ", scrolltop: " + discussions.scrollTop);
+               getLocalOption("discussionscrollspeed") * Math.abs(baseData.currentScrollBottom));
+            log.Drawlog("btmdistance: " + baseData.currentScrollBottom + ", scm: " + scm + ", delta: " 
+               + cdelta + ", apparentscrolltop: " + baseData.currentScrollTop); //discussions.scrollTop);
             //These are added separately because eventually, our scrolltop will move
             //past the actual assigned one
             globals.smoothScrollNow = Math.ceil(globals.smoothScrollNow + scm);
@@ -428,10 +440,12 @@ function setupSignalProcessors()
 
    signals.Attach("formatdiscussions", data =>
    {
-      //console.log("format discussion scroll now: " + discussions.scrollHeight);
-      interruptSmoothScroll();
-      var height = discussions.scrollHeight;
-      writeDom(() => discussions.scrollTop = height);
+      if(data.hasDiscussion)
+      {
+         log.Drawlog("Format discussions, scrolling to bottom now: " + JSON.stringify(data));
+         interruptSmoothScroll();
+         scrollBottom(discussions);
+      }
    });
 
    signals.Attach("discussionscrollup", data =>
@@ -448,6 +462,16 @@ function setupSignalProcessors()
 function interruptSmoothScroll()
 {
    globals.smoothScrollNow = Number.MIN_SAFE_INTEGER;
+}
+
+function isSmoothScrollInterrupted()
+{
+   return globals.smoothScrollNow === Number.MIN_SAFE_INTEGER;
+}
+
+function scrollBottom(element)
+{
+   writeDom(() => Utilities.ScrollToBottom(discussions));
 }
 
 function setupSpa()

@@ -275,6 +275,9 @@ a:hover { color: inherit; }
 #discussionscontainer {
    min-height: 45%;
 }
+#discussions {
+   overflow-anchor: none;
+}
 [data-messageframe] .avatar {
    margin: 0.3em;
    width: 30px;
