@@ -90,11 +90,12 @@ function setFullContentMode()
 
    unhide(maincontentcontainer);
    unhide(splitmodediscussion);
+   unhide(fulldiscussionmode);
    maincontentcontainer.className += " uk-flex-1";
 
    hide(discussionscontainer);
    hide(splitmodecontent);
-   hide(fulldiscussionmode);
+   //hide(fulldiscussionmode);
    hide(fullcontentmode);
 
    DomDeps.signal("setcontentmode", "content");
@@ -106,11 +107,12 @@ function setFullDiscussionMode()
 
    unhide(discussionscontainer);
    unhide(splitmodecontent);
+   unhide(fullcontentmode);
 
    hide(maincontentcontainer);
    hide(splitmodediscussion);
    hide(fulldiscussionmode);
-   hide(fullcontentmode);
+   //hide(fullcontentmode);
 
    DomDeps.signal("setcontentmode", "discussion");
 }
