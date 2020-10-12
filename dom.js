@@ -71,6 +71,11 @@ function setLoginState(loggedIn)
    {
       DomDeps.log("Set login visual state to: " + loggedIn);
       toggleuserstate.click();
+      //TODO: Change this
+      //document.querySelectorAll("[data-utgl
+      //   <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
+      //      onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
+      //   </button>
    }
 }
 

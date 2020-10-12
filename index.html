@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602461105"></script>
-      <script src="dom.js?v=1602461105"></script>
-      <script src="api.js?v=1602461105"></script>
-      <script src="index.js?v=1602461105"></script>
-      <script src="sbs2-markup/highlight.js?v=1602461105"></script>
-      <script src="sbs2-markup/parse.js?v=1602461105"></script>
-      <script src="sbs2-markup/render.js?v=1602461105"></script>
+      <script src="libbo.js?v=1602481287"></script>
+      <script src="dom.js?v=1602481287"></script>
+      <script src="api.js?v=1602481287"></script>
+      <script src="index.js?v=1602481287"></script>
+      <script src="sbs2-markup/highlight.js?v=1602481287"></script>
+      <script src="sbs2-markup/parse.js?v=1602481287"></script>
+      <script src="sbs2-markup/render.js?v=1602481287"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602461105" />
+      <link rel="stylesheet" href="index.css?v=1602481287" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -1014,10 +1014,12 @@ function retext(el, attr)
          <span>Parent Category:</span>
          <div data-categoryselect name="parentId"></div>
       </label>
-      <!--<label class="uk-form-label" uk-margin>
+      <label class="uk-form-label" uk-margin>
          <span>Allowed Page Types:</span>
          <input class="uk-input" name="values.allowedTypes">
-      </label>-->
+         <p class="uk-text-meta">This isn't used yet but one day might be:
+         there are currently no page restrictions per-category on this frontend</p>
+      </label>
       <label class="uk-form-label" uk-margin>
          <span class="uk-flex uk-flex-middle">
             <span class="uk-margin-small-right">Permissions:</span> 
@@ -1099,8 +1101,6 @@ function retext(el, attr)
          <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
             onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
          </button>
-         <!--<ul id="discussionswitcher" uk-switcher="connect: #discussions">
-         </ul>-->
       </div>
       <!-- LOC:MEMORY -->
       <div id="memory" style="display: none">

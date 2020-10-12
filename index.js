@@ -31,7 +31,7 @@ var options = {
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
    generaltoast : { def: true, u: 1, text : "Action toasts (mini alert)" },
-   discussionscrollspeed : { def: 0.25, u: 1, text: "Scroll animation (1 = instant)", step: 0.01 },
+   discussionscrollspeed : { def: 0.22, u: 1, text: "Scroll animation (1 = instant)", step: 0.01 },
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 100, u: 1, text: "Display pages per category" },
@@ -2095,7 +2095,7 @@ function refreshUserFull(always)
    {
       updateCurrentUserData(apidata.data);
       //Don't set up the FULL session, you know? Someone else will do that
-      setLoginState(true); 
+      writeDom(() => setLoginState(true));
    }, function(apidata)
    {
       //Assume any failed user refresh means they're logged out
