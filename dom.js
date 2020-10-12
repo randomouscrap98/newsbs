@@ -242,7 +242,6 @@ function cloneTemplate(name)
 function templateSpaClick(event)
 {
    event.preventDefault();
-   //console.log(event.target);
    DomDeps.signal("spaclick_event", { element: event.target, url: event.target.href });
 }
 
@@ -542,7 +541,6 @@ function makeYoutube(url, playerurl)
       };
       hideplayer.onclick = e =>
       {
-         //console.log(youtube);
          e.preventDefault();
          [...(youtube.querySelectorAll("[data-youtubeplayer]"))].forEach(
             x => x.parentNode.removeChild(x));
@@ -662,7 +660,6 @@ function formSerialize(form, base)
          val = val.join(","); //replace(/,/g, " ").split(" ").filter(x => x);
       formIndex(result, name, val);
    }
-   //console.log("form:", result);
    return result;
 }
 

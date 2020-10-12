@@ -20,7 +20,6 @@ Api.prototype.FormatData = function(data)
 
 Api.prototype.Generic = function(suburl, success, error, always, method, data, modify)
 {
-   console.log("GENERIC: ", apidat);
    var me = this;
 
    let thisreqid = ++me.nextrequestid;
@@ -41,13 +40,11 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    //This is supposedly thrown before the others
    req.addEventListener("error", function() 
    {
-      console.log("REQERROR: ", apidat);
       apidat.networkError = true; 
       me.signal("apinetworkerror", apidat);
    });
    req.addEventListener("loadend", function()
    {
-      console.log("LOADEND: ", apidat);
       if(always) 
          always(apidat);
 
@@ -251,7 +248,6 @@ LongPoller.prototype.Update = function (lastId, statuses)
 
 LongPoller.prototype.Repeater = function(lpdata)
 {
-   console.log("LONGREPEATER: ", lpdata);
    var me = this;
 
    me.signal("longpollstart", lpdata);
