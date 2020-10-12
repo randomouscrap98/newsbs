@@ -2806,6 +2806,7 @@ function easyComment(comment, users)
 
       //Automatically create discussion?
       var d = getDiscussion(comment.parentId);
+      hide(d.querySelector("[data-nocomments]"));
 
       //Starting from bottom, find place to insert.
       var comments = d.querySelectorAll("[data-messageid]");
