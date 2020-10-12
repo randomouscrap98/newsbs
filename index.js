@@ -377,7 +377,7 @@ function setupSignalProcessors()
    });
    signals.Attach("apierror", data => 
    {
-      if(!data.abortNow)
+      if(!data.abortNow && !data.networkError)
          notifyError("API Error: " + globals.api.FormatData(data));
    });
    signals.Attach("apistart", data =>
@@ -648,8 +648,8 @@ function setupFileUpload()
       name: "file",
       beforeSend: e => { e.headers["Authorization"] = "Bearer " + getToken(); },
       loadStart: e => writeDom(() => { bar.removeAttribute('hidden'); bar.max = e.total; bar.value = e.loaded; }),
-      progress: e => generalProgress,
-      loadEnd: e => generalProgress,
+      progress: generalProgress,
+      loadEnd: generalProgress,
       error: generalError,
       fail: generalError,
       completeAll: function () {
