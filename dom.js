@@ -900,7 +900,11 @@ function getActiveDiscussionId()
 
 function showDiscussion(id)
 {
+   //Hide the active discussion (TODO:should be renamed)
    hideDiscussion(true);
+   
+   //Reset it back to the top for consistent behavior
+   //discussions.scrollTop = 0;
 
    var d = getDiscussion(id);
    discussions.appendChild(d);

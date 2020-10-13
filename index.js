@@ -252,17 +252,20 @@ function renderLoop(time)
          oldScrollHeight : globals.discussionScrollHeight,
          oldScrollTop : globals.discussionScrollTop,
          oldClientHeight : globals.discussionClientHeight,
+         oldClientWidth : globals.discussionClientWidth,
          currentScrollHeight : discussions.scrollHeight,
          currentScrollTop : discussions.scrollTop,
-         currentClientHeight : discussions.clientHeight
+         currentClientHeight : discussions.clientHeight,
+         currentClientWidth : discussions.clientWidth
       };
 
       //NOTE: USE BASEDATA WHENEVER POSSIBLE IN THIS SECTION
 
       //The actual discussion CONTAINER (the square on screen, not the list
-      //with messages) changed sizes, maybe due to the sidebar openeing / etc.
+      //with messages) changed sizes, maybe due to the sidebar opening / etc.
       //These resizes override other types of resizes... or should they?
-      if(Math.floor(baseData.currentClientHeight) !== Math.floor(baseData.oldClientHeight))
+      if(Math.floor(baseData.currentClientHeight) !== Math.floor(baseData.oldClientHeight) ||
+         Math.floor(baseData.currentClientWidth) !== Math.floor(baseData.oldClientWidth))
       {
          //Instant jump, interrupt smooth scroll
          if(baseData.oldScrollBottom < getLocalOption("discussionresizelock")) 
@@ -291,7 +294,7 @@ function renderLoop(time)
                baseData.currentScrollTop = baseData.oldScrollTop;
                baseData.currentScrollBottom = baseData.currentScrollHeight - baseData.oldScrollHeight;
             }
-            globals.smoothScrollNow = discussions.scrollTop;
+            globals.smoothScrollNow = baseData.currentScrollTop; //discussions.scrollTop;
          }
 
          signals.Add("discussionscrollresize", baseData);
@@ -327,6 +330,7 @@ function renderLoop(time)
       }
 
       globals.discussionClientHeight = discussions.clientHeight;
+      globals.discussionClientWidth = discussions.clientWidth;
       globals.discussionScrollHeight = discussions.scrollHeight;
       globals.discussionScrollTop = discussions.scrollTop;
 
@@ -450,7 +454,10 @@ function setupSignalProcessors()
 
    signals.Attach("discussionscrollup", data =>
    {
-      if(getLocalOption("loadcommentonscroll") && data.currentScrollTop <
+      //if(!isSmoothScrollInterrupted())
+      //Don't let smooth scrolling perform a load of comments etc.
+      if(data.currentScrollTop !== 0 && isSmoothScrollInterrupted() && 
+         getLocalOption("loadcommentonscroll") && data.currentScrollTop <
          getLocalOption("scrolldiscloadheight") * data.currentClientHeight)
       {
          loadOlderCommentsActive();
@@ -2736,20 +2743,15 @@ function loadOlderComments(discussion)
       var users = idMap(data.user);
       writeDom(() =>
       {
+         //Basically, just put the discussions at NOT the top just before
+         //adding the comments.
+         if(discussions.scrollTop === 0)
+            discussions.scrollTop = 1;
+
          easyComments(data.comment, users);
 
          if(data.comment.length !== initload)
             discussion.setAttribute(attr.atoldest, "");
-
-         //THIS CAUSES REFLOW!!!
-         var height = discussions.scrollHeight;
-         log.Drawlog("loadOlderComments old top: " + globals.discussionScrollTop + 
-            ", old height: " + globals.discussionScrollHeight + ", new height: " + height);
-
-         //discussions.style['-webkit-overflow-scrolling'] = 'auto';
-         discussions.scrollTop = Math.max(0, globals.discussionScrollTop) + 
-            (height - globals.discussionScrollHeight);
-         //discussions.style['-webkit-overflow-scrolling'] = 'touch';
       });
    }, undefined, apidata => /* always */
    {
