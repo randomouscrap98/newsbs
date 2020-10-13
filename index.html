@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602550677"></script>
-      <script src="dom.js?v=1602550677"></script>
-      <script src="api.js?v=1602550677"></script>
-      <script src="index.js?v=1602550677"></script>
-      <script src="sbs2-markup/highlight.js?v=1602550677"></script>
-      <script src="sbs2-markup/parse.js?v=1602550677"></script>
-      <script src="sbs2-markup/render.js?v=1602550677"></script>
+      <script src="libbo.js?v=1602563311"></script>
+      <script src="dom.js?v=1602563311"></script>
+      <script src="api.js?v=1602563311"></script>
+      <script src="index.js?v=1602563311"></script>
+      <script src="sbs2-markup/highlight.js?v=1602563311"></script>
+      <script src="sbs2-markup/parse.js?v=1602563311"></script>
+      <script src="sbs2-markup/render.js?v=1602563311"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602550677" />
+      <link rel="stylesheet" href="index.css?v=1602563311" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -170,7 +170,7 @@ function retext(el, attr)
             <div id="leftpane" class=
               "uk-width-expand uk-flex uk-flex-column uk-height-1-1 uk-overflow-hidden">
                <!-- LOC:MAINCONTENT -->
-               <div id="maincontentcontainer" uk-overflow-auto>
+               <div id="maincontentcontainer" data-hide0 uk-overflow-auto>
                   <div id="maincontentloading" class="uk-text-meta uk-flex uk-flex-middle" hidden>
                      <span class="uk-text-large uk-padding-small">Loading...</span>
                      <div uk-spinner></div>
@@ -183,14 +183,14 @@ function retext(el, attr)
                   <div id="maincontentinfo" class="uk-flex uk-width-expand">
                   </div>
                   <div id="maincontentbarcontrols" class="uk-flex uk-height-1-1 uk-flex-middle">
-                     <a href="#" class="ufk-text-primary" id="fulldiscussionmode"
-                        uk-icon="icon: triangle-up; ratio: 1.2" uk-tooltip="Full chat"></a>
-                     <a href="#" class="ufk-text-primary" id="fullcontentmode"
-                        uk-icon="icon: triangle-down; ratio: 1.2" uk-tooltip="Full content"></a>
-                     <a href="#" class="ufk-text-primary" id="splitmodediscussion"
-                        uk-icon="icon: commenting; ratio: 1.1" uk-tooltip="Show chat"></a>
-                     <a href="#" class="ufk-text-primary" id="splitmodecontent"
-                        uk-icon="icon: file-text; ratio: 1.2" uk-tooltip="Show content"></a>
+                     <a href="#" class="ufk-text-primary" id="moveupmode" data-hide0
+                        uk-icon="icon: triangle-up; ratio: 1.2" uk-tooltip="Expand Chat"></a>
+                     <a href="#" class="ufk-text-primary" id="movedownmode" data-hide2
+                        uk-icon="icon: triangle-down; ratio: 1.2" uk-tooltip="Expand Page"></a>
+                     <a href="#" class="ufk-text-primary" id="fulldiscussionmode" data-hide0 data-hide1
+                        uk-icon="icon: commenting; ratio: 1.2" uk-tooltip="Full Chat"></a>
+                     <a href="#" class="ufk-text-primary" id="fullcontentmode" data-hide2 data-hide1
+                        uk-icon="icon: file-text; ratio: 1.1" uk-tooltip="Full Page"></a>
                   </div>
                </div> 
                <!-- Need separate containers because lazy: one is for user
@@ -198,7 +198,7 @@ function retext(el, attr)
                <div data-utgl class="uk-flex-none" hidden>
                   <div id="discussionuserlist" class="uk-flex uk-flex-wrap"></div>
                </div>
-               <div id="discussionscontainer" class="uk-flex-1 uk-flex uk-flex-column">
+               <div id="discussionscontainer" data-hide2 class="uk-flex-1 uk-flex uk-flex-column">
                   <div id="discussions" class="uk-flex-1" uk-overflow-auto> 
                      <!-- Swap the discussions in and out of here -->
                   </div>
@@ -723,9 +723,9 @@ function retext(el, attr)
                </table>
             </div>
          </div>
-         <div id="stdcontentinfo" class="uk-display-inline uk-flex uk-flex-middle uk-width-expand">
-            <a data-spa class="uk-flex-none" data-createlink="href">
-               <img data-createavatar="src" width=20 height=20></a>
+         <div id="stdcontentinfo" class="uk-flex uk-flex-middle uk-width-expand">
+            <!-- That's right, I'm using flex to fix the image offset crap-->
+            <a data-spa class="uk-flex-none uk-flex" data-createlink="href"><img data-createavatar="src" width=20 height=20></a>
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->

@@ -84,53 +84,40 @@ function updateGlobalAlert()
    setHidden(globalalert, !watchglobalalert.textContent);
 }
 
+function increaseMode()
+{
+   if(leftpane.getAttribute('data-mode') === "0")
+      setSplitMode();
+   else 
+      setFullContentMode();
+}
+
+function decreaseMode()
+{
+   if(leftpane.getAttribute('data-mode') === "2")
+      setSplitMode();
+   else 
+      setFullDiscussionMode();
+}
+
 function setFullContentMode()
 {
    DomDeps.log("Set full content mode");
-
-   unhide(maincontentcontainer);
-   unhide(splitmodediscussion);
-   unhide(fulldiscussionmode);
-   maincontentcontainer.className += " uk-flex-1";
-
-   hide(discussionscontainer);
-   hide(splitmodecontent);
-   //hide(fulldiscussionmode);
-   hide(fullcontentmode);
-
+   leftpane.setAttribute("data-mode", "2");
    DomDeps.signal("setcontentmode", "content");
 }
 
 function setFullDiscussionMode()
 {
    DomDeps.log("Set full discussion mode");
-
-   unhide(discussionscontainer);
-   unhide(splitmodecontent);
-   unhide(fullcontentmode);
-
-   hide(maincontentcontainer);
-   hide(splitmodediscussion);
-   hide(fulldiscussionmode);
-   //hide(fullcontentmode);
-
+   leftpane.setAttribute("data-mode", "0");
    DomDeps.signal("setcontentmode", "discussion");
 }
 
 function setSplitMode()
 {
    DomDeps.log("Set split discussion/content mode");
-
-   maincontentcontainer.className = 
-   maincontentcontainer.className.replace(/uk-flex-1/g, ""); 
-   unhide(discussionscontainer);
-   unhide(maincontentcontainer);
-   unhide(fulldiscussionmode);
-   unhide(fullcontentmode);
-
-   hide(splitmodecontent);
-   hide(splitmodediscussion);
-
+   leftpane.setAttribute("data-mode", "1");
    DomDeps.signal("setcontentmode", "split");
 }
 
@@ -138,23 +125,26 @@ function formatDiscussions(hasDiscussions, mode)
 {
    DomDeps.log("Formatting page, show discussions: " + hasDiscussions);
 
+   //Almost ALWAYS in fullcontent mode
+   setFullContentMode();
+
    if(hasDiscussions)
    {
       unhide(maincontentbar);
       unhide(discussionuserlist);
 
-      if(mode === "content")
-         setFullContentMode();
-      else if(mode === "discussion")
+      if(mode === "discussion")
          setFullDiscussionMode();
-      else
+      else if(mode ==="split")
          setSplitMode();
+      //if(mode === "content")
+      //else
    }
    else
    {
       hide(maincontentbar);
       hide(discussionuserlist);
-      setFullContentMode();
+      //setFullContentMode();
    }
 
    DomDeps.signal("formatdiscussions", { hasDiscussion : hasDiscussions, mode : mode});

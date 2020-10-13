@@ -540,8 +540,8 @@ function setupPageControls()
 
    fulldiscussionmode.onclick = makeSet(setFullDiscussionMode);
    fullcontentmode.onclick = makeSet(setFullContentMode);
-   splitmodecontent.onclick = makeSet(setSplitMode);
-   splitmodediscussion.onclick = makeSet(setSplitMode);
+   movedownmode.onclick = makeSet(increaseMode);
+   moveupmode.onclick = makeSet(decreaseMode);
 
    log.Debug("Setup page controls");
 }
@@ -932,7 +932,7 @@ function routepage_load(spadat)
       {
          finishContent(templ, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-         finishDiscussion(c.id, data.comment, users, initload);
+         finishDiscussion(c, data.comment, users, initload);
       }, getChain(data.category, c), c.id);
    });
 }
@@ -995,7 +995,7 @@ function routeuser_load(spadat)
             c.name = u.username;
             finishContent(templ, c);
             maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-            finishDiscussion(c.id, data.comment, users, initload);
+            finishDiscussion(c, data.comment, users, initload);
          }
          else
          {
@@ -1277,7 +1277,7 @@ function quickLoad(spadat)
          if(typeHasDiscussion(spadat.page) && spadat.page !== "user")
          {
             showDiscussion(Number(spadat.id));
-            formatRememberedDiscussion(spadat.id, true);
+            formatRememberedDiscussion(spadat.id, true); //last doesn't matter, default to whatever
          }
       });
    }
@@ -1362,21 +1362,39 @@ function updateCurrentUserData(user)
    });
 }
 
-function formatRememberedDiscussion(cid, show)
+//function formatRememberedDiscussion(spadat, type)//cid, type)
+//{
+//   var hasDiscussion = typeHasDiscussion(spadat.page) && spadat.page !== "user";
+//
+//   if(hasDiscussion)
+//      showDiscussion(Number(spadat.id));
+//   else
+//      hideDiscussion();
+//
+//}
+
+function formatRememberedDiscussion(cid, show, type)
 {
-   formatDiscussions(show, getRememberedFormat(cid));
+   var fmt = "split";
+
+   if(type==="chat")
+      fmt = "discussion";
+   if(type==="documentation" || type==="program")
+      fmt = "content";
+
+   formatDiscussions(show, getRememberedFormat(cid) || fmt);
 }
 
-function finishDiscussion(cid, comments, users, initload)
+function finishDiscussion(content, comments, users, initload)
 {
-   var d = getDiscussion(cid);
+   var d = getDiscussion(content.id);
    if(initload && (comments.length !== initload))
       d.setAttribute(attr.atoldest, "");
-   showDiscussion(cid);
+   showDiscussion(content.id);
    easyComments(comments, users);
-   formatRememberedDiscussion(cid, true);
+   formatRememberedDiscussion(content.id, true, content.type);
 
-   signals.Add("finishdiscussion", { cid: cid, comments: comments, users: users, initload: initload});
+   signals.Add("finishdiscussion", { content: content, comments: comments, users: users, initload: initload});
 }
 
 function finishContent(templ, content) //, content, comments, users, initload)

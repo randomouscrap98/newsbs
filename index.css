@@ -159,15 +159,27 @@ a:hover { color: inherit; }
    background-color: var(--blockbgcolor);
    padding: 0.1em;
 }
-#maincontentbar img {
-   margin-top: -3px;
+#maincontentbar [data-stdcontentinfo] > * {
+   margin-right: 0.2em;
+   /*margin-top: -3px;*/
 }
 #maincontentbarcontrols {
    float: right;
    color: var(--headercolor);
+   /*background: var(--bggreen); var(--blockbgcolor);*/
    background: var(--blockbgcolor);
    border-radius: 3px;
+   padding: 0 0.1em;
 }
+[data-mode="0"] [data-hide0] { display: none; }
+/*[data-mode="0"] [data-hide0] #fulldiscussionmode { display: none; }*/
+/*[data-mode="0"] #maincontentcontainer { display: none; }*/
+[data-mode="1"] [data-hide1] { display: none; }
+/*[data-mode="1"] #splitmode { display: none; }*/
+[data-mode="2"] #maincontentcontainer { flex: 1; }
+[data-mode="2"] [data-hide2] { display: none; }
+/*[data-mode="2"] #fullcontentmode { display: none; }
+[data-mode="2"] #discussionscontainer { display: none; }*/
 
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
