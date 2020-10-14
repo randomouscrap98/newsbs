@@ -749,6 +749,7 @@ function setupSearch()
 function doSearch(event)
 {
    event.preventDefault();
+   searchinput.blur();
 
    var searchops = {
       reverse : searchreverseoption.checked,
@@ -857,7 +858,14 @@ function routecategory_load(spadat)
       var data = apidata.data;
       var users = idMap(data.user);
       var categories = idMap(data.category);
-      var c = categories[cid] || rootCategory; //{ "name" : "Website Root", "id" : 0 };
+      categories[0] = Utilities.ShallowCopy(rootCategory);
+      var c = categories[cid]; //{ "name" : "Website Root", "id" : 0 };
+
+      if(!c)
+      {
+         pageerror("NOT FOUND", "Couldn't find category " + cid);
+         return
+      }
 
       route_complete(spadat, "Category: " + c.name, templ =>
       {
@@ -1141,6 +1149,17 @@ function routepageedit_load(spadat)
 
          var imgselect = templ.querySelector('[data-imageselect]');
          imgselect.appendChild(makeImageCollection(imgselect.getAttribute("name")));
+
+         var cntimage = templ.querySelector('[data-contentimage]');
+         cntimage.addEventListener("click", e => 
+         {
+            e.preventDefault();
+            globals.fileselectcallback = id => 
+            {
+               var cnttxt = cntimage.previousElementSibling;
+               Utilities.InsertAtCursor(cnttxt, getComputedImageLink(id));
+            };
+         });
 
          var refreshForm = (c) =>
          {

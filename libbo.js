@@ -339,6 +339,26 @@ var Utilities =
    {
       //Firefox literally doesn't accept numbesr that are TOO big
       element.scrollTop = 9999999; //Number.MAX_SAFE_INTEGER;
+   },
+   //https://stackoverflow.com/a/11077016/1066474
+   InsertAtCursor : function (myField, myValue) 
+   {
+      //IE support
+      if (document.selection) {
+         myField.focus();
+         sel = document.selection.createRange();
+         sel.text = myValue;
+      }
+      //MOZILLA and others
+      else if (myField.selectionStart || myField.selectionStart == '0') {
+         var startPos = myField.selectionStart;
+         var endPos = myField.selectionEnd;
+         myField.value = myField.value.substring(0, startPos)
+         + myValue
+         + myField.value.substring(endPos, myField.value.length);
+      } else {
+         myField.value += myValue;
+      }
    }
 };
 

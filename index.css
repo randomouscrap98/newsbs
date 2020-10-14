@@ -480,7 +480,7 @@ pre .constant { color: #7caee2; }
 
 /* Scrollbar! WOW */
 ::-webkit-scrollbar { width: 10px; } /* width */
-textarea::-webkit-scrollbar { width: 3px; } /* width */
+#postdiscussiontext::-webkit-scrollbar { width: 3px; } /* width */
 ::-webkit-scrollbar-track { background: rgba(128,128,128,0.1); } /* Track */
 ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); } /* Handle */
 ::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.5); } /* Handle on hover */
