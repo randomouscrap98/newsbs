@@ -27,7 +27,7 @@ var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : false, u: 1, text : "Device Notifications" },
-   loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (buggy)" },
+   loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (iOS buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
    generaltoast : { def: true, u: 1, text : "Action toasts (mini alert)" },
@@ -284,7 +284,8 @@ function renderLoop(time)
       else if(Math.floor(baseData.oldScrollHeight) !== Math.floor(baseData.currentScrollHeight))
       {
          //Begin nice scroll to bottom
-         if(baseData.oldScrollBottom < baseData.oldClientHeight * getLocalOption("discussionscrolllock"))
+         if(baseData.oldScrollBottom < baseData.oldClientHeight * getLocalOption("discussionscrolllock") ||
+            baseData.currentScrollBottom < baseData.currentClientHeight * getLocalOption("discussionscrolllock"))
          {
             log.Drawlog("Smooth scrolling now, all data: " + JSON.stringify(baseData));
             if(baseData.currentScrollBottom <= 0)
@@ -295,6 +296,10 @@ function renderLoop(time)
                baseData.currentScrollBottom = baseData.currentScrollHeight - baseData.oldScrollHeight;
             }
             globals.smoothScrollNow = baseData.currentScrollTop; //discussions.scrollTop;
+         }
+         else
+         {
+            log.Warn("Not smooth scrolling on resize (not at bottom): " + JSON.stringify(baseData));
          }
 
          signals.Add("discussionscrollresize", baseData);
@@ -1265,6 +1270,8 @@ function quickLoad(spadat)
    {
       writeDom(() =>
       {
+         log.Debug("Quick loading page, assuming format before we have all the data");
+
          //If it comes time for us to run the page init but the request that
          //spawned us already finished, well don't initialize!!
          if(globals.spahistory.some(x => x.rid === spadat.rid))
@@ -2761,12 +2768,10 @@ function loadOlderComments(discussion)
       var users = idMap(data.user);
       writeDom(() =>
       {
-         //Basically, just put the discussions at NOT the top just before
-         //adding the comments.
-         if(discussions.scrollTop === 0)
-            discussions.scrollTop = 1;
-
+         var oldHeight = discussions.scrollHeight;
+         var oldScroll = discussions.scrollTop;
          easyComments(data.comment, users);
+         discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
 
          if(data.comment.length !== initload)
             discussion.setAttribute(attr.atoldest, "");

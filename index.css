@@ -290,12 +290,13 @@ a:hover { color: inherit; }
 #discussionscontainer {
    min-height: 45%;
 }
-/*#discussions {
+#discussions {
    overflow-anchor: none;
-}*/
+}
 [data-messageframe] .avatar {
    margin: 0.3em;
    width: 30px;
+   height: 30px;
 }
 [data-messageframe] .messagelist {
    padding: 0.0em 0.5em 0.5em 0.5em;
@@ -305,6 +306,8 @@ a:hover { color: inherit; }
 }
 [data-messageframe] .messagecontrol {
    visibility: hidden;
+   width: 20px;
+   height: 20px;
    margin: 0.2em 0.15em;
 }
 [data-messageframe] time {
@@ -320,9 +323,13 @@ a:hover { color: inherit; }
    visibility: visible;
 }
 [data-singlemessage] .content img {
-   max-height: 35vh;
+   height: 100px;
+   max-height: 55vh;
    display: block;
    margin: 0.5em 0;
+}
+[data-singlemessage] .content img:focus {
+   height: unset;
 }
 #postarea {
    border-top: 2px solid var(--outlinecolor);
@@ -486,7 +493,7 @@ textarea::-webkit-scrollbar { width: 3px; } /* width */
 /* Some reaction crap or whatever it's called */
 @media (min-width: 700px) { 
    #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
-   [data-messageframe] .avatar { width: 60px; }
+   [data-messageframe] .avatar { width: 60px; height: 60px; }
 }
 
 /* Dark mode? */
