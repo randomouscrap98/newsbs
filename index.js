@@ -61,6 +61,7 @@ var options = {
    autohidesidebar : { def: 0.8, step: 0.01 },
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
+   frontpageslideshownum : {def:10},
    defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]},
    defaultpermissions: {def:"cr"}
 };
@@ -823,6 +824,26 @@ function routehome_load(spadat)
 { 
    route_complete(spadat, null, templ =>
    {
+      //Eventually merge these two together!!!
+      var slideshow = templ.querySelector("[data-slideshowitems]");
+      var params = new URLSearchParams();
+      params.append("requests", "content-" + JSON.stringify({
+         "type" : "program",
+         "associatedkey" : "thumbnail",
+         "associatedvalue" : "_%",
+         "sort" : "random",
+         "limit": getLocalOption("frontpageslideshownum")
+      }));
+      params.set("content", "id,name,type,parentId,createDate,editDate,createUserId,values");
+      globals.api.Chain(params, apidata =>
+      {
+         log.Datalog("see devlog for frontpage data", apidata);
+         var data = apidata.data;
+         data.content.forEach(x =>
+         {
+            slideshow.appendChild(makeAnnotatedSlideshowItem(x));
+         });
+      });
       var homehistory = templ.querySelector("[data-homehistory]");
       homehistory.appendChild(makeActivity());
    }); 
@@ -1163,10 +1184,15 @@ function routepageedit_load(spadat)
 
          var refreshForm = (c) =>
          {
+            c = c || formSerialize(templ, baseData);
             var isUserpage = c.type === "userpage";
             setHidden(templ.querySelector("[data-pagetype]"), isUserpage);
             setHidden(templ.querySelector("[data-pagename]"), isUserpage);
             setHidden(templ.querySelector("[data-pagecategory]"), isUserpage);
+
+            var isProgram = c.type === "program";
+            setHidden(templ.querySelector("[data-pageimages]"), !isProgram);
+            setHidden(templ.querySelector("[data-pagekey]"), !isProgram);
 
             if(isUserpage)
             {
@@ -1179,12 +1205,41 @@ function routepageedit_load(spadat)
             }
          };
 
+         var imgthm = templ.querySelector("[data-thumbnail]");
+         var rmvthm = templ.querySelector("[data-thumbnailremove]");
+         var slcthm = templ.querySelector("[data-thumbnailselect]");
+
+         var setThumbnail = (id) =>
+         {
+            imgthm.setAttribute("data-value", id);
+            imgthm.src = getComputedImageLink(id, 200);
+            unhide(rmvthm);
+            hide(slcthm);
+         };
+
+         rmvthm.onclick = (e) =>
+         {
+            e.preventDefault();
+            imgthm.setAttribute("data-value", "");
+            imgthm.src = "";
+            unhide(slcthm);
+            hide(rmvthm);
+         };
+
+         slcthm.addEventListener('click', (e) =>
+         {
+            e.preventDefault();
+            globals.fileselectcallback = setThumbnail;
+         });
+
          templ.querySelector('[data-preview]').onclick = (e) =>
          {
             e.preventDefault();
             var form = formSerialize(templ, baseData);
             displayPreview(form.name, form.content, form.values.markupLang);
          };
+
+         templ.querySelector('[name="type"]').oninput = (e) => refreshForm();
 
          if(baseData)
          {
@@ -1196,7 +1251,10 @@ function routepageedit_load(spadat)
 
             (baseData.values.photos || "").split(",").filter(x => x).forEach(x => addImageItem(x, imgselect));
 
-            refreshForm(baseData);
+            var thm = Number(baseData.values.thumbnail);
+            if(thm) setThumbnail(thm);
+
+            refreshForm();
          }
          else
          {
@@ -1209,7 +1267,7 @@ function routepageedit_load(spadat)
                newfill.type = newType;
 
             formFill(templ, newfill);
-            refreshForm(newfill);
+            refreshForm();
          }
 
          formSetupSubmit(templ.querySelector("form"), "content", p =>
@@ -1704,6 +1762,19 @@ function addImageItem(id, list)
    list.appendChild(makeCollectionItem(img, x => id, undefined, true));
 }
 
+function makeAnnotatedSlideshowItem(content)
+{
+   var tmp = cloneTemplate("annotatedslideshowitem");
+   multiSwap(tmp, {
+      link: getPageLink(content.id),
+      title: content.name,
+      tagline: content.values.tagline,
+      src: getComputedImageLink(content.values.thumbnail)
+   });
+   finalizeTemplate(tmp);
+   return tmp;
+}
+
 // *********************
 // --- NOTIFICATIONS ---
 // *********************
@@ -1894,8 +1965,10 @@ function getAvatarLink(id, size, ignoreRatio)
 
 function getContentImageLink(content, size, crop, ignoreRatio)
 {
-   var images = (content.values.photos || "").split(",");
-   return images[0] ? getComputedImageLink(images[0], size, crop, ignoreRatio) : null;
+   //var images = (content.values.photos || "").split(",");
+   //return images[0] ? getComputedImageLink(images[0], size, crop, ignoreRatio) : null;
+   return content.values.thumbnail ? 
+      getComputedImageLink(content.values.thumbnail, size, crop, ignoreRatio) : null;
 }
 
 function getRememberedFormat(cid) {
@@ -3009,6 +3082,7 @@ function mapSearchContent(content, imgsize)
    imgsize = imgsize || 20;
    return content.map(x =>
    ({
+      type : x.type,
       imageLink : getContentImageLink(x, imgsize, true),
       link : getPageLink(x.id),
       title : x.name,
@@ -3031,6 +3105,7 @@ function mapSearchCategories(categories, imgsize)
    imgsize = imgsize || 20;
    return categories.map(x =>
    ({
+      type : "category",
       link : getCategoryLink(x.id),
       title : x.name,
       meta : (new Date(x.createDate)).toLocaleDateString()

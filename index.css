@@ -452,6 +452,14 @@ input[data-permission] {
    margin-left: 0.2em;
 }
 
+[data-slideshowcontainer] {
+   max-width: 600px;
+   margin: auto;
+}
+[data-slideshow] .slideshowtext {
+   padding: 0.1em 0.5em;
+}
+
 .content pre { margin: 0.25em 0; }
 pre .keyword { font-weight: bold; }
 

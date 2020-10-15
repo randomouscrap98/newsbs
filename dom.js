@@ -406,7 +406,7 @@ function copyExistingTemplate(element)
 // - SUB-TEMPLATING -
 // ******************
 
-function makeSearchResult(imageLink, link, title, meta)
+function makeSearchResult(type, imageLink, link, title, meta)
 {
    var result = cloneTemplate("searchresult");
    var swap = {
@@ -417,6 +417,8 @@ function makeSearchResult(imageLink, link, title, meta)
 
    if(imageLink)
       swap["data-image"] = imageLink;
+   else if(type)
+      swap.type = type;
 
    multiSwap(result, swap);
    finalizeTemplate(result);
@@ -630,6 +632,10 @@ function formSerialize(form, base)
       {
          val = elm.value;
       }
+      else if(elm.hasAttribute('data-value'))
+      {
+         val = elm.getAttribute("data-value");
+      }
       else if(elm.hasAttribute("data-collection"))
       {
          val = elm.hasAttribute("data-keys") ? {} : [];
@@ -825,7 +831,7 @@ function displaySearchResults(container, results)
 
       results.forEach(x => 
       {
-         list.appendChild(makeSearchResult(x.imageLink, x.link, x.title, x.meta));
+         list.appendChild(makeSearchResult(x.type, x.imageLink, x.link, x.title, x.meta));
       });
    }
 }

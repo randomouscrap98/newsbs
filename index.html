@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602651035"></script>
-      <script src="dom.js?v=1602651035"></script>
-      <script src="api.js?v=1602651035"></script>
-      <script src="index.js?v=1602651035"></script>
-      <script src="sbs2-markup/highlight.js?v=1602651035"></script>
-      <script src="sbs2-markup/parse.js?v=1602651035"></script>
-      <script src="sbs2-markup/render.js?v=1602651035"></script>
+      <script src="libbo.js?v=1602737008"></script>
+      <script src="dom.js?v=1602737008"></script>
+      <script src="api.js?v=1602737008"></script>
+      <script src="index.js?v=1602737008"></script>
+      <script src="sbs2-markup/highlight.js?v=1602737008"></script>
+      <script src="sbs2-markup/parse.js?v=1602737008"></script>
+      <script src="sbs2-markup/render.js?v=1602737008"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602651035" />
+      <link rel="stylesheet" href="index.css?v=1602737008" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -53,6 +53,7 @@ var ttoic = {
    "documentation" : "tag", //"@page.documentation" : "tag",
    "program" : "laptop", //"@page.program" : "laptop",
    "tutorial" : "info", //"@page.tutorial" : "question",
+   "category" : "folder",
    "userpage" : "user" //"@page.user" : "user", "@user.page" : "user"
 };
 function typeToIcon(el, replace)
@@ -794,7 +795,7 @@ function retext(el, attr)
             </label>
          </div>
          <div id="searchresult" class="uk-flex uk-flex-middle">
-            <img data-image="src" class="uk-flex-none" width=20>
+            <img data-image="src" data-type=".typeToIcon" class="uk-flex-none" width=20>
             <a data-spa data-name=".textContent" data-link="href" 
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
             <span data-meta=".textContent" class="uk-text-meta"></span>
@@ -916,6 +917,17 @@ function retext(el, attr)
                </div>
             </li>
          </ul>
+         <li id="annotatedslideshowitem">
+            <img data-src=".src" uk-cover>
+            <div class="uk-overlay-primary uk-position-bottom uk-text-center">
+               <a data-title=".textContent" data-link="href" class="uk-margin-remove
+               uk-text-truncate uk-text-large slideshowtext uk-display-block"></a>
+            </div>
+            <div class="uk-overlay-primary uk-position-bottom uk-text-center" hidden>
+               <p data-tagline=".textContent" class="uk-margin-remove
+               uk-text-truncate slideshowtext"></p>
+            </div>
+         </li>
          <div id="collectionitem" class="uk-flex uk-flex-middle uk-card uk-card-default"
             data-inline>
             <div data-item class="uk-width-expand"></div>
@@ -929,6 +941,20 @@ function retext(el, attr)
             BASIC programs on your Nintendo 3DS, Wii U, and Switch! 
             This website is in development! There's a lot of missing features, 
             but we're gonna keep adding stuff until it's good!</p>
+            <div data-slideshowcontainer>
+               <div data-slideshow uk-slideshow="animation: push; ratio: 5:3;
+                  autoplay: true; autoplay-interval: 6000; pause-on-hover: true">
+    <div class="uk-position-relative uk-visible-toggle uk-light" tabindex="-1">
+        <ul data-slideshowitems class="uk-slideshow-items">
+        </ul>
+        <a class="uk-position-center-left uk-position-small uk-hidden-hover" 
+           href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
+        <a class="uk-position-center-right uk-position-small uk-hidden-hover" 
+           href="#" uk-slidenav-next uk-slideshow-item="next"></a>
+    </div>
+    <ul class="uk-slideshow-nav uk-dotnav uk-flex-center uk-margin"></ul>
+               </div>
+            </div>
             <h3><a href="?p=category-0" data-spa>Browse Everything</a></h3>
             <div class="" data-homehistory></div>
             <a href="?p=test" data-spa>Test area</a>
@@ -1056,6 +1082,17 @@ function retext(el, attr)
          <span>Page Type:</span>
          <div data-tmpl="pagetypeselect" data-tmpld='{"name":"type"}' required></div>
       </label>
+      <label data-pagekey class="uk-form-label" uk-margin>
+         <span>Key:</span>
+         <input class="uk-input uk-form-large" name="values.key">
+      </label>
+      <div data-pagethumbnail>
+         <label class="uk-form-label" uk-margin>Thumbnail:</label>
+         <img class="uk-display-block" data-thumbnail name="values.thumbnail">
+         <a href="#" data-thumbnailselect uk-toggle="target: #fileupload">Select</a>
+         <a href="#" data-thumbnailremove hidden>Remove</a>
+         <p class="uk-text-meta">An image (separate from galleries) to represent your page</p>
+      </div>
       <label class="uk-form-label" uk-margin>
          <span>Content:</span>
          <textarea rows=15 class="uk-textarea uk-resize-vertical" name="content"></textarea>
@@ -1074,13 +1111,17 @@ function retext(el, attr)
          <span>Parent Category:</span>
          <div data-categoryselect name="parentId"></div>
       </label>
-      <label data-pagename class="uk-form-label" uk-margin>
+      <label data-pagetagline class="uk-form-label" uk-margin>
          <span>Tagline:</span>
          <input class="uk-input" name="values.tagline">
          <p class="uk-text-meta">A short description of the page, used in listings</p>
       </label>
-      <label class="uk-form-label" uk-margin>Images:</label>
-      <div data-imageselect name="values.photos"></div>
+      <!-- These have to be separate because of image dragging (it activates
+           the selector or whatever) -->
+      <div data-pageimages>
+         <label class="uk-form-label" uk-margin>Image Gallery:</label>
+         <div data-imageselect name="values.photos"></div>
+      </div>
       <label class="uk-form-label" uk-margin>
          <span class="uk-flex uk-flex-middle">
             <span class="uk-margin-small-right">Permissions:</span> 
