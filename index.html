@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602737008"></script>
-      <script src="dom.js?v=1602737008"></script>
-      <script src="api.js?v=1602737008"></script>
-      <script src="index.js?v=1602737008"></script>
-      <script src="sbs2-markup/highlight.js?v=1602737008"></script>
-      <script src="sbs2-markup/parse.js?v=1602737008"></script>
-      <script src="sbs2-markup/render.js?v=1602737008"></script>
+      <script src="libbo.js?v=1602806148"></script>
+      <script src="dom.js?v=1602806148"></script>
+      <script src="api.js?v=1602806148"></script>
+      <script src="index.js?v=1602806148"></script>
+      <script src="sbs2-markup/highlight.js?v=1602806148"></script>
+      <script src="sbs2-markup/parse.js?v=1602806148"></script>
+      <script src="sbs2-markup/render.js?v=1602806148"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602737008" />
+      <link rel="stylesheet" href="index.css?v=1602806148" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -815,7 +815,7 @@ function retext(el, attr)
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
             <a class="uk-flex-none notext avatar" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
          </div>
-         <div id="history" class="uk-display-block">
+         <div id="history" class="uk-display-block uk-position-relative">
             <h4>Activity:</h4>
             <div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>
             <div class="historycontainer" uk-overflow-auto>
@@ -1086,13 +1086,6 @@ function retext(el, attr)
          <span>Key:</span>
          <input class="uk-input uk-form-large" name="values.key">
       </label>
-      <div data-pagethumbnail>
-         <label class="uk-form-label" uk-margin>Thumbnail:</label>
-         <img class="uk-display-block" data-thumbnail name="values.thumbnail">
-         <a href="#" data-thumbnailselect uk-toggle="target: #fileupload">Select</a>
-         <a href="#" data-thumbnailremove hidden>Remove</a>
-         <p class="uk-text-meta">An image (separate from galleries) to represent your page</p>
-      </div>
       <label class="uk-form-label" uk-margin>
          <span>Content:</span>
          <textarea rows=15 class="uk-textarea uk-resize-vertical" name="content"></textarea>
@@ -1116,11 +1109,20 @@ function retext(el, attr)
          <input class="uk-input" name="values.tagline">
          <p class="uk-text-meta">A short description of the page, used in listings</p>
       </label>
+      <div data-pagethumbnail>
+         <label class="uk-form-label" uk-margin>Thumbnail:</label>
+         <img class="uk-display-block" data-thumbnail name="values.thumbnail">
+         <a href="#" data-thumbnailselect uk-toggle="target: #fileupload">Select</a>
+         <a href="#" data-thumbnailremove hidden>Remove</a>
+         <p class="uk-text-meta">A small, preferably square image (separate from galleries) to represent your page in listings</p>
+      </div>
       <!-- These have to be separate because of image dragging (it activates
            the selector or whatever) -->
       <div data-pageimages>
          <label class="uk-form-label" uk-margin>Image Gallery:</label>
          <div data-imageselect name="values.photos"></div>
+         <p class="uk-text-meta">Images of your program/etc, the first one will
+         show up in special slideshows like the frontpage gallery/etc.</p>
       </div>
       <label class="uk-form-label" uk-margin>
          <span class="uk-flex uk-flex-middle">

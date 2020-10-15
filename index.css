@@ -459,6 +459,9 @@ input[data-permission] {
 [data-slideshow] .slideshowtext {
    padding: 0.1em 0.5em;
 }
+[data-slideshowitems] {
+   border: 1px solid var(--tableoutlinecolor);
+}
 
 .content pre { margin: 0.25em 0; }
 pre .keyword { font-weight: bold; }

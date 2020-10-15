@@ -829,7 +829,7 @@ function routehome_load(spadat)
       var params = new URLSearchParams();
       params.append("requests", "content-" + JSON.stringify({
          "type" : "program",
-         "associatedkey" : "thumbnail",
+         "associatedkey" : "photos",
          "associatedvalue" : "_%",
          "sort" : "random",
          "limit": getLocalOption("frontpageslideshownum")
@@ -1769,7 +1769,7 @@ function makeAnnotatedSlideshowItem(content)
       link: getPageLink(content.id),
       title: content.name,
       tagline: content.values.tagline,
-      src: getComputedImageLink(content.values.thumbnail)
+      src: getContentImageLink(content)
    });
    finalizeTemplate(tmp);
    return tmp;
@@ -1963,12 +1963,16 @@ function getAvatarLink(id, size, ignoreRatio)
    return getComputedImageLink(id, size, true, ignoreRatio); 
 }
 
-function getContentImageLink(content, size, crop, ignoreRatio)
+function getContentThumbnailLink(content, size, crop, ignoreRatio)
 {
-   //var images = (content.values.photos || "").split(",");
-   //return images[0] ? getComputedImageLink(images[0], size, crop, ignoreRatio) : null;
    return content.values.thumbnail ? 
       getComputedImageLink(content.values.thumbnail, size, crop, ignoreRatio) : null;
+}
+
+function getContentImageLink(content, size, crop, ignoreRatio)
+{
+   var images = (content.values.photos || "").split(",");
+   return images[0] ? getComputedImageLink(images[0], size, crop, ignoreRatio) : null;
 }
 
 function getRememberedFormat(cid) {
@@ -3083,7 +3087,7 @@ function mapSearchContent(content, imgsize)
    return content.map(x =>
    ({
       type : x.type,
-      imageLink : getContentImageLink(x, imgsize, true),
+      imageLink : getContentThumbnailLink(x, imgsize, true),
       link : getPageLink(x.id),
       title : x.name,
       meta : (new Date(x.createDate)).toLocaleDateString()
