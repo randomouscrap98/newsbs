@@ -117,6 +117,15 @@ blockquote {
 hr { border-top: 1px solid rgba(128,128,128, 0.2); }
 /* a { overflow: hidden; }*/
 .notext { font-size: 0; } /*display: contents; }*/
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
 audio {
    height: 30px;
    display: block;
@@ -145,11 +154,21 @@ a:hover { color: inherit; }
    border-left: 2px solid var(--outlinecolor);
    width: 30em;
    max-width: calc(100vw - 1px);
-   min-width: 10em;
+   min-width: 15em;
 }
+/*[data-checkinglogin] #userpane {
+   filter: blur(1px) opacity(0.5);
+}*/
+/*#rightpane .uk-container {
+   padding-left: 15px !important;
+   padding-right: 15px !important;
+}*/
 #rightpanefooter {
-   font-size: 0.7em;
+   font-size: 0.8em;
    padding: 0 0.5em;
+}
+#rightpanefootername {
+   cursor: grab;
 }
 #rightpanenav {
    background-color: var(--blockbgcolor);

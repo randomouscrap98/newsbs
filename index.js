@@ -168,6 +168,7 @@ window.onload = function()
       }
       return {block:true, node:makeYoutube(url, parseurl)};
    };
+   StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
 };
 
 function safety(func)
@@ -2206,9 +2207,18 @@ function setupSession()
 
    //rightpane.style.opacity = 0.2;
    //setLoginState("loggingin");
-   website.setAttribute("data-checkinglogin", "");
+   //website.setAttribute("data-checkinglogin", "");
+   writeDom(() => 
+   {
+      unhide(rightpaneactivityloading);
+      unhide(rightpanewatchesloading);
+   });
+   //because of current nature of login, we can set the login state to true
+   //right now. TODO: fix all this refreshUser and session stuff.
+   writeDom(() => setLoginState("true"));
    //Refreshing will set our login state, don't worry about that stuff.
-   refreshUserFull(() => website.removeAttribute("data-checkinglogin"));
+   refreshUserFull(); 
+   //() => writeDom(() => hide(rightpaneloading))); //website.removeAttribute("data-checkinglogin"));
 
    var params = new URLSearchParams();
    var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
@@ -2245,6 +2255,12 @@ function setupSession()
 
             tryUpdateLongPoll();
          }
+      });
+
+      writeDom(() => 
+      {
+         hide(rightpaneactivityloading);
+         hide(rightpanewatchesloading);
       });
 
       //Fully stock (with reset) the sidepanel
@@ -2438,6 +2454,15 @@ function refreshPWDate(item)
 
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
 
+function updatePWContent(pulsedata, c)
+{
+   //Update the content name now, might as well
+   multiSwap(pulsedata, {
+      pwname : c.name,
+      type : c.type
+   });
+}
+
 function easyPWContent(c, id, parent)
 {
    var pulsedata = document.getElementById(id);
@@ -2453,11 +2478,7 @@ function easyPWContent(c, id, parent)
       parent.appendChild(finalizeTemplate(pulsedata));
    }
 
-   //Update the content name now, might as well
-   multiSwap(pulsedata, {
-      pwname : c.name,
-      type : c.type
-   });
+   updatePWContent(pulsedata, c);
 
    return pulsedata;
 }
@@ -2776,6 +2797,15 @@ function updateWatches(data, fullReset)
          setupWatchClear(watchdata, c.id);
          watchdata.setAttribute(attr.pulsemaxid, data.watch[i].lastNotificationId);
       }
+   }
+
+   if(data.content)
+   {
+      data.content.forEach(x =>
+         {
+            var w = document.getElementById(getWatchId(x.id));
+            if(w) updatePWContent(w, x);
+         });
    }
 
    if(data.watchdelete)

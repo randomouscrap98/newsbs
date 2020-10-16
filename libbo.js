@@ -362,3 +362,66 @@ var Utilities =
    }
 };
 
+//Taken from 12 mostly without modification: https://github.com/12Me21/sbs2
+var StolenUtils = 
+{
+   AttachResize: function(element, tab, horiz, dir, save) 
+   {
+      var startX,startY,held,startW,startH,size = null
+      function getPos(e) {
+         if (e.touches)
+            return {x:e.touches[0].pageX, y:e.touches[0].pageY}
+         else
+            return {x:e.clientX, y:e.clientY}
+      }
+      function down(e) {
+         tab.setAttribute('dragging',"")
+         var pos = getPos(e)
+         startX = pos.x
+         startY = pos.y
+         startW = element.offsetWidth
+         startH = element.offsetHeight
+         held = true
+      }
+      function up() {
+         held = false
+         tab.removeAttribute('dragging')
+         if (save && size != null)
+            localStorage.setItem(save, JSON.stringify(size))
+      }
+      function move(e) {
+         if (!held)
+            return
+         var pos = getPos(e)
+         if (horiz) {
+            var vx = (pos.x - startX) * dir
+            size = Math.max(0, startW+vx)
+            element.style.width = size+"px"
+         } else {
+            var vy = (pos.y - startY) * dir
+            size = Math.max(0, startH+vy)
+            element.style.height = size+"px"
+         }
+      }	
+      tab.addEventListener('mousedown', down)
+      document.addEventListener('mouseup', up)
+      document.addEventListener('mousemove', move)
+      
+      tab.addEventListener('touchstart', function(e) {
+         e.preventDefault()
+         down(e)
+      }) //todo: prevent scrolling on mobile
+      document.addEventListener('touchend', up)
+      document.addEventListener('touchmove', move)
+      if (save) {
+         size = JSON.parse(localStorage.getItem(save))
+         if (size) {
+            size = Math.max(0, +size)
+            if (horiz)
+               element.style.width = size+"px"
+            else
+               element.style.height = size+"px"
+         }
+      }
+   }
+};
