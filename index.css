@@ -69,6 +69,7 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default,
 }
 /* UIkit reconfiguring */
 code { 
+   max-width: 100%;
    white-space: pre-wrap !important; 
    background-color: var(--lightblockbgcolor) !important;
    display: inline-block;
@@ -131,6 +132,8 @@ a:hover { color: inherit; }
    border-top: 1px solid var(--outlinecolor);
 }
 /* Basic page structure */
+#website:not([data-loggedin]) [data-loginonly] { display: none; }
+#website[data-loggedin] [data-logoutonly] { display: none; }
 .databar { padding: 0 0.1em; }
 [data-connectionindicator="error"] { 
    filter: hue-rotate(180deg); 

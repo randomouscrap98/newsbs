@@ -63,20 +63,15 @@ function setLoginState(loggedIn)
 {
    //check current login state. User is logged in if first element (the user
    //login section) is hidden.
-   var currentState = rightpanenav.firstElementChild.hasAttribute("hidden");
+   //var currentState = rightpanenav.firstElementChild.hasAttribute("hidden");
 
-   //Force an inverted state if the state isn't the same. Definitely room for
-   //timing errors here but egh whatever, sorry users (for now).
-   if(currentState != loggedIn)
-   {
-      DomDeps.log("Set login visual state to: " + loggedIn);
-      toggleuserstate.click();
-      //TODO: Change this
-      //document.querySelectorAll("[data-utgl
-      //   <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
-      //      onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
-      //   </button>
-   }
+   if(loggedIn)
+      website.setAttribute("data-loggedin", "true");
+   else
+      website.removeAttribute("data-loggedin");
+
+   DomDeps.log("Set login visual state to: " + loggedIn);
+   DomDeps.signal("setloginstate", loggedIn);
 }
 
 function updateGlobalAlert()

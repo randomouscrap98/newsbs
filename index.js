@@ -62,6 +62,7 @@ var options = {
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
    frontpageslideshownum : {def:10},
+   initialtab : {def:2},
    defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]},
    defaultpermissions: {def:"cr"}
 };
@@ -285,8 +286,7 @@ function renderLoop(time)
       else if(Math.floor(baseData.oldScrollHeight) !== Math.floor(baseData.currentScrollHeight))
       {
          //Begin nice scroll to bottom
-         if(baseData.oldScrollBottom < baseData.oldClientHeight * getLocalOption("discussionscrolllock") ||
-            baseData.currentScrollBottom < baseData.currentClientHeight * getLocalOption("discussionscrolllock"))
+         if(shouldAutoScroll(baseData))
          {
             log.Drawlog("Smooth scrolling now, all data: " + JSON.stringify(baseData));
             if(baseData.currentScrollBottom <= 0)
@@ -372,6 +372,11 @@ function setupSignalProcessors()
    
    signals.Attach("setlocaloption", data => writeDom(() => handleSetting(data.key, data.value)));
    signals.Attach("clearlocaloption", data => writeDom(() => handleSetting(data.key, data.value)));
+   signals.Attach("setloginstate", state =>
+   {
+      if(state)
+         document.querySelectorAll('#rightpanenav a')[getLocalOption("initialtab")].click();
+   });
 
    signals.Attach("spastart", parsed => 
    {
@@ -464,7 +469,8 @@ function setupSignalProcessors()
       //Don't let smooth scrolling perform a load of comments etc.
       if(data.currentScrollTop !== 0 && isSmoothScrollInterrupted() && 
          getLocalOption("loadcommentonscroll") && data.currentScrollTop <
-         getLocalOption("scrolldiscloadheight") * data.currentClientHeight)
+         getLocalOption("scrolldiscloadheight") * data.currentClientHeight &&
+         !shouldAutoScroll(data))
       {
          loadOlderCommentsActive();
       }
@@ -480,6 +486,12 @@ function interruptSmoothScroll()
 function isSmoothScrollInterrupted()
 {
    return globals.smoothScrollNow === Number.MIN_SAFE_INTEGER;
+}
+
+function shouldAutoScroll(baseData)
+{
+   return baseData.oldScrollBottom < baseData.oldClientHeight * getLocalOption("discussionscrolllock") ||
+      baseData.currentScrollBottom < baseData.currentClientHeight * getLocalOption("discussionscrolllock");
 }
 
 function scrollBottom(element)
@@ -2192,9 +2204,11 @@ function setupSession()
    else
       return;
 
-   rightpane.style.opacity = 0.2;
+   //rightpane.style.opacity = 0.2;
+   //setLoginState("loggingin");
+   website.setAttribute("data-checkinglogin", "");
    //Refreshing will set our login state, don't worry about that stuff.
-   refreshUserFull(() => rightpane.style.opacity = 1.0);
+   refreshUserFull(() => website.removeAttribute("data-checkinglogin"));
 
    var params = new URLSearchParams();
    var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
@@ -2247,7 +2261,7 @@ function refreshUserFull(always)
    {
       updateCurrentUserData(apidata.data);
       //Don't set up the FULL session, you know? Someone else will do that
-      writeDom(() => setLoginState(true));
+      writeDom(() => setLoginState("true"));
    }, function(apidata)
    {
       //Assume any failed user refresh means they're logged out

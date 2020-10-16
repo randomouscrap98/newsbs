@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1602806148"></script>
-      <script src="dom.js?v=1602806148"></script>
-      <script src="api.js?v=1602806148"></script>
-      <script src="index.js?v=1602806148"></script>
-      <script src="sbs2-markup/highlight.js?v=1602806148"></script>
-      <script src="sbs2-markup/parse.js?v=1602806148"></script>
-      <script src="sbs2-markup/render.js?v=1602806148"></script>
+      <script src="libbo.js?v=1602884676"></script>
+      <script src="dom.js?v=1602884676"></script>
+      <script src="api.js?v=1602884676"></script>
+      <script src="index.js?v=1602884676"></script>
+      <script src="sbs2-markup/highlight.js?v=1602884676"></script>
+      <script src="sbs2-markup/parse.js?v=1602884676"></script>
+      <script src="sbs2-markup/render.js?v=1602884676"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1602806148" />
+      <link rel="stylesheet" href="index.css?v=1602884676" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -196,14 +196,14 @@ function retext(el, attr)
                </div> 
                <!-- Need separate containers because lazy: one is for user
                   toggle, the other is for page toggle -->
-               <div data-utgl class="uk-flex-none" hidden>
+               <div data-loginonly class="uk-flex-none">
                   <div id="discussionuserlist" class="uk-flex uk-flex-wrap"></div>
                </div>
                <div id="discussionscontainer" data-hide2 class="uk-flex-1 uk-flex uk-flex-column">
                   <div id="discussions" class="uk-flex-1" uk-overflow-auto> 
                      <!-- Swap the discussions in and out of here -->
                   </div>
-                  <div id="postarea" class="uk-inline" data-utgl hidden>
+                  <div id="postarea" class="uk-inline" data-loginonly>
                      <!--<div id="postdiscussiontext"  role="textarea" contenteditable
                         class="input uk-flex-1 uk-textarea uk-width-expand"></div>-->
                      <textarea id="postdiscussiontext" 
@@ -220,17 +220,17 @@ function retext(el, attr)
                    uk-child-width-expand uk-text-center" 
                 uk-switcher="swiping: false;">
       <!-- Shifted over for convenience, want to fit on one line please -->
-      <div data-utgl uk-tooltip="Login"><a href="" class="uk-display-block"
+      <div data-logoutonly uk-tooltip="Login"><a href="" class="uk-display-block"
             uk-icon="icon: user; ratio: 2"></a></div>
-      <div data-utgl hidden class="uk-inline" uk-tooltip="User">
+      <div data-loginonly class="uk-inline" uk-tooltip="User">
          <a href="" class="uk-display-block"><img id="navuseravatar" 
             width="40" height="40" class="" uk-img></img></a>
          <!--<div id="connectionalert" class="uk-label uk-label-danger
             uk-position-bottom-right noevent" hidden>!</div>-->
       </div>
-      <div data-utgl hidden uk-tooltip="Recent Activity"><a href="" class="uk-display-block" 
+      <div data-loginonly uk-tooltip="Recent Activity"><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
-      <div data-utgl hidden class="uk-inline" uk-tooltip="Watch">
+      <div data-loginonly class="uk-inline" uk-tooltip="Watch">
          <a href="" class="uk-display-block" uk-icon="icon: heart; ratio: 2"></a>
          <div id="watchglobalalert" class="uk-label uk-label-danger 
             uk-position-bottom-right noevent"></div>
@@ -1146,11 +1146,11 @@ function retext(el, attr)
          </div>
       </template>
       <!-- LOC:CONTROLS -->
-      <div id="controls" style="display: none">
+      <!--<div id="controls" style="display: none">
          <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
             onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
          </button>
-      </div>
+      </div>-->
       <!-- LOC:MEMORY -->
       <div id="memory" style="display: none">
          <div id="discussionmemory">
