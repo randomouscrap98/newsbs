@@ -167,6 +167,9 @@ a:hover { color: inherit; }
    font-size: 0.8em;
    padding: 0 0.5em;
 }
+#rightpanefooter [uk-icon] {
+   color: var(--tabselectcolor);
+}
 #rightpanefootername {
    cursor: grab;
 }
@@ -483,6 +486,14 @@ input[data-permission] {
 }
 [data-slideshowitems] {
    border: 1px solid var(--tableoutlinecolor);
+}
+
+[data-programcontainer] {
+   max-width: 500px;
+   margin: 0.5em auto 1em auto;
+   background-color: var(--blockbgcolor);
+   padding: 0.5em;
+   border-radius: 0.4em;
 }
 
 .content pre { margin: 0.25em 0; }

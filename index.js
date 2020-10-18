@@ -837,6 +837,7 @@ function routehome_load(spadat)
 { 
    route_complete(spadat, null, templ =>
    {
+      finalizeTemplate(templ);
       //Eventually merge these two together!!!
       var slideshow = templ.querySelector("[data-slideshowitems]");
       var params = new URLSearchParams();
@@ -1498,6 +1499,16 @@ function finishContent(templ, content) //, content, comments, users, initload)
 {
    //Need to finish the template now, hopefully running it twice isn't a big deal
    finalizeTemplate(templ);
+   if(content.type === "program" && content.values.photos)
+   {
+      //var photos = content.values.photos.split(",").filter(x => x);
+      unhide(templ.querySelector("[data-programcontainer]"));
+      fillSlideshow(templ.querySelector("[data-slideshowitems]"), content);
+      multiSwap(templ, {
+         "key" : content.values.key
+      });
+      //var slideshow = templ.querySelector("[data-slideshowitems]");
+   }
    var pagecontrols = templ.querySelector(".pagecontrols");
    unhide(pagecontrols);
    templ.querySelector("[data-viewraw]").onclick = e =>
@@ -1786,6 +1797,19 @@ function makeAnnotatedSlideshowItem(content)
    });
    finalizeTemplate(tmp);
    return tmp;
+}
+
+function fillSlideshow(slideshow, content)
+{
+   content.values.photos.split(",").filter(x => x).forEach(x =>
+   {
+      var tmp = cloneTemplate("slideshowitem");
+      multiSwap(tmp, {
+         src: getComputedImageLink(x)
+      });
+      finalizeTemplate(tmp);
+      slideshow.appendChild(tmp);
+   });
 }
 
 // *********************
