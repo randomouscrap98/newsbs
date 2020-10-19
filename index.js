@@ -34,7 +34,7 @@ var options = {
    discussionscrollspeed : { def: 0.22, u: 1, text: "Scroll animation (1 = instant)", step: 0.01 },
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
-   pagedisplaylimit: { def: 100, u: 1, text: "Display pages per category" },
+   pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
    theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "contrast" ]},
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
@@ -884,7 +884,7 @@ function routecategory_load(spadat)
    }));
    params.append("requests", "category");
    params.append("requests", "user.0createUserId.0edituserId.1createUserId");
-   params.set("content", "id,name,type,parentId,createDate,editDate,createUserId");
+   params.set("content", "id,name,type,parentId,createDate,editDate,createUserId,values");
 
    globals.api.Chain(params, function(apidata)
    {
@@ -2002,7 +2002,7 @@ function getAvatarLink(id, size, ignoreRatio)
 
 function getContentThumbnailLink(content, size, crop, ignoreRatio)
 {
-   return content.values.thumbnail ? 
+   return (content.values && content.values.thumbnail) ? 
       getComputedImageLink(content.values.thumbnail, size, crop, ignoreRatio) : null;
 }
 
@@ -2124,13 +2124,13 @@ function makePageitem(page, users)
    var u = users[page.createUserId] || {};
    var date = (new Date(page.createDate)).toLocaleDateString();
    multiSwap(citem, {
-      type: page.type,
       link: getPageLink(page.id),
       name: page.name,
       avatar : getAvatarLink(u.avatar, 50, true),
       userlink : getUserLink(page.createUserId),
       time : date
    });
+   thumbType(page, citem);
    finalizeTemplate(citem);
    return citem;
 }
@@ -2257,7 +2257,7 @@ function setupSession()
    params.append("requests", "content.2contentId.1parentId.3contentId");
    params.append("requests", "user.2userId.1createUserId.4userIds.5userIds");
    params.set("comment","id,parentId,createUserId,createDate");
-   params.set("content","id,name,type");
+   params.set("content","id,name,type,values");
    params.set("user","id,username,avatar");
    params.set("watch","id,contentId,lastNotificationId");
 
@@ -2482,9 +2482,20 @@ function updatePWContent(pulsedata, c)
 {
    //Update the content name now, might as well
    multiSwap(pulsedata, {
-      pwname : c.name,
-      type : c.type
+      pwname : c.name
    });
+   thumbType(c, pulsedata);
+}
+
+function thumbType(page, element)
+{
+   var th = getContentThumbnailLink(page, 20, true);
+   var swap = {}; //{ "type" : null };
+   if (th) 
+      swap.image = th;
+   else
+      swap.type = page.type;
+   multiSwap(element, swap);
 }
 
 function easyPWContent(c, id, parent)

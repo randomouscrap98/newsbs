@@ -254,9 +254,9 @@ a:hover { color: inherit; }
    margin-bottom: 0.25em;
 }
 .pw-users {
-   /*background-color: var(--blockbgcolor);*/
+   background-color: var(--blockbgcolor);
+   padding: 0 0.3em;
    margin-right: 1em;
-   /*padding: 0 0.3em;*/
    border-radius: 5px;
 }
 .pw-users [uk-dropdown] { padding: 0.5em; }
@@ -374,7 +374,7 @@ a:hover { color: inherit; }
    border: 1px solid var(--tableoutlinecolor);
    border-collapse: collapse;
 }
-.tableContainer td {
+.tableContainer td, .tableContainer th {
    padding: 0.2em 0.3em;
 }
 [data-bgcolor="red"] { background-color: var(--bgred); }
@@ -401,6 +401,11 @@ a:hover { color: inherit; }
 [data-pageitem] .pageicon {
    margin: 0 0.3em;
 }
+.outlined {
+   border: 1px solid var(--outlinecolor);
+}
+/*[data-pageitem] .pageicon img {
+}*/
 [data-pageitem] .title {
    font-size: 1.1em;
    padding: 0.2em;

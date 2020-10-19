@@ -412,7 +412,7 @@ function makeSearchResult(type, imageLink, link, title, meta)
 
    if(imageLink)
       swap["data-image"] = imageLink;
-   else if(type)
+   else //if(type)
       swap.type = type;
 
    multiSwap(result, swap);

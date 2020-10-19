@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603053458"></script>
-      <script src="dom.js?v=1603053458"></script>
-      <script src="api.js?v=1603053458"></script>
-      <script src="index.js?v=1603053458"></script>
-      <script src="sbs2-markup/highlight.js?v=1603053458"></script>
-      <script src="sbs2-markup/parse.js?v=1603053458"></script>
-      <script src="sbs2-markup/render.js?v=1603053458"></script>
+      <script src="libbo.js?v=1603138751"></script>
+      <script src="dom.js?v=1603138751"></script>
+      <script src="api.js?v=1603138751"></script>
+      <script src="index.js?v=1603138751"></script>
+      <script src="sbs2-markup/highlight.js?v=1603138751"></script>
+      <script src="sbs2-markup/parse.js?v=1603138751"></script>
+      <script src="sbs2-markup/render.js?v=1603138751"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603053458" />
+      <link rel="stylesheet" href="index.css?v=1603138751" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -696,8 +696,12 @@ function retext(el, attr)
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li id="pw" data-contentid="data-cid">
             <div class="pwnamerow uk-flex uk-flex-middle">
-               <span class="uk-flex-none uk-margin-small-right" data-type=".typeToIcon" 
-                  uk-icon="ratio: 1.0"></span>
+               <!--<span class="uk-flex-none uk-margin-small-right" data-type=".typeToIcon" 
+                  uk-icon="ratio: 1.0"></span>-->
+               <span data-type=".typeToIcon" class="uk-flex-none uk-margin-small-right uk-flex"
+                  uk-icon="ratio: 1.0">
+                  <img data-image="src" class="outlined">
+               </span>
                <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis pwname" 
                   data-spa data-pwname=".textContent"></a>
                <a data-clearcount href="#" class="uk-margin-left" hidden>
@@ -810,7 +814,10 @@ function retext(el, attr)
             </label>
          </div>
          <div id="searchresult" class="uk-flex uk-flex-middle">
-            <img data-image="src" data-type=".typeToIcon" class="uk-flex-none" width=20>
+            <span data-type=".typeToIcon" class="uk-flex-none uk-flex" uk-icon="ratio: 1.0">
+               <img data-image="src" class="outlined">
+            </span>
+            <!--<img data-image="src" data-type=".typeToIcon" class="uk-flex-none" width=20>-->
             <a data-spa data-name=".textContent" data-link="href" 
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
             <span data-meta=".textContent" class="uk-text-meta"></span>
@@ -825,7 +832,10 @@ function retext(el, attr)
                class="uk-link-text title"></a>
          </div>
          <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
-            <span class="uk-flex-none pageicon" data-type=".typeToIcon" uk-icon="ratio: 1.0"></span>
+            <!--<span class="uk-flex-none pageicon" data-type=".typeToIcon" uk-icon="ratio: 1.0"></span>-->
+            <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex">
+               <img data-image="src" class="outlined">
+            </span>
             <a class="uk-width-expand title uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
             <a class="uk-flex-none notext avatar" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
