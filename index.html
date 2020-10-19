@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603140516"></script>
-      <script src="dom.js?v=1603140516"></script>
-      <script src="api.js?v=1603140516"></script>
-      <script src="index.js?v=1603140516"></script>
-      <script src="sbs2-markup/highlight.js?v=1603140516"></script>
-      <script src="sbs2-markup/parse.js?v=1603140516"></script>
-      <script src="sbs2-markup/render.js?v=1603140516"></script>
+      <script src="libbo.js?v=1603146679"></script>
+      <script src="dom.js?v=1603146679"></script>
+      <script src="api.js?v=1603146679"></script>
+      <script src="index.js?v=1603146679"></script>
+      <script src="sbs2-markup/highlight.js?v=1603146679"></script>
+      <script src="sbs2-markup/parse.js?v=1603146679"></script>
+      <script src="sbs2-markup/render.js?v=1603146679"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603140516" />
+      <link rel="stylesheet" href="index.css?v=1603146679" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -715,7 +715,7 @@ function retext(el, attr)
             <div class="pwnamerow uk-flex uk-flex-middle">
                <!--<span class="uk-flex-none uk-margin-small-right" data-type=".typeToIcon" 
                   uk-icon="ratio: 1.0"></span>-->
-               <span data-type=".typeToIcon" class="uk-flex-none uk-margin-small-right uk-flex"
+               <span data-type=".typeToIcon" class="uk-flex-none uk-margin-small-right uk-flex uk-flex-middle"
                   uk-icon="ratio: 1.0">
                   <img data-image=".srcUnhide" class="outlined" hidden width=20>
                </span>
@@ -761,7 +761,8 @@ function retext(el, attr)
          </div>
          <div id="stdcontentinfo" class="uk-flex uk-flex-middle uk-width-expand">
             <!-- That's right, I'm using flex to fix the image offset crap-->
-            <a data-spa class="uk-flex-none uk-flex" data-createlink="href"><img data-createavatar="src" width=20 height=20></a>
+            <a data-spa class="uk-flex-none uk-flex uk-flex-middle" 
+               data-createlink="href"><img data-createavatar="src" width=20 height=20></a>
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
@@ -831,7 +832,7 @@ function retext(el, attr)
             </label>
          </div>
          <div id="searchresult" class="uk-flex uk-flex-middle">
-            <span data-type=".typeToIcon" class="uk-flex-none uk-flex" uk-icon="ratio: 1.0">
+            <span data-type=".typeToIcon" class="uk-flex-none uk-flex uk-flex-middle" uk-icon="ratio: 1.0">
                <img data-image=".srcUnhide" class="outlined" hidden width=20>
             </span>
             <!--<img data-image="src" data-type=".typeToIcon" class="uk-flex-none" width=20>-->
@@ -850,7 +851,7 @@ function retext(el, attr)
          </div>
          <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
             <!--<span class="uk-flex-none pageicon" data-type=".typeToIcon" uk-icon="ratio: 1.0"></span>-->
-            <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex">
+            <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex uk-flex-middle">
                <img data-image=".srcUnhide" class="outlined" hidden width=20>
             </span>
             <a class="uk-width-expand title uk-link-text" data-link="href" data-spa data-name=".textContent"></a>

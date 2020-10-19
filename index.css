@@ -210,7 +210,7 @@ a:hover { color: inherit; }
    background-color: var(--tabselectcolor);
    color: #111;
 }
-.tabnav > div { padding: 0.1em 0; }
+.tabnav > div { padding: 1px 0; }
 .avatar { 
    border: 1px solid rgba(128,128,128,0.5); 
    box-sizing: content-box;
