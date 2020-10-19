@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603138751"></script>
-      <script src="dom.js?v=1603138751"></script>
-      <script src="api.js?v=1603138751"></script>
-      <script src="index.js?v=1603138751"></script>
-      <script src="sbs2-markup/highlight.js?v=1603138751"></script>
-      <script src="sbs2-markup/parse.js?v=1603138751"></script>
-      <script src="sbs2-markup/render.js?v=1603138751"></script>
+      <script src="libbo.js?v=1603140351"></script>
+      <script src="dom.js?v=1603140351"></script>
+      <script src="api.js?v=1603140351"></script>
+      <script src="index.js?v=1603140351"></script>
+      <script src="sbs2-markup/highlight.js?v=1603140351"></script>
+      <script src="sbs2-markup/parse.js?v=1603140351"></script>
+      <script src="sbs2-markup/render.js?v=1603140351"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603138751" />
+      <link rel="stylesheet" href="index.css?v=1603140351" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -80,6 +80,23 @@ function pwcountset(el, replace)
          el.parentNode.setAttribute("hidden", "");
    }
    return el.textContent;
+}
+function srcUnhide(el, replace)
+{
+   if(replace !== undefined)
+   {
+      if(replace)
+      {
+         el.removeAttribute("hidden");
+         el.src = replace;
+      }
+      else
+      {
+         el.setAttribute("hidden");
+         el.removeAttribute("src");
+      }
+   }
+   return el.src;
 }
 function simpleAction(el, replace)
 {
@@ -700,7 +717,7 @@ function retext(el, attr)
                   uk-icon="ratio: 1.0"></span>-->
                <span data-type=".typeToIcon" class="uk-flex-none uk-margin-small-right uk-flex"
                   uk-icon="ratio: 1.0">
-                  <img data-image="src" class="outlined">
+                  <img data-image=".srcUnhide" class="outlined" hidden width=20>
                </span>
                <a data-pwlink="href" class="uk-flex-1 uk-text-truncate uk-text-emphasis pwname" 
                   data-spa data-pwname=".textContent"></a>
@@ -709,14 +726,14 @@ function retext(el, attr)
                </a>
             </div>
             <div class="uk-flex uk-flex-bottom">
-               <div class="pw-users"></div>
                <span data-pwtime=".textContent"
-                  class="uk-flex-1 uk-text-right pw-time uk-text-meta">Just now</span>
+                  class="uk-flex-1 ufk-text-right pw-time uk-text-meta">Now</span>
+               <div class="pw-users uk-flex"></div>
             </div>
          </li>
          <!-- Dropdowns HAVE to be inside a uk-inline element! This DOES NOT
               WORK without that!! -->
-         <div id="pwuser" class="uk-inline">
+         <div id="pwuser" class="ufk-inline">
             <img data-useravatar="src" class="" width=20 height=20>
             <div uk-dropdown>
                <a data-userlink="href" data-spa class="username" data-username=".textContent"></a>
@@ -815,7 +832,7 @@ function retext(el, attr)
          </div>
          <div id="searchresult" class="uk-flex uk-flex-middle">
             <span data-type=".typeToIcon" class="uk-flex-none uk-flex" uk-icon="ratio: 1.0">
-               <img data-image="src" class="outlined">
+               <img data-image=".srcUnhide" class="outlined" hidden width=20>
             </span>
             <!--<img data-image="src" data-type=".typeToIcon" class="uk-flex-none" width=20>-->
             <a data-spa data-name=".textContent" data-link="href" 
@@ -834,7 +851,7 @@ function retext(el, attr)
          <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
             <!--<span class="uk-flex-none pageicon" data-type=".typeToIcon" uk-icon="ratio: 1.0"></span>-->
             <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex">
-               <img data-image="src" class="outlined">
+               <img data-image=".srcUnhide" class="outlined" hidden width=20>
             </span>
             <a class="uk-width-expand title uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>

@@ -240,6 +240,11 @@ function renderLoop(time)
    {
       var delta = time - globals.render.lastrendertime;
 
+      if(rightpane.clientWidth < 400)
+         rightpane.setAttribute("data-condensed", "true");
+      else 
+         rightpane.removeAttribute("data-condensed");
+
       //Always read first!!! Check stuff here and then schedule actions for
       //later with signalling.
       var baseData = { 
@@ -2467,9 +2472,9 @@ function refreshPWDate(item)
    }
    else
    {
-      message = Utilities.TimeDiff(timeattr);
+      message = Utilities.TimeDiff(timeattr, null, true);
 
-      if(message.indexOf("now") < 0)
+      if(message.toLowerCase().indexOf("now") < 0)
          message += " ago";
    }
 
