@@ -485,13 +485,15 @@ function setupSignalProcessors()
 
    signals.Attach("hidediscussion", d =>
    {
-      var messages = d.discussion.querySelectorAll('[data-messageframe]:not([data-uid="0"])');
+      var dsc = d.discussion;
+      var messages = dsc.querySelectorAll('[data-messageframe]:not([data-uid="0"])');
       var remove = messages.length - getLocalOption("bgdiscussionmsgkeep");
       if(remove > 0)
       {
-         log.Info("Removing " + remove + " messages from background discussion " + d.discussion.id);
+         log.Info("Removing " + remove + " messages from background discussion " + dsc.id);
          for(var i = 0; i < remove; i++)
             Utilities.RemoveElement(messages[i]);
+         dsc.removeAttribute(attr.atoldest);
       }
    });
 }
