@@ -62,6 +62,7 @@ var options = {
    scrolldiscloadheight : {def: 1.5, step: 0.01 },
    scrolldiscloadcooldown : {def: 500 },
    frontpageslideshownum : {def:10},
+   bgdiscussionmsgkeep : {def:30}, /* these are message BLOCKS, not individual */
    initialtab : {def:2},
    defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]},
    defaultpermissions: {def:"cr"}
@@ -479,6 +480,18 @@ function setupSignalProcessors()
          !shouldAutoScroll(data))
       {
          loadOlderCommentsActive();
+      }
+   });
+
+   signals.Attach("hidediscussion", d =>
+   {
+      var messages = d.discussion.querySelectorAll('[data-messageframe]:not([data-uid="0"])');
+      var remove = messages.length - getLocalOption("bgdiscussionmsgkeep");
+      if(remove > 0)
+      {
+         log.Info("Removing " + remove + " messages from background discussion " + d.discussion.id);
+         for(var i = 0; i < remove; i++)
+            Utilities.RemoveElement(messages[i]);
       }
    });
 }
