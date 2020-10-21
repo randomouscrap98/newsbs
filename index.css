@@ -372,12 +372,12 @@ a:hover { color: inherit; }
    resize: none; 
    height: 2.2em;
 }
-#leftpane:not([data-permissions*="C"]) #postarea {
+#leftpane[data-permissions]:not([data-permissions*="C"]) #postarea {
    filter: brightness(0.9) opacity(0.5);
    pointer-events: none;
    height: 1.8em;
 }
-#leftpane:not([data-permissions*="C"]) #postarea::before {
+#leftpane[data-permissions]:not([data-permissions*="C"]) #postarea::before {
    content: "Comments closed";
    display: block;
    font-size: 1em;
