@@ -944,6 +944,7 @@ function routecategory_load(spadat)
 
          multiSwap(templ, { 
             title : c.name ,
+            permissions : c.myPerms,
             editlink : "?p=categoryedit-" + cid,
             newlink : "?p=categoryedit&pid=" + cid,
             newpagelink : "?p=pageedit&pid=" + cid,
@@ -1555,6 +1556,7 @@ function finishContent(templ, content) //, content, comments, users, initload)
    multiSwap(templ, {
       title : content.name,
       content : JSON.stringify({ "content" : content.content, "format" : content.values.markupLang }),
+      permissions : content.myPerms,
       pinned: content.pinned,
       format : content.values.markupLang
    });

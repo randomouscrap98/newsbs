@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603305162"></script>
-      <script src="dom.js?v=1603305162"></script>
-      <script src="api.js?v=1603305162"></script>
-      <script src="index.js?v=1603305162"></script>
-      <script src="sbs2-markup/highlight.js?v=1603305162"></script>
-      <script src="sbs2-markup/parse.js?v=1603305162"></script>
-      <script src="sbs2-markup/render.js?v=1603305162"></script>
+      <script src="libbo.js?v=1603311779"></script>
+      <script src="dom.js?v=1603311779"></script>
+      <script src="api.js?v=1603311779"></script>
+      <script src="index.js?v=1603311779"></script>
+      <script src="sbs2-markup/highlight.js?v=1603311779"></script>
+      <script src="sbs2-markup/parse.js?v=1603311779"></script>
+      <script src="sbs2-markup/render.js?v=1603311779"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603305162" />
+      <link rel="stylesheet" href="index.css?v=1603311779" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -78,6 +78,17 @@ function pwcountset(el, replace)
          el.parentNode.removeAttribute('hidden');
       else
          el.parentNode.setAttribute("hidden", "");
+   }
+   return el.textContent;
+}
+function leftPanePerms(el, replace)
+{
+   if(replace !== undefined)
+   {
+      if(replace)
+         leftpane.setAttribute("data-permissions", replace.toUpperCase());
+      else
+         leftpane.removeAttribute("data-permissions");
    }
    return el.textContent;
 }
@@ -239,6 +250,9 @@ function retext(el, attr)
                         class="uk-flex-1 uk-textarea uk-width-expand"></textarea>
                      <a href="#" uk-toggle="target: #fileupload" uk-icon="image"
                         class="uk-position-bottom-right" id="discussionimageselect"></a>
+                     <!--<div class="uk-cover uk-overlay-primary">NO</div>-->
+            <!--<div class="uk-overlay-primary uk-position-bottom
+               uk-text-center">-->
                   </div>
                </div>
             </div>
@@ -795,7 +809,7 @@ function retext(el, attr)
             data-createdate data-editdate class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand 
                content uk-text-break"></div>
-            <a href="#" class="messagecontrol" uk-icon="cog"></a>
+            <a href="#" class="messagecontrol" data-loginonly uk-icon="cog"></a>
          </div>
          <li id="breadcrumb">
             <a data-link="href" data-spa data-text=".textContent"
@@ -954,17 +968,19 @@ function retext(el, attr)
             class="uk-margin-small-bottom">
          </div>
          <a id="addeveryone" href="#">Add global permission</a>
-         <ul id="pagecontrols" class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
+         <ul id="pagecontrols" class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove"
+            data-loginonly>
             <li><a href="#" data-watched uk-icon="heart"></a></li>
             <li>
                <a href="#" uk-icon="cog"></a>
                <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
                   <ul class="uk-list uk-margin-remove-bottom">
-                     <li><a data-editlink="href" data-spa>Edit Page</a></li>
-                     <li><a href="#" data-deleteaction=".simpleAction">Delete Page</a></li>
+                     <!-- Unfortunately, UIkit doesn't handle hidden first list items well -->
+                     <li><a href="#" data-viewraw>Raw Data</a></li>
+                     <li data-updateonly><a data-editlink="href" data-spa>Edit Page</a></li>
+                     <li data-deleteonly><a href="#" data-deleteaction=".simpleAction">Delete Page</a></li>
                      <li data-unpinnedonly><a href="#" data-pinaction=".simpleAction">Pin Page</a></li>
                      <li data-pinnedonly><a href="#" data-unpinaction=".simpleAction">Unpin Page</a></li>
-                     <li><a href="#" data-viewraw>Raw Data</a></li>
                   </ul>
                </div>
             </li>
@@ -1031,7 +1047,7 @@ function retext(el, attr)
          onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
          </div>
          <div id="routepage" class="uk-container uk-margin-top uk-margin-bottom contentpage"
-            data-pinned data-cancreate data-candelete data-canupdate>
+             data-pinned data-permissions=".leftPanePerms">
             <!-- WARN: DUPLICATED IN ROUTEUSER -->
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
@@ -1050,7 +1066,7 @@ function retext(el, attr)
                class="uk-text-break content uk-margin-remove-top"></p>
          </div>
          <div id="routeuser" class="uk-container uk-margin-top uk-margin-bottom contentpage"
-            data-pinned data-cancreate data-candelete data-canupdate>
+              data-pinned data-permissions=".leftPanePerms">
             <!-- WARN: DUPLICATED IN ROUTEPAGE -->
             <div class="uk-flex-inline">
                <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"></h1>
@@ -1062,19 +1078,21 @@ function retext(el, attr)
             <div data-userhistory class="uk-margin-top uk-margin-bottom">
             </div>
          </div>
-         <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom"
+             data-permissions=".leftPanePerms">
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
-               <ul class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
+               <ul data-loginonly class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
                   <li>
                      <a href="#" uk-icon="cog"></a>
                      <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
                         <ul class="uk-list uk-margin-remove-bottom">
-                           <li><a data-editlink="href" data-spa>Edit Category</a></li>
-                           <li><a data-newlink="href" data-spa>Add Category</a></li>
-                           <li><a href="#" data-deleteaction=".simpleAction">Delete Category</a></li>
-                           <li><a data-newpagelink="href" data-spa>Add Page (MOVING!)</a></li>
+                           <!-- Unfortunately, UIkit doesn't handle hidden first list items well -->
                            <li><a href="#" data-viewraw>Raw Data</a></li>
+                           <li data-updateonly><a data-editlink="href" data-spa>Edit Category</a></li>
+                           <li data-createonly><a data-newlink="href" data-spa>Add Category</a></li>
+                           <li data-deleteonly><a href="#" data-deleteaction=".simpleAction">Delete Category</a></li>
+                           <li data-createonly><a data-newpagelink="href" data-spa>Add Page (MOVING!)</a></li>
                         </ul>
                      </div>
                   </li>

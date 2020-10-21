@@ -145,6 +145,10 @@ a:hover { color: inherit; }
 #website[data-loggedin] [data-logoutonly] { display: none; }
 .contentpage:not([data-pinned="false"]) [data-unpinnedonly] { display: none; }
 .contentpage:not([data-pinned="true"]) [data-pinnedonly] { display: none; }
+#leftpane:not([data-permissions*="C"]) [data-createonly] { display: none; }
+#leftpane:not([data-permissions*="U"]) [data-updateonly] { display: none; }
+#leftpane:not([data-permissions*="D"]) [data-deleteonly] { display: none; }
+
 .databar { padding: 0 0.1em; }
 [data-connectionindicator="error"] { 
    filter: hue-rotate(180deg); 
@@ -367,6 +371,18 @@ a:hover { color: inherit; }
    transition: height 0.15s ease;
    resize: none; 
    height: 2.2em;
+}
+#leftpane:not([data-permissions*="C"]) #postarea {
+   filter: brightness(0.9) opacity(0.5);
+   pointer-events: none;
+   height: 1.8em;
+}
+#leftpane:not([data-permissions*="C"]) #postarea::before {
+   content: "Comments closed";
+   display: block;
+   font-size: 1em;
+   position: absolute;
+   padding: 0.2em;
 }
 [data-discussionuser] {
    display: inline-block;

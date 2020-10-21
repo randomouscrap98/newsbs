@@ -176,6 +176,7 @@ function initializePage(requester)
    maincontent.innerHTML = "";
    maincontentinfo.innerHTML = "";
    discussionuserlist.innerHTML = "";
+   leftpane.removeAttribute("data-permissions");
 
    //Assume there are no discussions (easier to just hide it)
    formatDiscussions(false);
