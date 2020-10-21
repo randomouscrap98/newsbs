@@ -908,6 +908,7 @@ function hideDiscussion(quiet)
 
    if(d)
    {
+      [...d.querySelectorAll("[data-hideplayer]")].forEach(x => x.click());
       discussionmemory.appendChild(d);
       DomDeps.signal("hidediscussion", { discussion: d });
    }
