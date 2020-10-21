@@ -412,7 +412,14 @@ function setupSignalProcessors()
    signals.Attach("apierror", data => 
    {
       if(!data.abortNow && !data.networkError)
-         notifyError("API Error: " + globals.api.FormatData(data));
+      {
+         //TODO: This eventually needs to tell you HOW LONG you're banned and
+         //who banned you. Make it return json you can parse from responseText
+         if(data.request.status == 418)
+            notifyError("You're temporarily banned: '" + data.request.responseText + "'");
+         else
+            notifyError("API Error: " + globals.api.FormatData(data));
+      }
    });
    signals.Attach("apistart", data =>
    {
