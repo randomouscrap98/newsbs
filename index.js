@@ -766,7 +766,9 @@ function setupDiscussions()
 
    discussionimageselect.addEventListener("click", function() {
       globals.fileselectcallback = function(id) { //TODO: this assumes 12y format
-         postdiscussiontext.value += " !" + getComputedImageLink(id);
+         if(postdiscussiontext.value && !postdiscussiontext.value.endsWith(" "))
+            postdiscussiontext.value += " ";
+         postdiscussiontext.value += "!" + getComputedImageLink(id);
       };
    });
 
@@ -903,7 +905,9 @@ function routecategory_load(spadat)
       "limit": getLocalOption("pagedisplaylimit")
    }));
    params.append("requests", "category");
-   params.append("requests", "user.0createUserId.0edituserId.1createUserId");
+   //Need to make a SECOND content request
+   params.append("requests", "content.1values_pinned-" + JSON.stringify({"parentIds":[cid]}));
+   params.append("requests", "user.0createUserId.0edituserId.1createUserId.2createUserId");
    params.set("content", "id,name,type,parentId,createDate,editDate,createUserId,values");
 
    globals.api.Chain(params, function(apidata)
@@ -952,6 +956,9 @@ function routecategory_load(spadat)
             displayRaw(c.name, JSON.stringify(c, null, 2));
          };
 
+         var pinCount = DataFormat.MarkPinned(c, data.content, true);
+         log.Debug("Found " + pinCount + " pinned pages");
+
          if(!childcats.length)
             hide(sbelm);
          if(!c.description)
@@ -979,7 +986,7 @@ function routepage_load(spadat)
       "ParentIds" : [ pid ]
    }));
    params.append("requests", "user.0createUserId.0edituserId.2createUserId");
-   params.set("category", "id,name,parentId");
+   params.set("category", "id,name,parentId,values");
 
    globals.api.Chain(params, function(apidata)
    {
@@ -995,10 +1002,12 @@ function routepage_load(spadat)
       }
 
       var users = idMap(data.user);
+      var categories = idMap(data.category);
+      DataFormat.MarkPinned(categories[c.parentId], [c]);
 
       route_complete(spadat, c.name, templ =>
       {
-         finishContent(templ, c);
+         finishContent(templ, c, categories);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c, data.comment, users, initload);
       }, getChain(data.category, c), c.id);
@@ -1539,6 +1548,7 @@ function finishContent(templ, content) //, content, comments, users, initload)
    multiSwap(templ, {
       title : content.name,
       content : JSON.stringify({ "content" : content.content, "format" : content.values.markupLang }),
+      pinned: content.pinned,
       format : content.values.markupLang
    });
    //TODO: CAREFUL! This assumes something about the page structure, and that's
@@ -1553,6 +1563,34 @@ function finishContent(templ, content) //, content, comments, users, initload)
          {
             globals.api.Delete("content", content.id, () => location.href = getCategoryLink(content.parentId));
          }
+      },
+      pinaction : (e) =>
+      {
+         //look up the parent as it is now, parse pinned, add page, convert to
+         //set, store back
+         globals.api.Get("category", "ids=" + content.parentId, apidat =>
+         {
+            var c = apidat.data[0];
+            DataFormat.AddPinned(c, content.id);
+            globals.api.Put("category/"+c.id, c, () =>
+            {
+               globals.spa.ProcessLink(location.href);
+            });
+         });
+      },
+      unpinaction : (e) =>
+      {
+         //look up the parent as it is now, parse pinned, add page, convert to
+         //set, store back
+         globals.api.Get("category", "ids=" + content.parentId, apidat =>
+         {
+            var c = apidat.data[0];
+            DataFormat.RemovePinned(c, content.id);
+            globals.api.Put("category/"+c.id, c, () =>
+            {
+               globals.spa.ProcessLink(location.href);
+            });
+         });
       }
    });
    setupWatchLink(templ, content.id);
@@ -1928,7 +1966,7 @@ function handleLongpollData(lpdata)
       {
          //I filter out comments from watch updates if we're currently in
          //the room. This should be done automatically somewhere else... mmm
-         data.chains.commentaggregate = commentsToAggregate(
+         data.chains.commentaggregate = DataFormat.CommentsToAggregate(
             data.chains.comment.filter(x => x.id > watchlastids[x.parentId] && 
                lpdata.clearNotifications.indexOf(x.parentId) < 0));
          handleAlerts(data.chains.comment, users);
@@ -1937,7 +1975,7 @@ function handleLongpollData(lpdata)
 
       if(data.chains.activity)
       {
-         data.chains.activityaggregate = activityToAggregate(
+         data.chains.activityaggregate = DataFormat.ActivityToAggregate(
             data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
                lpdata.clearNotifications.indexOf(x.contentId) < 0));
       }
@@ -2148,6 +2186,7 @@ function makePageitem(page, users)
       name: page.name,
       avatar : getAvatarLink(u.avatar, 50, true),
       userlink : getUserLink(page.createUserId),
+      pinned : page.pinned,
       time : date
    });
    thumbType(page, citem);
@@ -2777,8 +2816,8 @@ function updateWatchGlobalAlert()
 function updateWatchSingletons(data)
 {
    updateWatchComAct(idMap(data.user), 
-      idMap(commentsToAggregate(data.comment)), 
-      idMap(activityToAggregate(data.activity)));
+      idMap(DataFormat.CommentsToAggregate(data.comment)), 
+      idMap(DataFormat.ActivityToAggregate(data.activity)));
 }
 
 function updateWatchComAct(users, comments, activity)

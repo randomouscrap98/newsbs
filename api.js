@@ -373,45 +373,94 @@ function getImageLink(id, size, crop)
 // --- DATA FORMAT ---
 // *******************
 
-function commentsToAggregate(comment)
+//12me namespacing
+var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.assign(DataFormat, 
 {
-   var comments = {};
-
-   if(comment)
+   CommentsToAggregate : function (comment)
    {
-      comment.forEach(c =>
+      var comments = {};
+
+      if(comment)
       {
-         if(!comments[c.parentId]) 
-            comments[c.parentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : c.parentId};
-         var cm = comments[c.parentId];
-         if(cm.userIds.indexOf(c.createUserId) < 0) cm.userIds.push(c.createUserId);
-         if(c.createDate > cm.lastDate) cm.lastDate = c.createDate;
-         cm.count++;
-      });
-   }
+         comment.forEach(c =>
+         {
+            if(!comments[c.parentId]) 
+               comments[c.parentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : c.parentId};
+            var cm = comments[c.parentId];
+            if(cm.userIds.indexOf(c.createUserId) < 0) cm.userIds.push(c.createUserId);
+            if(c.createDate > cm.lastDate) cm.lastDate = c.createDate;
+            cm.count++;
+         });
+      }
 
-   return Object.values(comments);
-}
-
-function activityToAggregate(activitee)
-{
-   var activity = {};
-
-   if(activitee)
+      return Object.values(comments);
+   },
+   ActivityToAggregate : function(activitee)
    {
-      activitee.forEach(a =>
-      {
-         if(!activity[a.contentId]) 
-            activity[a.contentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : a.contentId};
-         var ac = activity[a.contentId];
-         if(ac.userIds.indexOf(a.userId) < 0) ac.userIds.push(a.userId);
-         if(a.date > ac.lastDate) ac.lastDate = a.date;
-         ac.count++;
-      });
-   }
+      var activity = {};
 
-   return Object.values(activity);
-}
+      if(activitee)
+      {
+         activitee.forEach(a =>
+         {
+            if(!activity[a.contentId]) 
+               activity[a.contentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : a.contentId};
+            var ac = activity[a.contentId];
+            if(ac.userIds.indexOf(a.userId) < 0) ac.userIds.push(a.userId);
+            if(a.date > ac.lastDate) ac.lastDate = a.date;
+            ac.count++;
+         });
+      }
+
+      return Object.values(activity);
+   },
+   GetPinnedIds : function(category)
+   {
+      return category.values.pinned ? category.values.pinned.split(",").filter(x => x) : [];
+   },
+   SetPinnedIds : function(category, pinned)
+   {
+      category.values.pinned = [...new Set(pinned)].join(",") || "";
+   },
+   AddPinned : function(category, id)
+   {
+      var pinned = GetPinnedIds(category);
+      pinned.push(id);
+      SetPinnedIds(category, pinned);
+   },
+   RemovePinned : function(category, id)
+   {
+      SetPinnedIds(category, GetPinnedIds(category).filter(x => x != id));
+   },
+   MarkPinned : function(category, content, moveTop)
+   {
+      if(!category || !content || !category.values)
+         return -1;
+
+      var pinned = GetPinnedIds(category);
+      var insertSpot = 0;
+
+      //Reorganize + mark pinned pages (SUPER dumb way to do this)
+      for(var i = 0; i < content.length; i++)
+      {
+         content[i].pinned = pinned.some(x => x == content[i].id);
+
+         if(content[i].pinned)
+         {
+            if(moveTop && insertSpot !== i)
+               content.splice(insertSpot, 0, ...content.splice(i, 1));
+
+            insertSpot++;
+         }
+      }
+
+      return insertSpot;
+   }
+})
+//Private vars can go here
+}(window));
+
+
 
 // *********************
 // --- FRONTEND COOP ---

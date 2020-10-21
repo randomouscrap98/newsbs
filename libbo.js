@@ -425,3 +425,21 @@ var StolenUtils =
       }
    }
 };
+
+/* //12me namespacing
+var Name = Object.create(null)
+with (Name) (function($) {
+Object.assign(Name, {
+
+ function1: function(a,b) {
+   return a+function2(b)
+ },
+ function2: function(x) {
+  return x+whatever
+ },
+ whatever: 4,
+})
+
+var aaaaa
+
+}(window))*/

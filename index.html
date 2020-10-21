@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603178508"></script>
-      <script src="dom.js?v=1603178508"></script>
-      <script src="api.js?v=1603178508"></script>
-      <script src="index.js?v=1603178508"></script>
-      <script src="sbs2-markup/highlight.js?v=1603178508"></script>
-      <script src="sbs2-markup/parse.js?v=1603178508"></script>
-      <script src="sbs2-markup/render.js?v=1603178508"></script>
+      <script src="libbo.js?v=1603249873"></script>
+      <script src="dom.js?v=1603249873"></script>
+      <script src="api.js?v=1603249873"></script>
+      <script src="index.js?v=1603249873"></script>
+      <script src="sbs2-markup/highlight.js?v=1603249873"></script>
+      <script src="sbs2-markup/parse.js?v=1603249873"></script>
+      <script src="sbs2-markup/render.js?v=1603249873"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603178508" />
+      <link rel="stylesheet" href="index.css?v=1603249873" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -92,7 +92,7 @@ function srcUnhide(el, replace)
       }
       else
       {
-         el.setAttribute("hidden");
+         el.setAttribute("hidden", "");
          el.removeAttribute("src");
       }
    }
@@ -851,12 +851,19 @@ function retext(el, attr)
          </div>
          <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
             <!--<span class="uk-flex-none pageicon" data-type=".typeToIcon" uk-icon="ratio: 1.0"></span>-->
-            <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex uk-flex-middle">
+            <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex uk-flex-middle 
+               ufk-position-relative">
+               <!-- Reusing "srcUnhide" because it does the same thing :( -->
                <img data-image=".srcUnhide" class="outlined" hidden width=20>
             </span>
             <a class="uk-width-expand title uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
+            <!--<span class="statuses">
+            </span>-->
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
-            <a class="uk-flex-none notext avatar" data-spa data-userlink="href"><img data-avatar="src" width=25></a>
+            <a class="uk-flex-none uk-flex avatar uk-position-relative" data-spa data-userlink="href">
+               <img data-avatar="src" width=25>
+               <div data-pinned=".srcUnhide" class="uk-cover pin" hidden>📌</div>
+            </a>
          </div>
          <div id="history" class="uk-display-block uk-position-relative">
             <h4>Activity:</h4>
@@ -955,6 +962,8 @@ function retext(el, attr)
                   <ul class="uk-list uk-margin-remove-bottom">
                      <li><a data-editlink="href" data-spa>Edit Page</a></li>
                      <li><a href="#" data-deleteaction=".simpleAction">Delete Page</a></li>
+                     <li data-unpinnedonly><a href="#" data-pinaction=".simpleAction">Pin Page</a></li>
+                     <li data-pinnedonly><a href="#" data-unpinaction=".simpleAction">Unpin Page</a></li>
                      <li><a href="#" data-viewraw>Raw Data</a></li>
                   </ul>
                </div>
@@ -1021,7 +1030,8 @@ function retext(el, attr)
       <button
          onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
          </div>
-         <div id="routepage" class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routepage" class="uk-container uk-margin-top uk-margin-bottom contentpage"
+            data-pinned data-cancreate data-candelete data-canupdate>
             <!-- WARN: DUPLICATED IN ROUTEUSER -->
             <div class="uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
@@ -1039,7 +1049,8 @@ function retext(el, attr)
             <p data-content=".renderContent" data-format="data-fmt" 
                class="uk-text-break content uk-margin-remove-top"></p>
          </div>
-         <div id="routeuser" class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routeuser" class="uk-container uk-margin-top uk-margin-bottom contentpage"
+            data-pinned data-cancreate data-candelete data-canupdate>
             <!-- WARN: DUPLICATED IN ROUTEPAGE -->
             <div class="uk-flex-inline">
                <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"></h1>
