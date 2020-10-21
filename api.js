@@ -72,6 +72,9 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    req.open(method, url);
    req.setRequestHeader("accept", "application/json");
    req.setRequestHeader("Content-Type", "application/json");
+   //These are from 12me
+   req.setRequestHeader('Cache-Control', "no-cache, no-store, must-revalidate")
+   req.setRequestHeader('Pragma', "no-cache") // for internet explorer
 
    var token = me.getToken();
    if(token)

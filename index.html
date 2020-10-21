@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603312166"></script>
-      <script src="dom.js?v=1603312166"></script>
-      <script src="api.js?v=1603312166"></script>
-      <script src="index.js?v=1603312166"></script>
-      <script src="sbs2-markup/highlight.js?v=1603312166"></script>
-      <script src="sbs2-markup/parse.js?v=1603312166"></script>
-      <script src="sbs2-markup/render.js?v=1603312166"></script>
+      <script src="libbo.js?v=1603321536"></script>
+      <script src="dom.js?v=1603321536"></script>
+      <script src="api.js?v=1603321536"></script>
+      <script src="index.js?v=1603321536"></script>
+      <script src="sbs2-markup/highlight.js?v=1603321536"></script>
+      <script src="sbs2-markup/parse.js?v=1603321536"></script>
+      <script src="sbs2-markup/render.js?v=1603321536"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603312166" />
+      <link rel="stylesheet" href="index.css?v=1603321536" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -410,6 +410,8 @@ function retext(el, attr)
                                  class="uk-display-block">Change Avatar</a>
                               <a href="#" id="userinvalidatesessions" 
                                  class="uk-display-block">Invalidate All Sessions</a>
+                              <a href="?p=admin" data-spa data-superonly
+                                 class="uk-display-block">Admin Page</a>
                            </div>
                            <hr>
                            <div uk-margin>
@@ -979,8 +981,8 @@ function retext(el, attr)
                      <li><a href="#" data-viewraw>Raw Data</a></li>
                      <li data-updateonly><a data-editlink="href" data-spa>Edit Page</a></li>
                      <li data-deleteonly><a href="#" data-deleteaction=".simpleAction">Delete Page</a></li>
-                     <li data-unpinnedonly><a href="#" data-pinaction=".simpleAction">Pin Page</a></li>
-                     <li data-pinnedonly><a href="#" data-unpinaction=".simpleAction">Unpin Page</a></li>
+                     <li data-superonly data-unpinnedonly><a href="#" data-pinaction=".simpleAction">Pin Page</a></li>
+                     <li data-superonly data-pinnedonly><a href="#" data-unpinaction=".simpleAction">Unpin Page</a></li>
                   </ul>
                </div>
             </li>
@@ -1090,9 +1092,9 @@ function retext(el, attr)
                            <!-- Unfortunately, UIkit doesn't handle hidden first list items well -->
                            <li><a href="#" data-viewraw>Raw Data</a></li>
                            <li data-updateonly><a data-editlink="href" data-spa>Edit Category</a></li>
-                           <li data-createonly><a data-newlink="href" data-spa>Add Category</a></li>
+                           <li data-superonly><a data-newlink="href" data-spa>Add Category</a></li>
                            <li data-deleteonly><a href="#" data-deleteaction=".simpleAction">Delete Category</a></li>
-                           <li data-createonly><a data-newpagelink="href" data-spa>Add Page (MOVING!)</a></li>
+                           <li data-createonly><a data-newpagelink="href" data-spa>New Page</a></li>
                         </ul>
                      </div>
                   </li>
@@ -1228,6 +1230,36 @@ function retext(el, attr)
                <p class="uk-text-meta">Note: you may be unable to edit or
                create new pages depending on your permissions.</p>
             </div>
+         </div>
+         <div id="routeadmin" data-superonly class="uk-container uk-margin-top uk-margin-bottom">
+            <h1>Admin Page</h1>
+            <form data-banform onsubmit="return false" class="uk-form-stacked lightblock">
+      <label class="uk-form-label" uk-margin>
+         <span>User:</span>
+         <div data-userselect name="bannedUserId"></div>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Ban type:</span>
+         <select class="uk-select" name="type" required>
+            <option value="public">Public only</option>
+            <option value="none">None</option>
+         </select>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Ban Hours:</span>
+         <input type="number" min="0" step="0.1" name="expireDate" class="uk-input" required>
+      </label>
+      <label class="uk-form-label" uk-margin>
+         <span>Message:</span>
+         <input name="message" class="uk-input" required>
+      </label>
+               <input type="submit" value="Ban User" class="uk-button uk-button-primary
+               uk-margin-small-top">
+         <p class="uk-text-meta">Bans can't be deleted or edited, the last added
+         ban is the active one. Type "None" is no ban, "Public" is only banned
+         from public areas (not private rooms etc)</p>
+            </form>
+            <!--<hr></hr>-->
          </div>
       </template>
       <!-- LOC:CONTROLS -->

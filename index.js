@@ -901,6 +901,15 @@ function routetest_load(spadat)
    }); 
 }
 
+function routeadmin_load(spadat) 
+{ 
+   route_complete(spadat, null, templ =>
+   {
+      //writeDom(() => templ.appendChild(makeUserSearch(x => { 
+      //   console.log("Selected: ", x);})));
+   }); 
+}
+
 function routecategory_load(spadat)
 {
    var cid = Number(spadat.id);
@@ -1485,6 +1494,7 @@ function updateCurrentUserData(user)
    writeDom(() =>
    {
       //Just username and avatar for now?
+      website.setAttribute("data-issuper", user.super);
       navuseravatar.src = getAvatarLink(user.avatar, 40);
       userusername.firstElementChild.textContent = user.username;
       userusername.setAttribute("data-username", user.username);

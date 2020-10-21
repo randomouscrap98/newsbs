@@ -141,13 +141,15 @@ a:hover { color: inherit; }
    border-top: 1px solid var(--outlinecolor);
 }
 /* Basic page structure */
-#website:not([data-loggedin]) [data-loginonly] { display: none; }
-#website[data-loggedin] [data-logoutonly] { display: none; }
-.contentpage:not([data-pinned="false"]) [data-unpinnedonly] { display: none; }
-.contentpage:not([data-pinned="true"]) [data-pinnedonly] { display: none; }
-#leftpane:not([data-permissions*="C"]) [data-createonly] { display: none; }
-#leftpane:not([data-permissions*="U"]) [data-updateonly] { display: none; }
-#leftpane:not([data-permissions*="D"]) [data-deleteonly] { display: none; }
+#website:not([data-loggedin]) [data-loginonly],
+#website[data-loggedin] [data-logoutonly],
+#website:not([data-issuper="true"]) [data-superonly],
+#leftpane:not([data-permissions*="C"]) [data-createonly],
+#leftpane:not([data-permissions*="U"]) [data-updateonly],
+#leftpane:not([data-permissions*="D"]) [data-deleteonly],
+.contentpage:not([data-pinned="false"]) [data-unpinnedonly], 
+.contentpage:not([data-pinned="true"]) [data-pinnedonly] 
+{ display: none; }
 
 .databar { padding: 0 0.1em; }
 [data-connectionindicator="error"] { 
