@@ -239,7 +239,8 @@ var Utilities =
       for(var i = 0; i < srcs.length; i++)
          srcs[i].src = modify(srcs[i].getAttribute(srcAttr));
    },
-   TimeDiff : function(date1, date2, short, nowBuf) {
+   TimeDiff : function(date1, date2, short, nowBuf, decimals) {
+      decimals = decimals || 0;
       nowBuf = nowBuf || 5;
       date2 = date2 || new Date(); //Now
       if(typeof date1 === "string")
@@ -255,7 +256,8 @@ var Utilities =
       else if(diff < 86400) { t = diff / 3600; u = "hour"; }
       else { t = diff / 86400; u = "day"; }
 
-      t = Math.floor(t);
+      var trans = Math.pow(10, decimals);
+      t = Math.floor(t * trans) / trans;
 
       if(short)
          return t + u.substr(0, 1);

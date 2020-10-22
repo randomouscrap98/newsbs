@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603325291"></script>
-      <script src="dom.js?v=1603325291"></script>
-      <script src="api.js?v=1603325291"></script>
-      <script src="index.js?v=1603325291"></script>
-      <script src="sbs2-markup/highlight.js?v=1603325291"></script>
-      <script src="sbs2-markup/parse.js?v=1603325291"></script>
-      <script src="sbs2-markup/render.js?v=1603325291"></script>
+      <script src="libbo.js?v=1603340842"></script>
+      <script src="dom.js?v=1603340842"></script>
+      <script src="api.js?v=1603340842"></script>
+      <script src="index.js?v=1603340842"></script>
+      <script src="sbs2-markup/highlight.js?v=1603340842"></script>
+      <script src="sbs2-markup/parse.js?v=1603340842"></script>
+      <script src="sbs2-markup/render.js?v=1603340842"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603325291" />
+      <link rel="stylesheet" href="index.css?v=1603340842" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -1019,6 +1019,16 @@ function retext(el, attr)
             </div>
             <ul class="uk-slideshow-nav uk-dotnav uk-flex-center uk-margin"></ul>
          </div>
+         <table>
+         <tr id="banhistoryitem">
+            <td><a data-adminlink="href" data-admin=".textContent"></a></td>
+            <td><a data-bannedlink="href" data-banned=".textContent"></a></td>
+            <td data-type=".textContent"></td>
+            <td data-duration=".textContent"></td>
+            <td data-message=".textContent" class="uk-text-meta"></td>
+            <td data-date=".textContent"></td>
+         </tr>
+         </table>
          <!-- LOC:ROUTES -->
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
             <h1>SmileBASIC Source</h1>
@@ -1260,6 +1270,23 @@ function retext(el, attr)
          ban is the active one. Type "None" is no ban, "Public" is only banned
          from public areas (not private rooms etc)</p>
             </form>
+            <div class="lightblock uk-padding-small uk-margin-top
+               uk-overflow-auto">
+               <h3>Ban history</h3>
+               <table data-banhistory class="uk-table uk-table-small">
+                  <tr>
+                     <th>Admin</th>
+                     <th>Banned</th>
+                     <th>Type</th>
+                     <th>Duration</th>
+                     <th>Message</th>
+                     <th>Date</th>
+                  </tr>
+               </table>
+               <button data-loadmorebans class="uk-button uk-button-primary">Load More Bans</button>
+               <p class="uk-text-meta">History is ordered by latest first,
+               "none" types or "instant" durations are usually "unbans"</p>
+            </div>
             <!--<hr></hr>-->
          </div>
       </template>

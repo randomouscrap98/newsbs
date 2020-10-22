@@ -918,8 +918,48 @@ function routeadmin_load(spadat)
          now.setTime(now.getTime() + Number(fd.expireDate) * 60 * 60 * 1000);
          fd.expireDate = now.toISOString();
       });
-      //writeDom(() => templ.appendChild(makeUserSearch(x => { 
-      //   console.log("Selected: ", x);})));
+
+      var lastBanId = Math.pow(2, 40); //arbitrary lol
+      var banhistory = templ.querySelector('[data-banhistory]');
+      var loadbans = templ.querySelector("[data-loadmorebans]");
+
+      loadbans.onclick = () =>
+      {
+         var params = new URLSearchParams();
+         params.append("requests", "ban-" + JSON.stringify({ 
+            "maxId" : lastBanId,
+            "reverse" : true 
+         }));
+         params.append("requests", "user.0createUserId.0bannedUserId");
+         globals.api.Chain(params, apidat =>
+         {
+            var data = apidat.data;
+            var users = idMap(data.user);
+            lastBanId = Math.min(...data.ban.map(x => x.id));
+            data.ban.forEach(x =>
+            {
+               var bnt = cloneTemplate("banhistoryitem");
+               var duration = Utilities.TimeDiff(x.expireDate, x.createDate, true, undefined, 1);
+               if(duration.toLowerCase().indexOf("now") >= 0)
+                  duration = "instant";
+               multiSwap(bnt, {
+                  admin : users[x.createUserId].username,
+                  adminlink : getUserLink(x.createUserId),
+                  banned : users[x.bannedUserId].username,
+                  bannedlink : getUserLink(x.bannedUserId),
+                  type : x.type,
+                  message : x.message,
+                  duration : duration,
+                  date : x.createDate
+               });
+               finalizeTemplate(bnt);
+               banhistory.appendChild(bnt);
+            });
+
+            if(data.ban.length != 1000)
+               hide(loadbans);
+         });
+      };
    }); 
 }
 

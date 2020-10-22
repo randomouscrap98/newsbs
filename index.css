@@ -149,7 +149,7 @@ a:hover { color: inherit; }
 #leftpane:not([data-permissions*="D"]) [data-deleteonly],
 .contentpage:not([data-pinned="false"]) [data-unpinnedonly], 
 .contentpage:not([data-pinned="true"]) [data-pinnedonly] 
-{ display: none; }
+{ display: none !important; }
 
 .databar { padding: 0 0.1em; }
 [data-connectionindicator="error"] { 
@@ -421,7 +421,8 @@ a:hover { color: inherit; }
    /*max-height: 35vh;*/
 }
 /* CategoryLists */
-[data-pageitem]:nth-child(even), [data-historyitem]:nth-child(even) {
+[data-pageitem]:nth-child(even), [data-historyitem]:nth-child(even),
+[data-banhistoryitem]:nth-child(even) {
    background-color: var(--lightblockbgcolor);
 }
 [data-pageitem] .pageicon {
