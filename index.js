@@ -896,8 +896,7 @@ function routetest_load(spadat)
 { 
    route_complete(spadat, null, templ =>
    {
-      writeDom(() => templ.appendChild(makeUserSearch(x => { 
-         console.log("Selected: ", x);})));
+      templ.appendChild(makeUserSearch(x => { console.log("Selected: ", x);}));
    }); 
 }
 
@@ -905,6 +904,20 @@ function routeadmin_load(spadat)
 { 
    route_complete(spadat, null, templ =>
    {
+      var userselects = templ.querySelectorAll('[data-userselect]');
+      [...userselects].forEach(x => x.appendChild(makeUserCollection(x.getAttribute("name"), false, 1)));
+
+      var banform = templ.querySelector('[data-banform]');
+      formSetupSubmit(banform, "ban", bandat =>
+      {
+         notifySuccess("Banned user: " + bandat.bannedUserId);
+      }, fd =>
+      {
+         fd.bannedUserId = fd.bannedUserId[0];
+         var now = new Date();
+         now.setTime(now.getTime() + Number(fd.expireDate) * 60 * 60 * 1000);
+         fd.expireDate = now.toISOString();
+      });
       //writeDom(() => templ.appendChild(makeUserSearch(x => { 
       //   console.log("Selected: ", x);})));
    }); 
@@ -1074,6 +1087,7 @@ function routeuser_load(spadat)
       {
          multiSwap(templ, {
             title : u.username,
+            banned : u.banned,
             avatar : getAvatarLink(u.avatar, 100)
          });
 
@@ -1790,12 +1804,19 @@ function makeUserSearch(onSelect)
       onSelect, "Search Users");
 }
 
-function makeUserCollection(name, showperms) //, container)
+function makeUserCollection(name, showperms, limit) //, container)
 {
    var fragment = new DocumentFragment();
    var base = cloneTemplate("collection");
-   var addpu = x => addPermissionUser(x.user, base, 
-      showperms ? getLocalOption("defaultpermissions") : undefined);
+   var addpu = x => 
+   {
+      var existing = [...base.querySelectorAll("[data-collectionitem]")];
+
+      while(limit && existing.length >= limit)
+         Utilities.RemoveElement(existing.pop());
+
+      addPermissionUser(x.user, base, showperms ? getLocalOption("defaultpermissions") : undefined);
+   };
    fragment.appendChild(base);
    fragment.appendChild(makeUserSearch(addpu));
    if(showperms)

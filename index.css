@@ -499,7 +499,7 @@ img.outlined { box-sizing: content-box; }
 }
 
 [data-collectionitem] {
-   margin: 0 0.3em 0.1em 0;
+   margin: 0 0 0.1em 0;
    /*margin-bottom: 0.1em;*/
 }
 [data-special="true"] span {
@@ -508,6 +508,7 @@ img.outlined { box-sizing: content-box; }
 }
 [data-collectionitem][data-inline="true"] {
    display: inline-flex;
+   margin-right: 0.3em;
 }
 /*[data-special="true"] img {
    background: url(globe.svg) no-repeat;
@@ -536,6 +537,14 @@ input[data-permission] {
    background-color: var(--blockbgcolor);
    padding: 0.5em;
    border-radius: 0.4em;
+}
+
+[data-banned="true"]::after {
+   content: "[Banned]";
+   display: block;
+   font-size: 0.8rem;
+   color: red;
+   padding-top: 0.5em;
 }
 
 .content pre { margin: 0.25em 0; }
