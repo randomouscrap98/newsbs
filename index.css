@@ -357,13 +357,16 @@ a:hover { color: inherit; }
    visibility: visible;
 }
 [data-singlemessage] .content img {
-   height: 100px;
-   max-height: 55vh;
+   max-height: 100px;
+   max-width: 100%;
    display: block;
    margin: 0.5em 0;
+   height: auto;
+   width: auto;
+   transition: 0.15s ease;
 }
 [data-singlemessage] .content img:focus {
-   height: unset;
+   max-height: 55vh;
 }
 #postarea {
    border-top: 2px solid var(--outlinecolor);

@@ -170,6 +170,13 @@ window.onload = function()
       }
       return {block:true, node:makeYoutube(url, parseurl)};
    };
+   //Parse.options.image = (args) =>
+   //{
+   //   var img = cloneTemplate("contentimage");
+   //   findSwap(img, "src", args[""]);
+   //   finalizeTemplate(img);
+   //   return {block:true, node:img};
+   //};
    StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
 };
 
@@ -1579,7 +1586,7 @@ function formatRememberedDiscussion(cid, show, type)
 
    if(type==="chat")
       fmt = "discussion";
-   if(type==="documentation" || type==="program")
+   if(type==="documentation" || type==="program" || type==="tutorial")
       fmt = "content";
 
    formatDiscussions(show, getRememberedFormat(cid) || fmt);
@@ -2037,7 +2044,7 @@ function handleAlerts(comments, users)
             {
                document.head.querySelector("link[data-favicon]").href = getAvatarLink(
                   users[x.createUserId].avatar, 40);
-               document.title = parseComment(x.content).t.substr(0, 100);
+               document.title = parseComment(x.content).t; //.substr(0, 100);
             }
          });
       }
