@@ -55,6 +55,9 @@ function setTitle(title)
       document.title = title + " - SmileBASIC Source";
    else
       document.title = "SmileBASIC Source";
+
+   //reset the favicon just in case
+   document.head.querySelector("[data-favicon]").href = "favicon.ico";
 }
 
 //This is the VISIBILITY modifier, it's just how the page LOOKS. So you can

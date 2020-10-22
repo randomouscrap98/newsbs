@@ -27,6 +27,7 @@ var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : false, u: 1, text : "Device Notifications" },
+   titlenotifications : { def : false, u: 1, text : "Title Notifications" },
    loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (iOS buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
@@ -1997,13 +1998,19 @@ function displayPreview(title, rawcontent, format)
 function handleAlerts(comments, users)
 {
    //Figure out the comment that will go in the header
-   if(comments && Notification.permission === "granted" && getLocalOption("displaynotifications"))
+   if(!comments)
+      return;
+   
+   var tdo = getLocalOption("titlenotifications");
+   var ndo = Notification.permission === "granted" && getLocalOption("displaynotifications");
+
+   if(ndo || tdo)
    {
       var alertids = getWatchLastIds();
       var activedisc = getActiveDiscussionId();
 
-      //Add our current room ONLY if it's invisible
-      if(!document.hidden) //Document is visible, NEVER alert the current room
+      //Add our current room ONLY if it's invisible (and we're in ndo)
+      if(!document.hidden && ndo) //Document is visible, NEVER alert the current room
          delete alertids[activedisc];
       else if(!alertids[activedisc]) //Document is invisible, alert IF it's not already in the list
          alertids[activedisc] = 0;
@@ -2016,13 +2023,22 @@ function handleAlerts(comments, users)
          cms.forEach(x => 
          {
             //this may be dangerous
-            var pw = document.getElementById(getPulseId(x.parentId));
-            var name = getSwap(pw, "pwname");
-            var notification = new Notification(users[x.createUserId].username + ": " + name, {
-               tag : "comment" + x.id,
-               body : parseComment(x.content).t,
-               icon : getAvatarLink(users[x.createUserId].avatar, 100),
-            });
+            if(ndo)
+            {
+               var pw = document.getElementById(getPulseId(x.parentId));
+               var name = getSwap(pw, "pwname");
+               var notification = new Notification(users[x.createUserId].username + ": " + name, {
+                  tag : "comment" + x.id,
+                  body : parseComment(x.content).t,
+                  icon : getAvatarLink(users[x.createUserId].avatar, 100),
+               });
+            }
+            if(tdo)
+            {
+               document.head.querySelector("link[data-favicon]").href = getAvatarLink(
+                  users[x.createUserId].avatar, 40);
+               document.title = parseComment(x.content).t.substr(0, 100);
+            }
          });
       }
       catch(ex)

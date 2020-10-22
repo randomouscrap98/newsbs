@@ -425,7 +425,25 @@ var StolenUtils =
                element.style.height = size+"px"
          }
       }
-   }
+   }//,
+   //ChangeFavicon: function(src) 
+   //{
+   //   if (!faviconElement) 
+   //   {
+   //      if (src == false)
+   //         return
+   //      document.head.querySelectorAll("link[data-favicon]").forEach(function(e) {
+   //         e.remove()
+   //      })
+   //      faviconElement = document.createElement('link')
+   //      faviconElement.rel = "icon"
+   //      document.head.appendChild(faviconElement)
+   //   } else if (faviconElement.href == src)
+   //      return
+   //   if (src == false)
+   //      src = "resource/icon16.png"
+   //   faviconElement.href = src
+   //}
 };
 
 /* //12me namespacing
