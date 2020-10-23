@@ -211,6 +211,7 @@ function LongPoller(api, signalHandler, log)
    this.errortime = 5000;
    this.ratetimeout = 1500;
    this.recallrids = [];
+   this.instantComplete = false;
 }
 
 function LongPollData(lastId, statuses, lastListeners)
@@ -276,12 +277,15 @@ LongPoller.prototype.Repeater = function(lpdata)
          me.log("Tried to repeat long poller multiple times");
       }
    };
+
+   var packdata = (apidat) => ({request:apidat.request, lpdata:lpdata, data:apidat.data,
+         clearNotifications:clearNotifications});
+
    var reqsig = (name, apidat, msg) => 
    {
       if(msg)
          me.log(msg + " : " + me.api.FormatData(apidat));
-      me.signal(name, ({request:apidat.request, lpdata:lpdata, data:apidat.data,
-         clearNotifications:clearNotifications}));
+      me.signal(name, packdata(apidat));
    };
 
    var params = new URLSearchParams();
@@ -320,6 +324,9 @@ LongPoller.prototype.Repeater = function(lpdata)
             if(data.listeners)
                lpdata.lastListeners = data.listeners;
          }
+
+         if(me.instantComplete)
+            me.instantComplete(packdata(apidat));
 
          reqsig("longpollcomplete", apidat);
          recall(apidat);

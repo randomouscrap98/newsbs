@@ -118,6 +118,7 @@ window.onload = function()
 
    globals.longpoller = new LongPoller(globals.api, signaller, (m, c) => logConditional(m, c, "loglongpoll"));
    globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
+   globals.longpoller.instantComplete = handleLongpollData;
    interruptSmoothScroll();
 
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
@@ -442,7 +443,7 @@ function setupSignalProcessors()
    });
 
    signals.Attach("longpollstart", data => writeDom(() => setConnectionState("connected")));
-   signals.Attach("longpollcomplete", data => writeDom(() => handleLongpollData(data))); 
+   //signals.Attach("longpollcomplete", handleLongpollData); 
    signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
    signals.Attach("longpollerror", data => 
    {
@@ -753,6 +754,19 @@ function setupFileUpload()
    log.Debug("Setup all file uploading/handling");
 }
 
+function sendDiscussionMessage(message, markup, error)
+{
+   var currentDiscussion = getActiveDiscussionId();
+   let currentText = message;
+   var sendData = {
+      "parentId" : Number(currentDiscussion),
+      "content" : createComment(currentText, markup)
+   };
+
+   globals.api.Post("comment", sendData, undefined, error );
+   signals.Add("sendcommentstart", sendData);
+}
+
 //Right now, this can only be called once :/
 function setupDiscussions()
 {
@@ -762,20 +776,12 @@ function setupDiscussions()
       {
 			e.preventDefault();
 
-         var currentDiscussion = getActiveDiscussionId();
-         let currentText = postdiscussiontext.value;
-         var sendData = {
-            "parentId" : Number(currentDiscussion),
-            "content" : createComment(postdiscussiontext.value, getLocalOption("defaultmarkup"))
-         };
-
-         globals.api.Post("comment", sendData, undefined, error =>
+         sendDiscussionMessage(postdiscussiontext.value, getLocalOption("defaultmarkup"), error =>
          {
             postdiscussiontext.value = currentText;
          });
 
          postdiscussiontext.value = "";
-         signals.Add("sendcommentstart", sendData);
 		}
 	};
 
@@ -2063,7 +2069,7 @@ function handleLongpollData(lpdata)
    {
       var users = idMap(data.chains.user);
       var watchlastids = getWatchLastIds();
-      updatePulse(data.chains);
+      writeDom(() => updatePulse(data.chains));
 
       if(data.chains.comment)
       {
@@ -2073,7 +2079,7 @@ function handleLongpollData(lpdata)
             data.chains.comment.filter(x => x.id > watchlastids[x.parentId] && 
                lpdata.clearNotifications.indexOf(x.parentId) < 0));
          handleAlerts(data.chains.comment, users);
-         easyComments(data.chains.comment, users);
+         writeDom(() => easyComments(data.chains.comment, users));
       }
 
       if(data.chains.activity)
@@ -2085,10 +2091,14 @@ function handleLongpollData(lpdata)
 
       log.Datalog("see devlog for watchlastids", watchlastids);
       log.Datalog("see devlog for raw chat data", data);
-      updateWatches(data.chains);
 
-      if(data.listeners)
-         updateDiscussionUserlist(data.listeners, users);
+      writeDom(() => 
+      {
+         updateWatches(data.chains);
+
+         if(data.listeners)
+            updateDiscussionUserlist(data.listeners, users);
+      });
    }
 }
 
@@ -3152,8 +3162,10 @@ function easyComments(comments, users)
 {
    if(comments)
    {
+      globals.commentsrendered = (globals.commentsrendered || 0) + comments.length;
       sortById(comments).forEach(x => easyComment(x, users));
       signals.Add("easycomments", { comments: comments, users: users });
+      log.Debug("Rendered " + comments.length + " comments, " + globals.commentsrendered + " total");
    }
 }
 
