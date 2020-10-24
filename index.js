@@ -757,10 +757,9 @@ function setupFileUpload()
 function sendDiscussionMessage(message, markup, error)
 {
    var currentDiscussion = getActiveDiscussionId();
-   let currentText = message;
    var sendData = {
       "parentId" : Number(currentDiscussion),
-      "content" : createComment(currentText, markup)
+      "content" : createComment(message, markup)
    };
 
    globals.api.Post("comment", sendData, undefined, error );
@@ -772,11 +771,14 @@ function setupDiscussions()
 {
    postdiscussiontext.onkeypress = function(e) 
    {
-		if (!e.shiftKey && e.keyCode == 13) 
+		if (!e.shiftKey && e.keyCode == 13)
       {
 			e.preventDefault();
 
-         sendDiscussionMessage(postdiscussiontext.value, getLocalOption("defaultmarkup"), error =>
+         var currentText = postdiscussiontext.value;
+         if(!currentText)
+            return;
+         sendDiscussionMessage(currentText, getLocalOption("defaultmarkup"), error =>
          {
             postdiscussiontext.value = currentText;
          });
