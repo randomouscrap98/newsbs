@@ -117,6 +117,9 @@ Api.prototype.Delete = function(endpoint, id, success, error, always, modify)
 
 Api.prototype.AutoLink = function(data) 
 {
+   if(!data)
+      return;
+
    var users = data.user;
    var content = data.content;
 
@@ -149,7 +152,8 @@ Api.prototype.Listen = function(params, success, error, always, modify)
    var me = this;
    this.Get("read/listen", params, apidat =>
    {
-      me.AutoLink(apidat.data.chains);
+      if(apidat.data)
+         me.AutoLink(apidat.data.chains);
       success(apidat);
    }, error, always, modify);
 };
