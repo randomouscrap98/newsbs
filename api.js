@@ -117,7 +117,28 @@ Api.prototype.Delete = function(endpoint, id, success, error, always, modify)
 
 Api.prototype.Chain = function(params, success, error, always, modify)
 {
-   this.Get("read/chain", params, success, error, always, modify);
+   this.Get("read/chain", params, apidat =>
+   {
+      var users = apidat.data.user;
+      var content = apidat.data.content;
+
+      //Chain does something special and pre-links some data together for you
+      if(content)
+      {
+         DataFormat.LinkField(content, "createUserId", "createUser", users);
+         DataFormat.LinkField(content, "editUserId", "editUser", users);
+
+         //console.log(content,users);
+
+         content.forEach(x =>
+         {
+            if(x.type == "userpage" && x.createUser)
+               x.name = x.createUser.username + "'s user page";
+         });
+      }
+
+      success(apidat);
+   }, error, always, modify);
 };
 
 Api.prototype.Listen = function(params, success, error, always, modify)
@@ -185,9 +206,14 @@ Api.prototype.Search = function(searchops, success, error, always, modify)
    {
       params.append("requests", "category-" + JSON.stringify(search));
    }
+   params.set("content","id,name,type,createUserId,keywords"); //maybe values?
 
    globals.api.Chain(params, data =>
    {
+      //First, get rid of content that's a userpage, nobody wants that (for now?)
+      if(data.data.content)
+         data.data.content = data.data.content.filter(x => x.type != "userpage");
+
       //Modify the order for data so the ones that start or end with or have
       //the search result all by itself come first.
       this.SearchSort(data.data.content, searchops.value, x => x.name);
@@ -423,6 +449,24 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
       }
 
       return Object.values(activity);
+   },
+   MapField : function(data, field)
+   {
+      field = field || "id";
+      data = data || [];
+      var ds = {};
+      for(var i = 0; i < data.length; i++)
+         ds[data[i][field]] = data[i];
+      return ds;
+   },
+   LinkField : function(data, field, assign, linkdata, linkfield)
+   {
+      var links = MapField(linkdata, linkfield);
+      data.forEach(x =>
+      {
+         if(field in x && x[field] in links)
+            x[assign] = links[x[field]];
+      });
    },
    GetPinnedIds : function(category)
    {

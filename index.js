@@ -1741,8 +1741,8 @@ function makeActivity(modifySearch, unlimitedHeight)
       params.append("requests", "activity-" + JSON.stringify(search));
       params.append("requests", "content.0contentId");
       params.append("requests", "category.0contentId");
-      params.append("requests", "user.0contentId.0userId");
-      params.set("content", "id,name");
+      params.append("requests", "user.0contentId.0userId.1createUserId");
+      params.set("content", "id,name,createUserId,type");
       params.set("category", "id,name");
       params.set("user", "id,username,avatar");
 
@@ -2438,7 +2438,7 @@ function setupSession()
    params.append("requests", "content.2contentId.1parentId.3contentId");
    params.append("requests", "user.2userId.1createUserId.4userIds.5userIds");
    params.set("comment","id,parentId,createUserId,createDate");
-   params.set("content","id,name,type,values");
+   params.set("content","id,name,type,values,createUserId");
    params.set("user","id,username,avatar");
    params.set("watch","id,contentId,lastNotificationId");
 
