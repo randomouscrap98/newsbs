@@ -756,6 +756,17 @@ function setupFileUpload()
       }
    });
 
+   fileupload.addEventListener('paste', function(event) {
+      var data = event.clipboardData;
+      if (data && data.files) {
+         var file = data.files[0];
+         if (file && (/^image\//).test(file.type))
+         {
+            fileuploadform.__uikit__.upload.upload([file]);
+         }
+      }
+   });
+
    log.Debug("Setup all file uploading/handling");
 }
 
