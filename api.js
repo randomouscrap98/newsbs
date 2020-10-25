@@ -115,35 +115,43 @@ Api.prototype.Delete = function(endpoint, id, success, error, always, modify)
    this.Generic(endpoint + "/" + id, success, error, always, "DELETE", null, modify);
 };
 
+Api.prototype.AutoLink = function(data) 
+{
+   var users = data.user;
+   var content = data.content;
+
+   //Chain does something special and pre-links some data together for you
+   if(content)
+   {
+      DataFormat.LinkField(content, "createUserId", "createUser", users);
+      DataFormat.LinkField(content, "editUserId", "editUser", users);
+
+      content.forEach(x =>
+      {
+         if(x.type == "userpage" && x.createUser)
+            x.name = x.createUser.username + "'s user page";
+      });
+   }
+};
+
 Api.prototype.Chain = function(params, success, error, always, modify)
 {
+   var me = this;
    this.Get("read/chain", params, apidat =>
    {
-      var users = apidat.data.user;
-      var content = apidat.data.content;
-
-      //Chain does something special and pre-links some data together for you
-      if(content)
-      {
-         DataFormat.LinkField(content, "createUserId", "createUser", users);
-         DataFormat.LinkField(content, "editUserId", "editUser", users);
-
-         //console.log(content,users);
-
-         content.forEach(x =>
-         {
-            if(x.type == "userpage" && x.createUser)
-               x.name = x.createUser.username + "'s user page";
-         });
-      }
-
+      me.AutoLink(apidat.data);
       success(apidat);
    }, error, always, modify);
 };
 
 Api.prototype.Listen = function(params, success, error, always, modify)
 {
-   this.Get("read/listen", params, success, error, always, modify);
+   var me = this;
+   this.Get("read/listen", params, apidat =>
+   {
+      me.AutoLink(apidat.data.chains);
+      success(apidat);
+   }, error, always, modify);
 };
 
 Api.prototype.WatchClear = function(cid, success, error, always, modify)
@@ -320,7 +328,8 @@ LongPoller.prototype.Repeater = function(lpdata)
       "statuses" : lpdata.statuses,
       "clearNotifications" : clearNotifications,
       "chains" : [ "comment.0id", "activity.0id", "watch.0id",
-         "user.1createUserId.2userId", "content.1parentId.2contentId.3contentId" ]
+         "content.1parentId.2contentId.3contentId",
+         "user.1createUserId.2userId.4createUserId" ]
    }));
 
    if(lpdata.lastListeners)
@@ -332,7 +341,7 @@ LongPoller.prototype.Repeater = function(lpdata)
    }
 
    params.set("user","id,username,avatar");
-   params.set("content","id,name,type,values");
+   params.set("content","id,name,type,values,createUserId");
 
    me.api.Listen(params, (apidat) =>
    {
