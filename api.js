@@ -218,7 +218,7 @@ Api.prototype.Search = function(searchops, success, error, always, modify)
    {
       params.append("requests", "category-" + JSON.stringify(search));
    }
-   params.set("content","id,name,type,createUserId,keywords"); //maybe values?
+   params.set("content","id,name,type,createUserId,keywords,createDate,editDate,values");
 
    globals.api.Chain(params, data =>
    {

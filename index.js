@@ -826,6 +826,10 @@ function doSearch(event)
       }
    };
 
+   //Don't search on empty
+   if(!searchops.value)
+      return;
+
    globals.api.Search(searchops, data =>
    {
       log.Datalog("see devlog for search data", data);
