@@ -12,7 +12,10 @@
    --outlinecolor : rgba(128,128,128,0.1);
    --tableoutlinecolor: rgba(128,128,128,0.2);
    --mutedtextcolor : rgba(128,128,128, 0.7);
-   --tabselectcolor: rgba(128,255,240,0.4);
+   --tabselectbg: rgba(128,255,240,0.4);
+   --tabselectcolor: #222;
+
+   --spcontrolbg: rgba(113, 164, 255, 0.3);
 
    --bgred: rgba(255,50,50,0.3); 
    --bgblue: rgba(50,150,255,0.3); 
@@ -180,7 +183,7 @@ a:hover { color: inherit; }
    padding: 0 0.5em;
 }
 #rightpanefooter [uk-icon] {
-   color: var(--tabselectcolor);
+   color: var(--tabselectbg);
 }
 #rightpanefootername {
    cursor: grab;
@@ -202,9 +205,10 @@ a:hover { color: inherit; }
 }
 #maincontentbarcontrols {
    float: right;
-   color: var(--headercolor);
+   color: var(--tabselectcolor);
    /*background: var(--bggreen); var(--blockbgcolor);*/
-   background: var(--blockbgcolor);
+   /*background: var(--blockbgcolor);*/
+   background: var(--spcontrolbg);
    border-radius: 3px;
    padding: 0 0.1em;
 }
@@ -215,8 +219,8 @@ a:hover { color: inherit; }
 
 /* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
-   background-color: var(--tabselectcolor);
-   color: #111;
+   background-color: var(--tabselectbg);
+   color: var(--tabselectcolor); /*#111;*/
 }
 .tabnav > div { padding: 1px 0; }
 .avatar { 
@@ -613,7 +617,7 @@ pre .constant { color: #7caee2; }
    --outlinecolor: #555;
    --tableoutlinecolor: #444;
    --blockbgcolor: #ffef97; /*#FFFF77;*/
-   --tabselectcolor: #32d2c0; /*rgba(128,255,240,0.4);*/
+   --tabselectbg: #32d2c0; /*rgba(128,255,240,0.4);*/
 
    --bgred: rgba(255,0,0,0.5);
    --bgblue: rgba(0,0,255,0.5);

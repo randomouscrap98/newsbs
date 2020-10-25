@@ -1020,6 +1020,9 @@ function routecategory_load(spadat)
          var description = templ.querySelector("[data-description]");
          var childcats = data.category.filter(x => x.parentId === cid);
 
+         if(cid == 0)
+            c.myPerms = "C";
+
          multiSwap(templ, { 
             title : c.name ,
             permissions : c.myPerms,
@@ -1044,6 +1047,9 @@ function routecategory_load(spadat)
 
          var pinCount = DataFormat.MarkPinned(c, data.content, true);
          log.Debug("Found " + pinCount + " pinned pages");
+
+         //TODO: use the API to remove userpages!
+         data.content = data.content.filter(x => x.type != "userpage");
 
          if(!childcats.length)
             hide(sbelm);
