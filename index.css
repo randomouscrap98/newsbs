@@ -360,16 +360,27 @@ a:hover { color: inherit; }
 [data-singlemessage]:hover .messagecontrol {
    visibility: visible;
 }
-[data-singlemessage] .content img {
-   max-height: 100px;
-   max-width: 100%;
-   display: block;
-   margin: 0.5em 0;
-   height: auto;
-   width: auto;
+[data-singlemessage] .content [data-contentimage] {
+   font-size: 0;
+   height: 100px;
+   width: 100%;
+   /*display: block;*/
+   margin: 0.5rem 0;
    transition: 0.15s ease;
 }
-[data-singlemessage] .content img:focus {
+[data-singlemessage] .content [data-contentimage]:focus {
+   max-height: 55vh;
+   height: unset;
+   border: none;
+   outline: none;
+}
+[data-singlemessage] .content img {
+   max-height: 100%;
+   max-width: 100%;
+   height: auto;
+   width: auto;
+}
+[data-singlemessage] .content [data-contentimage]:focus img {
    max-height: 55vh;
 }
 #postarea {

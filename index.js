@@ -171,13 +171,13 @@ window.onload = function()
       }
       return {block:true, node:makeYoutube(url, parseurl)};
    };
-   //Parse.options.image = (args) =>
-   //{
-   //   var img = cloneTemplate("contentimage");
-   //   findSwap(img, "src", args[""]);
-   //   finalizeTemplate(img);
-   //   return {block:true, node:img};
-   //};
+   Parse.options.image = (args) =>
+   {
+      var img = cloneTemplate("contentimage");
+      findSwap(img, "src", args[""]);
+      finalizeTemplate(img);
+      return {block:true, node:img};
+   };
    StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
 };
 
