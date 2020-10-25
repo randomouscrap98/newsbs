@@ -645,6 +645,11 @@ function setupUserStuff()
          notifySuccess("Registration complete!");
       login(token);
    });
+   formSetupSubmit(registerresendform, "user/register/sendemail", token =>
+   {
+      if(getLocalOption("generaltoast"))
+         notifySuccess("Email re-sent!");
+   });
 
    userchangeavatar.addEventListener("click", function() {
       globals.fileselectcallback = id => 
