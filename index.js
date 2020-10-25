@@ -1590,12 +1590,13 @@ function updateCurrentUserData(user)
 
 function formatRememberedDiscussion(cid, show, type)
 {
-   var fmt = "split";
+   var fmt = "content"; //What are we doing with split mode?
 
    if(type==="chat")
       fmt = "discussion";
-   if(type==="documentation" || type==="program" || type==="tutorial")
-      fmt = "content";
+   // if(type==="documentation" || type==="program" || type==="tutorial"
+   //    || type ==="resource")
+   //    fmt = "content";
 
    formatDiscussions(show, getRememberedFormat(cid) || fmt);
 }
