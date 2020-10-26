@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603738309"></script>
-      <script src="dom.js?v=1603738309"></script>
-      <script src="api.js?v=1603738309"></script>
-      <script src="index.js?v=1603738309"></script>
-      <script src="sbs2-markup/highlight.js?v=1603738309"></script>
-      <script src="sbs2-markup/parse.js?v=1603738309"></script>
-      <script src="sbs2-markup/render.js?v=1603738309"></script>
+      <script src="libbo.js?v=1603742134"></script>
+      <script src="dom.js?v=1603742134"></script>
+      <script src="api.js?v=1603742134"></script>
+      <script src="index.js?v=1603742134"></script>
+      <script src="sbs2-markup/highlight.js?v=1603742134"></script>
+      <script src="sbs2-markup/parse.js?v=1603742134"></script>
+      <script src="sbs2-markup/render.js?v=1603742134"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603738309" />
+      <link rel="stylesheet" href="index.css?v=1603742134" />
       <script>
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -280,8 +280,8 @@ function retext(el, attr)
       </div>
       <div data-loginonly uk-tooltip="Recent Activity"><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
-      <div data-loginonly class="uk-inline" uk-tooltip="Watch">
-         <a href="" class="uk-display-block" uk-icon="icon: heart; ratio: 2"></a>
+      <div data-loginonly class="uk-inline" uk-tooltip="Notifications">
+         <a href="" class="uk-display-block" uk-icon="icon: bell; ratio: 2"></a>
          <div id="watchglobalalert" class="uk-label uk-label-danger 
             uk-position-bottom-right noevent"></div>
       </div>
@@ -616,7 +616,7 @@ function retext(el, attr)
                   <!--<h3 class="uk-heading-divider"><span>Upload</span></h3>-->
                   <div id="fileuploadform" class="uk-placeholder uk-text-center">
                      <span uk-icon="icon: cloud-upload"></span>
-                     <span class="uk-text-middle">Drop images or</span>
+                     <span class="uk-text-middle">Drop image or</span>
                      <div uk-form-custom>
                         <input type="file">
                         <span class="uk-link">choose from device</span>
@@ -899,11 +899,11 @@ function retext(el, attr)
          </div>
          <div id="history" class="uk-display-block uk-position-relative">
             <h4>Activity:</h4>
-            <div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>
-            <div class="historycontainer" uk-overflow-auto>
+            <!--<div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>-->
+            <div class="historycontainer"> <!-- uk-overflow-auto>-->
             </div>
             <div data-loadolder class="uk-flex uk-flex-right" hidden>
-               <div data-loading uk-spinner="ratio: 0.5" hidden></div>
+               <div data-loading uk-spinner="ratio: 0.5"></div>
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
          </div>
@@ -988,7 +988,7 @@ function retext(el, attr)
          <a id="addeveryone" href="#">Add global permission</a>
          <ul id="pagecontrols" class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove"
             data-loginonly>
-            <li><a href="#" data-watched uk-icon="heart"></a></li>
+            <li><a href="#" data-watched uk-icon="bell"></a></li>
             <li>
                <a href="#" uk-icon="cog"></a>
                <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
@@ -1091,8 +1091,8 @@ function retext(el, attr)
                      data-key=".textContent"></span>
                </div>
             </div>
-            <p data-content=".renderContent" data-format="data-fmt" 
-               class="uk-text-break content uk-margin-remove-top"></p>
+            <article data-content=".renderContent" data-format="data-fmt" 
+               class="uk-text-break content uk-margin-remove-top"></article>
          </div>
          <div id="routeuser" class="uk-container uk-margin-top uk-margin-bottom contentpage"
               data-pinned data-permissions=".leftPanePerms">
@@ -1103,8 +1103,8 @@ function retext(el, attr)
                <div data-tmpl="pagecontrols" hidden></div>
             </div>
             <img data-avatar="src" width=100 class="uk-align-right avatar">
-            <p data-content=".renderContent" data-directcontent=".innerHTML" data-format="data-fmt" 
-               class="uk-text-break content uk-margin-remove-top"></p>
+            <article data-content=".renderContent" data-directcontent=".innerHTML" data-format="data-fmt" 
+               class="uk-text-break content uk-margin-remove-top"></article>
             <div data-userhistory class="uk-margin-top uk-margin-bottom">
             </div>
          </div>

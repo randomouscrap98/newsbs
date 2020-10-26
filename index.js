@@ -46,6 +46,7 @@ var options = {
    logperiodicdata : { def: false, text : "Log runtime data every refresh cycle (FREQUENT)" },
    forcediscussionoutofdate : {def: false, text : "Force an immediate 400 error on long poll"},
    retrievetechnicalinfo : {def:true, text : "Pull API info on page load" },
+   toastrequestoverload : {def:false, text : "Toast 429 (too many requests) errors" },
    initialloadcomments: { def: 30, text: "Initial comment pull" },
    oldloadcomments : { def: 30, text: "Scroll back comment pull" },
    activityload : { def: 100, text: "Activity load count" },
@@ -425,9 +426,20 @@ function setupSignalProcessors()
          //TODO: This eventually needs to tell you HOW LONG you're banned and
          //who banned you. Make it return json you can parse from responseText
          if(data.request.status == 418)
+         {
             notifyError("You're temporarily banned: '" + data.request.responseText + "'");
+         }
+         else if(data.request.status == 429 && data.endpoint === "read/listen")
+         {
+            if(getLocalOption("toastrequestoverload"))
+               notifyError("Long poll: Too many requests from your IP (429)");
+            else
+               log.Warn("Long poll overload: " + globals.api.FormatData(data));
+         }
          else
+         {
             notifyError("API Error: " + globals.api.FormatData(data));
+         }
       }
    });
    signals.Attach("apistart", data =>
@@ -1776,7 +1788,7 @@ function makeActivity(modifySearch, unlimitedHeight)
 
          writeDom(() =>
          {
-            hide(activity.querySelector(".historyloading"));            
+            //hide(activity.querySelector(".historyloading"));            
             hide(loadloading);
             setHidden(loadolder, data.activity.length !== initload);
 

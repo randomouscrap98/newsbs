@@ -548,8 +548,11 @@ function parseComment(content) {
    }
 }
 
-function createComment(rawtext, markup) {
-   return JSON.stringify({"m":markup}) + "\n" + rawtext;
+function createComment(rawtext, markup, avatar) {
+   var meta = {"m":markup};
+   if(avatar !== undefined)
+      meta.a = "avatar";
+   return JSON.stringify(meta) + "\n" + rawtext;
 }
 
 //Does the given (agreed upon) page name type have discussions? This would be

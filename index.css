@@ -108,6 +108,10 @@ blockquote {
    background-color: var(--lightblockbgcolor);
    border-bottom: 1px solid var(--outlinecolor);
 }
+.uk-modal-footer {
+   background-color: var(--lightblockbgcolor);
+   border-top: 1px solid var(--outlinecolor);
+}
 .uk-text-meta { color: var(--mutedtextcolor); }
 .uk-card-default {
    box-shadow: none;
@@ -428,9 +432,13 @@ a:hover { color: inherit; }
 [data-bgcolor="orange"] { background-color: var(--bgorange); }
 [data-bgcolor="gray"] { background-color: var(--bggray); }
 [data-bgcolor="purple"] { background-color: var(--bgpurple); }
+[data-watched="true"] polygon,
 [data-watched="true"] path {
-   fill: #EE5588; 
-   color: #EE5588; 
+   /*fill: #EE5588; 
+   color: #EE5588; */
+   /*fill: #ffd734;*/
+   fill: #ffce34;
+   color: #111;
    opacity: 0.8;
 }
 [data-youtube] { white-space: initial; }
@@ -514,7 +522,7 @@ img.outlined { box-sizing: content-box; }
 }
 .historycontainer {
    background-color: rgba(128,128,128,0.02);
-   max-height: 25em;
+   /*max-height: 25em;*/
 }
 
 .lightblock {
