@@ -1013,7 +1013,7 @@ function routecategory_load(spadat)
    //Need to make a SECOND content request
    params.append("requests", "content.1values_pinned-" + JSON.stringify({"parentIds":[cid]}));
    params.append("requests", "user.0createUserId.0edituserId.1createUserId.2createUserId");
-   params.set("content", "id,name,type,parentId,createDate,editDate,createUserId,values");
+   params.set("content", "id,name,type,parentId,createDate,editDate,createUserId,values,permissions");
 
    globals.api.Chain(params, function(apidata)
    {
@@ -2458,7 +2458,7 @@ function setupSession()
    params.append("requests", "content.2contentId.1parentId.3contentId");
    params.append("requests", "user.2userId.1createUserId.4userIds.5userIds");
    params.set("comment","id,parentId,createUserId,createDate");
-   params.set("content","id,name,type,values,createUserId");
+   params.set("content","id,name,type,values,createUserId,permissions");
    params.set("user","id,username,avatar");
    params.set("watch","id,contentId,lastNotificationId");
 
@@ -2691,11 +2691,13 @@ function updatePWContent(pulsedata, c)
 function thumbType(page, element)
 {
    var th = getContentThumbnailLink(page, 20, true);
-   var swap = {}; //{ "type" : null };
+   var swap = { "type" : false, "image" : false, "private" : false }; //{ "type" : null };
    if (th) 
       swap.image = th;
    else
       swap.type = page.type;
+   if(!page.permissions["0"] || page.permissions["0"].toLowerCase().indexOf("r") < 0)
+      swap.private = true;
    multiSwap(element, swap);
 }
 

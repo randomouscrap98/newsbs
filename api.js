@@ -218,7 +218,7 @@ Api.prototype.Search = function(searchops, success, error, always, modify)
    {
       params.append("requests", "category-" + JSON.stringify(search));
    }
-   params.set("content","id,name,type,createUserId,keywords,createDate,editDate,values");
+   params.set("content","id,name,type,createUserId,keywords,createDate,editDate,values,permissions");
 
    globals.api.Chain(params, data =>
    {
@@ -345,7 +345,7 @@ LongPoller.prototype.Repeater = function(lpdata)
    }
 
    params.set("user","id,username,avatar");
-   params.set("content","id,name,type,values,createUserId");
+   params.set("content","id,name,type,values,createUserId,permissions");
 
    me.api.Listen(params, (apidat) =>
    {

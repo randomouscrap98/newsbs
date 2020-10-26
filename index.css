@@ -443,21 +443,24 @@ a:hover { color: inherit; }
 [data-banhistoryitem]:nth-child(even) {
    background-color: var(--lightblockbgcolor);
 }
-[data-pageitem] .pageicon {
-   margin: 0 0.3em;
+[data-pageitem] {
+   padding: 0 0.3em;
 }
 .outlined { border: 1px solid var(--outlinecolor); }
 img.outlined { box-sizing: content-box; }
+.pageicon svg {
+   padding: 0 1px;
+   box-sizing: content-box;
+}
 /*[data-pageitem] .pageicon img {
 }*/
 [data-pageitem] .title {
    font-size: 1.1em;
-   padding: 0.2em;
+   padding: 0.2em 0.4em;
 }
 /*[data-pageitem] [data-time] { white-space: pre-wrap; }*/
 [data-pageitem] .avatar {
    border: none;
-   margin-right: 3px;
    margin-left: 6px;
 }
 /*[data-pageitem][data-pinned="true"]::after{
@@ -471,6 +474,13 @@ img.outlined { box-sizing: content-box; }
    margin-left: 0.7em;
    margin-top: 0.3em;
    z-index: 10;
+}
+.lock {
+   font-size: 0.7em;
+   margin-left: 0.5em;
+   margin-top: 0.3em;
+   z-index: 10;
+   color: red;
 }
 /*[data-treeselector] option {
    font-family: monospace;
