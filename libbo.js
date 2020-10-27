@@ -323,8 +323,8 @@ var Utilities =
          result.id = match[1]
          var start = url.match(/[&?](?:t|start)=(\w+)/);
          var end = url.match(/[&?](?:end)=(\w+)/);
-         if(start) result.start = start;
-         if(end) result.end = end;
+         if(start) result.start = start[1];
+         if(end) result.end = end[1];
          result.loop = url.match(/[&?]loop(=|&|$)/);
       }
 		return result; 

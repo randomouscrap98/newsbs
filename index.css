@@ -53,6 +53,9 @@ html, body, .uk-modal-dialog, .uk-dropdown {
    background-color: var(--mainbgcolor);
    color: var(--maintxtcolor);
 }
+/*.uk-dropdown {
+   box-shadow: 0 5px 12px var(--tableoutlinecolor);
+}*/
 .databar, .databar a {
    background-color: var(--databarbgcolor);
    color: var(--databartxtcolor);
@@ -64,6 +67,8 @@ h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt,
 .uk-accordion-title, .uk-form-label, .myinput { 
    color: var(--headercolor) !important;
 }
+.uk-dotnav>*>* { border: 1px solid var(--mutedtextcolor); }
+.uk-dotnav>.uk-active>* { background: var(--mutedtextcolor); }
 img { 
    image-rendering: -webkit-optimize-contrast; 
    opacity: var(--imageopacity);
@@ -649,6 +654,7 @@ pre .constant { color: var(--codeconstant); }
    --headercolor: #999;
    --imageopacity: 0.9;
    --inputbgcolor: rgba(255,255,255,0.05);
+   --spcontrolbg: rgba(122, 151, 202,0.58);
 }
 
 [data-theme="contrast"] {
@@ -690,6 +696,10 @@ pre .constant { color: var(--codeconstant); }
    --scrollblockhovercolor: #DDD;
 }
 
+[data-theme*="contrast"] .uk-dropdown {
+   border: 1px solid var(--outlinecolor);
+}
+
 [data-theme="blue"] {
    --mainbgcolor: #FFF;
    --maintxtcolor: #5e6a77; /*#335a73;*/
@@ -712,4 +722,47 @@ pre .constant { color: var(--codeconstant); }
 }
 [data-theme="blue"] [data-connectionindicator] svg {
    filter: brightness(1.2);
+}
+
+[data-theme="dark-contrast"] {
+   --mainbgcolor: #111;
+   --maintxtcolor: #EEE;
+   --databarbgcolor: #000;
+   --databartxtcolor: #FFF;
+   --databartxthovcolor: #EEE;
+   --headercolor: #FFF;
+   --mutedtextcolor: #DDD;
+   --blockbgcolor: #333; /*#b7daff; /*#eaeaea; /*#ffef97; /*#FFFF77;*/
+   --lightblockbgcolor: #222;/*#0062ff0d;*/
+   --imageopacity: 0.9;
+   --inputbgcolor: rgba(255,255,255,0.05);
+   --linkcolor: #7ebfff;
+   --outlinecolor: #888;
+   --tableoutlinecolor: #999;
+   --tabselectbg: #32d2c0; /*rgba(128,255,240,0.4);*/
+   --tabselectcolor: #000;
+   --spcontrolbg: #779bde;
+
+
+   --bgred: rgba(255,0,0,0.5);
+   --bgblue: rgba(0,0,255,0.5);
+   --bggreen: rgba(0,255,0,0.5);
+   --bgyellow: rgba(255,255,0,0.5); 
+   --bgorange: rgba(255,150,0,0.5); 
+   --bggray: rgba(128,128,128,0.3); 
+   --bgpurple: rgba(200,0,255,0.5); 
+
+   /*--codeconstant: #5c6f9a;
+   --codestatement: #00b9b0;
+   --codenumber: #cc0e73;
+   --codekeyword: #0075d6;
+   --codeoperator: #222;
+   --codelabel: #dc7a00;
+   --codevariable: #8315d8;
+   --codestring: #c30000;
+   --codecomment: #3aad00;
+   --codefunction: #161eff;*/
+
+   --scrollblockcolor: #CCC;
+   --scrollblockhovercolor: #FFF;
 }

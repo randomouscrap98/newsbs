@@ -36,7 +36,7 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
-   theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "contrast","blue" ]},
+   theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "contrast","blue","dark-contrast" ]},
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
