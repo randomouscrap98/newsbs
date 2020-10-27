@@ -434,10 +434,11 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
          comment.forEach(c =>
          {
             if(!comments[c.parentId]) 
-               comments[c.parentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : c.parentId};
+               comments[c.parentId] = { "lastDate" : "0", "lastId" : 0, "count" : 0, "userIds" : [], "id" : c.parentId};
             var cm = comments[c.parentId];
             if(cm.userIds.indexOf(c.createUserId) < 0) cm.userIds.push(c.createUserId);
             if(c.createDate > cm.lastDate) cm.lastDate = c.createDate;
+            if(c.id > cm.lastId) cm.lastId = c.id;
             cm.count++;
          });
       }
@@ -453,10 +454,11 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
          activitee.forEach(a =>
          {
             if(!activity[a.contentId]) 
-               activity[a.contentId] = { "lastDate" : "0", "count" : 0, "userIds" : [], "id" : a.contentId};
+               activity[a.contentId] = { "lastDate" : "0", "lastId" : 0, "count" : 0, "userIds" : [], "id" : a.contentId};
             var ac = activity[a.contentId];
             if(ac.userIds.indexOf(a.userId) < 0) ac.userIds.push(a.userId);
             if(a.date > ac.lastDate) ac.lastDate = a.date;
+            if(a.id > ac.lastId) ac.lastId = a.id;
             ac.count++;
          });
       }

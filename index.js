@@ -1021,7 +1021,7 @@ function routecategory_load(spadat)
       "reverse" : true,
       "limit": getLocalOption("pagedisplaylimit")
    }));
-   params.append("requests", "category");
+   params.append("requests", "category-" + JSON.stringify({"ComputeExtras":true}));
    //Need to make a SECOND content request
    params.append("requests", "content.1values_pinned-" + JSON.stringify({"parentIds":[cid]}));
    params.append("requests", "user.0createUserId.0edituserId.1createUserId.2createUserId");
@@ -2117,8 +2117,15 @@ function handleLongpollData(lpdata)
          //I filter out comments from watch updates if we're currently in
          //the room. This should be done automatically somewhere else... mmm
          data.chains.commentaggregate = DataFormat.CommentsToAggregate(
-            data.chains.comment.filter(x => x.id > watchlastids[x.parentId] && 
-               lpdata.clearNotifications.indexOf(x.parentId) < 0));
+            data.chains.comment.filter(x => x.id > watchlastids[x.parentId]));
+         lpdata.clearNotifications.forEach(x => 
+            data.chains.commentaggregate.forEach(y => 
+            {
+               if(y.id == x)
+                  y.count = 0;
+            })
+         );
+            //&& lpdata.clearNotifications.indexOf(x.parentId) < 0));
          handleAlerts(data.chains.comment, users);
          writeDom(() => easyComments(data.chains.comment, users));
       }
@@ -2978,13 +2985,21 @@ function updateWatchSingletons(data)
 
 function updateWatchComAct(users, comments, activity)
 {
+   //console.log("UPDATEWATCHCOMACT", users, comments, activity);
    [...new Set(Object.keys(comments).concat(Object.keys(activity)))].forEach(cid =>
    {
       //console.log("updating comments, activity:", comments, activity);
       var watchdata = document.getElementById(getWatchId(cid)); 
+      //console.log(getActiveDiscussionId(), cid, comments[cid]);
 
       if(watchdata)
       {
+         if(getActiveDiscussionId() == cid && comments[cid])
+         {
+            //log.Warn("SETTING NEW MAXID TO: " + comments[cid].lastId);
+            watchdata.setAttribute(attr.pulsemaxid, comments[cid].lastId);
+         }
+
          var total = Number(getSwap(watchdata, attr.pulsecount) || "0");
          var maxDate = watchdata.getAttribute(attr.pulsedate) || "0";
 
@@ -3032,6 +3047,7 @@ function updateWatches(data, fullReset)
    if(fullReset)
       watches.innerHTML = "";
 
+   //console.log("UPDATEWATCHES", data);
    var users = idMap(data.user);
    var contents = idMap(data.content);
    var comments = idMap(data.commentaggregate);
