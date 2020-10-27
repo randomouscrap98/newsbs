@@ -704,26 +704,16 @@ pre .constant { color: var(--codeconstant); }
    --bggray: rgba(128,128,128,0.3); 
    --bgpurple: rgba(200,0,255,0.5); 
 
-   /*--codeconstant: #5c6f9a;
-   --codestatement: #00b9b0;
-   --codenumber: #cc0e73;
-   --codekeyword: #0075d6;
-   --codeoperator: #222;
-   --codelabel: #dc7a00;
-   --codevariable: #8315d8;
-   --codestring: #c30000;
-   --codecomment: #3aad00;
-   --codefunction: #161eff;*/
-
    --scrollblockcolor: #CCC;
    --scrollblockhovercolor: #FFF;
 }
 
 [data-theme="oldschool"] {
-   --lightblockbgcolor: #F7F7F7;
+   --lightblockbgcolor: rgba(249,249,249,0.8);
    --blockbgcolor: #E7E7E7;
 }
-[data-theme="oldschool"] #maincontentcontainer { /*, [data-oldschool] #rightpanecontent {*/
+[data-theme="oldschool"] #maincontentcontainer, 
+[data-theme="oldschool"] #discussionuserlistcontainer { 
    background: url("Sb-bg-tile.png");
 }
 [data-theme="oldschool"] #rightpanecontent {
@@ -735,7 +725,7 @@ pre .constant { color: var(--codeconstant); }
 [data-theme="oldschool"] .pageblock, [data-theme="oldschool"] .pagetitle {
    background-color: var(--mainbgcolor);
    padding: 0.5em 0.8em;
-   box-shadow: 2px 3px 6px 2px rgba(0,0,0,0.1); /*var(--tableoutlinecolor);*/
+   box-shadow: 2px 3px 6px 2px rgba(0,0,0,0.1);
 }
 
 [data-theme="oldschool"] .lightblock {
