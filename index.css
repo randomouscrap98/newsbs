@@ -13,8 +13,12 @@
    --tableoutlinecolor: rgba(128,128,128,0.2);
    --mutedtextcolor : rgba(128,128,128, 0.7);
    --tabselectbg: rgba(128,255,240,0.4);
+   --tabhoverbg: rgba(128,255,240,0.1);
    --tabselectcolor: #222;
    --linkcolor: #1e87f0;
+
+   --scrollblockcolor: rgba(128,128,128,0.3);
+   --scrollblockhovercolor: rgba(128,128,128,0.5);
 
    --spcontrolbg: rgba(113, 164, 255, 0.3);
 
@@ -134,7 +138,7 @@ blockquote {
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 .uk-sortable-empty { min-height: unset; }
 /*.uk-link { cursor: pointer; }*/
-hr { border-top: 1px solid rgba(128,128,128, 0.2); }
+hr { border-top: 1px solid var(--tableoutlinecolor); }
 /* a { overflow: hidden; }*/
 .notext { font-size: 0; } /*display: contents; }*/
 .noselect {
@@ -209,7 +213,7 @@ a:hover { color: inherit; }
    background-color: var(--blockbgcolor);
 }
 #rightpanenav >:hover {
-   background-color: rgba(128,255,240,0.1);
+   background-color: var(--tabhoverbg); 
 }
 /* left-pane stuff (main content!) */
 #maincontentbar {
@@ -625,9 +629,9 @@ pre .constant { color: var(--codeconstant); }
 /* Scrollbar! WOW */
 ::-webkit-scrollbar { width: 10px; } /* width */
 #postdiscussiontext::-webkit-scrollbar { width: 3px; } /* width */
-::-webkit-scrollbar-track { background: rgba(128,128,128,0.1); } /* Track */
-::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); } /* Handle */
-::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.5); } /* Handle on hover */
+::-webkit-scrollbar-track { background: var(--outlinecolor); } /* Track */
+::-webkit-scrollbar-thumb { background: var(--scrollblockcolor); } /* Handle */
+::-webkit-scrollbar-thumb:hover { background: var(--scrollblockhovercolor); } /* Handle on hover */
 
 /* Some reaction crap or whatever it's called */
 @media (min-width: 700px) { 
@@ -683,3 +687,26 @@ pre .constant { color: var(--codeconstant); }
    --codefunction: #161eff;
 }
 
+[data-theme="blue"] {
+   --mainbgcolor: #FFF;
+   --maintxtcolor: #5e6a77; /*#335a73;*/
+   /*--databarbgcolor: /*#2966ab; /*#2971ab;*/
+   --databarbgcolor: #2971ab;
+   --databartxtcolor: #e5edf3; /*#e4f3fd;*/
+   --databartxthovcolor: #bce3ff;
+   --headercolor: #2d4156; /*#447fbb; /*#236db7;*/
+   --mutedtextcolor: #73a3d0;
+   --tableoutlinecolor: #6a98d438;
+   --blockbgcolor: #ecf6ff; /*#cfe8ff;*/
+   --lightblockbgcolor: #ecf6ff42; /*#f1f7ff;*/
+   --tabselectbg: #9ddcff; /*#4da9dc;*/
+   --tabhoverbg: #9ddcff55; /*#4da9dc;*/
+   --tabselectcolor: #06518e; /*#fff;*/
+   --linkcolor: #4190dc; /*#59a9f9;*/
+   --outlinecolor: #7ebbff1f; /*#4195f31f;*/
+   --scrollblockcolor: #6ca7d857;
+   --scrollblockhovercolor: #6ca7d87d;
+}
+[data-theme="blue"] [data-connectionindicator] svg {
+   filter: brightness(1.2);
+}
