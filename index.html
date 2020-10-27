@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603826936"></script>
-      <script src="dom.js?v=1603826936"></script>
-      <script src="api.js?v=1603826936"></script>
-      <script src="index.js?v=1603826936"></script>
-      <script src="sbs2-markup/highlight.js?v=1603826936"></script>
-      <script src="sbs2-markup/parse.js?v=1603826936"></script>
-      <script src="sbs2-markup/render.js?v=1603826936"></script>
+      <script src="libbo.js?v=1603832844"></script>
+      <script src="dom.js?v=1603832844"></script>
+      <script src="api.js?v=1603832844"></script>
+      <script src="index.js?v=1603832844"></script>
+      <script src="sbs2-markup/highlight.js?v=1603832844"></script>
+      <script src="sbs2-markup/parse.js?v=1603832844"></script>
+      <script src="sbs2-markup/render.js?v=1603832844"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603826936" />
+      <link rel="stylesheet" href="index.css?v=1603832844" />
       <script>
 if (location.protocol !== "https:") {
    console.log("Redirecting to https, this is slow, please complain that this should be a server thing");
@@ -908,7 +908,7 @@ function retext(el, attr)
                <div data-pinned=".srcUnhide" class="uk-cover pin" hidden>📌</div>
             </a>
          </div>
-         <div id="history" class="uk-display-block uk-position-relative">
+         <div id="history" class="pageblock uk-display-block uk-position-relative">
             <!--<h4>Activity:</h4>-->
             <!--<div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>-->
             <div class="historycontainer"> <!-- uk-overflow-auto>-->
@@ -1059,13 +1059,15 @@ function retext(el, attr)
          </table>
          <!-- LOC:ROUTES -->
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
-            <h1>SmileBASIC Source</h1>
-            <p>A community for talking about SmileBASIC, where you can create 
-            BASIC programs on your Nintendo 3DS, Wii U, and Switch! 
-            This website is in development! There's a lot of missing features, 
-            but we're gonna keep adding stuff until it's good!</p>
-            <div data-slideshowcontainer>
-               <div data-tmpl="slideshow"></div>
+            <h1 class="pagetitle">SmileBASIC Source</h1>
+            <div class="pageblock">
+               <p>A community for talking about SmileBASIC, where you can create 
+               BASIC programs on your Nintendo 3DS, Wii U, and Switch! 
+               This website is in development! There's a lot of missing features, 
+               but we're gonna keep adding stuff until it's good!</p>
+               <div data-slideshowcontainer>
+                  <div data-tmpl="slideshow"></div>
+               </div>
             </div>
             <h3>
                <a href="?p=category-0" data-spa>Browse Everything</a>
@@ -1092,7 +1094,7 @@ function retext(el, attr)
          <div id="routepage" class="uk-container uk-margin-top uk-margin-bottom contentpage"
              data-pinned data-permissions=".leftPanePerms">
             <!-- WARN: DUPLICATED IN ROUTEUSER -->
-            <div class="uk-flex">
+            <div class="pagetitle uk-flex">
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
                <div data-tmpl="pagecontrols"></div>
             </div>
@@ -1106,26 +1108,28 @@ function retext(el, attr)
                </div>
             </div>
             <article data-content=".renderContent" data-format="data-fmt" 
-               class="uk-text-break content uk-margin-remove-top"></article>
+               class="pageblock uk-text-break content uk-margin-remove-top"></article>
          </div>
          <div id="routeuser" class="uk-container uk-margin-top uk-margin-bottom contentpage"
               data-pinned data-permissions=".leftPanePerms">
             <!-- WARN: DUPLICATED IN ROUTEPAGE -->
-            <div class="uk-flex-inline">
-               <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"
-                  data-banned></h1>
-               <div data-tmpl="pagecontrols" hidden></div>
+            <div class="pageblock">
+               <div class="uk-flex-inline">
+                  <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"
+                     data-banned></h1>
+                  <div data-tmpl="pagecontrols" hidden></div>
+               </div>
+               <img data-avatar="src" width=100 class="uk-align-right avatar">
+               <article data-content=".renderContent" data-directcontent=".innerHTML" data-format="data-fmt" 
+                  class="uk-text-break content uk-margin-remove-top"></article>
             </div>
-            <img data-avatar="src" width=100 class="uk-align-right avatar">
-            <article data-content=".renderContent" data-directcontent=".innerHTML" data-format="data-fmt" 
-               class="uk-text-break content uk-margin-remove-top"></article>
             <div data-userhistory class="uk-margin-top uk-margin-bottom">
             </div>
          </div>
          <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom"
              data-permissions=".leftPanePerms">
             <div class="uk-flex">
-               <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
+               <h1 class="uk-width-expand pagetitle uk-margin-small-right" data-title=".textContent"></h1>
                <ul data-loginonly class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
                   <li>
                      <a href="#" uk-icon="cog"></a>
@@ -1144,7 +1148,7 @@ function retext(el, attr)
             </div>
             <p class="uk-text-meta uk-margin-remove-top" data-description=".textContent"></p>
             <div data-subcats class="lightblock"></div>
-            <div data-pages class="uk-margin-top">
+            <div data-pages class="uk-margin-top pageblock">
                <p data-nopages class="">
                   <span uk-icon="icon: database" class="uk-margin-small-right"></span>
                   <span>No pages</span>
@@ -1274,7 +1278,7 @@ function retext(el, attr)
             </div>
          </div>
          <div id="routeadmin" data-superonly class="uk-container uk-margin-top uk-margin-bottom">
-            <h1>Admin Page</h1>
+            <h1 class="pagetitle">Admin Page</h1>
             <form data-banform onsubmit="return false" class="uk-form-stacked lightblock">
       <label class="uk-form-label"> <!-- uk-margin>-->
          <span>User:</span>

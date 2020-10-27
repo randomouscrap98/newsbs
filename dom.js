@@ -166,6 +166,14 @@ function setTheme(theme)
    DomDeps.signal("settheme", theme);
 }
 
+//function setOldschool(yes)
+//{
+//   if(yes)
+//      document.body.setAttribute("data-oldschool", yes);
+//   else
+//      document.body.removeAttribute("data-oldschool");
+//}
+
 //Set up a clean slate for someone to put content onto the page,
 //assuming immediately after.
 function initializePage(requester)

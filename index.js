@@ -32,11 +32,13 @@ var options = {
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
    generaltoast : { def: true, u: 1, text : "Action toasts (mini alert)" },
+   /*oldschool : {def: false, u: 1, text: "Oldschool" },*/
    discussionscrollspeed : { def: 0.22, u: 1, text: "Scroll animation (1 = instant)", step: 0.01 },
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
-   theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "contrast","blue","dark-contrast" ]},
+   theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "contrast",
+      "blue","dark-contrast","oldschool" ]},
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
@@ -1460,13 +1462,11 @@ function routepageedit_load(spadat)
 function handleSetting(key, value)
 {
    if(key === "collapsechatinput")
-   {
       setExpandableTextbox(value);
-   }
    if(key === "theme")
-   {
       setTheme(value);
-   }
+   //if(key === "oldschool")
+   //   setOldschool(value);
    if(key === "displaynotifications" && value)
    {
       var undosetting = () =>
