@@ -685,6 +685,9 @@ pre .constant { color: var(--codeconstant); }
    --codestring: #c30000;
    --codecomment: #3aad00;
    --codefunction: #161eff;
+
+   --scrollblockcolor: #BBB;
+   --scrollblockhovercolor: #DDD;
 }
 
 [data-theme="blue"] {
