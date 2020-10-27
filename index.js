@@ -467,7 +467,8 @@ function setupSignalProcessors()
    signals.Attach("longpollfatal", data =>
    {
       writeDom(() => setConnectionState("error"));
-      UIkit.modal.confirm("Live updates cannot recover from error. " +
+      UIkit.modal.confirm("Live updates recover from error. " +
+         "This can happen when the page gets unloaded for a long time, and is normal. " +
          "Press OK to reload page.\n\nIf you " +
          "CANCEL, the website will not function properly!").then(x =>
       {

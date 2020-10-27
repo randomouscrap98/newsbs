@@ -16,6 +16,7 @@
    --tabhoverbg: rgba(128,255,240,0.1);
    --tabselectcolor: #222;
    --linkcolor: #1e87f0;
+   --inlinecodecolor: #789;
 
    --scrollblockcolor: rgba(128,128,128,0.3);
    --scrollblockhovercolor: rgba(128,128,128,0.5);
@@ -70,7 +71,8 @@ html, body, .uk-modal-dialog, .uk-dropdown {
    color: var(--databartxthovcolor); 
 }
 h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt,
-.uk-accordion-title, .uk-form-label, .myinput { 
+.uk-accordion-title, .uk-form-label, .myinput,
+.uk-select:not([multiple]):not([size]) option { 
    color: var(--headercolor) !important;
 }
 .uk-dotnav>*>* { border: 1px solid var(--mutedtextcolor); }
@@ -83,7 +85,15 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default,
 .myinput {
    background-color: var(--inputbgcolor) !important; /* TODO: do this WITHOUT important */
    border: 1px solid var(--outlinecolor) !important;
-   color: inherit;
+   color: inherit !important;
+}
+.uk-button-default:focus, .uk-button-default:hover {
+   /*background-color: rgba(255,255,255,0.1);*/
+   border: 1px solid var(--linkcolor) !important; /*1px solid rgba(128,128,128, 0.3);*/
+}
+.uk-checkbox {
+   border: 1px solid var(--tableoutlinecolor) !important;
+   margin-top: 0px !important;
 }
 .uk-heading-divider {
    border-bottom: calc(.2px + .05em) solid rgba(128,128,128,0.2);
@@ -122,7 +132,7 @@ code {
    white-space: pre-wrap !important; 
    background-color: var(--lightblockbgcolor) !important;
    display: inline-block;
-   color: #789 !important;
+   color: var(--inlinecodecolor) !important;
 }
 blockquote { 
    background-color: var(--lightblockbgcolor) !important;
@@ -140,12 +150,6 @@ blockquote {
 }
 .content h4, .content h5, .content h3 {
    margin-top: 0px;
-}
-.uk-button-default:focus, .uk-button-default:hover,
-.uk-checkbox {
-   background-color: rgba(255,255,255,0.1);
-   border: 1px solid rgba(128,128,128, 0.3);
-   color: inherit;
 }
 .uk-modal {
    z-index: 1030; /* WARN: this puts them above dropdowns! */
@@ -471,9 +475,9 @@ img.outlined { box-sizing: content-box; }
    z-index: 10;
 }
 .lock {
-   font-size: 0.7em;
-   margin-left: 0.5em;
-   margin-top: 0.3em;
+   font-size: 12px;
+   margin-left: 7px;
+   margin-top: 5px;
    z-index: 10;
    color: red;
 }
@@ -601,14 +605,14 @@ pre .constant { color: var(--codeconstant); }
    --databartxthovcolor: #AAA;
    --headercolor: #999;
    --imageopacity: 0.9;
-   --inputbgcolor: rgba(255,255,255,0.05);
+   --inputbgcolor: #2c2c2c; /*rgba(255,255,255,0.05);*/
    --spcontrolbg: rgba(122, 151, 202,0.58);
 }
 
 [data-theme="contrast"] {
    --mainbgcolor: #FFF;
    --maintxtcolor: #111;
-   --databarbgcolor: #333;
+   --databarbgcolor: #404040;
    --databartxtcolor: #FFF;
    --databartxthovcolor: #EEE;
    --headercolor: #000;
@@ -620,6 +624,7 @@ pre .constant { color: var(--codeconstant); }
    --tabselectbg: #32d2c0; /*rgba(128,255,240,0.4);*/
    --tabselectcolor: #000;
    --linkcolor: #006edc;
+   --inlinecodecolor: #2f5479;
 
    --bgred: rgba(255,0,0,0.5);
    --bgblue: rgba(0,0,255,0.5);
@@ -682,14 +687,14 @@ pre .constant { color: var(--codeconstant); }
    --blockbgcolor: #333; /*#b7daff; /*#eaeaea; /*#ffef97; /*#FFFF77;*/
    --lightblockbgcolor: #222;/*#0062ff0d;*/
    --imageopacity: 0.9;
-   --inputbgcolor: rgba(255,255,255,0.05);
+   --inputbgcolor: #000; /*rgba(255,255,255,0.05);*/
    --linkcolor: #7ebfff;
    --outlinecolor: #888;
    --tableoutlinecolor: #999;
    --tabselectbg: #32d2c0; /*rgba(128,255,240,0.4);*/
    --tabselectcolor: #000;
    --spcontrolbg: #779bde;
-
+   --inlinecodecolor: #b7cade;
 
    --bgred: rgba(255,0,0,0.5);
    --bgblue: rgba(0,0,255,0.5);
