@@ -691,7 +691,7 @@ pre .constant { color: var(--codeconstant); }
    --mainbgcolor: #FFF;
    --maintxtcolor: #5e6a77; /*#335a73;*/
    /*--databarbgcolor: /*#2966ab; /*#2971ab;*/
-   --databarbgcolor: #2971ab;
+   --databarbgcolor: #235277; /*#2971ab;*/
    --databartxtcolor: #e5edf3; /*#e4f3fd;*/
    --databartxthovcolor: #bce3ff;
    --headercolor: #2d4156; /*#447fbb; /*#236db7;*/
