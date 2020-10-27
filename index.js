@@ -53,6 +53,7 @@ var options = {
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
    discussionresizelock : { def: 20, text: "Device pixels to snap outer container resize" },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
+   breakchatmessagetime : { def: 600, text: "Seconds between split chat message" },
    pulsepasthours : { def: 24 },
    discussionavatarsize : { def: 60 },
    showsidebarminrem : { def: 60 },
@@ -3269,8 +3270,6 @@ function easyComment(comment, users)
       var comments = d.querySelectorAll("[data-messageid]");
       var insertAfter = false;
 
-      //console.log(d, comments);
-
       for(var i = comments.length - 1; i >= 0; i--)
       {
          //This is the place to insert!
@@ -3291,7 +3290,9 @@ function easyComment(comment, users)
       var insertFrame = getFragmentFrame(insertAfter);
 
       //Oops, we need a new frame
-      if(Number(getSwap(insertFrame, "data-userid")) !== Number(comment.createUserId))
+      if(Number(getSwap(insertFrame, "data-userid")) !== Number(comment.createUserId) ||
+         (new Date(comment.createDate)).getTime() - (new Date(getSwap(insertAfter, "createdate"))).getTime() 
+          > (getLocalOption("breakchatmessagetime") * 1000))
       {
          //create a frame to insert into
          var frame = makeCommentFrame(comment, users);

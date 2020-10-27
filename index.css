@@ -41,21 +41,27 @@
    --codelabel: #e68225;
    --codeconstant: #7caee2;
 }
+
+/* Big structure stuff */
 body {
    position: fixed; /*absolute;*/
    top: 0; bottom: 0; left: 0; right: 0;
    overflow: hidden;
 }
-button > *, a > * { pointer-events: none; }
+#leftpane { }
+#rightpane {
+   background-color: var(--lightblockbgcolor);
+   border-left: 2px solid var(--outlinecolor);
+   width: 30em;
+   max-width: calc(100vw - 1px);
+   min-width: 15em;
+}
 
-/* Some theming stuff */
+/* Some re-theming stuff (mostly uikit) */
 html, body, .uk-modal-dialog, .uk-dropdown {
    background-color: var(--mainbgcolor);
    color: var(--maintxtcolor);
 }
-/*.uk-dropdown {
-   box-shadow: 0 5px 12px var(--tableoutlinecolor);
-}*/
 .databar, .databar a {
    background-color: var(--databarbgcolor);
    color: var(--databartxtcolor);
@@ -86,11 +92,30 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default,
    color: var(--headercolor);
    background-color: var(--inputbgcolor);
    border: 1px solid #1e87f0 !important;
-   /*filter: contrast(1.2);*/
 }
 .hover:hover {
    background-color: var(--lightblockbgcolor);
 }
+.uk-breadcrumb>:nth-child(n+2):not(.uk-first-column)::before {
+   color: var(--databartxtcolor);
+}
+.uk-modal-header {
+   background-color: var(--lightblockbgcolor);
+   border-bottom: 1px solid var(--outlinecolor);
+}
+.uk-modal-footer {
+   background-color: var(--lightblockbgcolor);
+   border-top: 1px solid var(--outlinecolor);
+}
+.uk-text-meta { color: var(--mutedtextcolor); }
+.uk-card-default {
+   box-shadow: none;
+   border: 1px solid var(--outlinecolor);
+   background-color: var(--mainbgcolor);
+}
+.uk-link, a { color: var(--linkcolor); }
+hr { border-top: 1px solid var(--tableoutlinecolor); }
+
 /* UIkit reconfiguring */
 code { 
    max-width: 100%;
@@ -125,26 +150,8 @@ blockquote {
 .uk-modal {
    z-index: 1030; /* WARN: this puts them above dropdowns! */
 }
-.uk-modal-header {
-   background-color: var(--lightblockbgcolor);
-   border-bottom: 1px solid var(--outlinecolor);
-}
-.uk-modal-footer {
-   background-color: var(--lightblockbgcolor);
-   border-top: 1px solid var(--outlinecolor);
-}
-.uk-text-meta { color: var(--mutedtextcolor); }
-.uk-card-default {
-   box-shadow: none;
-   border: 1px solid var(--outlinecolor);
-   background-color: var(--mainbgcolor);
-}
-.uk-link, a { color: var(--linkcolor); }
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 .uk-sortable-empty { min-height: unset; }
-/*.uk-link { cursor: pointer; }*/
-hr { border-top: 1px solid var(--tableoutlinecolor); }
-/* a { overflow: hidden; }*/
 .notext { font-size: 0; } /*display: contents; }*/
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
@@ -160,16 +167,25 @@ audio {
    display: block;
    max-width: 100%;
 }
+button > *, a > *, .noevent { pointer-events: none; }
 /* Stuff that should probably be taken over by uikit */
-/*input[type="file"] { cursor: pointer; }*/
 a:hover { color: inherit; }
-.noevent { pointer-events: none; }
 .uk-list-divider>:nth-child(n+2) {
    margin-top: 0;
    padding-top: 0.45em; /* TODO: this is a repeat! */
    border-top: 1px solid var(--outlinecolor);
 }
-/* Basic page structure */
+
+/* OOPS accidental(?) generic stuff */
+.username { margin: 0 0.4em; } /* pwusername, history, messageframeinfo, etc */
+.databar { padding: 0 0.1em; }
+.outlined { border: 1px solid var(--outlinecolor); }
+.avatar { 
+   border: 1px solid rgba(128,128,128,0.5); 
+   box-sizing: content-box;
+}
+
+/* Special conditional display */
 #website:not([data-loggedin]) [data-loginonly],
 #website[data-loggedin] [data-logoutonly],
 #website:not([data-issuper="true"]) [data-superonly],
@@ -177,33 +193,23 @@ a:hover { color: inherit; }
 #leftpane:not([data-permissions*="U"]) [data-updateonly],
 #leftpane:not([data-permissions*="D"]) [data-deleteonly],
 .contentpage:not([data-pinned="false"]) [data-unpinnedonly], 
-.contentpage:not([data-pinned="true"]) [data-pinnedonly] 
+.contentpage:not([data-pinned="true"]) [data-pinnedonly],
+[data-mode="0"] [data-hide0], 
+[data-mode="1"] [data-hide1],
+[data-mode="2"] [data-hide2]
 { display: none !important; }
+[data-mode="2"] #maincontentcontainer { flex: 1; }
 
-.databar { padding: 0 0.1em; }
 [data-connectionindicator="error"] { 
    filter: hue-rotate(180deg); 
    transform: rotate(15deg);
 }
-#leftpane { }
-#rightpane {
-   background-color: var(--lightblockbgcolor);
-   border-left: 2px solid var(--outlinecolor);
-   width: 30em;
-   max-width: calc(100vw - 1px);
-   min-width: 15em;
-}
+
+/* All about that right pane */
 #rightpane[data-condensed] .uk-container {
    padding-left: 10px;
    padding-right: 10px;
 }
-/*[data-checkinglogin] #userpane {
-   filter: blur(1px) opacity(0.5);
-}*/
-/*#rightpane .uk-container {
-   padding-left: 15px !important;
-   padding-right: 15px !important;
-}*/
 #rightpanefooter {
    font-size: 0.8em;
    padding: 0 0.5em;
@@ -220,45 +226,30 @@ a:hover { color: inherit; }
 #rightpanenav >:hover {
    background-color: var(--tabhoverbg); 
 }
-/* left-pane stuff (main content!) */
-#maincontentbar {
-   background-color: var(--blockbgcolor);
-   padding: 0.1em;
-}
-#maincontentbar [data-stdcontentinfo] > * {
-   margin-right: 0.2em;
-   /*margin-top: -3px;*/
-}
-#maincontentbarcontrols {
-   float: right;
-   color: var(--tabselectcolor);
-   /*background: var(--bggreen); var(--blockbgcolor);*/
-   /*background: var(--blockbgcolor);*/
-   background: var(--spcontrolbg);
-   border-radius: 3px;
-   padding: 0 0.1em;
-}
-[data-mode="0"] [data-hide0] { display: none; }
-[data-mode="1"] [data-hide1] { display: none; }
-[data-mode="2"] #maincontentcontainer { flex: 1; }
-[data-mode="2"] [data-hide2] { display: none; }
-
-/* Special styling JUST for the sidbar nav */
 #rightpanenav .uk-active {
    background-color: var(--tabselectbg);
    color: var(--tabselectcolor); /*#111;*/
 }
 .tabnav > div { padding: 1px 0; }
-.avatar { 
-   border: 1px solid rgba(128,128,128,0.5); 
-   box-sizing: content-box;
-}
 #navuseravatar { border-radius: 5px; }
-[data-routeuser] .avatar { max-width: 150px; }
-#darkmodetoggle {
-   text-decoration: none;
-   margin: 0 0.9em;
+
+/* left-pane stuff (main content!) */
+#maincontentbar {
+   background-color: var(--blockbgcolor);
 }
+#maincontentbar [data-stdcontentinfo] > * {
+   margin-right: 0.2em;
+   margin-left: 0.1em;
+}
+#maincontentbarcontrols {
+   float: right;
+   color: var(--tabselectcolor);
+   background: var(--spcontrolbg);
+   padding: 0 0.1em;
+}
+
+[data-routeuser] .avatar { max-width: 150px; }
+
 /* ------- */
 /* Logging
 /* ------- */
@@ -277,6 +268,7 @@ a:hover { color: inherit; }
 .log_error { color: #C42; }
 .log_warn { color: #DA6; }
 [data-log] { padding: 0.1em 0.5em; }
+
 /* -------------------- */
 /* Notification special */
 /* -------------------- */
@@ -287,6 +279,7 @@ a:hover { color: inherit; }
    padding-left: 0.5em;
    padding-right: 0.4em;
 }
+
 /* -------------------------------------------------- */
 /* Pulse styling (should really just use uikit stuff) */
 /* -------------------------------------------------- */
@@ -297,8 +290,6 @@ a:hover { color: inherit; }
 }
 .pw-users {
    background-color: var(--blockbgcolor);
-   /*padding: 0 0.3em;*/
-   /*margin-right: 1em;*/
    border-radius: 5px;
    padding: 1px;
 }
@@ -308,21 +299,13 @@ a:hover { color: inherit; }
 .pw-users table td:first-child { text-align: right; }
 .pw-users [aria-expanded="true"] {  filter: none; }
 [data-pwuser] img { 
-   /*margin: 6px 3px; /*0.4rem 0.2em;   */
    margin: 2px;
    vertical-align: top;
    filter: opacity(0.7);
-   /*border-radius: 5px;*/
    border-radius: 2px;
-}
-/* USED FOR MULTIPLE THINGS, OOPS: pwusername, history username,
- * messageframeinfo username */
-.username { 
-   margin: 0 0.4em;
 }
 
 /* Breadcrumb/nav special (uikit default replacements) */
-/*#breadcrumbs [data-breadcrumb] { padding-top: 0.15em; }*/
 #breadcrumbs a { line-height: 1.0em; }
 .bc-collapse>*::before {
    line-height: 1.0em;
@@ -365,9 +348,6 @@ a:hover { color: inherit; }
 [data-messageframe] .messagelist {
    padding: 0.0em 0.5em 0.5em 0.5em;
 }
-[data-messageframe] .messageframeinfo {
-   /*font-size: 1.1em;*/
-}
 [data-messageframe] .messagecontrol {
    visibility: hidden;
    width: 20px;
@@ -390,7 +370,6 @@ a:hover { color: inherit; }
    font-size: 0;
    height: 100px;
    width: 100%;
-   /*display: block;*/
    margin: 0.5rem 0;
    transition: 0.15s ease;
 }
@@ -456,9 +435,6 @@ a:hover { color: inherit; }
 [data-bgcolor="purple"] { background-color: var(--bgpurple); }
 [data-watched="true"] polygon,
 [data-watched="true"] path {
-   /*fill: #EE5588; 
-   color: #EE5588; */
-   /*fill: #ffd734;*/
    fill: #ffce34;
    color: #111;
    opacity: 0.8;
@@ -466,7 +442,6 @@ a:hover { color: inherit; }
 [data-youtube] { white-space: initial; }
 [data-youtubeplayer] iframe {
    max-width: 100%; 
-   /*max-height: 35vh;*/
 }
 /* CategoryLists */
 [data-pageitem]:nth-child(even), [data-historyitem]:nth-child(even),
@@ -476,29 +451,19 @@ a:hover { color: inherit; }
 [data-pageitem] {
    padding: 0 0.3em;
 }
-.outlined { border: 1px solid var(--outlinecolor); }
 img.outlined { box-sizing: content-box; }
 .pageicon svg {
    padding: 0 1px;
    box-sizing: content-box;
 }
-/*[data-pageitem] .pageicon img {
-}*/
 [data-pageitem] .title {
    font-size: 1.1em;
    padding: 0.2em 0.4em;
 }
-/*[data-pageitem] [data-time] { white-space: pre-wrap; }*/
 [data-pageitem] .avatar {
    border: none;
    margin-left: 6px;
 }
-/*[data-pageitem][data-pinned="true"]::after{
-   content: "📌";
-   display: block;
-   margin-right: -100%;
-   font-size: 0.8em;
-}*/
 [data-pageitem] .pin {
    font-size: 0.8em;
    margin-left: 0.7em;
@@ -512,9 +477,6 @@ img.outlined { box-sizing: content-box; }
    z-index: 10;
    color: red;
 }
-/*[data-treeselector] option {
-   font-family: monospace;
-}*/
 /* User settings */
 #userlocaloptions input { }
 .settings .uk-input, .settings .uk-select { height: 2.1em; min-width: 5em; }
@@ -529,13 +491,6 @@ img.outlined { box-sizing: content-box; }
    min-height: 0;
    max-height: 190px;
 }
-/*[data-minisearchresult] {
-   text-decoration: none;
-}*/
-/* History */
-/*.historybox {
-   max-height: 25em;
-}*/
 [data-historyitem] {
    padding: 0.05em 0.3em;
 }
@@ -544,7 +499,7 @@ img.outlined { box-sizing: content-box; }
 }
 .historycontainer {
    background-color: rgba(128,128,128,0.02);
-   /*max-height: 25em;*/
+   clear: both;
 }
 
 .lightblock {
@@ -554,12 +509,8 @@ img.outlined { box-sizing: content-box; }
    padding: 1em;
 }
 
-.pageform {
-}
-
 [data-collectionitem] {
    margin: 0 0 0.1em 0;
-   /*margin-bottom: 0.1em;*/
 }
 [data-special="true"] span {
    color: #1bace4;
@@ -569,9 +520,6 @@ img.outlined { box-sizing: content-box; }
    display: inline-flex;
    margin-right: 0.3em;
 }
-/*[data-special="true"] img {
-   background: url(globe.svg) no-repeat;
-}*/
 input[data-permission] {
    width: 4em;
 }
@@ -703,7 +651,6 @@ pre .constant { color: var(--codeconstant); }
 [data-theme="blue"] {
    --mainbgcolor: #FFF;
    --maintxtcolor: #5e6a77; /*#335a73;*/
-   /*--databarbgcolor: /*#2966ab; /*#2971ab;*/
    --databarbgcolor: #235277; /*#2971ab;*/
    --databartxtcolor: #e5edf3; /*#e4f3fd;*/
    --databartxthovcolor: #bce3ff;
