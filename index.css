@@ -14,6 +14,7 @@
    --mutedtextcolor : rgba(128,128,128, 0.7);
    --tabselectbg: rgba(128,255,240,0.4);
    --tabselectcolor: #222;
+   --linkcolor: #1e87f0;
 
    --spcontrolbg: rgba(113, 164, 255, 0.3);
 
@@ -24,6 +25,17 @@
    --bgorange: rgba(255,150,50,0.3); 
    --bggray: rgba(128,128,128,0.1); 
    --bgpurple: rgba(200,50,255,0.3); 
+
+   --codestatement: #56e8e1;
+   --codestring: #d86161;
+   --codenumber: #ce4a90;
+   --codekeyword: #41a9ff;
+   --codecomment: #86c367;
+   --codevariable: #aa76d2;
+   --codefunction: #777bec;
+   --codeoperator: #777;
+   --codelabel: #e68225;
+   --codeconstant: #7caee2;
 }
 body {
    position: fixed; /*absolute;*/
@@ -118,6 +130,7 @@ blockquote {
    border: 1px solid var(--outlinecolor);
    background-color: var(--mainbgcolor);
 }
+.uk-link, a { color: var(--linkcolor); }
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 .uk-sortable-empty { min-height: unset; }
 /*.uk-link { cursor: pointer; }*/
@@ -587,17 +600,16 @@ input[data-permission] {
 .content pre { margin: 0.25em 0; }
 pre .keyword { font-weight: bold; }
 
-pre .name, pre .statement { color: #56e8e1; }
-pre .string { color: #d86161; }
-pre .number { color: #ce4a90; }
-pre .keyword, pre .to-step, pre .word-operator { color: #41a9ff; }
-pre .comment { color: #86c367; }
-pre .variable { color: #aa76d2; }
-pre .function { color: #777bec; }
-pre .backslash { color: #777; }
-pre .operator, pre .equals { color: #777; }
-pre .label { color: #e68225; }
-pre .constant { color: #7caee2; }
+pre .name, pre .statement { color: var(--codestatement); }
+pre .string { color: var(--codestring); }
+pre .number { color: var(--codenumber); }
+pre .keyword, pre .to-step, pre .word-operator { color: var(--codekeyword); }
+pre .comment { color: var(--codecomment); }
+pre .variable { color: var(--codevariable); }
+pre .function { color: var(--codefunction); }
+pre .operator, pre .equals, pre .backslash { color: var(--codeoperator); }
+pre .label { color: var(--codelabel); }
+pre .constant { color: var(--codeconstant); }
 
 /* Swag animations */
 [data-pulsing] {
@@ -645,8 +657,11 @@ pre .constant { color: #7caee2; }
    --mutedtextcolor: #666;
    --outlinecolor: #555;
    --tableoutlinecolor: #444;
-   --blockbgcolor: #ffef97; /*#FFFF77;*/
+   --blockbgcolor: #d0d0d0; /*#b8daff; /*#eaeaea; /*#ffef97; /*#FFFF77;*/
+   --lightblockbgcolor: #f5f5f5;/*#0062ff0d;*/
    --tabselectbg: #32d2c0; /*rgba(128,255,240,0.4);*/
+   --tabselectcolor: #000;
+   --linkcolor: #006edc;
 
    --bgred: rgba(255,0,0,0.5);
    --bgblue: rgba(0,0,255,0.5);
@@ -655,5 +670,16 @@ pre .constant { color: #7caee2; }
    --bgorange: rgba(255,150,0,0.5); 
    --bggray: rgba(128,128,128,0.3); 
    --bgpurple: rgba(200,0,255,0.5); 
+
+   --codeconstant: #5c6f9a;
+   --codestatement: #00b9b0;
+   --codenumber: #cc0e73;
+   --codekeyword: #0075d6;
+   --codeoperator: #222;
+   --codelabel: #dc7a00;
+   --codevariable: #8315d8;
+   --codestring: #c30000;
+   --codecomment: #3aad00;
+   --codefunction: #161eff;
 }
 
