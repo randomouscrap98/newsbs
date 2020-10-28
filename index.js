@@ -2734,8 +2734,8 @@ function refreshPWDates(parent)
 { 
    //A UIkit optimization: it's fine if dates are a little "out of date" when
    //you first return to the page. the event will fire eventually.
-   if(!document.hidden)
-      [...parent.children].forEach(x => refreshPWDate(x)); 
+   //if(!document.hidden)
+   [...parent.children].forEach(x => refreshPWDate(x)); 
 }
 
 function updatePWContent(pulsedata, c)
