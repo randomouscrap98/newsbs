@@ -46,6 +46,7 @@ var options = {
    loglongpoll : { def: false, text : "Log longpoller events (could be many)" },
    loglongpollreq : { def: false, text : "Log longpoller requests" },
    logperiodicdata : { def: false, text : "Log runtime data every refresh cycle (FREQUENT)" },
+   logprofiler : { def: false, text : "Log performance profiling (a lot)" },
    forcediscussionoutofdate : {def: false, text : "Force an immediate 400 error on long poll"},
    retrievetechnicalinfo : {def:true, text : "Pull API info on page load" },
    toastrequestoverload : {def:false, text : "Toast 429 (too many requests) errors" },
@@ -93,6 +94,7 @@ log.Datalog = (d,c) => logConditional(d, c, "datalog");
 log.Drawlog = (d,c) => logConditional(d, c, "drawlog");
 log.Domlog =  (d,c) => logConditional(d, c, "domlog");
 log.Apilog =  (d,c) => logConditional(d, c, "apilog");
+log.PerformanceLog =  (d,c) => logConditional(d, c, "logprofiler");
 
 DomDeps.log = (d,c) => log.Domlog(d, c);
 DomDeps.signal = (name, data) => signals.Add(name, data);
@@ -3211,8 +3213,8 @@ function updateCommentFragment(comment, element)
    //nothing for now, but there might be other things
    multiSwap(element, {
       message: comment.content,
+      editdate: new Date(comment.editDate).toLocaleString()
    });
-   findSwap(element, "editdate", (new Date(comment.editDate).toLocaleString()));
 }
 
 function getFragmentFrame(element)
@@ -3224,10 +3226,13 @@ function easyComments(comments, users)
 {
    if(comments)
    {
+      var n = performance.now();
       globals.commentsrendered = (globals.commentsrendered || 0) + comments.length;
       sortById(comments).forEach(x => easyComment(x, users));
       signals.Add("easycomments", { comments: comments, users: users });
-      log.Debug("Rendered " + comments.length + " comments, " + globals.commentsrendered + " total");
+      //log.Debug("Rendered " + comments.length + " comments, " + globals.commentsrendered + " total");
+      log.PerformanceLog("easyComments(" + comments.length + "," + globals.commentsrendered + "): " + 
+         (performance.now() - n) + "ms");
    }
 }
 
@@ -3266,11 +3271,13 @@ function easyComment(comment, users)
 
       //Automatically create discussion?
       var d = getDiscussion(comment.parentId);
-      hide(d.querySelector("[data-nocomments]"));
 
       //Starting from bottom, find place to insert.
       var comments = d.querySelectorAll("[data-messageid]");
       var insertAfter = false;
+
+      if(comments.length <= 1) /* 1 because of the original comment */
+         hide(d.querySelector("[data-nocomments]"));
 
       for(var i = comments.length - 1; i >= 0; i--)
       {
@@ -3290,6 +3297,7 @@ function easyComment(comment, users)
       }
 
       var insertFrame = getFragmentFrame(insertAfter);
+      var newFrame = null;
 
       //Oops, we need a new frame
       if(Number(getSwap(insertFrame, "data-userid")) !== Number(comment.createUserId) ||
@@ -3297,9 +3305,8 @@ function easyComment(comment, users)
           > (getLocalOption("breakchatmessagetime") * 1000))
       {
          //create a frame to insert into
-         var frame = makeCommentFrame(comment, users);
-         Utilities.InsertAfter(frame, insertFrame);
-         insertAfter = frame.querySelector(".messagelist").firstChild;
+         newFrame = makeCommentFrame(comment, users);
+         insertAfter = newFrame.querySelector(".messagelist").firstChild;
       }
 
       var fragment = makeCommentFragment(comment);
@@ -3309,6 +3316,9 @@ function easyComment(comment, users)
       messageController.addEventListener("click", messageControllerEvent);
 
       Utilities.InsertAfter(fragment, insertAfter);
+
+      if(newFrame)
+         Utilities.InsertAfter(newFrame, insertFrame);
    }
 }
 
