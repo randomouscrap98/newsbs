@@ -3083,7 +3083,7 @@ function updateWatchComAct(users, comments, activity)
 
       //An optimization to reduce UIkit observations
       //if(!document.hidden)
-         //refreshPWDates(watches);
+      refreshPWDates(watches);
 
       updateWatchGlobalAlert();
       updateGlobalAlert();
