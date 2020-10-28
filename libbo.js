@@ -220,10 +220,31 @@ var Utilities =
       return x / parseFloat(getComputedStyle(document.body)["font-size"]); },
    //Taken from https://stackoverflow.com/a/50127768/1066474
    SortElements : function(parent, sortFunc, descending){
+      //A potential optimization for UIkit
+      //console.log("SOrting with optimization");
+      //parent.setAttribute("data-nouikit", "");
+      //var pp = parent.parentNode;
+      //var sib = parent.nextSibling;
+      //pp.removeChild(parent);
       descending = descending ? -1 : 1;
-      [...parent.children]
-         .sort((a,b)=>descending*((sortFunc(a)>sortFunc(b))?1:-1))
-         .forEach(node=>parent.appendChild(node));
+      //var current = [...parent.children];
+      var sorted = [...parent.children].sort((a,b)=>descending*((sortFunc(a)>sortFunc(b))?1:-1));
+      console.log(parent.children, sorted);
+      //For most things, this is more efficient in terms of dom manip
+      for(var i = 0; i < parent.children.length; i++)
+      {
+         //var j = 
+         if(parent.children[i] !== sorted[i])
+         {
+            console.log("SORT INSERT: ", sorted[i], parent.children[i]);
+            parent.insertBefore(sorted[i], parent.children[i]);
+         }
+      }
+      //[...parent.children]
+      //   .sort((a,b)=>descending*((sortFunc(a)>sortFunc(b))?1:-1))
+      //   .forEach(node=>parent.appendChild(node));
+      //pp.insertBefore(parent, sib);
+      //parent.removeAttribute("data-nouikit");
    },
    RemoveElement : function(element) {
       var p = element.parentNode;

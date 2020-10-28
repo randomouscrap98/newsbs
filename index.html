@@ -801,7 +801,7 @@ function retext(el, attr)
             <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <div id="discussion" data-discussionid="data-did" data-id="id" class="">
+         <div data-nouikit id="discussion" data-discussionid="data-did" data-id="id" class="">
             <div data-loadolder class="uk-margin-small-right uk-text-right">
                <div data-loading uk-spinner="ratio: 0.5" hidden></div>
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
@@ -814,7 +814,7 @@ function retext(el, attr)
                </div>
             </div>
          </div>
-         <div id="messageframe" data-userid="data-uid" class="uk-flex uk-flex-top">
+         <div id="messageframe" data-nouikit data-userid="data-uid" class="uk-flex uk-flex-top">
             <img class="uk-flex-none avatar" data-useravatar="src">
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
@@ -823,10 +823,10 @@ function retext(el, attr)
                   <time class="uk-text-meta uk-width-expand uk-text-truncate
                      uk-margin-small-left" data-frametime=".textContent"></time>
                </div>
-               <div class="messagelist"> </div>
+               <div data-nouikit class="messagelist"> </div>
             </div>
          </div>
-         <div id="singlemessage" tabindex="2" data-messageid data-id="id" 
+         <div id="singlemessage" data-nouikit tabindex="2" data-messageid data-id="id" 
             data-createdate data-editdate class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand 
                content uk-text-break"></div>
@@ -1018,7 +1018,7 @@ function retext(el, attr)
             <img data-src=".src" uk-cover>
             <div class="uk-overlay-primary uk-position-bottom uk-text-center">
                <a data-title=".textContent" data-link="href" class="uk-margin-remove
-               uk-text-truncate uk-text-large slideshowtext uk-display-block"></a>
+               uk-text-truncate uk-text-large slideshowtext uk-display-block" data-spa></a>
             </div>
             <div class="uk-overlay-primary uk-position-bottom uk-text-center" hidden>
                <p data-tagline=".textContent" class="uk-margin-remove

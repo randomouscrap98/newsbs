@@ -197,6 +197,25 @@ function safety(func)
    }
 }
 
+function stopObservingUikit(action)
+{
+   var lost = window.uikitobserver.takeRecords();
+   if(lost.length > 0)
+      notifyError("Lost " + lost.length + " uikit mutation observer events!");
+   window.uikitobserver.disconnect();
+   action();
+   window.uikitobserver.observe(document, {
+      childList: !0,
+      subtree: !0,
+      characterData: !0,
+      attributes: !0
+   });
+}
+
+function specialSort(parent, sortFunc, descending)
+{
+   stopObservingUikit(() => Utilities.SortElements(parent, sortFunc, descending));
+}
 
 // ***************************
 // --- CYCLES (TIMERS ETC) ---
@@ -256,10 +275,17 @@ function renderLoop(time)
    {
       var delta = time - globals.render.lastrendertime;
 
+      //CAN'T set attributes repeatedly because of observer
       if(rightpane.clientWidth < 400)
-         rightpane.setAttribute("data-condensed", "true");
+      {
+         if(!rightpane.hasAttribute("data-condensed"))
+            rightpane.setAttribute("data-condensed", "true");
+      }
       else 
-         rightpane.removeAttribute("data-condensed");
+      {
+         if(rightpane.hasAttribute("data-condensed"))
+            rightpane.removeAttribute("data-condensed");
+      }
 
       //Always read first!!! Check stuff here and then schedule actions for
       //later with signalling.
@@ -2698,7 +2724,10 @@ function refreshPWDate(item)
          message += " ago";
    }
 
-   findSwap(item, "pwtime", message);
+   var oldmsg = getSwap(item, "pwtime");
+
+   if(oldmsg != message)
+      findSwap(item, "pwtime", message);
 }
 
 function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
@@ -2805,6 +2834,7 @@ function setPulseUserData(userElem, data)
 
 function refreshPulseUserDisplay(userElem)
 {
+   console.log("REFRESHPULSEUSERDISPLY");
    var data = getPulseUserData(userElem); 
    var parent = false;
    for(var i = 0; i < pulseUserFields.length; i++)
@@ -2827,6 +2857,7 @@ function refreshPulseUserDisplay(userElem)
       }
    }
    Utilities.SortElements(parent, 
+   //specialSort(parent, 
       x => x.getAttribute("data-lastdate") || x.getAttribute("data-firstdate") || "0", 
       true);
 }
@@ -2864,6 +2895,7 @@ function applyPulseCatalogue(aggregate)
          //in the list)
          var pulseuserlist = getPWUserlist(aggregate[key].pulse);
          Utilities.SortElements(pulseuserlist,
+         //specialSort(pulseuserlist,
             x => x.getAttribute(attr.pulsedate) || "0", true);
 
          //Now update the maxdate on overall content
@@ -2952,6 +2984,7 @@ function updatePulse(data, fullReset)
    applyPulseCatalogue(aggregate);
 
    Utilities.SortElements(pulse,
+   //specialSort(pulse,
       x => x.getAttribute(attr.pulsedate) || "0", true);
 
    refreshPWDates(pulse);
@@ -3039,9 +3072,13 @@ function updateWatchComAct(users, comments, activity)
    writeDom(() =>
    {
       Utilities.SortElements(watches,
+      //specialSort(watches,
          x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid)), true);
 
-      refreshPWDates(watches);
+      //An optimization to reduce UIkit observations
+      if(!document.hidden)
+         refreshPWDates(watches);
+
       updateWatchGlobalAlert();
       updateGlobalAlert();
    });
