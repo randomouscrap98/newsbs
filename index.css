@@ -128,6 +128,7 @@ hr { border-top: 1px solid var(--tableoutlinecolor); }
 
 /* UIkit reconfiguring */
 code { 
+   font-size: 0.85em;
    max-width: 100%;
    white-space: pre-wrap !important; 
    background-color: var(--lightblockbgcolor) !important;
@@ -357,6 +358,15 @@ a:hover { color: inherit; }
    width: 20px;
    height: 20px;
    margin: 0.2em 0.15em;
+
+   border-radius: 5em;
+   text-align: center;
+   vertical-align: middle;
+   font-family: monospace;
+   text-decoration: none;
+   font-size: 0.9em;
+   background-color: var(--blockbgcolor);
+   /*color: var(--mainbgcolor);*/
 }
 [data-messageframe] time {
    font-size: 0.75em;
@@ -422,6 +432,7 @@ a:hover { color: inherit; }
 /* Content */
 .content { white-space: pre-wrap; }
 .content ul { margin: 0.1em 0 0.4em 0; }
+.content a { text-decoration: revert; }
 .pagecontrols { margin-right: -15px !important; }
 .tableContainer table, .tableContainer td, .tableContainer th {
    border: 1px solid var(--tableoutlinecolor);

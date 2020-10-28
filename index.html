@@ -13,15 +13,15 @@
       <script src="uikit-3.5.5/js/uikit.min.js"></script>
       <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603833138"></script>
-      <script src="dom.js?v=1603833138"></script>
-      <script src="api.js?v=1603833138"></script>
-      <script src="index.js?v=1603833138"></script>
-      <script src="sbs2-markup/highlight.js?v=1603833138"></script>
-      <script src="sbs2-markup/parse.js?v=1603833138"></script>
-      <script src="sbs2-markup/render.js?v=1603833138"></script>
+      <script src="libbo.js?v=1603852724"></script>
+      <script src="dom.js?v=1603852724"></script>
+      <script src="api.js?v=1603852724"></script>
+      <script src="index.js?v=1603852724"></script>
+      <script src="sbs2-markup/highlight.js?v=1603852724"></script>
+      <script src="sbs2-markup/parse.js?v=1603852724"></script>
+      <script src="sbs2-markup/render.js?v=1603852724"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603833138" />
+      <link rel="stylesheet" href="index.css?v=1603852724" />
       <script>
 if (location.protocol !== "https:") {
    console.log("Redirecting to https, this is slow, please complain that this should be a server thing");
@@ -676,8 +676,8 @@ function retext(el, attr)
                      <button class="uk-button uk-button-default" id="commenteditshowpreview">Preview</button>
                      <button class="uk-button uk-button-primary" id="commenteditedit">Edit</button>
                      <button class="uk-button uk-button-danger" id="commenteditdelete">Delete</button>
-                     <p class="uk-text-meta">Note: you may not have permission
-                        to edit or delete every comment</p>
+                     <!--<p class="uk-text-meta">Note: you may not have permission
+                        to edit or delete every comment</p>-->
                   </div>
                   <div id="commenteditinfo" class="uk-text-meta"></div>
                </div>
@@ -830,7 +830,7 @@ function retext(el, attr)
             data-createdate data-editdate class="uk-flex">
             <div data-message=".renderComment" class="uk-width-expand 
                content uk-text-break"></div>
-            <a href="#" class="messagecontrol" data-loginonly uk-icon="cog"></a>
+            <a href="#" class="messagecontrol .hover" data-loginonly>?</a>
          </div>
          <li id="breadcrumb">
             <a data-link="href" data-spa data-text=".textContent"

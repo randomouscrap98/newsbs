@@ -37,8 +37,8 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
-   theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "contrast",
-      "blue","dark-contrast","oldschool" ]},
+   theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "blue",
+      "contrast", "dark-contrast","oldschool" ]},
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
@@ -2567,6 +2567,7 @@ function updateDiscussionUserlist(listeners, users)
 
 function getUserId() { return Number(userid.dataset.userid); }
 function getUsername() { return userusername.dataset.username; }
+function getIsSuper() { return website.getAttribute("data-issuper") == "true"; }
 
 function formError(form, error)
 {
@@ -3339,26 +3340,36 @@ function messageControllerEvent(event)
    commenteditinfo.textContent = "ID: " + cmid + "  UID: " + getSwap(oframe, "data-userid");
    if(msgedate !== msgdate) commenteditinfo.textContent += "  Edited: " + msgedate;
 
-   commenteditdelete.onclick = function() 
-   { 
-      if(confirm("Are you SURE you want to delete this comment?"))
-      {
-         globals.api.Post("comment/" + cmid + "/delete", {},
-            x => { if(getLocalOption("generaltoast")) notifySuccess("Comment deleted"); },
-            x => notifyError("Couldn't delete comment: " + x.request.status + " - " + x.request.statusText));
-         UIkit.modal(commentedit).hide();
-      }
-   };
+   if(getUserId() != getSwap(oframe, "userid") && !getIsSuper())
+   {
+      hide(commenteditdelete);
+      hide(commenteditedit);
+   }
+   else
+   {
+      unhide(commenteditdelete);
+      unhide(commenteditedit);
+      commenteditdelete.onclick = function() 
+      { 
+         if(confirm("Are you SURE you want to delete this comment?"))
+         {
+            globals.api.Post("comment/" + cmid + "/delete", {},
+               x => { if(getLocalOption("generaltoast")) notifySuccess("Comment deleted"); },
+               x => notifyError("Couldn't delete comment: " + x.request.status + " - " + x.request.statusText));
+               UIkit.modal(commentedit).hide();
+         }
+      };
 
-   commenteditedit.onclick = function() 
-   { 
-      globals.api.Put("comment/" + cmid, 
-         {parentId : Number(getActiveDiscussionId()), 
-          content: createComment(commentedittext.value, commenteditformat.value)},
-         x => { if(getLocalOption("generaltoast")) notifySuccess("Comment edited"); },
-         x => notifyError("Couldn't edit comment: " + x.request.status + " - " + x.request.statusText));
-      UIkit.modal(commentedit).hide();
-   };
+      commenteditedit.onclick = function() 
+      { 
+         globals.api.Put("comment/" + cmid, 
+            {parentId : Number(getActiveDiscussionId()), 
+               content: createComment(commentedittext.value, commenteditformat.value)},
+               x => { if(getLocalOption("generaltoast")) notifySuccess("Comment edited"); },
+               x => notifyError("Couldn't edit comment: " + x.request.status + " - " + x.request.statusText));
+               UIkit.modal(commentedit).hide();
+      };
+   }
 
    commenteditshowpreview.onclick = function() 
    { 
