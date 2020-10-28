@@ -2730,7 +2730,13 @@ function refreshPWDate(item)
       findSwap(item, "pwtime", message);
 }
 
-function refreshPWDates(parent) { [...parent.children].forEach(x => refreshPWDate(x)); }
+function refreshPWDates(parent) 
+{ 
+   //A UIkit optimization: it's fine if dates are a little "out of date" when
+   //you first return to the page. the event will fire eventually.
+   if(!document.hidden)
+      [...parent.children].forEach(x => refreshPWDate(x)); 
+}
 
 function updatePWContent(pulsedata, c)
 {
@@ -3076,8 +3082,8 @@ function updateWatchComAct(users, comments, activity)
          x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid)), true);
 
       //An optimization to reduce UIkit observations
-      if(!document.hidden)
-         refreshPWDates(watches);
+      //if(!document.hidden)
+         //refreshPWDates(watches);
 
       updateWatchGlobalAlert();
       updateGlobalAlert();
