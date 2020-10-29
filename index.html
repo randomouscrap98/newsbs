@@ -9,19 +9,19 @@
       <meta name="description" content="New SmileBASIC Source">
       <link data-favicon rel="shortcut icon" href="favicon.ico">
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1603956669" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1603956669"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1603956669"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604004115" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1604004115"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604004115"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603956669"></script>
-      <script src="dom.js?v=1603956669"></script>
-      <script src="api.js?v=1603956669"></script>
-      <script src="index.js?v=1603956669"></script>
-      <script src="sbs2-markup/highlight.js?v=1603956669"></script>
-      <script src="sbs2-markup/parse.js?v=1603956669"></script>
-      <script src="sbs2-markup/render.js?v=1603956669"></script>
+      <script src="libbo.js?v=1604004115"></script>
+      <script src="dom.js?v=1604004115"></script>
+      <script src="api.js?v=1604004115"></script>
+      <script src="index.js?v=1604004115"></script>
+      <script src="sbs2-markup/highlight.js?v=1604004115"></script>
+      <script src="sbs2-markup/parse.js?v=1604004115"></script>
+      <script src="sbs2-markup/render.js?v=1604004115"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603956669" />
+      <link rel="stylesheet" href="index.css?v=1604004115" />
       <script>
 if (location.protocol !== "https:") {
    console.log("Redirecting to https, this is slow, please complain that this should be a server thing");
@@ -290,7 +290,7 @@ function leftpaneclick(event)
       <div uk-tooltip="Navigate"><a href="" class="uk-display-block" 
             uk-icon="icon: home; ratio: 2"></a></div>
       <div data-loginonly uk-tooltip="Recent Activity"><a href="" class="uk-display-block" 
-            uk-icon="icon: list; ratio: 2"></a></div>
+            uk-icon="icon: history; ratio: 2"></a></div>
       <div data-loginonly class="uk-inline" uk-tooltip="Notifications">
          <a href="" class="uk-display-block" uk-icon="icon: bell; ratio: 2"></a>
          <div id="watchglobalalert" class="uk-label uk-label-danger 
@@ -348,7 +348,7 @@ function leftpaneclick(event)
                         </div>
                      </div>
                      <ul uk-accordion="multiple: true" id="searchresultscontainer" 
-                        class="uk-margin-small-top" hidden>
+                        class="uk-margin-small-top lightblock" hidden>
                         <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Pages"}'
                              id="searchpagesresults"></div>
                         <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Users"}'
@@ -886,10 +886,9 @@ function leftpaneclick(event)
                <img data-image=".srcUnhide" class="outlined" hidden width=20>
                <div data-private=".srcUnhide" class="uk-cover lock" hidden>🔒</div>
             </span>
-            <!--<img data-image="src" data-type=".typeToIcon" class="uk-flex-none" width=20>-->
             <a data-spa data-name=".textContent" data-link="href" 
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
-            <span data-meta=".textContent" class="uk-text-meta"></span>
+            <span data-meta=".textContent" class="uk-text-meta nocondensed"></span>
          </div>
          <a id="discussionuser" class="uk-flex-none" data-userlink="href" data-spa>
             <img data-avatar="src" width=40>
@@ -898,23 +897,16 @@ function leftpaneclick(event)
             <span uk-icon="icon: folder; ratio: 1.0" class="uk-margin-small-right
                uk-flex-none"></span>
             <a data-link="href" data-spa data-name=".textContent"
-               class="uk-link-text title"></a>
+               class="uk-link-text title uk-text-truncate"></a>
          </div>
          <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
-            <!--<span class="uk-flex-none pageicon" data-type=".typeToIcon" uk-icon="ratio: 1.0"></span>-->
-            <!--<div class="uk-position-relative">-->
                <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex uk-flex-middle
                   uk-position-relative">
                   <!-- Reusing "srcUnhide" because it does the same thing :( -->
                   <img data-image=".srcUnhide" class="outlined" hidden width=20>
                   <div data-private=".srcUnhide" class="uk-cover lock" hidden>🔒</div>
-                  <!--<span class="uk-cover lock" uk-icon="icon: lock; ratio:
-                     0.5"></span>-->
                </span>
-            <!--</div>-->
             <a class="uk-width-expand title uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
-            <!--<span class="statuses">
-            </span>-->
             <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
             <a class="uk-flex-none uk-flex uk-flex-middle avatar uk-position-relative" 
                data-spa data-userlink="href">
@@ -923,8 +915,6 @@ function leftpaneclick(event)
             </a>
          </div>
          <div id="history" class="pageblock uk-display-block uk-position-relative">
-            <!--<h4>Activity:</h4>-->
-            <!--<div class="uk-cover historyloading" uk-spinner="ratio: 2"></div>-->
             <div class="historycontainer"> <!-- uk-overflow-auto>-->
             </div>
             <div data-loadolder class="uk-flex uk-flex-right" hidden>
@@ -986,6 +976,7 @@ function leftpaneclick(event)
          <select id="markupselect" data-name="name" class="uk-select">
             <option value="12y" selected>12y</option>
             <option value="plaintext">plaintext</option>
+            <option value="bbcode">bbcode (legacy)</option>
          </select>
          <!-- The order here is the order I want them on the homepage too -->
          <select id="pagetypeselect" data-name="name" class="uk-select">
@@ -1143,7 +1134,11 @@ function leftpaneclick(event)
                <article data-content=".renderContent" data-directcontent=".innerHTML" data-format="data-fmt" 
                   class="uk-text-break content uk-margin-remove-top"></article>
             </div>
+            <div data-userpages class="uk-margin-top uk-margin-bottom pageblock">
+               <h4 data-title hidden>My Pages:</h4>
+            </div>
             <div data-userhistory class="uk-margin-top uk-margin-bottom">
+               <h4 data-title hidden>Activity:</h4>
             </div>
          </div>
          <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom"

@@ -70,7 +70,7 @@ var options = {
    scrolldiscloadcooldown : {def: 500 },
    frontpageslideshownum : {def:10},
    bgdiscussionmsgkeep : {def:30}, /* these are message BLOCKS, not individual */
-   initialtab : {def:0},
+   initiallogintab : {def:1},
    defaultpermissions: {def:"cr"}
 };
 
@@ -431,7 +431,7 @@ function setupSignalProcessors()
    signals.Attach("setloginstate", state =>
    {
       if(state)
-         document.querySelectorAll('#rightpanenav a')[getLocalOption("initialtab")].click();
+         document.querySelectorAll('#rightpanenav a')[getLocalOption("initiallogintab")].click();
    });
 
    signals.Attach("spastart", parsed => 
@@ -1206,6 +1206,12 @@ function routeuser_load(spadat)
       "Reverse" : true,
       "Limit" : initload
    }));
+   params.append("requests", "content~pages-" + JSON.stringify({
+      "createUserIds" : [uid],
+      "nottypes" : ["userpage"],
+      "sort" : "editDate",
+      "reverse" : true
+   }));
    params.append("requests", "user.1createUserId.1edituserId.2createUserId");
 
    globals.api.Chain(params, function(apidata)
@@ -1239,7 +1245,13 @@ function routeuser_load(spadat)
          {
             s.userIds = [uid];
             return s;
+         }, act =>
+         {
+            setHidden(history.querySelector("[data-title]"), !act.length);
          }));
+         var pgelm = templ.querySelector("[data-userpages]");
+         data.pages.forEach(x => pgelm.appendChild(makePageitem(x, users)));
+         setHidden(pgelm.querySelector("[data-title]"), !data.pages.length);
 
          if(c)
          {
@@ -1802,7 +1814,7 @@ function renderContent(elm, repl)
    return elm.getAttribute("data-rawcontent");
 }
 
-function makeActivity(modifySearch, unlimitedHeight)
+function makeActivity(modifySearch, finalize) //, unlimitedHeight)
 {
    modifySearch = modifySearch || (x => x);
    var activity = cloneTemplate("history");
@@ -1865,6 +1877,9 @@ function makeActivity(modifySearch, unlimitedHeight)
                }
                activityContainer.appendChild(makeHistoryItem(users[x.userId], x, title));
             });
+
+            if(finalize)
+               finalize(data.activity, activityContainer);
          });
       });
    };

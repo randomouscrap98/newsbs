@@ -202,7 +202,8 @@ a:hover { color: inherit; }
 [data-mode="0"] [data-hide0], 
 [data-mode="1"] [data-hide1],
 [data-mode="2"] [data-hide2],
-.spoilerButton:not([data-show]) + .spoiler
+.spoilerButton:not([data-show]) + .spoiler,
+#rightpane[data-condensed] .nocondensed
 { display: none !important; }
 [data-mode="2"] #maincontentcontainer { flex: 1; }
 
@@ -402,8 +403,7 @@ a:hover { color: inherit; }
 }
 .spoilerButton {
    margin: 0.3em 0;
-   /*margin-top: 0.5em;*/
-   /*margin-bottom: 0.5em;*/
+   display: block;
    background-color: var(--inputbgcolor);
    border: 1px solid var(--outlinecolor);
    cursor: pointer;
@@ -414,24 +414,21 @@ a:hover { color: inherit; }
    font-size: 0.9em;
    position: relative;
 }
+.spoilerButton:empty::after {
+   content: " ";
+}
 .spoilerButton::before {
-   content: "▸";
-   /*content: "◂";*/
+   content: "\0025B8"; /* Right triangle, but it keeps breaking sometimes? */
    position: absolute;
    left: 0.4em;
 }
 .spoilerButton[data-show]::before {
-   content: "▾";
-   /*border-color: var(--linkcolor);*/
-   /*border: 1px solid var(--linkcolor);*/
-   /*background-color: var(--lightblockbgcolor);*/
-   /*border-bottom: none;*/
+   content: "\0025BE"; /* Down triangle */
 }
 .spoiler {
    border-radius: 5px;
-   /*border: 1px solid var(--outlinecolor); /*var(--linkcolor);*/
    padding: 0.4em 0.6em;
-   background-color: var(--lightblockbgcolor); /*var(--lightblockbgcolor);*/
+   background-color: var(--lightblockbgcolor);
 }
 #postarea {
    border-top: 2px solid var(--outlinecolor);
@@ -552,7 +549,7 @@ img.outlined { box-sizing: content-box; }
 .lightblock {
    display: block;
    background: var(--lightblockbgcolor);
-   border-radius: 3px;
+   border-radius: 5px; /* 3px */
    padding: 1em;
 }
 
