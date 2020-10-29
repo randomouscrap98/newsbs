@@ -603,13 +603,14 @@ input[data-permission] {
 
 #rightpanecategorytree {
    background: var(--inputbgcolor);
+   padding: 1em 1.2em;
 }
 [data-categorytreenode] ul {
    margin: 0 0 0 0;
 }
 [data-categorytreenode] ul li {
    margin: 0 0 0 0 !important;
-   padding-left: 0.9em;
+   padding-left: 1.0em;
    border-left: 1px solid var(--tableoutlinecolor);
 }
 [data-categorytreenode] a { font-size: 1.0em; }
@@ -617,7 +618,7 @@ input[data-permission] {
 [data-categorytreenode] ul a::before {
    content: "-"; 
    position: absolute;
-   left: -0.55em;
+   left: -0.6em;
 }
 
 .content pre { margin: 0.25em 0; }

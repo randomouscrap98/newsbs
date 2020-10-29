@@ -37,6 +37,7 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
+   defaultmarkup : {def:"12y", u: 1, options: [ "12y", "plaintext", "bbcode" ]},
    theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "blue",
       "contrast", "dark-contrast","oldschool" ]},
    datalog : { def: false, text : "Log received data objects" },
@@ -70,7 +71,6 @@ var options = {
    frontpageslideshownum : {def:10},
    bgdiscussionmsgkeep : {def:30}, /* these are message BLOCKS, not individual */
    initialtab : {def:0},
-   defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]},
    defaultpermissions: {def:"cr"}
 };
 
