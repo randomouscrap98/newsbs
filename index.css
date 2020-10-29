@@ -601,7 +601,7 @@ input[data-permission] {
    padding-top: 0.5em;
 }
 
-#rightpanecategorytree {
+#rightpanecategorytree, #searchresultscontainer, #nosearchresults {
    background: var(--inputbgcolor);
    padding: 1em 1.2em;
 }
@@ -609,16 +609,17 @@ input[data-permission] {
    margin: 0 0 0 0;
 }
 [data-categorytreenode] ul li {
-   margin: 0 0 0 0 !important;
-   padding-left: 1.0em;
+   margin: 0 0 0 2px !important;
+   padding-left: 0.8em;
    border-left: 1px solid var(--tableoutlinecolor);
 }
 [data-categorytreenode] a { font-size: 1.0em; }
 [data-categorytreenode] ul a { position: relative; }
 [data-categorytreenode] ul a::before {
-   content: "-"; 
+   content: "—";
    position: absolute;
-   left: -0.6em;
+   left: -1.25em;
+   color: var(--tableoutlinecolor);
 }
 
 .content pre { margin: 0.25em 0; }

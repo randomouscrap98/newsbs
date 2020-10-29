@@ -37,7 +37,7 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
-   defaultmarkup : {def:"12y", u: 1, options: [ "12y", "plaintext", "bbcode" ]},
+   defaultmarkup : {def:"12y", u: 1, options: [ "12y", "plaintext", "bbcode" ], text: "Default discussion markup"},
    theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "blue",
       "contrast", "dark-contrast","oldschool" ]},
    datalog : { def: false, text : "Log received data objects" },
@@ -1537,6 +1537,7 @@ function handleSetting(key, value)
 
 function handleSearchResults(data)
 {
+   hide(searchresultscontainer);
    hide(searchpagesresults);
    hide(searchusersresults);
    hide(searchcategoriesresults);
@@ -1559,6 +1560,7 @@ function handleSearchResults(data)
    displaySearchResults(searchcategoriesresults, mapSearchCategories(data.category));
 
    setHidden(nosearchresults, total);
+   setHidden(searchresultscontainer, !total);
 }
 
 function quickLoad(spadat)
