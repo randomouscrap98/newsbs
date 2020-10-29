@@ -1138,6 +1138,7 @@ function routecategory_load(spadat)
          if(data.content.length)
             hide(pgelm.querySelector("[data-nopages]"));
 
+         treeify(childcats);
          childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
          data.content.forEach(x => pgelm.appendChild(makePageitem(x, users)));
       }, getChain(data.category, c));
@@ -2325,7 +2326,8 @@ function getChain(categories, content)
 function treeify(categories)
 {
    //Ultra inefficient n^2, don't care at all.
-   categories.forEach(x =>
+   var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
+   categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
    {
       x.children = categories.filter(y => y.parentId === x.id);
    });
