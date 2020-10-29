@@ -284,14 +284,13 @@ function renderLoop(time)
       var delta = time - globals.render.lastrendertime;
 
       //CAN'T set attributes repeatedly because of observer
-      if(rightpane.clientWidth < 400)
+      if(rightpane.clientWidth != globals.rightpaneClientWidth)
       {
-         if(!rightpane.hasAttribute("data-condensed"))
+         //With new uikit observer restrictions, it's OK to write these on
+         //resize. obviously don't write it all the time, but...
+         if(rightpane.clientWidth < 400)
             rightpane.setAttribute("data-condensed", "true");
-      }
-      else 
-      {
-         if(rightpane.hasAttribute("data-condensed"))
+         else 
             rightpane.removeAttribute("data-condensed");
       }
 
@@ -395,6 +394,7 @@ function renderLoop(time)
       globals.discussionClientWidth = discussions.clientWidth;
       globals.discussionScrollHeight = discussions.scrollHeight;
       globals.discussionScrollTop = discussions.scrollTop;
+      globals.rightpaneClientWidth = rightpane.clientWidth;
 
       signalProcess(time);
       globals.render.lastrendertime = time;
@@ -2709,7 +2709,6 @@ function setupWatchClear(parent, cid)
       event.preventDefault();
 
       watchAlert.className = watchAlert.className.replace(/danger/g, "warning");
-      //console.log(watchAlert);
 
       if(getLocalOption("generaltoast"))
          notifyBase("Clearing notifications for '" + getSwap(parent, "data-pwname") + "'");
@@ -3055,12 +3054,9 @@ function updateWatchSingletons(data)
 
 function updateWatchComAct(users, comments, activity)
 {
-   //console.log("UPDATEWATCHCOMACT", users, comments, activity);
    [...new Set(Object.keys(comments).concat(Object.keys(activity)))].forEach(cid =>
    {
-      //console.log("updating comments, activity:", comments, activity);
       var watchdata = document.getElementById(getWatchId(cid)); 
-      //console.log(getActiveDiscussionId(), cid, comments[cid]);
 
       if(watchdata)
       {
@@ -3121,7 +3117,6 @@ function updateWatches(data, fullReset)
    if(fullReset)
       watches.innerHTML = "";
 
-   //console.log("UPDATEWATCHES", data);
    var users = idMap(data.user);
    var contents = idMap(data.content);
    var comments = idMap(data.commentaggregate);
@@ -3129,7 +3124,6 @@ function updateWatches(data, fullReset)
 
    if(data.watch)
    {
-      //console.log("watches: ", data.watch);
       for(var i = 0; i < data.watch.length; i++)
       {
          var c = contents[data.watch[i].contentId];
