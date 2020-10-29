@@ -601,7 +601,8 @@ input[data-permission] {
    padding-top: 0.5em;
 }
 
-#rightpanecategorytree, #searchresultscontainer, #nosearchresults {
+#nosearchresults { margin: 0; }
+#rightpanecategorytree, #searchresultscontainer { /*, #nosearchresults {*/
    background: var(--inputbgcolor);
    padding: 1em 1.2em;
 }

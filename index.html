@@ -248,13 +248,13 @@ function leftpaneclick(event)
                   </div>
                   <div id="maincontentbarcontrols" class="uk-flex uk-height-1-1 uk-flex-middle">
                      <a href="#" class="ufk-text-primary" id="moveupmode" data-hide0
-                        uk-icon="icon: triangle-up; ratio: 1.2" uk-tooltip="Expand Chat"></a>
+                        uk-icon="icon: triangle-up; ratio: 1.2" ufk-tooltip="Expand Chat"></a>
                      <a href="#" class="ufk-text-primary" id="movedownmode" data-hide2
-                        uk-icon="icon: triangle-down; ratio: 1.2" uk-tooltip="Expand Page"></a>
+                        uk-icon="icon: triangle-down; ratio: 1.2" ufk-tooltip="Expand Page"></a>
                      <a href="#" class="ufk-text-primary" id="fulldiscussionmode" data-hide0 data-hide1
-                        uk-icon="icon: commenting; ratio: 1.2" uk-tooltip="Full Chat"></a>
+                        uk-icon="icon: commenting; ratio: 1.2" ufk-tooltip="Full Chat"></a>
                      <a href="#" class="ufk-text-primary" id="fullcontentmode" data-hide2 data-hide1
-                        uk-icon="icon: file-text; ratio: 1.1" uk-tooltip="Full Page"></a>
+                        uk-icon="icon: file-text; ratio: 1.1" ufk-tooltip="Full Page"></a>
                   </div>
                </div> 
                <!-- Need separate containers because lazy: one is for user
@@ -347,8 +347,8 @@ function leftpaneclick(event)
                            </div>
                         </div>
                      </div>
-                     <p class="" id="nosearchresults" hidden>No results...</p>
-                     <ul uk-accordion="multiple: true" id="searchresultscontainer" hidden>
+                     <ul uk-accordion="multiple: true" id="searchresultscontainer" 
+                        class="uk-margin-small-top" hidden>
                         <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Pages"}'
                              id="searchpagesresults"></div>
                         <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Users"}'
@@ -357,6 +357,7 @@ function leftpaneclick(event)
                              id="searchcategoriesresults"></div>
                         <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Chat"}'
                              id="searchchatresults"></div>
+                        <p class="" id="nosearchresults">No results...</p>
                      </ul>
                      <ul id="rightpanecategorytree" class="uk-list lightblock">
                      </ul>

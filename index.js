@@ -1538,14 +1538,15 @@ function handleSetting(key, value)
 
 function handleSearchResults(data)
 {
-   hide(searchresultscontainer);
+   //hide(searchresultscontainer);
    hide(searchpagesresults);
    hide(searchusersresults);
    hide(searchcategoriesresults);
 
    if(data == false)
    {
-      hide(nosearchresults);
+      //hide(nosearchresults);
+      hide(searchresultscontainer);
       return;
    }
 
@@ -1561,7 +1562,7 @@ function handleSearchResults(data)
    displaySearchResults(searchcategoriesresults, mapSearchCategories(data.category));
 
    setHidden(nosearchresults, total);
-   setHidden(searchresultscontainer, !total);
+   unhide(searchresultscontainer);
 }
 
 function quickLoad(spadat)
@@ -2866,7 +2867,6 @@ function setPulseUserData(userElem, data)
 
 function refreshPulseUserDisplay(userElem)
 {
-   console.log("REFRESHPULSEUSERDISPLY");
    var data = getPulseUserData(userElem); 
    var parent = false;
    for(var i = 0; i < pulseUserFields.length; i++)
