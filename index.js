@@ -769,9 +769,14 @@ function setupFileUpload()
    var bar = fileuploadprogress;
    var generalError = () => writeDom(() => {
       if(typeof arguments[0] == 'XMLHttpRequest')
+      {
          formError(fileuploadform, arguments[0].status + ": " + arguments[0].message);
+      }
       else
-         formError(fileuploadform, arguments[0]);
+      {
+         console.log("Unknown error during upload: ", arguments);
+         formError(fileuploadform, "Unknown error (Image may be too large)");
+      }
       bar.setAttribute('hidden', 'hidden');
    });
    var generalProgress = e => writeDom(() => { bar.max = e.total; bar.value = e.loaded; });

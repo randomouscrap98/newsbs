@@ -201,7 +201,8 @@ a:hover { color: inherit; }
 .contentpage:not([data-pinned="true"]) [data-pinnedonly],
 [data-mode="0"] [data-hide0], 
 [data-mode="1"] [data-hide1],
-[data-mode="2"] [data-hide2]
+[data-mode="2"] [data-hide2],
+.spoilerButton:not([data-show]) + .spoiler
 { display: none !important; }
 [data-mode="2"] #maincontentcontainer { flex: 1; }
 
@@ -382,25 +383,55 @@ a:hover { color: inherit; }
 }
 [data-singlemessage] .content [data-contentimage] {
    font-size: 0;
-   height: 100px;
+   min-height: 100px;
+   max-height: 55vh;
    width: 100%;
    margin: 0.5rem 0;
-   transition: 0.15s ease;
-}
-[data-singlemessage] .content [data-contentimage]:focus {
-   max-height: 55vh;
-   height: unset;
-   border: none;
-   outline: none;
 }
 [data-singlemessage] .content img {
-   max-height: 100%;
+   max-height: 100px;
    max-width: 100%;
    height: auto;
    width: auto;
+   transition: all 0.15s ease;
+   border: none;
+   outline: none;
 }
-[data-singlemessage] .content [data-contentimage]:focus img {
+[data-singlemessage] .content [data-contentimage] img[data-expand] {
    max-height: 55vh;
+}
+.spoilerButton {
+   margin: 0.3em 0;
+   /*margin-top: 0.5em;*/
+   /*margin-bottom: 0.5em;*/
+   background-color: var(--inputbgcolor);
+   border: 1px solid var(--outlinecolor);
+   cursor: pointer;
+   padding: 0.4em 1.1em 0.4em 1.6em;
+   color: var(--maintxtcolor);
+   outline: none !important;
+   font: inherit;
+   font-size: 0.9em;
+   position: relative;
+}
+.spoilerButton::before {
+   content: "▸";
+   /*content: "◂";*/
+   position: absolute;
+   left: 0.4em;
+}
+.spoilerButton[data-show]::before {
+   content: "▾";
+   /*border-color: var(--linkcolor);*/
+   /*border: 1px solid var(--linkcolor);*/
+   /*background-color: var(--lightblockbgcolor);*/
+   /*border-bottom: none;*/
+}
+.spoiler {
+   border-radius: 5px;
+   /*border: 1px solid var(--outlinecolor); /*var(--linkcolor);*/
+   padding: 0.4em 0.6em;
+   background-color: var(--lightblockbgcolor); /*var(--lightblockbgcolor);*/
 }
 #postarea {
    border-top: 2px solid var(--outlinecolor);
@@ -517,6 +548,7 @@ img.outlined { box-sizing: content-box; }
    clear: both;
 }
 
+/* TODO: make spoiler a lightblock */
 .lightblock {
    display: block;
    background: var(--lightblockbgcolor);
