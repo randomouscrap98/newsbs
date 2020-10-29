@@ -476,29 +476,21 @@ function makeBreadcrumbs(chain)
    });
 }
 
-function recurseTreeSelector(node, selector, path, processed, minLevel)
+function recurseTreeSelector(node, func, path, processed)//, minLevel)
 {
-   minLevel = minLevel || 0;
+   path = path || [];
+   processed = processed || [];
+   //minLevel = minLevel || 0;
    if(!processed.some(x => x.id === node.id))
    {
-      var option = document.createElement("option");
       var level = path.length;
       var newPath = path.slice();
       newPath.push(node);
-      if(level >= minLevel)
-      {
-         option.value = node.id;
-         option.setAttribute("data-name", node.name);
-         option.setAttribute("data-path", newPath.slice(minLevel).map(x => x.name).join(" / "));
-         //option.setAttribute("data-tree", ((level > 0) ? ("| ".repeat(level - 1) + "|-") : "") + node.name);
-         //option.setAttribute("title", node.description);
-         option.textContent = option.getAttribute("data-path");
-         selector.appendChild(option);
-      }
+      //if(level >= minLevel)
+      func(node, newPath, level); //newPath.slice(minLevel).map(x => x.name).join(" / "));
       processed.push(node);
-      node.children.forEach(x => recurseTreeSelector(x, selector, newPath, processed, minLevel));
+      node.children.forEach(x => recurseTreeSelector(x, func, newPath, processed));
    }
-   //node.children.sort((a, b) => Math.sign(a.id - b.id));
 }
 
 function fillTreeSelector(tree, selector, includeRoot)
@@ -509,9 +501,23 @@ function fillTreeSelector(tree, selector, includeRoot)
    if(!rootNodes.length)
       throw "Can't make a tree without an id 0 root node!";
 
+   var minLevel = includeRoot ? 0 : 1;
+
    //We're TRUSTING that the tree's 0 id is the root or whatever. Otherwise
    //this entire thing breaks down.
-   rootNodes.forEach(x => recurseTreeSelector(x, selector, [], [], includeRoot ? 0 : 1));
+   rootNodes.forEach(x => recurseTreeSelector(x, (node, path, level) =>
+   {
+      if(level < minLevel)
+         return;
+      var option = document.createElement("option");
+      option.value = node.id;
+      option.setAttribute("data-name", node.name);
+      option.setAttribute("data-path", path.slice(minLevel).map(x => x.name).join(" / "));
+      //option.setAttribute("data-tree", ((level > 0) ? ("| ".repeat(level - 1) + "|-") : "") + node.name);
+      //option.setAttribute("title", node.description);
+      option.textContent = option.getAttribute("data-path");
+      selector.appendChild(option);
+   }));
 
    finalizeTemplate(selector);
    return selector;

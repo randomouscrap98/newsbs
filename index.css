@@ -601,6 +601,25 @@ input[data-permission] {
    padding-top: 0.5em;
 }
 
+#rightpanecategorytree {
+   background: var(--inputbgcolor);
+}
+[data-categorytreenode] ul {
+   margin: 0 0 0 0;
+}
+[data-categorytreenode] ul li {
+   margin: 0 0 0 0 !important;
+   padding-left: 0.9em;
+   border-left: 1px solid var(--tableoutlinecolor);
+}
+[data-categorytreenode] a { font-size: 1.0em; }
+[data-categorytreenode] ul a { position: relative; }
+[data-categorytreenode] ul a::before {
+   content: "-"; 
+   position: absolute;
+   left: -0.55em;
+}
+
 .content pre { margin: 0.25em 0; }
 pre .keyword { font-weight: bold; }
 

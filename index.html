@@ -9,19 +9,19 @@
       <meta name="description" content="New SmileBASIC Source">
       <link data-favicon rel="shortcut icon" href="favicon.ico">
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css" />
-      <script src="uikit-3.5.5/js/uikit.min.js"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1603946333" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1603946333"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1603946333"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1603932886"></script>
-      <script src="dom.js?v=1603932886"></script>
-      <script src="api.js?v=1603932886"></script>
-      <script src="index.js?v=1603932886"></script>
-      <script src="sbs2-markup/highlight.js?v=1603932886"></script>
-      <script src="sbs2-markup/parse.js?v=1603932886"></script>
-      <script src="sbs2-markup/render.js?v=1603932886"></script>
+      <script src="libbo.js?v=1603946333"></script>
+      <script src="dom.js?v=1603946333"></script>
+      <script src="api.js?v=1603946333"></script>
+      <script src="index.js?v=1603946333"></script>
+      <script src="sbs2-markup/highlight.js?v=1603946333"></script>
+      <script src="sbs2-markup/parse.js?v=1603946333"></script>
+      <script src="sbs2-markup/render.js?v=1603946333"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1603932886" />
+      <link rel="stylesheet" href="index.css?v=1603946333" />
       <script>
 if (location.protocol !== "https:") {
    console.log("Redirecting to https, this is slow, please complain that this should be a server thing");
@@ -287,14 +287,8 @@ function leftpaneclick(event)
                    uk-child-width-expand uk-text-center" 
                 uk-switcher="swiping: false;">
       <!-- Shifted over for convenience, want to fit on one line please -->
-      <div data-logoutonly uk-tooltip="Login"><a href="" class="uk-display-block"
-            uk-icon="icon: user; ratio: 2"></a></div>
-      <div data-loginonly class="uk-inline" uk-tooltip="User">
-         <a href="" class="uk-display-block"><img id="navuseravatar" 
-            width="40" height="40" class="" uk-img></img></a>
-         <!--<div id="connectionalert" class="uk-label uk-label-danger
-            uk-position-bottom-right noevent" hidden>!</div>-->
-      </div>
+      <div uk-tooltip="Navigate"><a href="" class="uk-display-block" 
+            uk-icon="icon: home; ratio: 2"></a></div>
       <div data-loginonly uk-tooltip="Recent Activity"><a href="" class="uk-display-block" 
             uk-icon="icon: list; ratio: 2"></a></div>
       <div data-loginonly class="uk-inline" uk-tooltip="Notifications">
@@ -302,13 +296,123 @@ function leftpaneclick(event)
          <div id="watchglobalalert" class="uk-label uk-label-danger 
             uk-position-bottom-right noevent"></div>
       </div>
-      <div uk-tooltip="Search"><a href="" class="uk-display-block" 
-            uk-icon="icon: search; ratio: 2"></a></div>
       <div uk-tooltip="Logs"><a href="" class="uk-display-block" 
             uk-icon="icon: server; ratio: 2"></a></div>
+      <div data-loginonly class="uk-inline" uk-tooltip="User">
+         <a href="" class="uk-display-block"><img id="navuseravatar" 
+            width="40" height="40" class="" uk-img></img></a>
+      </div>
+      <div data-logoutonly uk-tooltip="Login"><a href="" class="uk-display-block"
+            uk-icon="icon: user; ratio: 2"></a></div>
                </div>
                <!-- LOC:RIGHTPANECONTENT -->
                <ul id="rightpanecontent" class="uk-switcher uk-flex-1" uk-overflow-auto>
+                  <!-- LOC:SEARCH -->
+                  <li id="searchpane" class="uk-container uk-margin-large-bottom" uk-margin>
+                     <div>
+                        <div class="uk-flex uk-flex-middle uk-margin-small-top">
+                           <form id="searchform" class="uk-width-expand uk-search uk-search-default">
+                              <a href="#" id="searchformicon" class="uk-search-icon-flip" uk-search-icon></a>
+                              <input id="searchinput" class="uk-search-input" placeholder="Search...">
+                           </form>
+                           <a href="" class="uk-margin-small-left uk-flex-none" uk-icon="cog"
+                              uk-toggle="#searchconstraints"></a>
+                        </div>
+                        <div id="searchconstraints" class="uk-padding-small" hidden uk-margin>
+                           <div class="uk-flex uk-flex-wrap" uk-margin>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchpagesoption", "data-text":"Pages","data-checked":true}'></div>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchusersoption", "data-text":"Users","data-checked":true}'></div>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchcategoriesoption", "data-text":"Categories","data-checked":true}'></div>
+            <div data-tmpl="searchconstraint" data-tmpld=
+               '{"data-id":"searchchatoption", "data-text":"Chat","data-checked":false}' hidden></div>
+                           </div>
+                           <hr>
+                           <div class="uk-flex uk-flex-wrap" uk-margin>
+                              <label class="uk-margin-right uk-text-nowrap">
+                                 <select class="uk-select uk-width-small uk-form-small" id="searchsortoption">
+                                    <option value="id">Id</option>
+                                    <option value="createDate">Create Date</option>
+                                    <option value="editDate">Edit Date</option>
+                                 </select>
+                                 <span>Sort</span>
+                              </label>
+                              <label class="uk-margin-right uk-text-nowrap">
+                                 <input id="searchreverseoption" type="checkbox" 
+                                  class="uk-checkbox" checked>
+                                 <span>Reverse</span>
+                              </label>
+                           </div>
+                        </div>
+                     </div>
+                     <p class="uk-padding-small" id="nosearchresults" hidden>No results...</p>
+                     <ul uk-accordion="multiple: true">
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Pages"}'
+                             id="searchpagesresults"></div>
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Users"}'
+                             id="searchusersresults"></div>
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Categories"}'
+                             id="searchcategoriesresults"></div>
+                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Chat"}'
+                             id="searchchatresults"></div>
+                     </ul>
+                     <ul id="rightpanecategorytree" class="uk-list lightblock">
+                     </ul>
+                  </li>
+                  <!-- LOC:ACTIVITY -->
+                  <li id="pulseparent" class="uk-margin-large-bottom">
+                     <span id="rightpaneactivityloading" class="uk-cover" uk-spinner="ratio: 2" hidden></span>
+                     <ul id="pulse" class="uk-list uk-list-divider"></ul>
+                  </li>
+                  <!-- LOC:WATCHES -->
+                  <li class="uk-margin-large-bottom">
+                     <span id="rightpanewatchesloading" class="uk-cover" uk-spinner="ratio: 2" hidden></span>
+                     <ul id="watches" class="uk-list uk-list-divider"></ul>
+                  </li>
+                  <!-- LOC:LOGS -->
+                  <li id="logsparent">
+                     <ul id="logs" class="uk-list uk-list-divider uk-list-collapse"></ul>
+                  </li>
+                  <!-- LOC:USER -->
+                  <li id="userpane">
+                     <div class="uk-container" uk-margin>
+                        <div id="userdata" class="uk-padding-small" uk-margin>
+                           <div class="uk-flex uk-flex-bottom">
+                              <a id="userusername" href="" data-spa class="uk-display-inline uk-width-expand">
+                                 <h2 class="uk-margin-remove"></h2>
+                              </a>
+                              <span id="userid" data-userid class="uk-text-meta uk-display-block"></span>
+                           </div>
+                           <hr>
+                           <div uk-margin class="uk-margin-bottom">
+                              <a href="" id="userchangeavatar" uk-toggle="target: #fileupload" 
+                                 class="uk-display-block">Change Avatar</a>
+                              <a href="#" id="userinvalidatesessions" 
+                                 class="uk-display-block">Invalidate All Sessions</a>
+                              <a href="?p=admin" data-spa data-superonly
+                                 class="uk-display-block">Admin Page</a>
+                           </div>
+                           <hr>
+                           <div uk-margin>
+                              <h4 class="ufk-text-meta">Device Settings
+                                 <a href="#" id="refreshlocaloptions" 
+                                    class="uk-align-right uk-text-small">Refresh</a>
+                              </h4>
+                              <div id="userlocaloptions" class="settings"> </div>
+                              <a class="uk-display-block" uk-toggle="#developerlocaloptions">
+                                 Developer Options</a>
+                              <div id="developerlocaloptions" class="settings" hidden></div>
+                              <button id="restoredefaultsettings" 
+                                 class="uk-button uk-button-default">Restore Defaults</button>
+                              <!--<button id="allowNotifications" 
+                                 class="uk-button uk-button-default">Permit Notifications</button>-->
+                           </div>
+                           <button id="userlogout" class="uk-button uk-button-default">Logout</button>
+                        </div>
+                     </div>
+                  </li>
                   <!-- LOC:USERNEW -->
                   <li id="userloginpane">
                      <div class="uk-container" uk-margin>
@@ -416,110 +520,6 @@ function leftpaneclick(event)
                            <li><a id="passwordresetstep2" href="#">Step 2</a></li>
                         </ul>
                      </div>
-                  </li>
-                  <!-- LOC:USER -->
-                  <li id="userpane">
-                     <div class="uk-container" uk-margin>
-                        <div id="userdata" class="uk-padding-small" uk-margin>
-                           <div class="uk-flex uk-flex-bottom">
-                              <a id="userusername" href="" data-spa class="uk-display-inline uk-width-expand">
-                                 <h2 class="uk-margin-remove"></h2>
-                              </a>
-                              <span id="userid" data-userid class="uk-text-meta uk-display-block"></span>
-                           </div>
-                           <hr>
-                           <div uk-margin class="uk-margin-bottom">
-                              <a href="" id="userchangeavatar" uk-toggle="target: #fileupload" 
-                                 class="uk-display-block">Change Avatar</a>
-                              <a href="#" id="userinvalidatesessions" 
-                                 class="uk-display-block">Invalidate All Sessions</a>
-                              <a href="?p=admin" data-spa data-superonly
-                                 class="uk-display-block">Admin Page</a>
-                           </div>
-                           <hr>
-                           <div uk-margin>
-                              <h4 class="ufk-text-meta">Device Settings
-                                 <a href="#" id="refreshlocaloptions" 
-                                    class="uk-align-right uk-text-small">Refresh</a>
-                              </h4>
-                              <div id="userlocaloptions" class="settings"> </div>
-                              <a class="uk-display-block" uk-toggle="#developerlocaloptions">
-                                 Developer Options</a>
-                              <div id="developerlocaloptions" class="settings" hidden></div>
-                              <button id="restoredefaultsettings" 
-                                 class="uk-button uk-button-default">Restore Defaults</button>
-                              <!--<button id="allowNotifications" 
-                                 class="uk-button uk-button-default">Permit Notifications</button>-->
-                           </div>
-                           <button id="userlogout" class="uk-button uk-button-default">Logout</button>
-                        </div>
-                     </div>
-                  </li>
-                  <!-- LOC:ACTIVITY -->
-                  <li id="pulseparent" class="uk-margin-large-bottom">
-                     <span id="rightpaneactivityloading" class="uk-cover" uk-spinner="ratio: 2" hidden></span>
-                     <ul id="pulse" class="uk-list uk-list-divider"></ul>
-                  </li>
-                  <!-- LOC:WATCHES -->
-                  <li class="uk-margin-large-bottom">
-                     <span id="rightpanewatchesloading" class="uk-cover" uk-spinner="ratio: 2" hidden></span>
-                     <ul id="watches" class="uk-list uk-list-divider"></ul>
-                  </li>
-                  <!-- LOC:SEARCH -->
-                  <li id="searchpane" class="uk-container uk-margin-large-bottom" uk-margin>
-                     <div>
-                        <div class="uk-flex uk-flex-middle uk-margin-small-top">
-                           <form id="searchform" class="uk-width-expand uk-search uk-search-default">
-                              <a href="#" id="searchformicon" class="uk-search-icon-flip" uk-search-icon></a>
-                              <input id="searchinput" class="uk-search-input" placeholder="Search...">
-                           </form>
-                           <a href="" class="uk-margin-small-left uk-flex-none" uk-icon="cog"
-                              uk-toggle="#searchconstraints"></a>
-                        </div>
-                        <div id="searchconstraints" class="uk-padding-small" hidden uk-margin>
-                           <div class="uk-flex uk-flex-wrap" uk-margin>
-            <div data-tmpl="searchconstraint" data-tmpld=
-               '{"data-id":"searchpagesoption", "data-text":"Pages","data-checked":true}'></div>
-            <div data-tmpl="searchconstraint" data-tmpld=
-               '{"data-id":"searchusersoption", "data-text":"Users","data-checked":true}'></div>
-            <div data-tmpl="searchconstraint" data-tmpld=
-               '{"data-id":"searchcategoriesoption", "data-text":"Categories","data-checked":true}'></div>
-            <div data-tmpl="searchconstraint" data-tmpld=
-               '{"data-id":"searchchatoption", "data-text":"Chat","data-checked":false}' hidden></div>
-                           </div>
-                           <hr>
-                           <div class="uk-flex uk-flex-wrap" uk-margin>
-                              <label class="uk-margin-right uk-text-nowrap">
-                                 <select class="uk-select uk-width-small uk-form-small" id="searchsortoption">
-                                    <option value="id">Id</option>
-                                    <option value="createDate">Create Date</option>
-                                    <option value="editDate">Edit Date</option>
-                                 </select>
-                                 <span>Sort</span>
-                              </label>
-                              <label class="uk-margin-right uk-text-nowrap">
-                                 <input id="searchreverseoption" type="checkbox" 
-                                  class="uk-checkbox" checked>
-                                 <span>Reverse</span>
-                              </label>
-                           </div>
-                        </div>
-                     </div>
-                     <p class="uk-padding-small" id="nosearchresults" hidden>No results...</p>
-                     <ul uk-accordion="multiple: true">
-                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Pages"}'
-                             id="searchpagesresults"></div>
-                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Users"}'
-                             id="searchusersresults"></div>
-                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Categories"}'
-                             id="searchcategoriesresults"></div>
-                        <div data-tmpl="searchresultsection" data-tmpld='{"data-text":"Chat"}'
-                             id="searchchatresults"></div>
-                     </ul>
-                  </li>
-                  <!-- LOC:LOGS -->
-                  <li id="logsparent">
-                     <ul id="logs" class="uk-list uk-list-divider uk-list-collapse"></ul>
                   </li>
                </ul>
                <div id="rightpanefooter" class="databar uk-flex">
@@ -1071,6 +1071,14 @@ function leftpaneclick(event)
             <td data-date=".textContent"></td>
          </tr>
          </table>
+         <!--<ul class="uk-list" id="categorytreeroot">
+         </ul>-->
+         <li id="categorytreenode">
+            <a data-category=".textContent" data-categorylink="href"></a>
+            <ul class="uk-list" data-nodelist>
+            </ul>
+            <!--<div data-itemlist></div>-->
+         </li>
          <!-- LOC:ROUTES -->
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
             <h1 class="pagetitle">SmileBASIC Source</h1>

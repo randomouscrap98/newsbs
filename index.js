@@ -69,7 +69,7 @@ var options = {
    scrolldiscloadcooldown : {def: 500 },
    frontpageslideshownum : {def:10},
    bgdiscussionmsgkeep : {def:30}, /* these are message BLOCKS, not individual */
-   initialtab : {def:2},
+   initialtab : {def:0},
    defaultmarkup : {def:"12y", options: [ "12y", "plaintext" ]},
    defaultpermissions: {def:"cr"}
 };
@@ -185,6 +185,14 @@ window.onload = function()
       return {block:true, node:img};
    };
    StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
+
+   //Merge this crap with setupSession so it's only ever called once
+   var params = new URLSearchParams();
+   params.append("requests", "category"); //there may be other things you load at the start
+   globals.api.Chain(params, apidat =>
+   {
+      setPaneCategoryTree(apidat.data.category)
+   });
 };
 
 function safety(func)
@@ -888,7 +896,10 @@ function doSearch(event)
 
    //Don't search on empty
    if(!searchops.value)
+   {
+      handleSearchResults(false);
       return;
+   }
 
    globals.api.Search(searchops, data =>
    {
@@ -1529,6 +1540,12 @@ function handleSearchResults(data)
    hide(searchpagesresults);
    hide(searchusersresults);
    hide(searchcategoriesresults);
+
+   if(data == false)
+   {
+      hide(nosearchresults);
+      return;
+   }
 
    var total = 0;
    data.content = data.content || [];
@@ -3499,6 +3516,36 @@ function mapSearchCategories(categories, imgsize)
    }));
 }
 
+function makeCategoryTreeView(tree)
+{
+   var fragment = new DocumentFragment();   
+   var rootNodes = tree.filter(x => x.id === 0);
+      //root nodes go in the top
+      //x.subtree = fragment;
+   rootNodes.forEach(x => recurseTreeSelector(x, (node, path, level) =>
+   {
+      var parent = path[path.length - 2];
+      var subtree = parent ? parent.subtree : fragment;
+      var nelm = cloneTemplate("categorytreenode");
+      multiSwap(nelm, {
+         categorylink : getCategoryLink(node.id),
+         category : node.name
+      });
+      node.subtree = nelm.querySelector("[data-nodelist]");
+      finalizeTemplate(nelm);
+      subtree.appendChild(nelm);
+   }));
+   return fragment;
+}
+
+function setPaneCategoryTree(categories)
+{
+   var rc = Utilities.ShallowCopy(rootCategory);
+   categories.unshift(rc);
+   treeify(categories);
+   rightpanecategorytree.innerHTML = "";
+   rightpanecategorytree.appendChild(makeCategoryTreeView(categories));
+}
 /*function addCategoryListParam(params)
 {
    params.set("content","id,name,type");
