@@ -1413,6 +1413,7 @@ function routepageedit_load(spadat)
 
          var refreshForm = (c) =>
          {
+            //TODO: Change this to css!
             c = c || formSerialize(templ, baseData);
             var isUserpage = c.type === "userpage";
             setHidden(templ.querySelector("[data-pagetype]"), isUserpage);
@@ -1422,6 +1423,7 @@ function routepageedit_load(spadat)
             var isProgram = c.type === "program";
             setHidden(templ.querySelector("[data-pageimages]"), !isProgram);
             setHidden(templ.querySelector("[data-pagekey]"), !isProgram);
+            setHidden(templ.querySelector("[data-pagesystem]"), !isProgram);
 
             if(isUserpage)
             {
@@ -1725,6 +1727,7 @@ function finishContent(templ, content) //, content, comments, users, initload)
    finalizeTemplate(templ);
    if(content.type === "program")// && content.values.photos)
    {
+      unhide(templ.querySelector("[data-programcontainer]"));
       if(content.values.photos)
       {
          unhide(templ.querySelector("[data-slideshow]"));
@@ -1732,7 +1735,8 @@ function finishContent(templ, content) //, content, comments, users, initload)
          fillSlideshow(templ.querySelector("[data-slideshowitems]"), content);
       }
       multiSwap(templ, {
-         "key" : content.values.key
+         "key" : content.values.key,
+         "system" : content.values.system
       });
    }
    var pagecontrols = templ.querySelector(".pagecontrols");

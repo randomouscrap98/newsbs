@@ -584,7 +584,7 @@ input[data-permission] {
 
 [data-programcontainer] {
    max-width: 500px;
-   margin: 0.5em auto 1em auto;
+   margin: 0.5em auto 1.5em auto;
    background-color: var(--blockbgcolor);
    padding: 0.5em;
    border-radius: 0.4em;
@@ -618,6 +618,10 @@ input[data-permission] {
    position: absolute;
    left: -1.25em;
    color: var(--tableoutlinecolor);
+}
+.programsystem {
+   margin: 0 0.2em;
+   font-size: 1.1em;
 }
 
 .texticon svg { vertical-align: text-bottom; }
