@@ -620,6 +620,8 @@ input[data-permission] {
    color: var(--tableoutlinecolor);
 }
 
+.texticon svg { vertical-align: text-bottom; }
+
 .content pre { margin: 0.25em 0; }
 pre .keyword { font-weight: bold; }
 

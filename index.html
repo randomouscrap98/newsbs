@@ -1109,13 +1109,22 @@ function leftpaneclick(event)
                <h1 class="uk-width-expand uk-margin-small-right" data-title=".textContent"></h1>
                <div data-tmpl="pagecontrols"></div>
             </div>
-            <div data-programcontainer hidden>
-               <div data-tmpl="slideshow"></div>
+            <div data-programcontainer>
+               <div data-tmpl="slideshow" hidden>
+               </div>
+               <!--<p data-noimages class="uk-text-center">
+                  <span uk-icon="icon: image" class="uk-margin-small-right"></span>
+                  <span>No images...</span>
+               </p>-->
                <div class="uk-flex uk-flex-bottom uk-margin-small-left 
                   uk-margin-small-right">
                   <span class="uk-width-expand"></span>
-                  <span class="uk-text-large key uk-flex-none" 
-                     data-key=".textContent"></span>
+                  <div class="uk-flex-none texticon">
+                     <!--<img src="key2.svg" class="" data-icon="1" width=20
+                        height=20>-->
+                     <img data-src="key2.svg" uk-svg="ratio: 1.2">
+                     <span class="uk-text-large key" data-key=".textContent"></span>
+                  </div>
                </div>
             </div>
             <article data-content=".renderContent" data-format="data-fmt" 

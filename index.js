@@ -1723,15 +1723,17 @@ function finishContent(templ, content) //, content, comments, users, initload)
 {
    //Need to finish the template now, hopefully running it twice isn't a big deal
    finalizeTemplate(templ);
-   if(content.type === "program" && content.values.photos)
+   if(content.type === "program")// && content.values.photos)
    {
-      //var photos = content.values.photos.split(",").filter(x => x);
-      unhide(templ.querySelector("[data-programcontainer]"));
-      fillSlideshow(templ.querySelector("[data-slideshowitems]"), content);
+      if(content.values.photos)
+      {
+         unhide(templ.querySelector("[data-slideshow]"));
+         //hide(templ.querySelector("[data-noimages]"));
+         fillSlideshow(templ.querySelector("[data-slideshowitems]"), content);
+      }
       multiSwap(templ, {
          "key" : content.values.key
       });
-      //var slideshow = templ.querySelector("[data-slideshowitems]");
    }
    var pagecontrols = templ.querySelector(".pagecontrols");
    unhide(pagecontrols);
