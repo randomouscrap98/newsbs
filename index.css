@@ -629,7 +629,7 @@ input[data-permission] {
    width: 100% !IMPORTANT; 
    height: 100% !IMPORTANT;
    object-fit: contain;
-   background-color: var(--outlinecolor); /*var(--databarbgcolor);*/
+   background-color: var(--headercolor); /*var(--outlinecolor); /*var(--databarbgcolor);*/
 }
 
 .content pre { margin: 0.25em 0; }
