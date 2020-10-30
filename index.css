@@ -625,6 +625,12 @@ input[data-permission] {
 }
 
 .texticon svg { vertical-align: text-bottom; }
+.slideshowimage { 
+   width: 100% !IMPORTANT; 
+   height: 100% !IMPORTANT;
+   object-fit: contain;
+   background-color: var(--outlinecolor); /*var(--databarbgcolor);*/
+}
 
 .content pre { margin: 0.25em 0; }
 pre .keyword { font-weight: bold; }

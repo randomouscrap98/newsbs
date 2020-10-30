@@ -9,19 +9,19 @@
       <meta name="description" content="New SmileBASIC Source">
       <link data-favicon rel="shortcut icon" href="favicon.ico">
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604041435" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1604041435"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604041435"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604043617" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1604043617"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604043617"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1604041435"></script>
-      <script src="dom.js?v=1604041435"></script>
-      <script src="api.js?v=1604041435"></script>
-      <script src="index.js?v=1604041435"></script>
-      <script src="sbs2-markup/highlight.js?v=1604041435"></script>
-      <script src="sbs2-markup/parse.js?v=1604041435"></script>
-      <script src="sbs2-markup/render.js?v=1604041435"></script>
+      <script src="libbo.js?v=1604043617"></script>
+      <script src="dom.js?v=1604043617"></script>
+      <script src="api.js?v=1604043617"></script>
+      <script src="index.js?v=1604043617"></script>
+      <script src="sbs2-markup/highlight.js?v=1604043617"></script>
+      <script src="sbs2-markup/parse.js?v=1604043617"></script>
+      <script src="sbs2-markup/render.js?v=1604043617"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1604041435" />
+      <link rel="stylesheet" href="index.css?v=1604043617" />
       <script>
 if (location.protocol !== "https:") {
    console.log("Redirecting to https, this is slow, please complain that this should be a server thing");
@@ -300,15 +300,10 @@ function leftpaneclick(event)
                      <!-- Swap the discussions in and out of here -->
                   </div>
                   <div id="postarea" class="uk-inline" data-loginonly>
-                     <!--<div id="postdiscussiontext"  role="textarea" contenteditable
-                        class="input uk-flex-1 uk-textarea uk-width-expand"></div>-->
                      <textarea id="postdiscussiontext" 
                         class="uk-flex-1 uk-textarea uk-width-expand"></textarea>
                      <a href="#" uk-toggle="target: #fileupload" uk-icon="image"
                         class="uk-position-bottom-right" id="discussionimageselect"></a>
-                     <!--<div class="uk-cover uk-overlay-primary">NO</div>-->
-            <!--<div class="uk-overlay-primary uk-position-bottom
-               uk-text-center">-->
                   </div>
                </div>
             </div>
@@ -793,8 +788,6 @@ function leftpaneclick(event)
          <!-- PW is the dual pulse-watch element (formatting is nearly identical) -->
          <li id="pw" data-contentid="data-cid">
             <div class="pwnamerow uk-flex uk-flex-middle">
-               <!--<span class="uk-flex-none uk-margin-small-right" data-type=".typeToIcon" 
-                  uk-icon="ratio: 1.0"></span>-->
                <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-margin-small-right 
                   uk-flex uk-flex-middle uk-position-relative"
                   uk-icon="ratio: 1.0">
@@ -1053,7 +1046,7 @@ function leftpaneclick(event)
             </li>
          </ul>
          <li id="annotatedslideshowitem">
-            <img data-src=".src" uk-cover>
+            <img data-src=".src" uk-cover class="slideshowimage">
             <div class="uk-overlay-primary uk-position-bottom uk-text-center">
                <a data-title=".textContent" data-link="href" class="uk-margin-remove
                uk-text-truncate uk-text-large slideshowtext uk-display-block" data-spa></a>
@@ -1064,7 +1057,7 @@ function leftpaneclick(event)
             </div>
          </li>
          <li id="slideshowitem">
-            <img data-src=".src" uk-cover>
+            <img data-src=".src" uk-cover class="slideshowimage">
          </li>
          <div id="contentimage" class="uk-flex
             uk-flex-middle"><img data-nouikit data-contentimageimage tabindex="2" data-src="src"></div>
@@ -1074,7 +1067,7 @@ function leftpaneclick(event)
             <a href="#" uk-icon="close" class="uk-text-danger uk-flex-none"
       onclick="event.preventDefault();var p=this.parentNode;p.parentNode.removeChild(p);"></a>
          </div>
-         <div id="slideshow" uk-slideshow="animation: push; ratio: 5:3;
+         <div id="slideshow" uk-slideshow="animation: slide; ratio: 5:3;
                   autoplay: true; autoplay-interval: 6000; pause-on-hover: true">
             <div class="uk-position-relative uk-visible-toggle uk-light" tabindex="-1">
                <ul data-slideshowitems class="uk-slideshow-items">
@@ -1105,17 +1098,17 @@ function leftpaneclick(event)
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
             <h1 class="pagetitle">SmileBASIC Source</h1>
             <div class="pageblock">
-               <p>A community for talking about SmileBASIC, where you can create 
-               BASIC programs on your Nintendo 3DS, Wii U, and Switch! 
-               This website is in development! There's a lot of missing features, 
-               but we're gonna keep adding stuff until it's good!</p>
+               <p>A community for talking about SmileBASIC, a program that lets you create
+               BASIC programs on your Nintendo 3DS, Wii U, and Switch! Open the
+               sidebar or <a href="?p=category-0">START HERE</a> to browse!
+               We also have an <a href="/12">alternate frontend</a> developed by local user 12, try it out!</p>
                <div data-slideshowcontainer>
                   <div data-tmpl="slideshow"></div>
                </div>
             </div>
             <h3>
-               <a href="?p=category-0" data-spa>Browse Everything</a>
-               <a href="/12" class="uk-text-small uk-align-right">Alternate frontend</a>
+               <!--<a href="?p=category-0" data-spa>Website Tree</a>-->
+               <!--<a href="/12" class="uk-text-small uk-align-right">Alternate frontend</a>-->
             </h3>
             <div class="" data-homehistory></div>
             <!--<a href="?p=test" data-spa>Test area</a>-->
