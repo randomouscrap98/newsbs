@@ -9,23 +9,36 @@
       <meta name="description" content="New SmileBASIC Source">
       <link data-favicon rel="shortcut icon" href="favicon.ico">
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604030965" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1604030965"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604030965"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604041435" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1604041435"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604041435"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1604030965"></script>
-      <script src="dom.js?v=1604030965"></script>
-      <script src="api.js?v=1604030965"></script>
-      <script src="index.js?v=1604030965"></script>
-      <script src="sbs2-markup/highlight.js?v=1604030965"></script>
-      <script src="sbs2-markup/parse.js?v=1604030965"></script>
-      <script src="sbs2-markup/render.js?v=1604030965"></script>
+      <script src="libbo.js?v=1604041435"></script>
+      <script src="dom.js?v=1604041435"></script>
+      <script src="api.js?v=1604041435"></script>
+      <script src="index.js?v=1604041435"></script>
+      <script src="sbs2-markup/highlight.js?v=1604041435"></script>
+      <script src="sbs2-markup/parse.js?v=1604041435"></script>
+      <script src="sbs2-markup/render.js?v=1604041435"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1604030965" />
+      <link rel="stylesheet" href="index.css?v=1604041435" />
       <script>
 if (location.protocol !== "https:") {
    console.log("Redirecting to https, this is slow, please complain that this should be a server thing");
   location.protocol = "https:";
+}
+function loginEmailSwitch(element)
+{
+   if(element.checked)
+   {
+      loginformuser.setAttribute("placeholder", "Email");
+      loginformuser.setAttribute("name", "email");
+   }
+   else
+   {
+      loginformuser.setAttribute("placeholder", "Username");
+      loginformuser.setAttribute("name", "username");
+   }
 }
 //Scripts for templates/THIS file etc
 function loglevel(el, replace)
@@ -427,8 +440,6 @@ function leftpaneclick(event)
                               <div id="developerlocaloptions" class="settings" hidden></div>
                               <button id="restoredefaultsettings" 
                                  class="uk-button uk-button-default">Restore Defaults</button>
-                              <!--<button id="allowNotifications" 
-                                 class="uk-button uk-button-default">Permit Notifications</button>-->
                            </div>
                            <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                         </div>
@@ -442,10 +453,12 @@ function leftpaneclick(event)
                            <fieldset class="uk-fieldset" uk-margin>
                               <legend class="uk-legend">Login</legend>
       <!-- Once again shifted over for convenience -->
-      <input class="uk-input" name="username" type="text" placeholder="Username" required>
+      <input class="uk-input" id="loginformuser" name="username" type="text" placeholder="Username" required>
       <input class="uk-input" name="password" type="password" placeholder="Password" required>
       <div class="uk-inline">
       <input type="submit" value="Login" class="uk-button uk-button-primary">
+      <label><input type="checkbox" class="ufk-checkbox" data-emailswitch
+         onchange="loginEmailSwitch(this)">Email login</label>
       </div>
                            </fieldset>
                         </form>
@@ -572,10 +585,10 @@ function leftpaneclick(event)
                   <p>
    SmileBASIC Source is a fan website for the SmileBASIC applications made by 
    <a target="_blank" href="https://smileboom.com/en/">SmileBoom</a>. These 
-   applications are available on the Nintendo 3ds, Wii U, and Switch, and 
+   applications are available on the Nintendo 3DS, Wii U, and Switch, and 
    allow you to create programs in BASIC on those systems. Our main focus is 
-   <a target="_blank" href="https://www.petc4.smilebasic.com/?lang=en">SmileBasic 4</a> 
-   on Switch.
+   <a target="_blank" href="https://www.petc4.smilebasic.com/?lang=en">
+      SmileBasic 4 for Nintendo Switch</a>.
                   </p>
                   <h3 class="uk-heading-divider"><span>Privacy</span></h3>
                   <p>

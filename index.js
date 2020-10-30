@@ -186,13 +186,6 @@ window.onload = function()
    };
    StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
 
-   //Merge this crap with setupSession so it's only ever called once
-   var params = new URLSearchParams();
-   params.append("requests", "category"); //there may be other things you load at the start
-   globals.api.Chain(params, apidat =>
-   {
-      setPaneCategoryTree(apidat.data.category)
-   });
 };
 
 function safety(func)
@@ -2520,74 +2513,76 @@ function makeHistoryItem(user, activity, title) //users, activity, contents)
 //Set up the page and perform initial requests for being "logged in"
 function setupSession()
 {
+   var loggedIn = getToken() ? true : false;
+   var params = new URLSearchParams();
+   params.append("requests", "category"); //there may be other things you load at the start
+
    //Don't do this special crap until everything is setup, SOME setup may not
    //be required before the user session is started, but it's minimal savings.
-   if(getToken())
+   if(loggedIn)
+   {
       log.Info("User token found, trying to continue logged in");
-   else
-      return;
-
-   //rightpane.style.opacity = 0.2;
-   //setLoginState("loggingin");
-   //website.setAttribute("data-checkinglogin", "");
-   writeDom(() => 
-   {
-      unhide(rightpaneactivityloading);
-      unhide(rightpanewatchesloading);
-   });
-   //because of current nature of login, we can set the login state to true
-   //right now. TODO: fix all this refreshUser and session stuff.
-   writeDom(() => setLoginState("true"));
-   //Refreshing will set our login state, don't worry about that stuff.
-   refreshUserFull(); 
-   //() => writeDom(() => hide(rightpaneloading))); //website.removeAttribute("data-checkinglogin"));
-
-   var params = new URLSearchParams();
-   var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
-   var watchsearch = {"ContentLimit":{"Watches":true}};
-   params.append("requests", "systemaggregate");
-   params.append("requests", "comment-" + JSON.stringify(search));
-   //search.type ="content"; //Add more restrictions for activity
-   params.append("requests", "activity-" + JSON.stringify(search));
-   params.append("requests", "watch");
-   params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch));
-   params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch));
-   params.append("requests", "content.2contentId.1parentId.3contentId");
-   params.append("requests", "user.2userId.1createUserId.4userIds.5userIds");
-   params.set("comment","id,parentId,createUserId,createDate");
-   params.set("content","id,name,type,values,createUserId,permissions");
-   params.set("user","id,username,avatar");
-   params.set("watch","id,contentId,lastNotificationId");
-
-   globals.api.Chain(params, function(apidata)
-   {
-      //log.Datalog(apidata);
-
-      var data = apidata.data;
-
-      data.systemaggregate.forEach(x => 
-      {
-         if(x.type === "actionMax")
-         {
-            log.Info("Last system id: " + x.id);
-            globals.lastsystemid = x.id;
-
-            if(getLocalOption("forcediscussionoutofdate"))
-               globals.lastsystemid -= 2000;
-
-            tryUpdateLongPoll();
-         }
-      });
 
       writeDom(() => 
       {
-         hide(rightpaneactivityloading);
-         hide(rightpanewatchesloading);
+         unhide(rightpaneactivityloading);
+         unhide(rightpanewatchesloading);
       });
 
-      //Fully stock (with reset) the sidepanel
-      updatePulse(data, true);
-      updateWatches(data, true);
+      //because of current nature of login, we can set the login state to true
+      //right now. TODO: fix all this refreshUser and session stuff.
+      writeDom(() => setLoginState("true"));
+      //Refreshing will set our login state, don't worry about that stuff.
+      refreshUserFull(); 
+
+      var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
+      var watchsearch = {"ContentLimit":{"Watches":true}};
+      params.append("requests", "systemaggregate"); //1
+      params.append("requests", "comment-" + JSON.stringify(search));   //2
+      params.append("requests", "activity-" + JSON.stringify(search));  //3
+      params.append("requests", "watch");    //4
+      params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //5
+      params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //6
+      params.append("requests", "content.3contentId.2parentId.4contentId");
+      params.append("requests", "user.3userId.2createUserId.5userIds.6userIds");
+      params.set("comment","id,parentId,createUserId,createDate");
+      params.set("content","id,name,type,values,createUserId,permissions");
+      params.set("user","id,username,avatar");
+      params.set("watch","id,contentId,lastNotificationId");
+   }
+
+   globals.api.Chain(params, apidata =>
+   {
+      var data = apidata.data;
+
+      if(loggedIn)
+      {
+         data.systemaggregate.forEach(x => 
+         {
+            if(x.type === "actionMax")
+            {
+               log.Info("Last system id: " + x.id);
+               globals.lastsystemid = x.id;
+
+               if(getLocalOption("forcediscussionoutofdate"))
+                  globals.lastsystemid -= 2000;
+
+               tryUpdateLongPoll();
+            }
+         });
+
+         writeDom(() => 
+         {
+            hide(rightpaneactivityloading);
+            hide(rightpanewatchesloading);
+         });
+
+         //Fully stock (with reset) the sidepanel
+         updatePulse(data, true);
+         updateWatches(data, true);
+      }
+
+      setPaneCategoryTree(apidata.data.category)
    });
 }
 
