@@ -763,8 +763,8 @@ function leftpaneclick(event)
       <template id="templates2">
          <!-- Same as before, but some things will have data-thing="*" -->
          <li id="log" class="uk-flex uk-text-break">
-            <span data-message=".textContent" data-level=".loglevel" class="uk-width-expand logmessage"></span>
-            <time data-time=".textContent"></time>
+            <span t-message=".textContent" t-level=".loglevel" class="uk-width-expand logmessage"></span>
+            <time t-time=".textContent"></time>
          </li>
       </template>
       <template id="templates" style="display: none">
