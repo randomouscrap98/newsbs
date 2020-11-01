@@ -3418,7 +3418,7 @@ function messageControllerEvent(event)
    var rawcm = getSwap(omsg, "data-message"); 
    var msgdate = getSwap(omsg, "data-createdate");
    var msgedate = getSwap(omsg, "data-editdate");
-   findSwap(oframe, "data-frametime", msgdate);
+   findSwap(frame, "data-frametime", msgdate);
 
    commenteditpreview.innerHTML = "";
    commenteditpreview.appendChild(frame);
