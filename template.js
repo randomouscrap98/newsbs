@@ -80,7 +80,15 @@ var TemplateSystem = Object.create(null); with (TemplateSystem) (function($) { O
    },
    StdTemplateProcessField: function(currentelement, fieldname, tobj)
    {
+      //Nothing to do!
+      if(!fieldname.startsWith("t-"))
+         return;
+
+      var name = fieldname.substr(2);
       var value = StripField(currentelement, fieldname);
+
+      //Now the standard old neat things. Except... uhhh wait, how do you
+      //define a function just for this template? oh no...
    },
    //Standard initialization for my index templates, which recurses through
    //elemets to find t-variables 
@@ -95,9 +103,9 @@ var TemplateSystem = Object.create(null); with (TemplateSystem) (function($) { O
          return;
 
       //Look for attributes and create standard redirects based on field value
-      [...currentelement.attributes].filter(x => x.name.startsWith("t-")).forEach(x => 
+      [...currentelement.attributes].forEach(x => 
       {
-      
+         StdTemplateProcessField(currentelement, x.name, tobj);
       }));
 
       //Call self for every child (recursive)
