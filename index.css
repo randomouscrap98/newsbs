@@ -269,12 +269,17 @@ a:hover { color: inherit; }
    margin: 0.15em;
    opacity: 0.6;
 }
+[data-template="log"] { padding: 0.1em 0.5em; }
+[data-loglevel="trace"] { opacity: 0.50; }
+[data-loglevel="debug"] { color: #74b587; }
+[data-loglevel="error"] { color: #C42; }
+[data-loglevel="warn"] { color: #DA6; }
 .logmessage { white-space: pre-wrap; }
-.log_trace { opacity: 0.50; }
+/*.log_trace { opacity: 0.50; }
 .log_debug { color: #74b587; }
 .log_error { color: #C42; }
 .log_warn { color: #DA6; }
-[data-log] { padding: 0.1em 0.5em; }
+[data-log] { padding: 0.1em 0.5em; }*/
 
 /* -------------------- */
 /* Notification special */
