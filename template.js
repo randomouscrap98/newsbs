@@ -15,10 +15,12 @@ function Template(name, element, fields)
    this.element = element;
    this.fields = fields; //Use getter/setters: Object.defineProperty(obj, "name", get: , set: });
    this.innerTemplates = {};
+
+   this.functionPool = {};
 }
 
 var TemplateSystem = Object.create(null); with (TemplateSystem) (function($) { Object.assign(TemplateSystem, 
-   
+{   
    //Ensure only a single field is ever defined for an object
    SingleField: function(obj, key, define)
    {
@@ -97,12 +99,12 @@ var TemplateSystem = Object.create(null); with (TemplateSystem) (function($) { O
          {
             var func = property.substr(0, func.length - 2);
 
-            if(!func in currentelement)
+            if(!func in tobj.functionPool) //currentelement)
                throw "No function " + func + " in template: " + tobj.name;
 
             SingleField(tobj.fields, func, {
-               get: () => currentelement[func + "_get"](currentelement),
-               set: (v) => currentelement[func + "_set"](currentelement, v)
+               get: () => tobj.functionPool[func + "_get"](currentelement, tobj),
+               set: (v) => tobj.functionPool[func + "_set"](currentelement, v, tobj)
             });
          }
          else
@@ -138,28 +140,29 @@ var TemplateSystem = Object.create(null); with (TemplateSystem) (function($) { O
       [...currentelement.attributes].forEach(x => 
       {
          StdTemplateProcessField(currentelement, x.name, tobj);
-      }));
+      });
 
       //Call self for every child (recursive)
       [...currentelement.children].forEach(x => StdTemplateScan(x, tobj));
    },
    //Get the template from the index, initializing all the inner crap etc. All
    //my templates should be this, you can add other templates ofc.
-   StdTemplate : function(template)
+   StdTemplate : function(template, functionPool)
    {
-      var base = templates2.getElementById(template) || throw "No template found with name: " + template;
+      var base = templates2.getElementById(template);
+      if(!base) throw "No template found with name: " + template;
       var element = base.cloneNode(true);
       var tobj = new Template(template, element, {});
+      tobj.functionPool = functionPool;
       element.setAttribute("data-template", template);
       element.removeAttribute("id");
       StdTemplateScan(element, tobj);
       return tobj;
-   },
-
-   LoadTemplate : function(template)
-   {
-      //look inside yourself
    }
+   //LoadTemplate : function(template, functionPool)
+   //{
+   //   return StdTemplate(template
+   //}
 })
 //Private vars can go here
 }(window));
