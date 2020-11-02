@@ -89,6 +89,38 @@ var TemplateSystem = Object.create(null); with (TemplateSystem) (function($) { O
 
       //Now the standard old neat things. Except... uhhh wait, how do you
       //define a function just for this template? oh no...
+      if(value.startsWith("."))
+      {
+         var property = value.substr(1);
+
+         if(property.endsWith("()"))
+         {
+            var func = property.substr(0, func.length - 2);
+
+            if(!func in currentelement)
+               throw "No function " + func + " in template: " + tobj.name;
+
+            SingleField(tobj.fields, func, {
+               get: () => currentelement[func + "_get"](currentelement),
+               set: (v) => currentelement[func + "_set"](currentelement, v)
+            });
+         }
+         else
+         {
+            if(!property in currentelement)
+               throw "No property " + property + " in template: " + tobj.name;
+
+            SingleFieldValue(tobj.fields, property, currentelement[property]);
+         }
+      }
+      else
+      {
+         //It's the field!
+         SingleField(tobj.fields, value, {
+            get : () => currentelement.getAttribute("data-" + name),
+            set : (v) => currentelement.setAttribute("data-" + name, v)
+         });
+      }
    },
    //Standard initialization for my index templates, which recurses through
    //elemets to find t-variables 
