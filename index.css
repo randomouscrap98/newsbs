@@ -59,6 +59,7 @@ body {
 }
 
 /* Some re-theming stuff (mostly uikit) */
+.uk-overlay-primary { color: #FFF; }
 html, body, .uk-modal-dialog, .uk-dropdown {
    background-color: var(--mainbgcolor);
    color: var(--maintxtcolor);

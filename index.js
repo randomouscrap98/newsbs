@@ -588,7 +588,14 @@ function setupSpa()
    globals.spa = new BasicSpa(log);
 
    //For now, we have ONE processor!
-   globals.spa.Processors.push(new SpaProcessor(url => true, (url, rid) =>
+   globals.spa.Processors.push(new SpaProcessor(url => 
+   {
+      if(globals.leaveprotect)
+      {
+         return confirm("You will lose unsaved changes, are you sure you want to leave the page?");
+      }
+      return true;
+   }, (url, rid) =>
    {
       var spadata = parseLink(url);
       spadata.rid = rid;
@@ -922,7 +929,11 @@ function route_complete(spadat, title, applyTemplate, breadcrumbs, cid)
 
       writeDom(() =>
       {
-         renderPage(spadat.route, applyTemplate, breadcrumbs);
+         renderPage(spadat.route, (t) =>
+         {
+            globals.leaveprotect = t.hasAttribute("data-leaveprotect");
+            applyTemplate(t);
+         }, breadcrumbs);
          setTitle(title);
          if(!cid)
             hideDiscussion();

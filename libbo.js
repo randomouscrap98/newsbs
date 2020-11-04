@@ -66,7 +66,10 @@ BasicSpa.prototype.ProcessLink = function(url)
       {
          try
          {
-            this.Processors[i].Process(url, rid);
+            //If the function SPECIFICALLY returned false (it's ok if they
+            //return nothing) then they didn't actually decide to process us
+            if(this.Processors[i].Process(url, rid) === false)
+               continue;
          }
          catch(ex)
          {

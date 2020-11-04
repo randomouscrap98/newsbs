@@ -8,26 +8,29 @@
       <meta name="rating" content="general">
       <meta name="description" content="New SmileBASIC Source">
       <link data-favicon rel="shortcut icon" href="favicon.ico">
-      <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604301066" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1604301066"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604301066"></script>
-      <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1604301066"></script>
-      <script src="template.js?v=1604301066"></script>
-      <script src="dom.js?v=1604301066"></script>
-      <script src="api.js?v=1604301066"></script>
-      <script src="index.js?v=1604301066"></script>
-      <script src="sbs2-markup/highlight.js?v=1604301066"></script>
-      <script src="sbs2-markup/parse.js?v=1604301066"></script>
-      <script src="sbs2-markup/render.js?v=1604301066"></script>
-      <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1604301066" />
-      <script>
+<script>
+//DO THIS NOW! Well... maybe the order doesn't matter... oh well
 if (location.protocol !== "https:") {
    console.log("Redirecting to https, this is slow, please complain that this should be a server thing");
   location.protocol = "https:";
 }
+</script>
+      <!-- LOC:UIFRAMEWORK -->
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604459910" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1604459910"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604459910"></script>
+      <!-- LOC:SCRIPT -->
+      <script src="libbo.js?v=1604459910"></script>
+      <script src="template.js?v=1604459910"></script>
+      <script src="dom.js?v=1604459910"></script>
+      <script src="api.js?v=1604459910"></script>
+      <script src="index.js?v=1604459910"></script>
+      <script src="sbs2-markup/highlight.js?v=1604459910"></script>
+      <script src="sbs2-markup/parse.js?v=1604459910"></script>
+      <script src="sbs2-markup/render.js?v=1604459910"></script>
+      <!-- LOC:STYLE -->
+      <link rel="stylesheet" href="index.css?v=1604459910" />
+      <script>
 function loginEmailSwitch(element)
 {
    if(element.checked)
@@ -96,6 +99,7 @@ function typeToIcon(el, replace)
 var stoic = {
    "3ds" : {"t" : "3DS", "i" : "3ds.svg" },
    "n3ds" : {"t" : "New 3DS", "i" : "3ds.svg" },
+   "wiiu" : {"t" : "Wii U", "i" : "wiiu.svg" },
    "switch" : {"t" : "Switch", "i" : "switch.svg" }
 };
 function systemToIcon(el, replace)
@@ -1046,10 +1050,12 @@ function leftpaneclick(event)
             </li>
          </ul>
          <li id="annotatedslideshowitem">
-            <img data-src=".src" uk-cover class="slideshowimage">
+            <a data-link="href" class="uk-width-expand uk-height-1-1 uk-display-block" data-spa>
+               <img data-src=".src" uk-cover class="slideshowimage">
+            </a>
             <div class="uk-overlay-primary uk-position-bottom uk-text-center">
-               <a data-title=".textContent" data-link="href" class="uk-margin-remove
-               uk-text-truncate uk-text-large slideshowtext uk-display-block" data-spa></a>
+               <span data-title=".textContent" class="uk-margin-remove
+               uk-text-truncate uk-text-large slideshowtext uk-display-block"></span>
             </div>
             <div class="uk-overlay-primary uk-position-bottom uk-text-center" hidden>
                <p data-tagline=".textContent" class="uk-margin-remove
@@ -1102,6 +1108,9 @@ function leftpaneclick(event)
                BASIC programs on your Nintendo 3DS, Wii U, and Switch! Open the
                sidebar or <a href="?p=category-0">START HERE</a> to browse!
                We also have an <a href="/12">alternate frontend</a> developed by local user 12, try it out!</p>
+               <p>SmileBASIC Source changed websites and databases. The
+               original is now hosted at <a href="https://old.smilebasicsource.com">
+               old.smilebasicsource.com</a></p>
                <div data-slideshowcontainer>
                   <div data-tmpl="slideshow"></div>
                </div>
@@ -1203,7 +1212,7 @@ function leftpaneclick(event)
                </p>
             </div>
          </div>
-         <div id="routecategoryedit" class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routecategoryedit" data-leaveprotect class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>
             <div>
                <form onsubmit="return false" class="uk-form-stacked pageform lightblock">
@@ -1254,7 +1263,7 @@ function leftpaneclick(event)
                create new categories depending on your permissions.</p>
             </div>
          </div>
-         <div id="routepageedit" class="uk-container uk-margin-top uk-margin-bottom">
+         <div id="routepageedit" data-leaveprotect class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>
             <div>
                <form onsubmit="return false" class="uk-form-stacked pageform lightblock">
@@ -1274,8 +1283,9 @@ function leftpaneclick(event)
       <label data-pagesystem class="uk-form-label" uk-margin>
          <span>System:</span>
          <select class="uk-select" name="values.system">
-            <option value="3ds">3DS (Any)</option>
+            <option value="3ds">3DS</option>
             <option value="n3ds">New 3DS</option>
+            <option value="wiiu">Wii U</option>
             <option value="switch" selected>Switch</option>
          </select>
       </label>
@@ -1385,12 +1395,6 @@ function leftpaneclick(event)
             <!--<hr></hr>-->
          </div>
       </template>
-      <!-- LOC:CONTROLS -->
-      <!--<div id="controls" style="display: none">
-         <button id="toggleuserstate" uk-toggle="target: [data-utgl]" type="button" 
-            onclick="document.querySelector('#rightpanenav > [hidden] a').click()">
-         </button>
-      </div>-->
       <!-- LOC:MEMORY -->
       <div id="memory" style="display: none">
          <div id="discussionmemory">

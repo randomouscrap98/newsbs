@@ -107,7 +107,6 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          //which calls a function within the function pool but WITH the template
          var f = (...args) =>
          {
-            //var realargs = [...arguments];
             args.push(tobj);
             args.push(currentelement);
             tobj.functionPool[pollfunc].call(tobj.functionPool[pollfunc], ...args);
@@ -230,7 +229,6 @@ var Templates = {
    },
    UpdateLogs : function(logs, tobj, ce)
    {
-      console.log("CALLING UPDATELOGS WITH",logs,tobj,ce);
       //Makes assumptions about logs to make it go quicker: assume ids ONLY go
       //up, logs will ALWAYS be in order, logs can't be inserted in the middle, etc
       while(ce.firstElementChild && (logs.length == 0 || Number(ce.firstElementChild.dataset.id) < logs[0].id))
@@ -241,7 +239,6 @@ var Templates = {
       }
 
       //Find the last id, only display new ones.
-      //DomDeps.log("Debug log shown, rendering new messages");
       var lastId = (ce.lastElementChild ? Number(ce.lastElementChild.dataset.id) : 0);
       for(var i = 0; i < logs.length; i++)
       {
@@ -249,11 +246,6 @@ var Templates = {
          {
             var logMessage = Templates.Load("log");
             logMessage.SetFields(logs[i]); 
-            //{
-            //   "message": log.messages[i].message,
-            //   "level": log.messages[i].level,
-            //   "time": log.messages[i].time
-            //});
             logMessage.element.setAttribute("data-id", logs[i].id);
             ce.appendChild(logMessage.element);
          }
