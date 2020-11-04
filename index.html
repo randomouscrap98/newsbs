@@ -403,7 +403,7 @@ function leftpaneclick(event)
                   </li>
                   <!-- LOC:LOGS -->
                   <li id="logsparent">
-                     <ul id="logs" class="uk-list uk-list-divider uk-list-collapse"></ul>
+                     <div data-template="logcontainer" id="logs"></div>
                   </li>
                   <!-- LOC:USER -->
                   <li id="userpane">
@@ -767,12 +767,11 @@ function leftpaneclick(event)
             <span t-message=".textContent" t-level="data-loglevel" class="uk-width-expand logmessage"></span>
             <time t-time=".textContent"></time>
          </li>
+         <ul id="logcontainer" class="uk-list uk-list-divider uk-list-collapse"
+            tfunc="UpdateLogs">
+         </ul>
       </template>
       <template id="templates" style="display: none">
-         <li id="log" class="uk-flex uk-text-break">
-            <span data-message=".textContent" data-level=".loglevel" class="uk-width-expand logmessage"></span>
-            <time data-time=".textContent" class=""></time>
-         </li>
          <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
             <a class="uk-alert-close" uk-close></a>
             <p data-message=".textContent"></p>

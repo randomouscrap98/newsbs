@@ -111,6 +111,8 @@ window.onload = function()
 {
    log.Info("Window load event");
 
+   Templates.ReplaceTemplatePlaceholders(website);
+
    //This is SO IMPORTANT that you can't do it on a frame, has to be done now
    finalizeTemplate(website);
 
@@ -141,7 +143,7 @@ window.onload = function()
    setupSpa();
 
    //Little setup here and there
-   UIkit.util.on('#logsparent', 'show', () => writeDom(() => renderLogs(log)));
+   UIkit.util.on('#logsparent', 'show', () => writeDom(() => logs.template.UpdateLogs(log.messages)));
 
    setupTechnicalInfo();
    setupUserStuff();

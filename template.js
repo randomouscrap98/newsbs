@@ -16,6 +16,7 @@ function Template(name, element, fields)
    this.fields = fields; //Use getter/setters: Object.defineProperty(obj, "name", get: , set: });
    this.innerTemplates = {};
 
+   this.functions = {}; //Need to keep track of which functions were added to us for hoisting
    this.functionPool = {};
 }
 
@@ -76,6 +77,10 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
             {
                SingleField(tobj.fields, x, Object.getOwnPropertyDescriptor(innerobj.fields, x));
             });
+            Object.keys(innerobj.functions).forEach(x =>
+            {
+               SingleFieldValue(tobj.functions, x, innerobj.functions[x]);
+            });
          }
          else
          {
@@ -87,49 +92,73 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
    },
    ProcessField: function(currentelement, fieldname, tobj)
    {
-      //Nothing to do!
-      if(!fieldname.startsWith("t-"))
-         return;
-
-      var name = fieldname.substr(2);
-      var value = StripField(currentelement, fieldname);
-
-      //Now the standard old neat things. Except... uhhh wait, how do you
-      //define a function just for this template? oh no...
-      if(value.startsWith("."))
+      //Check for function first, do some special processing
+      if(fieldname == "tfunc") //fieldname.startsWith("tfunc-"))
       {
-         var property = value.substr(1);
+         //var func = fieldname.substr(6);
+         var parts = StripField(currentelement, fieldname).split("/");
+         var func = parts[0];
+         var pollfunc = parts[1] || func;
 
-         if(property.endsWith("()"))
+         if(!(pollfunc in tobj.functionPool)) //currentelement)
+            throw "No function " + pollfunc + " in function pool for template: " + tobj.name;
+
+         //Define a function on the tobj itself (if possible, it can't collide)
+         //which calls a function within the function pool but WITH the template
+         var f = (...args) =>
          {
-            var func = property.substr(0, func.length - 2);
+            //var realargs = [...arguments];
+            args.push(tobj);
+            args.push(currentelement);
+            tobj.functionPool[pollfunc].call(tobj.functionPool[pollfunc], ...args);
+         };
 
-            if(!(func in tobj.functionPool)) //currentelement)
-               throw "No function " + func + " in template: " + tobj.name;
+         SingleFieldValue(tobj, func, f);
+         SingleFieldValue(tobj.functions, func, f);
+      }
+      else if(fieldname.startsWith("t-"))
+      {
+         var name = fieldname.substr(2);
+         var value = StripField(currentelement, fieldname);
 
-            SingleField(tobj.fields, name, {
-               get: () => tobj.functionPool[func + "_get"](currentelement, tobj),
-               set: (v) => tobj.functionPool[func + "_set"](currentelement, v, tobj)
-            });
+         //Now the standard old neat things. Except... uhhh wait, how do you
+         //define a function just for this template? oh no...
+         if(value.startsWith("."))
+         {
+            var property = value.substr(1);
+
+            //TODO: The "function" feature may not be used or may be changed
+            if(property.endsWith("()"))
+            {
+               var func = property.substr(0, func.length - 2);
+
+               if(!(func in tobj.functionPool)) //currentelement)
+                  throw "No function " + func + " in function pool for template: " + tobj.name;
+
+               SingleField(tobj.fields, name, {
+                  get: () => tobj.functionPool[func + "_get"](currentelement, tobj),
+                  set: (v) => tobj.functionPool[func + "_set"](currentelement, v, tobj)
+               });
+            }
+            else
+            {
+               if(!(property in currentelement))
+                  throw "No property " + property + " in template: " + tobj.name;
+
+               SingleField(tobj.fields, name, {
+                  get: () => currentelement[property], 
+                  set: (v) => currentelement[property] = v 
+               });
+            }
          }
          else
          {
-            if(!(property in currentelement))
-               throw "No property " + property + " in template: " + tobj.name;
-
+            //It's the field!
             SingleField(tobj.fields, name, {
-               get: () => currentelement[property], 
-               set: (v) => currentelement[property] = v 
+               get : () => currentelement.getAttribute(value),
+               set : (v) => currentelement.setAttribute(value, v)
             });
          }
-      }
-      else
-      {
-         //It's the field!
-         SingleField(tobj.fields, name, {
-            get : () => currentelement.getAttribute(value),
-            set : (v) => currentelement.setAttribute(value, v)
-         });
       }
    },
    //Standard initialization for my index templates, which recurses through
@@ -161,6 +190,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
       if(!base) throw "No template found with name: " + template;
       var element = base.cloneNode(true);
       var tobj = new Template(template, element, {});
+      element.template = tobj; //make sure you can get back to the template from just the element
       tobj.functionPool = functionPool;
       element.setAttribute("data-template", template);
       element.removeAttribute("id");
@@ -173,14 +203,22 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
 
 //And now, this is the "specific" template system...?
 var Templates = {
-   //appendclass_get : function(el)
-   //{
-   //   
-   //   var loglevel = "log_" + replace;
-   //   if(el.className.indexOf(loglevel) < 0)
-   //      el.className += " " + loglevel;
-   //   return loglevel;
-   //}
+   ReplaceTemplatePlaceholders : function(element)
+   {
+      [...element.querySelectorAll("[data-template]")].forEach(x =>
+      {
+         //Create the template it asked for
+         var tmpl = Templates.Load(x.getAttribute("data-template"));
+         //Copy over the attributes
+         [...x.attributes].forEach(y =>
+         {
+            if(y.name != "data-template")
+               tmpl.element.setAttribute(y.name, y.value);
+         });
+         //Replace the element
+         x.parentNode.replaceChild(tmpl.element, x);
+      });
+   },
    Load : function(template)
    {
       //Always try to load from ourselves first
@@ -189,5 +227,38 @@ var Templates = {
          return Templates[selfLoad];
       else
          return StdTemplating.Load(template, Templates);
+   },
+   UpdateLogs : function(logs, tobj, ce)
+   {
+      console.log("CALLING UPDATELOGS WITH",logs,tobj,ce);
+      //Makes assumptions about logs to make it go quicker: assume ids ONLY go
+      //up, logs will ALWAYS be in order, logs can't be inserted in the middle, etc
+      while(ce.firstElementChild && (logs.length == 0 || Number(ce.firstElementChild.dataset.id) < logs[0].id))
+      {
+         //This would normally be bad, but what else can we do? set inner html
+         //and rerender all? lol ok
+         ce.removeChild(ce.firstElementChild);
+      }
+
+      //Find the last id, only display new ones.
+      //DomDeps.log("Debug log shown, rendering new messages");
+      var lastId = (ce.lastElementChild ? Number(ce.lastElementChild.dataset.id) : 0);
+      for(var i = 0; i < logs.length; i++)
+      {
+         if(logs[i].id > lastId)
+         {
+            var logMessage = Templates.Load("log");
+            logMessage.SetFields(logs[i]); 
+            //{
+            //   "message": log.messages[i].message,
+            //   "level": log.messages[i].level,
+            //   "time": log.messages[i].time
+            //});
+            logMessage.element.setAttribute("data-id", logs[i].id);
+            ce.appendChild(logMessage.element);
+         }
+      }
+
+      ce.scrollTop = ce.scrollHeight;
    }
 };

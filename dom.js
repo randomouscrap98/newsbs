@@ -732,38 +732,26 @@ function getPWUserlist(pulseitem) { return pulseitem.querySelector(".pw-users");
 
 // Usually we don't depend on outside data formats but this is special.
 
-function renderLogs(log)
-{
-   //Find the last id, only display new ones.
-   DomDeps.log("Debug log shown, rendering new messages");
-   var lastId = (logs.lastElementChild ? Number(logs.lastElementChild.dataset.id) : 0);
-   //var msgBase = cloneTemplate("log");
-   for(var i = 0; i < log.messages.length; i++)
-   {
-      if(log.messages[i].id > lastId)
-      {
-         //var logMessage = msgBase.cloneNode(true);
-         var logMessage = Templates.Load("log");
-         logMessage.SetFields({
-            "message": log.messages[i].message,
-            "level": log.messages[i].level,
-            "time": log.messages[i].time
-         });
-         //logMessage.fields.message = log.messages[i].message;
-         //logMessage.fields.level = log.messages[i].level;
-         //logMessage.fields.time = log.messages[i].time;
-         logMessage.element.setAttribute("data-id", log.messages[i].id);
-         logs.appendChild(logMessage.element);
-         //console.log(logMessage);
-         //logMessage.setAttribute("data-id", log.messages[i].id);
-         //multiSwap(logMessage, {
-         //   "data-message": log.messages[i].message,
-         //   "data-level": log.messages[i].level,
-         //   "data-time": log.messages[i].time
-         //});
-      }
-   }
-}
+//function renderLogs(log)
+//{
+//   //Find the last id, only display new ones.
+//   DomDeps.log("Debug log shown, rendering new messages");
+//   var lastId = (logs.lastElementChild ? Number(logs.lastElementChild.dataset.id) : 0);
+//   for(var i = 0; i < log.messages.length; i++)
+//   {
+//      if(log.messages[i].id > lastId)
+//      {
+//         var logMessage = Templates.Load("log");
+//         logMessage.SetFields({
+//            "message": log.messages[i].message,
+//            "level": log.messages[i].level,
+//            "time": log.messages[i].time
+//         });
+//         logMessage.element.setAttribute("data-id", log.messages[i].id);
+//         logs.appendChild(logMessage.element);
+//      }
+//   }
+//}
 
 // Each option is required to have:
 //  "def" (default) value
