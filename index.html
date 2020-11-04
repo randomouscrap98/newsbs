@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604459910" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1604459910"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604459910"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604465591" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1604465591"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604465591"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1604459910"></script>
-      <script src="template.js?v=1604459910"></script>
-      <script src="dom.js?v=1604459910"></script>
-      <script src="api.js?v=1604459910"></script>
-      <script src="index.js?v=1604459910"></script>
-      <script src="sbs2-markup/highlight.js?v=1604459910"></script>
-      <script src="sbs2-markup/parse.js?v=1604459910"></script>
-      <script src="sbs2-markup/render.js?v=1604459910"></script>
+      <script src="libbo.js?v=1604465591"></script>
+      <script src="template.js?v=1604465591"></script>
+      <script src="dom.js?v=1604465591"></script>
+      <script src="api.js?v=1604465591"></script>
+      <script src="index.js?v=1604465591"></script>
+      <script src="sbs2-markup/highlight.js?v=1604465591"></script>
+      <script src="sbs2-markup/parse.js?v=1604465591"></script>
+      <script src="sbs2-markup/render.js?v=1604465591"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1604459910" />
+      <link rel="stylesheet" href="index.css?v=1604465591" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -1021,8 +1021,24 @@ function leftpaneclick(event)
             <div class="uk-flex uk-flex-middle">
                <a data-link="href" data-title=".textContent" class="uk-text-truncate
                   uk-margin-small-right" target="_blank"></a>
-               <a href="#" class="uk-flex-none" data-showplayer uk-icon="youtube"></a>
-               <a href="#" class="uk-flex-none" data-hideplayer uk-icon="close" hidden></a>
+               <!-- This inline SVG is temporary... UIkit is disabled on
+                  messages right now -->
+               <a href="#" class="uk-flex-none uk-icon" data-showplayer>
+                  <svg width="20" height="20" viewBox="0 0 20 20"
+                     xmlns="http://www.w3.org/2000/svg"
+                     data-svg="youtube"><path
+                     d="M15,4.1c1,0.1,2.3,0,3,0.8c0.8,0.8,0.9,2.1,0.9,3.1C19,9.2,19,10.9,19,12c-0.1,1.1,0,2.4-0.5,3.4c-0.5,1.1-1.4,1.5-2.5,1.6
+                     c-1.2,0.1-8.6,0.1-11,0c-1.1-0.1-2.4-0.1-3.2-1c-0.7-0.8-0.7-2-0.8-3C1,11.8,1,10.1,1,8.9c0-1.1,0-2.4,0.5-3.4C2,4.5,3,4.3,4.1,4.2
+                     C5.3,4.1,12.6,4,15,4.1z
+                     M8,7.5v6l5.5-3L8,7.5z"></path></svg>
+               </a>
+               <a href="#" class="uk-flex-none uk-icon" data-hideplayer hidden>
+                  <svg width="20" height="20" viewBox="0 0 20 20"
+                     xmlns="http://www.w3.org/2000/svg" data-svg="close"><path
+                     fill="none" stroke="#000" stroke-width="1.06" d="M16,16
+                     L4,4"></path><path fill="none" stroke="#000"
+                     stroke-width="1.06" d="M16,4 L4,16"></path></svg>
+               </a>
             </div>
          </div>
          <div id="youtubeplayer" class="uk-margin-small-top">

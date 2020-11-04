@@ -431,6 +431,7 @@ function setupSignalProcessors()
 
    signals.Attach("spastart", parsed => 
    {
+      setLeaveProtect(false);
       if((rightpane.clientWidth / window.innerWidth) > getLocalOption("autohidesidebar"))
          writeDom(() => hide(rightpane));
       quickLoad(parsed);
@@ -581,6 +582,22 @@ function shouldAutoScroll(baseData)
 function scrollBottom(element)
 {
    writeDom(() => Utilities.ScrollToBottom(discussions));
+}
+
+var leaveProtectFunc = (e) => { e.preventDefault(); e.returnValue = ''; };
+
+function setLeaveProtect(protect)
+{
+   if(protect)
+   {
+      globals.leaveprotect = true;
+      window.addEventListener("beforeunload", leaveProtectFunc);
+   }
+   else
+   {
+      globals.leaveprotect = false;
+      window.removeEventListener("beforeunload", leaveProtectFunc);
+   }
 }
 
 function setupSpa()
@@ -931,7 +948,7 @@ function route_complete(spadat, title, applyTemplate, breadcrumbs, cid)
       {
          renderPage(spadat.route, (t) =>
          {
-            globals.leaveprotect = t.hasAttribute("data-leaveprotect");
+            setLeaveProtect(t.hasAttribute("data-leaveprotect"));
             applyTemplate(t);
          }, breadcrumbs);
          setTitle(title);
@@ -1347,6 +1364,7 @@ function routecategoryedit_load(spadat)
 
          formSetupSubmit(templ.querySelector("form"), "category", c =>
          {
+            setLeaveProtect(false);
             globals.spa.ProcessLinkContextAware(getCategoryLink(c.id));
          }, false, baseData);
       }, baseData ? getChain(data.category, baseData) : undefined);
@@ -1509,6 +1527,7 @@ function routepageedit_load(spadat)
 
          formSetupSubmit(templ.querySelector("form"), "content", p =>
          {
+            setLeaveProtect(false);
             if(p.type === "userpage")
                globals.spa.ProcessLinkContextAware(getUserLink(p.createUserId));
             else
