@@ -98,6 +98,7 @@ log.PerformanceLog =  (d,c) => logConditional(d, c, "logprofiler");
 
 DomDeps.log = (d,c) => log.Domlog(d, c);
 DomDeps.signal = (name, data) => signals.Add(name, data);
+Templates.signal = (name, data) => signals.Add(name, data);
 
 window.Notification = window.Notification || {};
 
@@ -2647,18 +2648,20 @@ function updateDiscussionUserlist(listeners, users)
 
       if(!existing)
       {
-         existing = cloneTemplate("discussionuser");
-         multiSwap(existing, {
-            avatar : avatar,
+         var tmpl = Templates.Load("discussionuser"); //cloneTemplate("discussionuser");
+         tmpl.SetFields({
+            username : users[uid].username,
             userlink : getUserLink(uid)
          });
-         finalizeTemplate(existing);
+         //finalizeTemplate(existing);
+         existing = tmpl.element;
          discussionuserlist.appendChild(existing);
       }
 
       existing.setAttribute("data-uid", uid);
       existing.setAttribute("data-status", list[uid]);
-      findSwap(existing, "avatar", avatar);
+      existing.template.fields["avatar"] = avatar;
+      //findSwap(existing, "avatar", avatar);
    }
 
    [...discussionuserlist.querySelectorAll("[data-uid]")].forEach(x => 

@@ -184,6 +184,7 @@ a:hover { color: inherit; }
 
 /* OOPS accidental(?) generic stuff */
 .username { margin: 0 0.4em; } /* pwusername, history, messageframeinfo, etc */
+.userdropdown { padding: 0.5em; }
 .databar { padding: 0 0.1em; }
 .outlined { border: 1px solid var(--outlinecolor); }
 .avatar { 
@@ -306,7 +307,6 @@ a:hover { color: inherit; }
    border-radius: 5px;
    padding: 1px;
 }
-.pw-users [uk-dropdown] { padding: 0.5em; }
 .pw-users table { margin: 0; } 
 .pw-users table td { padding: 0.5em 0.4em; }
 .pw-users table td:first-child { text-align: right; }

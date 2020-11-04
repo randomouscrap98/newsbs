@@ -90,6 +90,11 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
 
       return link;
    },
+   _CheckFunctionPool : function(func, tobj)
+   {
+      if(!(func in tobj.functionPool))
+         throw "No function " + func + " in function pool for template: " + tobj.name;
+   },
    ProcessField: function(currentelement, fieldname, tobj)
    {
       //Check for function first, do some special processing
@@ -100,8 +105,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          var func = parts[0];
          var pollfunc = parts[1] || func;
 
-         if(!(pollfunc in tobj.functionPool)) //currentelement)
-            throw "No function " + pollfunc + " in function pool for template: " + tobj.name;
+         _CheckFunctionPool(pollfunc, tobj);
 
          //Define a function on the tobj itself (if possible, it can't collide)
          //which calls a function within the function pool but WITH the template
@@ -129,14 +133,16 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
             //TODO: The "function" feature may not be used or may be changed
             if(property.endsWith("()"))
             {
-               var func = property.substr(0, func.length - 2);
+               var func = property.substr(0, property.length - 2);
+               var gfunc = func + "_get";
+               var sfunc = func + "_set";
 
-               if(!(func in tobj.functionPool)) //currentelement)
-                  throw "No function " + func + " in function pool for template: " + tobj.name;
+               _CheckFunctionPool(gfunc, tobj);
+               _CheckFunctionPool(sfunc, tobj);
 
                SingleField(tobj.fields, name, {
-                  get: () => tobj.functionPool[func + "_get"](currentelement, tobj),
-                  set: (v) => tobj.functionPool[func + "_set"](currentelement, v, tobj)
+                  get: () => tobj.functionPool[gfunc](currentelement, tobj),
+                  set: (v) => tobj.functionPool[sfunc](v, currentelement, tobj)
                });
             }
             else
@@ -202,6 +208,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
 
 //And now, this is the "specific" template system...?
 var Templates = {
+   signal: (signal) => console.log("Ignoring template signal " + signal + "; please inject click handler"),
    ReplaceTemplatePlaceholders : function(element)
    {
       [...element.querySelectorAll("[data-template]")].forEach(x =>
@@ -252,5 +259,18 @@ var Templates = {
       }
 
       ce.scrollTop = ce.scrollHeight;
+   },
+   spahref_get : function(ce, tobj)
+   {
+      return ce.getAttribute("href");
+   },
+   spahref_set : function(v, ce, tobj)
+   {
+      ce.onclick = (event) =>
+      {
+         event.preventDefault();
+         Templates.signal("spaclick_event", { element: event.target, url: event.target.href });
+      };
+      ce.setAttribute("href", v);
    }
 };

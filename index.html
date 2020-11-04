@@ -774,6 +774,12 @@ function leftpaneclick(event)
          <ul id="logcontainer" class="uk-list uk-list-divider uk-list-collapse"
             tfunc="UpdateLogs">
          </ul>
+         <div id="discussionuser" class="uk-flex-none">
+            <img t-avatar="src" width=40>
+            <div uk-dropdown="boundary: #website; pos: bottom-right;" class="userdropdown">
+               <a t-userlink=".spahref()" class="username" t-username=".textContent"></a>
+            </div>
+         </a>
       </template>
       <template id="templates" style="display: none">
          <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
@@ -814,7 +820,7 @@ function leftpaneclick(event)
               WORK without that!! -->
          <div id="pwuser" class="ufk-inline">
             <img data-useravatar="src" class="" width=20 height=20>
-            <div uk-dropdown="boundary: #website; pos: bottom-right;">
+            <div uk-dropdown="boundary: #website; pos: bottom-right;" class="userdropdown">
                <a data-userlink="href" data-spa class="username" data-username=".textContent"></a>
                <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
                   <tr data-comment data-count="0" data-firstdate="" data-lastdate="" 
@@ -920,9 +926,6 @@ function leftpaneclick(event)
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
             <span data-meta=".textContent" class="uk-text-meta nocondensed"></span>
          </div>
-         <a id="discussionuser" class="uk-flex-none" data-userlink="href" data-spa>
-            <img data-avatar="src" width=40>
-         </a>
          <div id="subcat" class="uk-flex uk-flex-middle">
             <span uk-icon="icon: folder; ratio: 1.0" class="uk-margin-small-right
                uk-flex-none"></span>
