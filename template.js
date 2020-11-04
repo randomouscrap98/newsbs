@@ -129,11 +129,14 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          if(value.startsWith("."))
          {
             var property = value.substr(1);
+            var funcparen = property.indexOf("(");
+            //var funcmatch = property.match(/\([^)]\)$/);
 
             //TODO: The "function" feature may not be used or may be changed
-            if(property.endsWith("()"))
+            if(funcparen >= 0)
             {
-               var func = property.substr(0, property.length - 2);
+               var args = property.substr(funcparen + 1).slice(0,-1).split(",") || [];
+               var func = property.substr(0, funcparen); //property.length - 2);
                var gfunc = func + "_get";
                var sfunc = func + "_set";
 
@@ -141,8 +144,8 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
                _CheckFunctionPool(sfunc, tobj);
 
                SingleField(tobj.fields, name, {
-                  get: () => tobj.functionPool[gfunc](currentelement, tobj),
-                  set: (v) => tobj.functionPool[sfunc](v, currentelement, tobj)
+                  get: () => tobj.functionPool[gfunc](currentelement, tobj, name, args),
+                  set: (v) => tobj.functionPool[sfunc](v, currentelement, tobj, name, args)
                });
             }
             else
@@ -208,6 +211,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
 
 //And now, this is the "specific" template system...?
 var Templates = {
+   _templateData : "tmpldat_",
    signal: (signal) => console.log("Ignoring template signal " + signal + "; please inject click handler"),
    ReplaceTemplatePlaceholders : function(element)
    {
@@ -259,6 +263,19 @@ var Templates = {
       }
 
       ce.scrollTop = ce.scrollHeight;
+   },
+   simpleshow_get : function(ce, tobj, name, args)
+   {
+      return ce.getAttribute(args[0]); //[_templateData + name];
+   },
+   simpleshow_set: function(v, ce, tobj, name, args)
+   {
+      ce.setAttribute(args[0], v);//[_templateData + name] = v;
+
+      if(v) //if it's a truthy value at ALL, stop hiding, otherwise hide
+         ce.removeAttribute("hidden");
+      else
+         ce.setAttribute("hidden", "");
    },
    spahref_get : function(ce, tobj)
    {

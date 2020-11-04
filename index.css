@@ -22,6 +22,7 @@
    --scrollblockhovercolor: rgba(128,128,128,0.5);
 
    --spcontrolbg: rgba(113, 164, 255, 0.3);
+   --notificationcolor: #ffce34;
 
    --bgred: rgba(255,50,50,0.3); 
    --bgblue: rgba(50,150,255,0.3); 
@@ -184,6 +185,9 @@ a:hover { color: inherit; }
 
 /* OOPS accidental(?) generic stuff */
 .username { margin: 0 0.4em; } /* pwusername, history, messageframeinfo, etc */
+.userdata { margin: 0 0.5em; }
+.userid::before { content: "#"; color: var(--mutedtextcolor); }
+.usersuper polygon { fill: var(--notificationcolor); color: var(--notificationcolor); }
 .userdropdown { padding: 0.5em; }
 .databar { padding: 0 0.1em; }
 .outlined { border: 1px solid var(--outlinecolor); }
@@ -484,7 +488,7 @@ a:hover { color: inherit; }
 [data-bgcolor="purple"] { background-color: var(--bgpurple); }
 [data-watched="true"] polygon,
 [data-watched="true"] path {
-   fill: #ffce34;
+   fill: var(--notificationcolor);
    color: #111;
    opacity: 0.8;
 }

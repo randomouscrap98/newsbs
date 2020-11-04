@@ -2580,7 +2580,7 @@ function setupSession()
       params.append("requests", "user.3userId.2createUserId.5userIds.6userIds");
       params.set("comment","id,parentId,createUserId,createDate");
       params.set("content","id,name,type,values,createUserId,permissions");
-      params.set("user","id,username,avatar");
+      params.set("user","id,username,avatar,super,createDate");
       params.set("watch","id,contentId,lastNotificationId");
    }
 
@@ -2648,20 +2648,23 @@ function updateDiscussionUserlist(listeners, users)
 
       if(!existing)
       {
-         var tmpl = Templates.Load("discussionuser"); //cloneTemplate("discussionuser");
+         var tmpl = Templates.Load("discussionuser");
          tmpl.SetFields({
+            id: uid,
             username : users[uid].username,
             userlink : getUserLink(uid)
          });
-         //finalizeTemplate(existing);
          existing = tmpl.element;
+         existing.setAttribute("data-uid", uid);
          discussionuserlist.appendChild(existing);
       }
 
-      existing.setAttribute("data-uid", uid);
       existing.setAttribute("data-status", list[uid]);
-      existing.template.fields["avatar"] = avatar;
-      //findSwap(existing, "avatar", avatar);
+      existing.template.SetFields({
+         date: (new Date(users[uid].createDate)).toLocaleDateString(),
+         avatar: avatar,
+         super: users[uid].super
+      });
    }
 
    [...discussionuserlist.querySelectorAll("[data-uid]")].forEach(x => 

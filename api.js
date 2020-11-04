@@ -344,7 +344,7 @@ LongPoller.prototype.Repeater = function(lpdata)
       }));
    }
 
-   params.set("user","id,username,avatar");
+   params.set("user","id,username,avatar,super,createDate");
    params.set("content","id,name,type,values,createUserId,permissions");
 
    me.api.Listen(params, (apidat) =>

@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604465591" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1604465591"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604465591"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1604471983" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1604471983"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1604471983"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1604465591"></script>
-      <script src="template.js?v=1604465591"></script>
-      <script src="dom.js?v=1604465591"></script>
-      <script src="api.js?v=1604465591"></script>
-      <script src="index.js?v=1604465591"></script>
-      <script src="sbs2-markup/highlight.js?v=1604465591"></script>
-      <script src="sbs2-markup/parse.js?v=1604465591"></script>
-      <script src="sbs2-markup/render.js?v=1604465591"></script>
+      <script src="libbo.js?v=1604471983"></script>
+      <script src="template.js?v=1604471983"></script>
+      <script src="dom.js?v=1604471983"></script>
+      <script src="api.js?v=1604471983"></script>
+      <script src="index.js?v=1604471983"></script>
+      <script src="sbs2-markup/highlight.js?v=1604471983"></script>
+      <script src="sbs2-markup/parse.js?v=1604471983"></script>
+      <script src="sbs2-markup/render.js?v=1604471983"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1604465591" />
+      <link rel="stylesheet" href="index.css?v=1604471983" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -778,6 +778,11 @@ function leftpaneclick(event)
             <img t-avatar="src" width=40>
             <div uk-dropdown="boundary: #website; pos: bottom-right;" class="userdropdown">
                <a t-userlink=".spahref()" class="username" t-username=".textContent"></a>
+               <div class="uk-flex uk-flex-middle userdata">
+                  <span class="userid uk-margin-small-right" t-id=".textContent"></span>
+                  <time class="uk-margin-small-right" t-date=".textContent"></time>
+                  <span class="usersuper" t-super=".simpleshow(data-super)" uk-icon="star" hidden></span>
+               </div>
             </div>
          </a>
       </template>
