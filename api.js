@@ -377,17 +377,17 @@ LongPoller.prototype.Repeater = function(lpdata)
       {
          reqsig("longpollfatal", apidat, "Long poller failed fatally");
       }
-      else if(req.status || apidat.networkError)
+      else if(apidat.abortNow)
+      {
+         reqsig("longpollabort", apidat, "Long poller aborted normally");
+      }
+      else
       {
          var timeout = me.errortime;
          if(req.status === 429)
             timeout = me.ratetimeout;
          reqsig("longpollerror", apidat, "Long poller failed normally, retrying in " + timeout + " ms");
          setTimeout(() => recall(apidat), timeout);
-      }
-      else
-      {
-         reqsig("longpollabort", apidat, "Long poller aborted normally");
       }
    }, (apidat) =>
    {
