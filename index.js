@@ -98,7 +98,10 @@ log.PerformanceLog =  (d,c) => logConditional(d, c, "logprofiler");
 
 DomDeps.log = (d,c) => log.Domlog(d, c);
 DomDeps.signal = (name, data) => signals.Add(name, data);
+
 Templates.signal = (name, data) => signals.Add(name, data);
+Templates.imageLink = getComputedImageLink;
+Templates.links = Links;
 
 window.Notification = window.Notification || {};
 
@@ -964,7 +967,7 @@ function route_complete(spadat, title, applyTemplate, breadcrumbs, cid)
    if(spadat.rid === globals.spa.requestId)
    {
       if(breadcrumbs)
-         breadcrumbs.forEach(x => x.link = x.link || (x.content ? getPageLink(x.id) : getCategoryLink(x.id)));
+         breadcrumbs.forEach(x => x.link = x.link || (x.content ? Links.Page(x.id) : Links.Category(x.id)));
 
       writeDom(() =>
       {
@@ -1085,9 +1088,9 @@ function routeadmin_load(spadat)
                   duration = "instant";
                multiSwap(bnt, {
                   admin : users[x.createUserId].username,
-                  adminlink : getUserLink(x.createUserId),
+                  adminlink : Links.User(x.createUserId),
                   banned : users[x.bannedUserId].username,
-                  bannedlink : getUserLink(x.bannedUserId),
+                  bannedlink : Links.User(x.bannedUserId),
                   type : x.type,
                   message : x.message,
                   duration : duration,
@@ -1158,7 +1161,7 @@ function routecategory_load(spadat)
             {
                if(confirm("Are you SURE you want to delete this category?"))
                {
-                  globals.api.Delete("category", cid, () => location.href = getCategoryLink(c.parentId));
+                  globals.api.Delete("category", cid, () => location.href = Links.Category(c.parentId));
                }
             },
             description : c.description
@@ -1275,7 +1278,7 @@ function routeuser_load(spadat)
       }
 
       u.name = u.username;
-      u.link = getUserLink(u.id);
+      u.link = Links.User(u.id);
 
       route_complete(spadat, "User: " + u.username, templ =>
       {
@@ -1387,7 +1390,7 @@ function routecategoryedit_load(spadat)
          formSetupSubmit(templ.querySelector("form"), "category", c =>
          {
             setLeaveProtect(false);
-            globals.spa.ProcessLinkContextAware(getCategoryLink(c.id));
+            globals.spa.ProcessLinkContextAware(Links.Category(c.id));
          }, false, baseData);
       }, baseData ? getChain(data.category, baseData) : undefined);
    });
@@ -1551,9 +1554,9 @@ function routepageedit_load(spadat)
          {
             setLeaveProtect(false);
             if(p.type === "userpage")
-               globals.spa.ProcessLinkContextAware(getUserLink(p.createUserId));
+               globals.spa.ProcessLinkContextAware(Links.User(p.createUserId));
             else
-               globals.spa.ProcessLinkContextAware(getPageLink(p.id));
+               globals.spa.ProcessLinkContextAware(Links.Page(p.id));
          }, false, baseData);
       }, baseData ? getChain(data.category, baseData) : undefined);
    });
@@ -1723,7 +1726,7 @@ function updateCurrentUserData(user)
       navuseravatar.src = getAvatarLink(user.avatar, 40);
       userusername.firstElementChild.textContent = user.username;
       userusername.setAttribute("data-username", user.username);
-      userusername.href = getUserLink(user.id);
+      userusername.href = Links.User(user.id);
       userid.textContent = "User ID: " + user.id;
       userid.setAttribute("data-userid", user.id);  //Can't use findSwap: it's an UPDATE
       finalizeTemplate(userusername); //be careful with this!
@@ -1810,7 +1813,7 @@ function finishContent(templ, content) //, content, comments, users, initload)
       {
          if(confirm("Are you SURE you want to delete this page?"))
          {
-            globals.api.Delete("content", content.id, () => location.href = getCategoryLink(content.parentId));
+            globals.api.Delete("content", content.id, () => location.href = Links.Category(content.parentId));
          }
       },
       pinaction : (e) =>
@@ -2107,7 +2110,7 @@ function makeAnnotatedSlideshowItem(content)
 {
    var tmp = cloneTemplate("annotatedslideshowitem");
    multiSwap(tmp, {
-      link: getPageLink(content.id),
+      link: Links.Page(content.id),
       title: content.name,
       tagline: content.values.tagline,
       src: getContentImageLink(content)
@@ -2335,7 +2338,7 @@ function getComputedImageLink(id, size, crop, ignoreRatio)
             (ignoreRatio ? 1 : window.devicePixelRatio))); 
    }
 
-   return getImageLink(id, size, crop);
+   return globals.api.Image(id, size, crop);
 }
 
 function getAvatarLink(id, size, ignoreRatio) 
@@ -2444,7 +2447,7 @@ function makeStandardContentInfo(content, users)
    var info = cloneTemplate("stdcontentinfo");
    multiSwap(info, {
       createavatar : getAvatarLink(users[content.createUserId].avatar, 20),
-      createlink : getUserLink(content.createUserId),
+      createlink : Links.User(content.createUserId),
       createdate : (new Date(content.createDate)).toLocaleString()
    });
    finalizeTemplate(info);
@@ -2455,7 +2458,7 @@ function makeSubcat(category)
 {
    var subcat = cloneTemplate("subcat");
    multiSwap(subcat, {
-      link: getCategoryLink(category.id),
+      link: Links.Category(category.id),
       name: category.name
    });
    finalizeTemplate(subcat);
@@ -2468,10 +2471,10 @@ function makePageitem(page, users)
    var u = users[page.createUserId] || {};
    var date = (new Date(page.createDate)).toLocaleDateString();
    multiSwap(citem, {
-      link: getPageLink(page.id),
+      link: Links.Page(page.id),
       name: page.name,
       avatar : getAvatarLink(u.avatar, 50, true),
-      userlink : getUserLink(page.createUserId),
+      userlink : Links.User(page.createUserId),
       pinned : page.pinned,
       time : date
    });
@@ -2485,7 +2488,7 @@ function makePWUser(user)
    var pu = cloneTemplate("pwuser");
    pu.setAttribute("data-pwuser", user.id);
    multiSwap(pu, {
-      userlink: getUserLink(user.id)
+      userlink: Links.User(user.id)
    });
    UIkit.util.on(pu.querySelector("[uk-dropdown]"), 'beforeshow', 
       e => refreshPulseUserDisplay(e.target));
@@ -2499,7 +2502,7 @@ function makeCommentFrame(comment, users)
    var u = users[comment.createUserId];
    multiSwap(frame, {
       userid: comment.createUserId,
-      userlink: getUserLink(comment.createUserId),
+      userlink: Links.User(comment.createUserId),
       useravatar: getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
       username: u.username,
       frametime: (new Date(comment.createDate)).toLocaleString()
@@ -2529,15 +2532,15 @@ function makeHistoryItem(user, activity, title) //users, activity, contents)
    //var title = content ? content.name : activity.extra;
    var link = "#";
    if(activity.type === "content")
-      link = getPageLink(activity.contentId);
+      link = Links.Page(activity.contentId);
    else if(activity.type === "category")
-      link = getCategoryLink(activity.contentId); 
+      link = Links.Category(activity.contentId); 
    else if(activity.type === "user")
-      link = getUserLink(activity.contentId); 
+      link = Links.User(activity.contentId); 
    multiSwap(item, {
       avatar : getAvatarLink(user.avatar, 20),
       username : user.username,
-      userlink : getUserLink(user.id),
+      userlink : Links.User(user.id),
       action : activitytext[activity.action],
       contentname : title,
       contentlink : link,
@@ -2670,22 +2673,23 @@ function updateDiscussionUserlist(listeners, users)
       if(!existing)
       {
          var tmpl = Templates.Load("discussionuser");
-         tmpl.SetFields({
-            id: uid,
-            username : users[uid].username,
-            userlink : getUserLink(uid)
-         });
+         //tmpl.SetFields({
+         //   id: uid,
+         //   username : users[uid].username,
+         //   userlink : Links.User(uid)
+         //});
          existing = tmpl.element;
          existing.setAttribute("data-uid", uid);
          discussionuserlist.appendChild(existing);
       }
 
       existing.setAttribute("data-status", list[uid]);
-      existing.template.SetFields({
-         date: (new Date(users[uid].createDate)).toLocaleDateString(),
-         avatar: avatar,
-         super: users[uid].super
-      });
+      existing.template.fields.user = users[uid]; 
+      //.SetFields({
+      //   date: (new Date(users[uid].createDate)).toLocaleDateString(),
+      //   avatar: avatar,
+      //   super: users[uid].super
+      //});
    }
 
    [...discussionuserlist.querySelectorAll("[data-uid]")].forEach(x => 
@@ -2870,7 +2874,7 @@ function easyPWContent(c, id, parent)
       pulsedata = cloneTemplate("pw");
       pulsedata.id = id;
       multiSwap(pulsedata, {
-         pwlink: getPageLink(c.id),
+         pwlink: Links.Page(c.id),
          contentid : c.id
       });
       parent.appendChild(finalizeTemplate(pulsedata));
@@ -3564,7 +3568,7 @@ function mapSearchContent(content, imgsize)
    ({
       type : x.type,
       imageLink : getContentThumbnailLink(x, imgsize, true),
-      link : getPageLink(x.id),
+      link : Links.Page(x.id),
       title : x.name,
       meta : (new Date(x.createDate)).toLocaleDateString()
    }));
@@ -3575,7 +3579,7 @@ function mapSearchUser(users, imgsize)
    return users.map(x =>
    ({
       imageLink : getAvatarLink(x.avatar, imgsize),
-      link : getUserLink(x.id),
+      link : Links.User(x.id),
       title : x.username,
       meta : (new Date(x.createDate)).toLocaleDateString()
    }));
@@ -3586,7 +3590,7 @@ function mapSearchCategories(categories, imgsize)
    return categories.map(x =>
    ({
       type : "category",
-      link : getCategoryLink(x.id),
+      link : Links.Category(x.id),
       title : x.name,
       meta : (new Date(x.createDate)).toLocaleDateString()
    }));
@@ -3604,7 +3608,7 @@ function makeCategoryTreeView(tree)
       var subtree = parent ? parent.subtree : fragment;
       var nelm = cloneTemplate("categorytreenode");
       multiSwap(nelm, {
-         categorylink : getCategoryLink(node.id),
+         categorylink : Links.Category(node.id),
          category : node.name
       });
       node.subtree = nelm.querySelector("[data-nodelist]");

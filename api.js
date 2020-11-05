@@ -234,7 +234,18 @@ Api.prototype.Search = function(searchops, success, error, always, modify)
       this.SearchSort(data.data.category, searchops.value, x => x.name);
       success(data); 
    }, error, always, modify);
-}
+};
+
+Api.prototype.Image = (id, size, crop) =>
+{
+   var img = apiroot + "/file/raw/" + id;
+   var params = new URLSearchParams();
+
+   if(size) params.set("size", size); 
+   if(crop) params.set("crop", true); 
+
+   return img + "?" + params.toString();
+};
 
 // **********************
 // ---- LONG POLLING ----
@@ -405,18 +416,11 @@ LongPoller.prototype.Repeater = function(lpdata)
 // --- ENDPOINT ---
 // ****************
 
-function getUserLink(id) { return "?p=user-" + id; }
-function getPageLink(id) { return "?p=page-" + id; }
-function getCategoryLink(id) { return "?p=category-" + id; }
-
-function getImageLink(id, size, crop)
-{
-   var img = apiroot + "/file/raw/" + id;
-   var linkch = "?";
-   if(size) { img += linkch + "size=" + size; linkch = "&"; }
-   if(crop) { img += linkch + "crop=true"; linkch = "&"; }
-   return img;
-}
+var Links = {
+   User : (id) => "?p=user-" + id,
+   Page : (id) => "?p=page-" + id,
+   Category : (id) => "?p=category-" + id,
+};
 
 // *******************
 // --- DATA FORMAT ---

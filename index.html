@@ -774,17 +774,22 @@ function leftpaneclick(event)
          <ul id="logcontainer" class="uk-list uk-list-divider uk-list-collapse"
             tfunc="UpdateLogs">
          </ul>
-         <div id="discussionuser" class="uk-flex-none">
-            <img t-avatar="src" width=40>
+         <div id="discussionuser" t-user=".internal(discussionuser)" class="uk-flex-none">
+            <img t-avatar=".internal(icon)" width=40>
             <div uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
-               <a t-userlink=".spahref()" class="username" t-username=".textContent"></a>
+               <a t-userlink=".spa()" class="username" t-username=".textContent"></a>
                <div class="uk-flex uk-flex-middle userdata">
                   <span class="userid uk-margin-small-right" t-id=".textContent"></span>
                   <time class="uk-margin-small-right" t-date=".textContent"></time>
-                  <span class="usersuper" t-super=".simpleshow(data-super)" uk-icon="star" hidden></span>
+                  <span class="usersuper" t-super=".external(show)" uk-icon="star" hidden></span>
                </div>
             </div>
-         </a>
+         </div>
+         <span id="pageicon" t-user=".internal(pageicon)" t-type="uk-icon" 
+            class="pageicon uk-flex-none uk-flex uk-flex-middle uk-position-relative">
+            <img t-thumbnail=".internal(icon)" class="outlined" hidden width=20>
+            <div t-private=".external(show)" class="uk-cover lock" hidden>🔒</div>
+         </span>
       </template>
       <template id="templates" style="display: none">
          <div id="error" class="uk-alert-danger uk-text-break" uk-alert>

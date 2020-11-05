@@ -20,10 +20,19 @@ function Template(name, element, fields)
    this.functionPool = {};
 }
 
-Template.prototype.SetFields = function(fields)
+//This has a UIkit optimization: it will NOT set fields that are already the
+//same. This has quite a high overhead for standard internal fields, but
+//external fields can cause a MASSIVE mutationobserver event for any set, so
+//it's better to spend a tiny amount of time avoiding that.
+Template.prototype.SetFields = function(fields, forceChanges)
 {
    var me = this;
-   Object.keys(fields).forEach(x => me.fields[x] = fields[x]);
+   Object.keys(fields).forEach(x => 
+   {
+      var f = fields[x]; //This might be compute intensive? So don't do it twice
+      if(forceChanges || (me.fields[x] != f))
+         me.fields[x] = f;
+   });
 };
 
 var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Object.assign(StdTemplating, 
@@ -210,15 +219,29 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
 }(window));
 
 //And now, this is the "specific" template system...?
-var Templates = {
+var Templates = Object.create(null); with (Templates) (function($) { Object.assign(Templates, 
+{
+   //"Private" (public) helper stuff. You can override these if you REALLY want to...
+   //----------------------------------
    _templateData : "tmpldat_",
+   _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
+   _stdDate : (d) => (new Date(d)).toLocaleDateString(),
+
+   //Dependency injection, please override these
+   //----------------------------------
    signal: (signal) => console.log("Ignoring template signal " + signal + "; please inject click handler"),
+   imageLink: (id, size, square) => { throw "No image linker defined for Templates object!"; },
+   links : {},
+
+   //"Global" functions for people using the template system from the outside
+   //(the internal machinations don't really need these)
+   //----------------------------------
    ReplaceTemplatePlaceholders : function(element)
    {
       [...element.querySelectorAll("[data-template]")].forEach(x =>
       {
          //Create the template it asked for
-         var tmpl = Templates.Load(x.getAttribute("data-template"));
+         var tmpl = Load(x.getAttribute("data-template"));
          //Copy over the attributes
          [...x.attributes].forEach(y =>
          {
@@ -238,6 +261,10 @@ var Templates = {
       else
          return StdTemplating.Load(template, Templates);
    },
+
+   //Stuff meant to be attached to templates to call from the outside,
+   //individual template "helper" functions
+   //----------------------------------
    UpdateLogs : function(logs, tobj, ce)
    {
       //Makes assumptions about logs to make it go quicker: assume ids ONLY go
@@ -255,7 +282,7 @@ var Templates = {
       {
          if(logs[i].id > lastId)
          {
-            var logMessage = Templates.Load("log");
+            var logMessage = Load("log");
             logMessage.SetFields(logs[i]); 
             logMessage.element.setAttribute("data-id", logs[i].id);
             ce.appendChild(logMessage.element);
@@ -264,30 +291,87 @@ var Templates = {
 
       ce.scrollTop = ce.scrollHeight;
    },
-   simpleshow_get : function(ce, tobj, name, args)
-   {
-      return ce.getAttribute(args[0]); //[_templateData + name];
-   },
-   simpleshow_set: function(v, ce, tobj, name, args)
-   {
-      ce.setAttribute(args[0], v);//[_templateData + name] = v;
 
+   //Generic helper functions for any internal/external set to call
+   //----------------------------------
+   show: (v, ce) =>
+   {
       if(v) //if it's a truthy value at ALL, stop hiding, otherwise hide
          ce.removeAttribute("hidden");
       else
          ce.setAttribute("hidden", "");
    },
-   spahref_get : function(ce, tobj)
+   icon: (v, ce) =>
    {
-      return ce.getAttribute("href");
+      if(v || v == "0")
+         ce.setAttribute("src", imageLink(v, Number(ce.getAttribute("width")), true));
+      else
+         ce.removeAttribute("src");
    },
-   spahref_set : function(v, ce, tobj)
+   discussionuser: (v, ce, tobj, name, args) =>
+   {
+      //Already has optimization for uikit non-resetting fields
+      tobj.SetFields({
+         id: v.id,
+         date: _stdDate(v.createDate),
+         username : v.username,
+         userlink : links.User(v.id),
+         avatar: v.avatar,
+         super: v.super
+      });
+   },
+
+   //The actual internal get/set mechanisms
+   //----------------------------------
+   internal_get: (ce, tobj, name, args) => ce[_templateArgName(name, args, _templateData)],
+   internal_set: (v, ce, tobj, name, args) => 
+   {
+      ce[_templateArgName(name, args, _templateData)] = v;
+
+      if(args && args[0])
+         Templates[args[0]](v, ce, tobj, name, args);
+   },
+
+   external_get: (ce, tobj, name, args) => ce.getAttribute(_templateArgName(name, args, "data-")),
+   external_set: (v, ce, tobj, name, args) =>
+   {
+      ce.setAttribute(_templateArgName(name, args, "data-"), v);
+
+      if(args && args[0])
+         Templates[args[0]](v, ce, tobj, name, args);
+   },
+
+   //All the rest of the get/set
+   //----------------------------------
+   spa_get : (ce, tobj) => ce.getAttribute("href"),
+   spa_set : function(v, ce, tobj)
    {
       ce.onclick = (event) =>
       {
          event.preventDefault();
-         Templates.signal("spaclick_event", { element: event.target, url: event.target.href });
+         signal("spaclick_event", { element: event.target, url: event.target.href });
       };
       ce.setAttribute("href", v);
+   },
+
+   discussionuser_user_get : (ce, tobj) => ce._user,
+   discussionuser_user_set : function(v, ce, tobj)
+   {
+      tobj._user = v;
+      tobj.SetFields({
+         avatar : Templates.imageLink(v.avatar, 40, true),
+
+      });
    }
-};
+            /*<img t-avatar="src" width=40>
+            <div uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
+               <a t-userlink=".spahref()" class="username" t-username=".textContent"></a>
+               <div class="uk-flex uk-flex-middle userdata">
+                  <span class="userid uk-margin-small-right" t-id=".textContent"></span>
+                  <time class="uk-margin-small-right" t-date=".textContent"></time>
+                  <span class="usersuper" t-super=".simpleshow(data-super)" uk-icon="star" hidden></span>
+               </div>
+            </div>*/
+})
+//Private vars can go here
+}(window));

@@ -186,6 +186,7 @@ a:hover { color: inherit; }
 /* OOPS accidental(?) generic stuff */
 .username { margin: 0 0.4em; } /* pwusername, history, messageframeinfo, etc */
 .userdata { margin: 0 0.5em; }
+.pageblock { clear: both; }
 .userid::before { content: "#"; color: var(--mutedtextcolor); }
 .usersuper polygon { fill: var(--notificationcolor); color: var(--notificationcolor); }
 .userdropdown { padding: 0.5em; }
