@@ -869,14 +869,27 @@ function setupDiscussions()
 			e.preventDefault();
 
          var currentText = postdiscussiontext.value;
+
          if(!currentText)
             return;
+
+         postdiscussiontext.value = "";
+
+         if(currentText.startsWith("/"))
+         {
+            currentText = currentText.substr(1);
+
+            if(!currentText.startsWith("/"))
+            {
+               handleCommand(currentText);
+               return;
+            }
+         }
+
          sendDiscussionMessage(currentText, getLocalOption("defaultmarkup"), error =>
          {
             postdiscussiontext.value = currentText;
          });
-
-         postdiscussiontext.value = "";
 		}
 	};
 
@@ -889,6 +902,14 @@ function setupDiscussions()
    });
 
    log.Debug("Setup discussions (scrolling/etc)");
+}
+
+function handleCommand(full)
+{
+   var cmdparts = full.split(" ").filter(x => x);
+   var cmd = cmdparts[0];
+
+   notifyError("Commands will come soon");
 }
 
 function setupSearch()
@@ -1741,7 +1762,7 @@ function finishDiscussion(content, comments, users, initload)
    if(initload && (comments.length !== initload))
       d.setAttribute(attr.atoldest, "");
    showDiscussion(content.id);
-   easyComments(comments, users);
+   easyComments(comments, users, content.id);
    formatRememberedDiscussion(content.id, true, content.type);
 
    signals.Add("finishdiscussion", { content: content, comments: comments, users: users, initload: initload});
@@ -2493,8 +2514,8 @@ function makeCommentFragment(comment)//, users)
    multiSwap(fragment, {
       messageid: comment.id,
       id: getCommentId(comment.id),
-      createdate: (new Date(comment.createDate)).toLocaleString(),
-      editdate: (new Date(comment.editDate)).toLocaleString()
+      createdate: comment.createDate, //(new Date(comment.createDate)).toLocaleString(),
+      editdate: comment.editdate //(new Date(comment.editDate)).toLocaleString()
    });
    finalizeTemplate(fragment);
    return fragment;
@@ -3339,9 +3360,9 @@ function getFragmentFrame(element)
    return Utilities.FindParent(element, x => x.hasAttribute("data-messageframe"));
 }
 
-function easyComments(comments, users)
+function easyComments(comments, users, firstLoad)
 {
-   if(comments)
+   if(comments) // && comments.length)
    {
       var n = performance.now();
       globals.commentsrendered = (globals.commentsrendered || 0) + comments.length;
@@ -3350,6 +3371,12 @@ function easyComments(comments, users)
       //log.Debug("Rendered " + comments.length + " comments, " + globals.commentsrendered + " total");
       log.PerformanceLog("easyComments(" + comments.length + "," + globals.commentsrendered + "): " + 
          (performance.now() - n) + "ms");
+   }
+
+   if(!(comments && comments.length) && firstLoad)
+   {
+      var d = getDiscussion(firstLoad);
+      unhide(d.querySelector("[data-nocomments]"));
    }
 }
 
@@ -3392,9 +3419,6 @@ function easyComment(comment, users)
       //Starting from bottom, find place to insert.
       var comments = d.querySelectorAll("[data-messageid]");
       var insertAfter = false;
-
-      if(comments.length <= 1) /* 1 because of the original comment */
-         hide(d.querySelector("[data-nocomments]"));
 
       for(var i = comments.length - 1; i >= 0; i--)
       {
@@ -3456,7 +3480,7 @@ function messageControllerEvent(event)
    var rawcm = getSwap(omsg, "data-message"); 
    var msgdate = getSwap(omsg, "data-createdate");
    var msgedate = getSwap(omsg, "data-editdate");
-   findSwap(frame, "data-frametime", msgdate);
+   findSwap(frame, "data-frametime", (new Date(msgdate)).toLocaleString());
 
    commenteditpreview.innerHTML = "";
    commenteditpreview.appendChild(frame);
@@ -3465,7 +3489,7 @@ function messageControllerEvent(event)
    commentedittext.value = parsedcm.t;
    commenteditformat.value = parsedcm.m;
    commenteditinfo.textContent = "ID: " + cmid + "  UID: " + getSwap(oframe, "data-userid");
-   if(msgedate !== msgdate) commenteditinfo.textContent += "  Edited: " + msgedate;
+   if(msgedate !== msgdate) commenteditinfo.textContent += "  Edited: " + (new Date(msgedate)).toLocaleString();
 
    if(getUserId() != getSwap(oframe, "userid") && !getIsSuper())
    {
