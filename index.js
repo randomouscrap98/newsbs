@@ -1181,12 +1181,7 @@ function routecategory_load(spadat)
 
          treeify(childcats);
          childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
-         data.content.forEach(x => 
-         {
-            var item = Templates.Load("pageitem");
-            item.fields.page = x;
-            pgelm.appendChild(item.element);
-         });
+         data.content.forEach(x => pgelm.appendChild(Templates.LoadHere("pageitem", {page:x})));
       }, getChain(data.category, c));
    });
 }
@@ -1296,12 +1291,7 @@ function routeuser_load(spadat)
             setHidden(history.querySelector("[data-title]"), !act.length);
          }));
          var pgelm = templ.querySelector("[data-userpages]");
-         data.pages.forEach(x => 
-         {
-            var item = Templates.Load("pageitem");
-            item.fields.page = x;
-            pgelm.appendChild(item.element);
-         }); //pgelm.appendChild(makePageitem(x, users)));
+         data.pages.forEach(x => pgelm.appendChild(Templates.LoadHere("pageitem", {page:x})));
          setHidden(pgelm.querySelector("[data-title]"), !data.pages.length);
 
          if(c)
@@ -1912,33 +1902,14 @@ function makeActivity(modifySearch, finalize) //, unlimitedHeight)
 
          var data = apidata.data;
          var users = idMap(data.user);
-         //var all = idMap(data.content.concat(data.category).concat(data.user));
 
          writeDom(() =>
          {
-            //hide(activity.querySelector(".historyloading"));            
             hide(loadloading);
             setHidden(loadolder, data.activity.length !== initload);
 
-            data.activity.forEach(x =>
-            {
-               //var content = all[x.contentId];
-               //var title = "???";
-               //if(!content) 
-               //{
-               //   if(x.action === "d")
-               //      title = x.extra;
-               //   else
-               //      return; //Don't show this history item
-               //}
-               //else
-               //{
-               //   title = content.name || ("User: " + content.username);
-               //}
-               var item = Templates.Load("historyitem");
-               item.fields.activity = x;
-               activityContainer.appendChild(item.element);//makeHistoryItem(users[x.userId], x, title));
-            });
+            data.activity.forEach(x => 
+               activityContainer.appendChild(Templates.LoadHere("historyitem", {activity:x})));
 
             if(finalize)
                finalize(data.activity, activityContainer);
@@ -2679,11 +2650,6 @@ function updateDiscussionUserlist(listeners, users)
       if(!existing)
       {
          var tmpl = Templates.Load("discussionuser");
-         //tmpl.SetFields({
-         //   id: uid,
-         //   username : users[uid].username,
-         //   userlink : Links.User(uid)
-         //});
          existing = tmpl.element;
          existing.setAttribute("data-uid", uid);
          discussionuserlist.appendChild(existing);
@@ -2691,11 +2657,6 @@ function updateDiscussionUserlist(listeners, users)
 
       existing.setAttribute("data-status", list[uid]);
       existing.template.fields.user = users[uid]; 
-      //.SetFields({
-      //   date: (new Date(users[uid].createDate)).toLocaleDateString(),
-      //   avatar: avatar,
-      //   super: users[uid].super
-      //});
    }
 
    [...discussionuserlist.querySelectorAll("[data-uid]")].forEach(x => 

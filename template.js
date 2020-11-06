@@ -281,6 +281,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       else
          return StdTemplating.Load(template, Templates);
    },
+   LoadHere : function(template, data)
+   {
+      var template = Load(template);
+      template.SetFields(data);
+      return template.element;
+   },
 
    //Stuff meant to be attached to templates to call from the outside,
    //individual template "helper" functions
