@@ -790,7 +790,7 @@ function leftpaneclick(event)
 
          <span id="pageicon" t-page=".internal(pageicon)" t-type=".internal(typeicon)" 
             class="pageicon uk-flex-none uk-flex uk-flex-middle uk-position-relative">
-            <img t-thumbnail=".internal(icon)" class="outlined" hidden width=20>
+            <img t-thumbnail=".internal(showicon)" class="outlined" hidden width=20>
             <div t-private=".external(show)" class="uk-cover lock" hidden>🔒</div>
          </span>
 
@@ -956,21 +956,6 @@ function leftpaneclick(event)
                uk-flex-none"></span>
             <a data-link="href" data-spa data-name=".textContent"
                class="uk-link-text title uk-text-truncate"></a>
-         </div>
-         <div id="pageitem" class="uk-flex uk-flex-wrap uk-flex-middle">
-               <span data-type=".typeToIcon" class="pageicon uk-flex-none uk-flex uk-flex-middle
-                  uk-position-relative">
-                  <!-- Reusing "srcUnhide" because it does the same thing :( -->
-                  <img data-image=".srcUnhide" class="outlined" hidden width=20>
-                  <div data-private=".srcUnhide" class="uk-cover lock" hidden>🔒</div>
-               </span>
-            <a class="uk-width-expand title uk-link-text" data-link="href" data-spa data-name=".textContent"></a>
-            <time data-time=".textContent" class="uk-flex-none uk-text-meta"></time>
-            <a class="uk-flex-none uk-flex uk-flex-middle avatar uk-position-relative" 
-               data-spa data-userlink="href">
-               <img data-avatar="src" width=25>
-               <div data-pinned=".srcUnhide" class="uk-cover pin" hidden>📌</div>
-            </a>
          </div>
          <div id="history" class="pageblock uk-display-block uk-position-relative">
             <div class="historycontainer"> <!-- uk-overflow-auto>-->

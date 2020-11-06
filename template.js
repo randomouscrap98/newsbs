@@ -326,6 +326,11 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          ce.removeAttribute("src");
       }
    },
+   showicon: (v, ce) =>
+   {
+      icon(v, ce);
+      show(v, ce);
+   },
    typeicon: (v, ce, tobj) =>
    {
       if(v)
