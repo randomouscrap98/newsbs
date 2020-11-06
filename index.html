@@ -805,6 +805,16 @@ function leftpaneclick(event)
             </a>
          </div>
 
+         <div id="historyitem" t-id="data-activityid" t-activity=".internal(historyitem)" 
+            class="uk-flex uk-flex-middle lightstriped">
+            <img t-useravatar=".internal(icon)" width=20 class="uk-flex-none">
+            <a t-username=".textContent" t-userlink=".spa()" class="uk-flex-none username"></a>
+            <span t-action=".textContent" class="uk-flex-none"></span>
+            <a t-pagename=".textContent" t-pagelink=".spa()" 
+               class="uk-width-expand uk-text-truncate uk-margin-small-left uk-margin-small-right"></a>
+            <time t-date=".textContent" class="uk-text-meta"></time>
+         </div>
+
       </template>
       <template id="templates" style="display: none">
          <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
@@ -964,15 +974,6 @@ function leftpaneclick(event)
                <div data-loading uk-spinner="ratio: 0.5"></div>
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
-         </div>
-         <div id="historyitem" data-activityid class="uk-flex uk-flex-middle lightstriped">
-            <img data-avatar="src" width=20 class="uk-flex-none">
-            <a data-spa data-username=".textContent" data-userlink="href"
-               class="uk-flex-none username"></a>
-            <span data-action=".textContent" class="uk-flex-none"></span>
-            <a data-spa data-contentname=".textContent" data-contentlink="href" 
-               class="uk-width-expand uk-text-truncate uk-margin-small-left uk-margin-small-right"></a>
-            <time data-time=".textContent" class="uk-text-meta"></time>
          </div>
          <label id="searchconstraint" class="uk-margin-right uk-text-nowrap">
             <input data-checked=".checked" data-id="id" type="checkbox" class="uk-checkbox">

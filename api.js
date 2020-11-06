@@ -9,6 +9,7 @@ function Api(root, signalHandler)
    this.signal = signalHandler || ((n,d) => console.log("Ignoring signal " + name));
    this.nextrequestid = 0;
    this.getToken = (() => null);
+   this.defaultUser = { avatar: 0, username: "???", id: 0 };
 }
 
 Api.prototype.FormatData = function(data)
@@ -120,20 +121,23 @@ Api.prototype.AutoLink = function(data)
    if(!data)
       return;
 
+   var me = this;
    var users = data.user;
    var categories = data.category;
+   var activity = data.activity;
+   var content = data.content;
 
-   var contentLink = (content) =>
+   var contentLink = (c) =>
    {
-      if(content)
+      if(c)
       {
-         DataFormat.LinkField(content, "createUserId", "createUser", users);
-         DataFormat.LinkField(content, "editUserId", "editUser", users);
+         DataFormat.LinkField(c, "createUserId", "createUser", users, "id", this.defaultUser);
+         DataFormat.LinkField(c, "editUserId", "editUser", users, "id", this.defaultUser);
 
          if(categories)
-            categories.forEach(x => DataFormat.MarkPinned(x, content, true));
+            categories.forEach(x => DataFormat.MarkPinned(x, c, true));
 
-         content.forEach(x =>
+         c.forEach(x =>
          {
             x.isPrivate = () => !x.permissions["0"] || x.permissions["0"].toLowerCase().indexOf("r") < 0;
 
@@ -143,8 +147,16 @@ Api.prototype.AutoLink = function(data)
       }
    };
 
-   contentLink(data.content);
-   contentLink(data.pages);
+   contentLink(content);
+   contentLink(data.pages); //special names!
+
+   if(activity)
+   {
+      DataFormat.LinkField(activity, "userId", "user", users, "id", this.defaultUser);
+      DataFormat.LinkField(activity, "contentId", "linked", users);
+      DataFormat.LinkField(activity, "contentId", "linked", categories);
+      DataFormat.LinkField(activity, "contentId", "linked", content);
+   }
 };
 
 //Chain does something special and pre-links some data together for you
@@ -489,13 +501,15 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
          ds[data[i][field]] = data[i];
       return ds;
    },
-   LinkField : function(data, field, assign, linkdata, linkfield)
+   LinkField : function(data, field, assign, linkdata, linkfield, def)
    {
       var links = MapField(linkdata, linkfield);
       data.forEach(x =>
       {
          if(field in x && x[field] in links)
             x[assign] = links[x[field]];
+         else if(def)
+            x[assign] = def;
       });
    },
    GetPinnedIds : function(category)

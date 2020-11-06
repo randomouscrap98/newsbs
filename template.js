@@ -1,4 +1,5 @@
 //All the templates
+// WARN: DEPENDENCY ON "libbo.js"
 
 //Template loader doesn't care whether it's from html or generated from
 //javascript, it just needs you to produce an object with getter/setters for
@@ -226,6 +227,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _templateData : "tmpldat_",
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
+   _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
 
    //More like... website data
    _ttoic : { 
@@ -237,6 +239,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       "category" : "folder",
       "userpage" : "user"
    },
+   _activitytext : {
+      "c" : "created",
+      "r" : "read",
+      "u" : "edited",
+      "d" : "deleted"
+   },
+
 
    //Dependency injection, please override these
    //----------------------------------
@@ -334,7 +343,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    typeicon: (v, ce, tobj) =>
    {
       if(v)
-         ce.setAttribute("uk-icon", ttoic[v] || "close");
+         ce.setAttribute("uk-icon", _ttoic[v] || "close");
       else
          ce.removeAttribute("uk-icon");
    },
@@ -370,6 +379,38 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          pinned : v.pinned
       });
       tobj.fields.pageicon.page = v;
+   },
+   historyitem: (v, ce, tobj) =>
+   {
+      var link = "#";
+      var title = "???";
+
+      if(v.linked) 
+      {
+         title = v.linked.name || ("User: " + v.linked.username);
+
+         if(v.type === "content")
+            link = links.Page(v.contentId);
+         else if(v.type === "category")
+            link = links.Category(v.contentId); 
+         else if(v.type === "user")
+            link = links.User(v.contentId); 
+      }
+      else if(v.action == "d")
+      {
+         title = v.extra;
+      }
+
+      tobj.SetFields({
+         useravatar : v.user.avatar,
+         username : v.user.username,
+         userlink : Links.User(v.user.id),
+         action : _activitytext[v.action],
+         pagename : title,
+         pagelink : link,
+         id : v.id,
+         date : _stdDateDiff(v.date, true) //Utilities.TimeDiff(activity.date, null, true)
+      });
    },
 
    //The actual internal get/set mechanisms

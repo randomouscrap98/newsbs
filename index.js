@@ -7,13 +7,6 @@ var actiontext = {
    "d" : "Delete"
 };
 
-var activitytext = {
-   "c" : "created",
-   "r" : "read",
-   "u" : "edited",
-   "d" : "deleted"
-};
-
 var attr = {
    "pulsedate" : "data-maxdate",
    "pulsecount" : "data-pwcount",
@@ -1898,7 +1891,8 @@ function makeActivity(modifySearch, finalize) //, unlimitedHeight)
       var lastItem = activityContainer.lastElementChild;
 
       if(lastItem) 
-         search.maxid = Number(getSwap(lastItem, "activityid")); //lastItem.getAttribute("data-actid"));
+         search.maxid = Number(lastItem.template.fields.id); 
+         //getSwap(lastItem, "activityid")); //lastItem.getAttribute("data-actid"));
 
       search = modifySearch(search);
 
@@ -1918,7 +1912,7 @@ function makeActivity(modifySearch, finalize) //, unlimitedHeight)
 
          var data = apidata.data;
          var users = idMap(data.user);
-         var all = idMap(data.content.concat(data.category).concat(data.user));
+         //var all = idMap(data.content.concat(data.category).concat(data.user));
 
          writeDom(() =>
          {
@@ -1928,20 +1922,22 @@ function makeActivity(modifySearch, finalize) //, unlimitedHeight)
 
             data.activity.forEach(x =>
             {
-               var content = all[x.contentId];
-               var title = "???";
-               if(!content) 
-               {
-                  if(x.action === "d")
-                     title = x.extra;
-                  else
-                     return; //Don't show this history item
-               }
-               else
-               {
-                  title = content.name || ("User: " + content.username);
-               }
-               activityContainer.appendChild(makeHistoryItem(users[x.userId], x, title));
+               //var content = all[x.contentId];
+               //var title = "???";
+               //if(!content) 
+               //{
+               //   if(x.action === "d")
+               //      title = x.extra;
+               //   else
+               //      return; //Don't show this history item
+               //}
+               //else
+               //{
+               //   title = content.name || ("User: " + content.username);
+               //}
+               var item = Templates.Load("historyitem");
+               item.fields.activity = x;
+               activityContainer.appendChild(item.element);//makeHistoryItem(users[x.userId], x, title));
             });
 
             if(finalize)
@@ -2534,32 +2530,32 @@ function makeCommentFragment(comment)//, users)
    return fragment;
 }
 
-function makeHistoryItem(user, activity, title) //users, activity, contents)
-{
-   var item = cloneTemplate("historyitem");
-   user = user || { avatar: 0, username: "???", id: 0 };
-   //var content = contents[activity.contentId];
-   //var title = content ? content.name : activity.extra;
-   var link = "#";
-   if(activity.type === "content")
-      link = Links.Page(activity.contentId);
-   else if(activity.type === "category")
-      link = Links.Category(activity.contentId); 
-   else if(activity.type === "user")
-      link = Links.User(activity.contentId); 
-   multiSwap(item, {
-      avatar : getAvatarLink(user.avatar, 20),
-      username : user.username,
-      userlink : Links.User(user.id),
-      action : activitytext[activity.action],
-      contentname : title,
-      contentlink : link,
-      activityid : activity.id,
-      time : Utilities.TimeDiff(activity.date, null, true)
-   });
-   finalizeTemplate(item);
-   return item;
-}
+//function makeHistoryItem(user, activity, title) //users, activity, contents)
+//{
+//   var item = cloneTemplate("historyitem");
+//   user = user || { avatar: 0, username: "???", id: 0 };
+//   //var content = contents[activity.contentId];
+//   //var title = content ? content.name : activity.extra;
+//   var link = "#";
+//   if(activity.type === "content")
+//      link = Links.Page(activity.contentId);
+//   else if(activity.type === "category")
+//      link = Links.Category(activity.contentId); 
+//   else if(activity.type === "user")
+//      link = Links.User(activity.contentId); 
+//   multiSwap(item, {
+//      avatar : getAvatarLink(user.avatar, 20),
+//      username : user.username,
+//      userlink : Links.User(user.id),
+//      action : activitytext[activity.action],
+//      contentname : title,
+//      contentlink : link,
+//      activityid : activity.id,
+//      time : Utilities.TimeDiff(activity.date, null, true)
+//   });
+//   finalizeTemplate(item);
+//   return item;
+//}
 
 
 
