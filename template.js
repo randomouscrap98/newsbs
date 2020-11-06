@@ -227,6 +227,17 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
 
+   //More like... website data
+   _ttoic : { 
+      "chat" : "commenting",
+      "resource" : "file-text",
+      "documentation" : "tag",
+      "program" : "laptop",
+      "tutorial" : "info",
+      "category" : "folder",
+      "userpage" : "user"
+   },
+
    //Dependency injection, please override these
    //----------------------------------
    signal: (signal) => console.log("Ignoring template signal " + signal + "; please inject click handler"),
@@ -304,9 +315,23 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    icon: (v, ce) =>
    {
       if(v || v == "0")
-         ce.setAttribute("src", imageLink(v, Number(ce.getAttribute("width")), true));
+      {
+         var width = Number(ce.getAttribute("width"));
+         if((width % 10) == 5 && width < 100)
+            width *= 2;
+         ce.setAttribute("src", imageLink(v, width, true));
+      }
       else
+      {
          ce.removeAttribute("src");
+      }
+   },
+   typeicon: (v, ce, tobj) =>
+   {
+      if(v)
+         el.setAttribute("uk-icon", ttoic[replace] || "close");
+      else
+         el.removeAttribute("uk-icon");
    },
    discussionuser: (v, ce, tobj, name, args) =>
    {
@@ -319,6 +344,34 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          avatar: v.avatar,
          super: v.super
       });
+   },
+   pageicon: (v, ce, tobj) =>
+   {
+      var f = { "thumbnail" : v.values ? v.values.thumbnail : "", "private" : v.isPrivate() };
+
+      if (!f.thumbnail) 
+         f.type = page.type;
+
+      tobj.SetFields(f);
+   },
+   pageitem: (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+
+      });
+   //var u = users[page.createUserId] || {};
+   //   var date = (new Date(page.createDate)).toLocaleDateString();
+   //multiSwap(citem, {
+   //   link: Links.Page(page.id),
+   //   name: page.name,
+   //   avatar : getAvatarLink(u.avatar, 50, true),
+   //   userlink : Links.User(page.createUserId),
+   //   pinned : page.pinned,
+   //   time : date
+   //});
+   //thumbType(page, citem);
+   //finalizeTemplate(citem);
+   //return citem;
    },
 
    //The actual internal get/set mechanisms
@@ -352,26 +405,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          signal("spaclick_event", { element: event.target, url: event.target.href });
       };
       ce.setAttribute("href", v);
-   },
-
-   discussionuser_user_get : (ce, tobj) => ce._user,
-   discussionuser_user_set : function(v, ce, tobj)
-   {
-      tobj._user = v;
-      tobj.SetFields({
-         avatar : Templates.imageLink(v.avatar, 40, true),
-
-      });
    }
-            /*<img t-avatar="src" width=40>
-            <div uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
-               <a t-userlink=".spahref()" class="username" t-username=".textContent"></a>
-               <div class="uk-flex uk-flex-middle userdata">
-                  <span class="userid uk-margin-small-right" t-id=".textContent"></span>
-                  <time class="uk-margin-small-right" t-date=".textContent"></time>
-                  <span class="usersuper" t-super=".simpleshow(data-super)" uk-icon="star" hidden></span>
-               </div>
-            </div>*/
 })
 //Private vars can go here
 }(window));

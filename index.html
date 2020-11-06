@@ -766,14 +766,16 @@ function leftpaneclick(event)
       </div>
       <!-- LOC:TEMPLATES -->
       <template id="templates2">
-         <!-- Same as before, but some things will have data-thing="*" -->
+
          <li id="log" class="uk-flex uk-text-break">
             <span t-message=".textContent" t-level="data-loglevel" class="uk-width-expand logmessage"></span>
             <time t-time=".textContent"></time>
          </li>
+
          <ul id="logcontainer" class="uk-list uk-list-divider uk-list-collapse"
             tfunc="UpdateLogs">
          </ul>
+
          <div id="discussionuser" t-user=".internal(discussionuser)" class="uk-flex-none">
             <img t-avatar=".internal(icon)" width=40>
             <div uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
@@ -785,11 +787,23 @@ function leftpaneclick(event)
                </div>
             </div>
          </div>
-         <span id="pageicon" t-user=".internal(pageicon)" t-type="uk-icon" 
+
+         <span id="pageicon" t-page=".internal(pageicon)" t-type=".external(typeicon, uk-icon)" 
             class="pageicon uk-flex-none uk-flex uk-flex-middle uk-position-relative">
             <img t-thumbnail=".internal(icon)" class="outlined" hidden width=20>
             <div t-private=".external(show)" class="uk-cover lock" hidden>🔒</div>
          </span>
+
+         <div id="pageitem" t-page=".internal(pageitem)" class="uk-flex uk-flex-wrap uk-flex-middle">
+            <div tlink="pageicon"></div>
+            <a class="uk-width-expand title uk-link-text" t-pagelink=".spa()" t-name=".textContent"></a>
+            <time t-createdate=".textContent" class="uk-flex-none uk-text-meta"></time>
+            <a class="uk-flex-none uk-flex uk-flex-middle avatar uk-position-relative" t-userlink=".spa()">
+               <img t-avatar=".internal(icon)" width=25>
+               <div t-pinned=".external(show)" class="uk-cover pin" hidden>📌</div>
+            </a>
+         </div>
+
       </template>
       <template id="templates" style="display: none">
          <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
@@ -822,8 +836,8 @@ function leftpaneclick(event)
             </div>
             <div class="uk-flex uk-flex-bottom">
                <span data-nouikit data-pwtime=".textContent"
-                  class="uk-flex-1 ufk-text-right pw-time uk-text-meta">Now</span>
-               <div class="pw-users uk-flex"></div>
+                  class="uk-flex-1 uk-margin-small-right pw-time nowrap uk-text-meta">Now</span>
+               <div class="pw-users uk-flex ufk-flex-center uk-flex-wrap"></div>
             </div>
          </li>
          <!-- Dropdowns HAVE to be inside a uk-inline element! This DOES NOT

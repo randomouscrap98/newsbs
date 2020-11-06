@@ -159,7 +159,9 @@ blockquote {
 }
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 .uk-sortable-empty { min-height: unset; }
+
 .notext { font-size: 0; } /*display: contents; }*/
+.nowrap { white-space: nowrap; }
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
