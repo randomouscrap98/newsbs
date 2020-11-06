@@ -121,24 +121,33 @@ Api.prototype.AutoLink = function(data)
       return;
 
    var users = data.user;
-   var content = data.content;
+   var categories = data.category;
 
-   //Chain does something special and pre-links some data together for you
-   if(content)
+   var contentLink = (content) =>
    {
-      DataFormat.LinkField(content, "createUserId", "createUser", users);
-      DataFormat.LinkField(content, "editUserId", "editUser", users);
-
-      content.forEach(x =>
+      if(content)
       {
-         x.isPrivate = () => !x.permissions["0"] || x.permissions["0"].toLowerCase().indexOf("r") < 0;
+         DataFormat.LinkField(content, "createUserId", "createUser", users);
+         DataFormat.LinkField(content, "editUserId", "editUser", users);
 
-         if(x.type == "userpage" && x.createUser)
-            x.name = x.createUser.username + "'s user page";
-      });
-   }
+         if(categories)
+            categories.forEach(x => DataFormat.MarkPinned(x, content, true));
+
+         content.forEach(x =>
+         {
+            x.isPrivate = () => !x.permissions["0"] || x.permissions["0"].toLowerCase().indexOf("r") < 0;
+
+            if(x.type == "userpage" && x.createUser)
+               x.name = x.createUser.username + "'s user page";
+         });
+      }
+   };
+
+   contentLink(data.content);
+   contentLink(data.pages);
 };
 
+//Chain does something special and pre-links some data together for you
 Api.prototype.Chain = function(params, success, error, always, modify)
 {
    var me = this;

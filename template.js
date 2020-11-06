@@ -144,7 +144,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
             //TODO: The "function" feature may not be used or may be changed
             if(funcparen >= 0)
             {
-               var args = property.substr(funcparen + 1).slice(0,-1).split(",") || [];
+               var args = property.substr(funcparen + 1).slice(0,-1).split(",").map(x => x.trim()) || [];
                var func = property.substr(0, funcparen); //property.length - 2);
                var gfunc = func + "_get";
                var sfunc = func + "_set";
@@ -329,9 +329,9 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    typeicon: (v, ce, tobj) =>
    {
       if(v)
-         el.setAttribute("uk-icon", ttoic[replace] || "close");
+         ce.setAttribute("uk-icon", ttoic[v] || "close");
       else
-         el.removeAttribute("uk-icon");
+         ce.removeAttribute("uk-icon");
    },
    discussionuser: (v, ce, tobj, name, args) =>
    {
@@ -350,28 +350,21 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       var f = { "thumbnail" : v.values ? v.values.thumbnail : "", "private" : v.isPrivate() };
 
       if (!f.thumbnail) 
-         f.type = page.type;
+         f.type = v.type;
 
       tobj.SetFields(f);
    },
    pageitem: (v, ce, tobj) =>
    {
       tobj.SetFields({
-
+         name: v.name,
+         pagelink: Links.Page(v.id),
+         createdate: _stdDate(v.createDate),
+         userlink: Links.User(v.createUserId),
+         useravatar : v.createUser.avatar,
+         pinned : v.pinned
       });
-   //var u = users[page.createUserId] || {};
-   //   var date = (new Date(page.createDate)).toLocaleDateString();
-   //multiSwap(citem, {
-   //   link: Links.Page(page.id),
-   //   name: page.name,
-   //   avatar : getAvatarLink(u.avatar, 50, true),
-   //   userlink : Links.User(page.createUserId),
-   //   pinned : page.pinned,
-   //   time : date
-   //});
-   //thumbType(page, citem);
-   //finalizeTemplate(citem);
-   //return citem;
+      tobj.fields.pageicon.page = v;
    },
 
    //The actual internal get/set mechanisms

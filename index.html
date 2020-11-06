@@ -788,18 +788,19 @@ function leftpaneclick(event)
             </div>
          </div>
 
-         <span id="pageicon" t-page=".internal(pageicon)" t-type=".external(typeicon, uk-icon)" 
+         <span id="pageicon" t-page=".internal(pageicon)" t-type=".internal(typeicon)" 
             class="pageicon uk-flex-none uk-flex uk-flex-middle uk-position-relative">
             <img t-thumbnail=".internal(icon)" class="outlined" hidden width=20>
             <div t-private=".external(show)" class="uk-cover lock" hidden>🔒</div>
          </span>
 
-         <div id="pageitem" t-page=".internal(pageitem)" class="uk-flex uk-flex-wrap uk-flex-middle">
+         <div id="pageitem" t-page=".internal(pageitem)" class="uk-flex uk-flex-wrap uk-flex-middle
+            lightstriped">
             <div tlink="pageicon"></div>
             <a class="uk-width-expand title uk-link-text" t-pagelink=".spa()" t-name=".textContent"></a>
             <time t-createdate=".textContent" class="uk-flex-none uk-text-meta"></time>
             <a class="uk-flex-none uk-flex uk-flex-middle avatar uk-position-relative" t-userlink=".spa()">
-               <img t-avatar=".internal(icon)" width=25>
+               <img t-useravatar=".internal(icon)" width=25>
                <div t-pinned=".external(show)" class="uk-cover pin" hidden>📌</div>
             </a>
          </div>
@@ -979,7 +980,7 @@ function leftpaneclick(event)
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
          </div>
-         <div id="historyitem" data-activityid class="uk-flex uk-flex-middle">
+         <div id="historyitem" data-activityid class="uk-flex uk-flex-middle lightstriped">
             <img data-avatar="src" width=20 class="uk-flex-none">
             <a data-spa data-username=".textContent" data-userlink="href"
                class="uk-flex-none username"></a>
@@ -1129,7 +1130,7 @@ function leftpaneclick(event)
             <ul class="uk-slideshow-nav uk-dotnav uk-flex-center uk-margin"></ul>
          </div>
          <table>
-         <tr id="banhistoryitem">
+         <tr id="banhistoryitem" class="lightstriped">
             <td><a data-adminlink="href" data-admin=".textContent"></a></td>
             <td><a data-bannedlink="href" data-banned=".textContent"></a></td>
             <td data-type=".textContent"></td>

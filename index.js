@@ -1188,7 +1188,12 @@ function routecategory_load(spadat)
 
          treeify(childcats);
          childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
-         data.content.forEach(x => pgelm.appendChild(makePageitem(x, users)));
+         data.content.forEach(x => 
+         {
+            var item = Templates.Load("pageitem");
+            item.fields.page = x;
+            pgelm.appendChild(item.element);
+         });
       }, getChain(data.category, c));
    });
 }
@@ -1298,7 +1303,12 @@ function routeuser_load(spadat)
             setHidden(history.querySelector("[data-title]"), !act.length);
          }));
          var pgelm = templ.querySelector("[data-userpages]");
-         data.pages.forEach(x => pgelm.appendChild(makePageitem(x, users)));
+         data.pages.forEach(x => 
+         {
+            var item = Templates.Load("pageitem");
+            item.fields.page = x;
+            pgelm.appendChild(item.element);
+         }); //pgelm.appendChild(makePageitem(x, users)));
          setHidden(pgelm.querySelector("[data-title]"), !data.pages.length);
 
          if(c)
@@ -2465,23 +2475,23 @@ function makeSubcat(category)
    return subcat;
 }
 
-function makePageitem(page, users)
-{
-   var citem = cloneTemplate("pageitem");
-   var u = users[page.createUserId] || {};
-   var date = (new Date(page.createDate)).toLocaleDateString();
-   multiSwap(citem, {
-      link: Links.Page(page.id),
-      name: page.name,
-      avatar : getAvatarLink(u.avatar, 50, true),
-      userlink : Links.User(page.createUserId),
-      pinned : page.pinned,
-      time : date
-   });
-   thumbType(page, citem);
-   finalizeTemplate(citem);
-   return citem;
-}
+//function makePageitem(page, users)
+//{
+//   var citem = cloneTemplate("pageitem");
+//   var u = users[page.createUserId] || {};
+//   var date = (new Date(page.createDate)).toLocaleDateString();
+//   multiSwap(citem, {
+//      link: Links.Page(page.id),
+//      name: page.name,
+//      avatar : getAvatarLink(u.avatar, 50, true),
+//      userlink : Links.User(page.createUserId),
+//      pinned : page.pinned,
+//      time : date
+//   });
+//   thumbType(page, citem);
+//   finalizeTemplate(citem);
+//   return citem;
+//}
 
 function makePWUser(user)
 {
