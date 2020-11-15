@@ -3330,7 +3330,7 @@ function getFragmentFrame(element)
 
 function easyComments(comments, users, firstLoad)
 {
-   if(comments) // && comments.length)
+   if(comments && comments.length)
    {
       var n = performance.now();
       globals.commentsrendered = (globals.commentsrendered || 0) + comments.length;
@@ -3340,11 +3340,11 @@ function easyComments(comments, users, firstLoad)
       log.PerformanceLog("easyComments(" + comments.length + "," + globals.commentsrendered + "): " + 
          (performance.now() - n) + "ms");
    }
-
-   if(!(comments && comments.length) && firstLoad)
+   else if(firstLoad)
    {
       var d = getDiscussion(firstLoad);
-      unhide(d.querySelector("[data-nocomments]"));
+      var nocom = d.querySelector("[data-nocomments]");
+      unhide(nocom);
    }
 }
 
@@ -3383,6 +3383,11 @@ function easyComment(comment, users)
 
       //Automatically create discussion?
       var d = getDiscussion(comment.parentId);
+      var nocom = d.querySelector("[data-nocomments]");
+
+      //Need a "safe" hide (safe from uikit anyway)
+      if(!nocom.hasAttribute("hidden"))
+         nocom.setAttribute("hidden", "");
 
       //Starting from bottom, find place to insert.
       var comments = d.querySelectorAll("[data-messageid]");
