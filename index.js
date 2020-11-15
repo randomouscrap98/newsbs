@@ -108,7 +108,7 @@ window.onload = function()
 {
    log.Info("Window load event");
 
-   Templates.ReplaceTemplatePlaceholders(website);
+   Templates.ActivateTemplates(website);
 
    //This is SO IMPORTANT that you can't do it on a frame, has to be done now
    finalizeTemplate(website);
@@ -1877,12 +1877,11 @@ function makeActivity(modifySearch, finalize) //, unlimitedHeight)
       writeDom(() => unhide(loadloading));
 
       var initload = getLocalOption("activityload");
-      var search = { reverse : true, limit: initload };
+      var search = { reverse : true, limit: initload, includeanonymous: true };
       var lastItem = activityContainer.lastElementChild;
 
       if(lastItem) 
          search.maxid = Number(lastItem.template.fields.id); 
-         //getSwap(lastItem, "activityid")); //lastItem.getAttribute("data-actid"));
 
       search = modifySearch(search);
 
@@ -1908,7 +1907,7 @@ function makeActivity(modifySearch, finalize) //, unlimitedHeight)
             hide(loadloading);
             setHidden(loadolder, data.activity.length !== initload);
 
-            data.activity.forEach(x => 
+            data.activity.filter(x => !(x.userId <= 0 && x.action == "c")).forEach(x => 
                activityContainer.appendChild(Templates.LoadHere("historyitem", {activity:x})));
 
             if(finalize)
@@ -2577,8 +2576,8 @@ function setupSession()
       params.append("requests", "watch");    //4
       params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //5
       params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //6
-      params.append("requests", "content.3contentId.2parentId.4contentId");
-      params.append("requests", "user.3userId.2createUserId.5userIds.6userIds");
+      params.append("requests", "content.3contentId.2parentId.4contentId"); //7
+      params.append("requests", "user.3userId.2createUserId.5userIds.6userIds.7createUserId"); //8
       params.set("comment","id,parentId,createUserId,createDate");
       params.set("content","id,name,type,values,createUserId,permissions");
       params.set("user","id,username,avatar,super,createDate");
@@ -3146,11 +3145,8 @@ function updateWatchComAct(users, comments, activity)
    writeDom(() =>
    {
       Utilities.SortElements(watches,
-      //specialSort(watches,
          x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid)), true);
 
-      //An optimization to reduce UIkit observations
-      //if(!document.hidden)
       refreshPWDates(watches);
 
       updateWatchGlobalAlert();
@@ -3173,6 +3169,7 @@ function updateWatches(data, fullReset)
       for(var i = 0; i < data.watch.length; i++)
       {
          var c = contents[data.watch[i].contentId];
+         if(!c) continue; //you CAN have items in your watchlist that have no associated content...
          var watchdata = easyPWContent(c, getWatchId(c.id), watches);
          setupWatchClear(watchdata, c.id);
          watchdata.setAttribute(attr.pulsemaxid, data.watch[i].lastNotificationId);
@@ -3182,10 +3179,10 @@ function updateWatches(data, fullReset)
    if(data.content)
    {
       data.content.forEach(x =>
-         {
-            var w = document.getElementById(getWatchId(x.id));
-            if(w) updatePWContent(w, x);
-         });
+      {
+         var w = document.getElementById(getWatchId(x.id));
+         if(w) updatePWContent(w, x);
+      });
    }
 
    if(data.watchdelete)

@@ -256,12 +256,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    //"Global" functions for people using the template system from the outside
    //(the internal machinations don't really need these)
    //----------------------------------
-   ReplaceTemplatePlaceholders : function(element)
+   ActivateTemplates : function(element)
    {
       [...element.querySelectorAll("[data-template]")].forEach(x =>
       {
+         var templatename = x.getAttribute("data-template");
          //Create the template it asked for
-         var tmpl = Load(x.getAttribute("data-template"));
+         var tmpl = Load(templatename);
          //Copy over the attributes
          [...x.attributes].forEach(y =>
          {
@@ -390,17 +391,36 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       var link = "#";
       var title = "???";
+      var action = _activitytext[v.action];
 
       if(v.linked) 
       {
          title = v.linked.name || ("User: " + v.linked.username);
 
          if(v.type === "content")
+         {
             link = links.Page(v.contentId);
+         }
          else if(v.type === "category")
+         {
             link = links.Category(v.contentId); 
+         }
          else if(v.type === "user")
-            link = links.User(v.contentId); 
+         {
+            //There's special events when the -1 user does things (wait is 0
+            //default or -1??)
+            if(Number(v.userId) <= 0 && v.action == "u")
+            {
+               v.user = v.linked;
+               action = "created an account!";
+               title = "";
+            }
+            else
+            {
+               //Just treat it normally
+               link = links.User(v.contentId); 
+            }
+         }
       }
       else if(v.action == "d")
       {
@@ -411,7 +431,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          useravatar : v.user.avatar,
          username : v.user.username,
          userlink : Links.User(v.user.id),
-         action : _activitytext[v.action],
+         action : action,
          pagename : title,
          pagelink : link,
          id : v.id,
