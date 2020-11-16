@@ -267,7 +267,8 @@ Api.prototype.Image = (id, size, crop) =>
    if(size) params.set("size", size); 
    if(crop) params.set("crop", true); 
 
-   return img + "?" + params.toString();
+   var extra = "?" + params.toString();
+   return img + (extra.length > 1 ? extra : "");
 };
 
 // **********************

@@ -3145,7 +3145,8 @@ function updateWatchComAct(users, comments, activity)
    writeDom(() =>
    {
       Utilities.SortElements(watches,
-         x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid)), true);
+         x => x.getAttribute(attr.pulsedate) || ("0" + x.getAttribute(attr.pulsemaxid) + 
+                x.getAttribute("data-cid")), true);
 
       refreshPWDates(watches);
 
@@ -3319,7 +3320,7 @@ function updateCommentFragment(comment, element)
    //nothing for now, but there might be other things
    multiSwap(element, {
       message: comment.content,
-      editdate: new Date(comment.editDate).toLocaleString()
+      editdate: comment.editDate //new Date(comment.editDate).toLocaleString()
    });
 }
 
