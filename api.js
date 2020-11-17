@@ -145,6 +145,7 @@ Api.prototype.AutoLink = function(data)
                   x.permissions[i] = x.permissions[i].toUpperCase();
             }
 
+            x.getPhotos = () => (x.values && x.values.photos || "").split(",");
             x.isPrivate = () => !x.permissions["0"] || x.permissions["0"].indexOf("R") < 0;
 
             if(x.type == "userpage" && x.createUser)

@@ -208,7 +208,7 @@ function renderPage(route, applyTemplate, breadcrumbs)
    if(breadcrumbs)
       makeBreadcrumbs(breadcrumbs);
 
-   if(document.getElementById("templates").content.getElementById(route))
+   if(document.getElementById("templates_old").content.getElementById(route))
    {
       var template = cloneTemplate(route);
 
@@ -235,7 +235,7 @@ function renderPage(route, applyTemplate, breadcrumbs)
 
 function cloneTemplate(name)
 {
-   var templates = document.getElementById("templates");
+   var templates = document.getElementById("templates_old");
    var elm = templates.content.getElementById(name); 
    //querySelector("#templates > [data-" + name + "]");
    if(!elm)
