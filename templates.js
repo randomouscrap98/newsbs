@@ -253,6 +253,20 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       });
    },
 
+   //Routes
+   //----------------------------------
+   routepage: (v, ce, tobj) =>
+   {
+      //console.log(v);
+      tobj.SetFields({
+         title: v.name,
+         permissions: v.myPerms,
+         pinned: v.pinned,
+         format : v.values.markupLang,
+         content : v
+      });
+   },
+
    //The actual internal get/set mechanisms
    //----------------------------------
    internal_get: (ce, tobj, name, args) => ce[_templateArgName(name, args, _templateData)],
@@ -284,6 +298,14 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          signal("spaclick_event", { element: event.target, url: event.target.href });
       };
       ce.setAttribute("href", v);
+   },
+   render_get : (ce, tobj) => ce.getAttribute("data-raw"),
+   render_set : (v, ce, tobj) =>
+   {
+      ce.setAttribute("data-raw", v);
+      ce.innerHTML = "";
+      ce.appendChild(Parse.parseLang(v.content, v.values.markupLang)); //content.content, content.format));
+         //var content = JSON.parse(repl);
    }
 })
 //Private vars can go here

@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605583140" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605583140"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605583140"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605591575" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605591575"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605591575"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605583140"></script>
-      <script src="templates.js?v=1605583140"></script>
-      <script src="dom.js?v=1605583140"></script>
-      <script src="api.js?v=1605583140"></script>
-      <script src="index.js?v=1605583140"></script>
-      <script src="sbs2-markup/highlight.js?v=1605583140"></script>
-      <script src="sbs2-markup/parse.js?v=1605583140"></script>
-      <script src="sbs2-markup/render.js?v=1605583140"></script>
+      <script src="libbo.js?v=1605591575"></script>
+      <script src="templates.js?v=1605591575"></script>
+      <script src="dom.js?v=1605591575"></script>
+      <script src="api.js?v=1605591575"></script>
+      <script src="index.js?v=1605591575"></script>
+      <script src="sbs2-markup/highlight.js?v=1605591575"></script>
+      <script src="sbs2-markup/parse.js?v=1605591575"></script>
+      <script src="sbs2-markup/render.js?v=1605591575"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605583140" />
+      <link rel="stylesheet" href="index.css?v=1605591575" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -852,13 +852,25 @@ function leftpaneclick(event)
          <!-- Page controls are SO complex that I want them to be able to
             function even outside any context, so they get their own page
             assignment and pinned/permissions fields, etc -->
-         <ul id="pagecontrols" t-page=".internal(pagecontrols)" t-pinned t-permissions
-            class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove hidelogout" data-loginonly>
-            <li>
-               <a href="#" t-watched uk-icon="bell"></a>
-            </li>
-            <li>
-               <a href="#" uk-icon="cog"></a>
+         <div id="pagecontrols" t-page=".internal(pagecontrols)" t-pinned t-permissions
+            class="pagecontrols uk-flex-none uk-flex hidelogout" data-loginonly>
+            <div>
+               <a href="#" class="pagecontrol" t-votes 
+                  uk-icon="google"></a>
+               <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
+                  <span></span>
+                  <span></span>
+                  <span></span>
+               </div>
+               <div class="uk-text-meta uk-text-center" t-votecount>0</div>
+            </div>
+            <div>
+               <a href="#" class="pagecontrol" t-watched 
+                  t-togglewatch=".onclick" uk-icon="bell"></a>
+               <div class="uk-text-meta uk-text-center" t-watchcount>0</div>
+            </div>
+            <div>
+               <a href="#" class="pagecontrol" uk-icon="cog"></a>
                <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
                   <ul class="uk-list uk-margin-remove-bottom">
                      <!-- Unfortunately, UIkit doesn't handle hidden first list items well -->
@@ -874,20 +886,18 @@ function leftpaneclick(event)
                         <a t-unpinaction=".onclick" href="#">Unpin Page</a></li>
                   </ul>
                </div>
-            </li>
-         </ul>
-
-         <div id="pagetitle" class="pagetitle">
-            <h1 class="uk-width-expand uk-margin-small-right" t-title=".textContent"></h1>
+            </div>
          </div>
 
-         <article id="pagecontent" t-content=".render" t-format
+         <article id="pagecontent" t-content=".render()" t-format
             class="pageblock uk-text-break content uk-margin-remove-top"></article>
 
-         <div id="routepage" t-pinned t-permissions
+         <div id="routepage" t-pinned t-permissions t-page=".internal(routepage)"
               class="uk-container uk-margin-top uk-margin-bottom contentpage">
-            <div thoist tlink="pagetitle"></div>
-            <div tlink="pagecontrols"></div>
+            <div class="uk-flex uk-flex-wrap">
+               <h1 class="uk-margin-small-right uk-width-expand" t-title=".textContent"></h1>
+               <div tlink="pagecontrols"></div>
+            </div>
             <div data-programcontainer hidden>
                <div tlink="slideshow" hidden></div>
                <div class="uk-flex uk-flex-middle uk-margin-small-left uk-margin-small-right">

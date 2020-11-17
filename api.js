@@ -140,10 +140,9 @@ Api.prototype.AutoLink = function(data)
          c.forEach(x =>
          {
             if(x.permissions)
-            {
-               for(let i = 0; i < x.permissions.length; i++)
-                  x.permissions[i] = x.permissions[i].toUpperCase();
-            }
+               Object.keys(x.permissions).forEach(y => x.permissions[y] = x.permissions[y].toUpperCase());
+            if(x.myPerms)
+               x.myPerms = x.myPerms.toUpperCase();
 
             x.getPhotos = () => (x.values && x.values.photos || "").split(",");
             x.isPrivate = () => !x.permissions["0"] || x.permissions["0"].indexOf("R") < 0;

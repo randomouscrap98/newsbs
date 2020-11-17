@@ -1223,6 +1223,7 @@ function routepage_load(spadat)
       route_complete(spadat, c.name, templ =>
       {
          //finishContent(templ, c, categories);
+         templ.template.fields.page = c;
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c, data.comment, users, initload);
       }, getChain(data.category, c), c.id);
