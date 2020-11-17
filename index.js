@@ -1222,8 +1222,30 @@ function routepage_load(spadat)
 
       route_complete(spadat, c.name, templ =>
       {
-         //finishContent(templ, c, categories);
-         templ.template.fields.page = c;
+         var t = templ.template;
+         t.fields.page = c;
+         t.innerTemplates.pagecontrols.SetFields({
+            watchfunc: (watch, fail) =>
+            {
+               var myfail = (apidat) => { 
+                  fail();
+                  notifyError("Watch request failed: " + apidata.request.status + " - " + 
+                              apidata.request.statusText);
+               };
+               log.Info("Setting watch to: " + watch);
+               if(watch) 
+               {
+                  globals.api.Post("watch/" + c.id, {}, apidata => 
+                     log.Info("Watch " + c.id + " successful!"), myfail);
+               }
+               else 
+               {
+                  globals.api.Delete("watch", c.id, data => 
+                     log.Info("Remove watch " + c.id + " successful!"), myfail);
+               }
+            }
+         });
+         
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c, data.comment, users, initload);
       }, getChain(data.category, c), c.id);

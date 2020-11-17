@@ -273,6 +273,25 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          pinned: v.pinned
       });
    },
+   pagecontrolwatch: (v, ce, tobj) =>
+   {
+      ce.onclick = (event) =>
+      {
+         event.preventDefault();
+         var original = tobj.fields.watched == "true";
+         var originalcount = Number(tobj.fields.watchcount);
+         var failure = () => 
+         {
+            tobj.fields.watched = original;
+            tobj.fields.watchcount = originalcount;
+         };
+
+         //Pre-emptively set the watch status
+         tobj.fields.watched = !original;
+         tobj.fields.watchcount = originalcount + (original ? -1 : 1);
+         tobj.fields.watchfunc(!original, failure);
+      };
+   },
    piechart: (v, ce, tobj) =>
    {
       var pie = ce.querySelector("[data-pie]");
