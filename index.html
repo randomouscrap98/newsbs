@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605552175" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605552175"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605552175"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605581031" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605581031"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605581031"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605552175"></script>
-      <script src="template.js?v=1605552175"></script>
-      <script src="dom.js?v=1605552175"></script>
-      <script src="api.js?v=1605552175"></script>
-      <script src="index.js?v=1605552175"></script>
-      <script src="sbs2-markup/highlight.js?v=1605552175"></script>
-      <script src="sbs2-markup/parse.js?v=1605552175"></script>
-      <script src="sbs2-markup/render.js?v=1605552175"></script>
+      <script src="libbo.js?v=1605581031"></script>
+      <script src="template.js?v=1605581031"></script>
+      <script src="dom.js?v=1605581031"></script>
+      <script src="api.js?v=1605581031"></script>
+      <script src="index.js?v=1605581031"></script>
+      <script src="sbs2-markup/highlight.js?v=1605581031"></script>
+      <script src="sbs2-markup/parse.js?v=1605581031"></script>
+      <script src="sbs2-markup/render.js?v=1605581031"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605552175" />
+      <link rel="stylesheet" href="index.css?v=1605581031" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -865,7 +865,7 @@ function leftpaneclick(event)
 
          <img id="slideshowimage" t-image=".src" uk-cover class="slideshowimage">
 
-         <li id="slideshowitem"><div tlink="slideshowimage" thoist></div></li>
+         <li id="simpleslideshowitem"><div tlink="slideshowimage" thoist></div></li>
 
          <li id="annotatedslideshowitem">
             <a t-link=".spa()" class="uk-width-expand uk-height-1-1 uk-display-block">
@@ -874,14 +874,7 @@ function leftpaneclick(event)
             <div class="uk-overlay-primary uk-position-bottom uk-text-center 
                  uk-text-large uk-text-truncate slideshowtext" 
                t-title=".internal(show,textContent)" hidden>
-               <!--<span t-title=".textContent" class="uk-margin-remove
-               uk-text-truncate uk-text-large slideshowtext
-               uk-display-block"></span>-->
             </div>
-            <!--<div class="uk-overlay-primary uk-position-bottom uk-text-center" hidden>
-               <p data-tagline=".textContent" class="uk-margin-remove
-               uk-text-truncate slideshowtext"></p>
-            </div>-->
          </li>
 
          <div id="routepage" t-pinned t-permissions

@@ -25,11 +25,18 @@ function Template(name, element, fields)
 //same. This has quite a high overhead for standard internal fields, but
 //external fields can cause a MASSIVE mutationobserver event for any set, so
 //it's better to spend a tiny amount of time avoiding that.
-Template.prototype.SetFields = function(fields, forceChanges)
+Template.prototype.SetFields = function(fields, forceChanges, ignoreInvalid)
 {
    var me = this;
    Object.keys(fields).forEach(x => 
    {
+      if(!(x in me.fields))
+      {
+         if(ignoreInvalid)
+            return;
+         else
+            throw "Tried to set invalid template field: " + x;
+      }
       var f = fields[x]; //This might be compute intensive? So don't do it twice
       if(forceChanges || (me.fields[x] != f))
          me.fields[x] = f;
@@ -83,13 +90,13 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          //ourselves, otherwise put them in an aptly named thing
          if(hoist)
          {
-            Object.keys(innerobj.fields).forEach(x =>
+            Object.keys(innertobj.fields).forEach(x =>
             {
-               SingleField(tobj.fields, x, Object.getOwnPropertyDescriptor(innerobj.fields, x));
+               SingleField(tobj.fields, x, Object.getOwnPropertyDescriptor(innertobj.fields, x));
             });
-            Object.keys(innerobj.functions).forEach(x =>
+            Object.keys(innertobj.functions).forEach(x =>
             {
-               SingleFieldValue(tobj.functions, x, innerobj.functions[x]);
+               SingleFieldValue(tobj.functions, x, innertobj.functions[x]);
             });
          }
          else
@@ -228,22 +235,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    //----------------------------------
    _templateData : "tmpldat_",
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
-   //_templateArgGet: (ce, name, args, prefix) => 
-   //{
-   //   var name = _templateArgName(name, args, prefix);
-   //   if(name.startsWith("."))
-   //      return ce[name.substr(1)];
-   //   else
-   //      return ce.getAttribute(name);
-   //},
-   //_templateArgSet: (ce, name, args, prefix, value) => 
-   //{
-   //   var name = _templateArgName(name, args, prefix);
-   //   if(name.startsWith("."))
-   //      ce[name.substr(1)] = v;
-   //   else
-   //      ce.setAttribute(name, v);
-   //},
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
 
@@ -328,7 +319,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          if(logs[i].id > lastId)
          {
             var logMessage = Load("log");
-            logMessage.SetFields(logs[i]); 
+            logMessage.SetFields(logs[i], false, true); 
             logMessage.element.setAttribute("data-id", logs[i].id);
             ce.appendChild(logMessage.element);
          }
@@ -468,18 +459,24 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          date : _stdDateDiff(v.date, true) //Utilities.TimeDiff(activity.date, null, true)
       });
    },
+   slideshowpages: (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         images: v.map(x => ({
+            title: x.name,
+            link: Links.Page(x.id),
+            image: imageLink((x.values.photos || "").split(",")[0])
+         }))
+      });
+   },
    slideshowimages: (v, ce, tobj) =>
    {
       v.forEach(x =>
       {
          if(v.link || v.title)
-         {
-            ce.appendChild(LoadHere());
-         }
+            ce.appendChild(LoadHere("annotatedslideshowitem", x));
          else
-         {
-            ce.appendChild(LoadHere());
-         }
+            ce.appendChild(LoadHere("simpleslideshowitem", {image:x.image}));
       });
    },
 
@@ -495,11 +492,9 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
 
    external_get: (ce, tobj, name, args) => ce.getAttribute(_templateArgName(name, args, "data-")),
-   //_templateArgGet(name, args, "data-"),
    external_set: (v, ce, tobj, name, args) =>
    {
       ce.setAttribute(_templateArgName(name, args, "data-"), v);
-      //_templateArgSet(name, args, "data-", v);
 
       if(args && args[0])
          Templates[args[0]](v, ce, tobj, name, args);
