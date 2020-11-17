@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605582152" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605582152"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605582152"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605583140" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605583140"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605583140"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605582152"></script>
-      <script src="templates.js?v=1605582152"></script>
-      <script src="dom.js?v=1605582152"></script>
-      <script src="api.js?v=1605582152"></script>
-      <script src="index.js?v=1605582152"></script>
-      <script src="sbs2-markup/highlight.js?v=1605582152"></script>
-      <script src="sbs2-markup/parse.js?v=1605582152"></script>
-      <script src="sbs2-markup/render.js?v=1605582152"></script>
+      <script src="libbo.js?v=1605583140"></script>
+      <script src="templates.js?v=1605583140"></script>
+      <script src="dom.js?v=1605583140"></script>
+      <script src="api.js?v=1605583140"></script>
+      <script src="index.js?v=1605583140"></script>
+      <script src="sbs2-markup/highlight.js?v=1605583140"></script>
+      <script src="sbs2-markup/parse.js?v=1605583140"></script>
+      <script src="sbs2-markup/render.js?v=1605583140"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605582152" />
+      <link rel="stylesheet" href="index.css?v=1605583140" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -817,6 +817,41 @@ function leftpaneclick(event)
             <time t-date=".textContent" class="uk-text-meta"></time>
          </div>
 
+         <div id="slideshow" t-page=".internal(slideshowpage)" 
+            t-pages=".internal(slideshowpages)" uk-slideshow="animation: slide; ratio: 16:9;
+                  autoplay: true; autoplay-interval: 6000; pause-on-hover: true">
+            <div class="uk-position-relative uk-visible-toggle uk-light" tabindex="-1">
+               <ul t-images=".internal(slideshowimages)" class="uk-slideshow-items"></ul>
+               <a class="uk-position-center-left uk-position-small uk-hidden-hover" 
+                  href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
+               <a class="uk-position-center-right uk-position-small uk-hidden-hover" 
+                  href="#" uk-slidenav-next uk-slideshow-item="next"></a>
+            </div>
+            <ul class="uk-slideshow-nav uk-dotnav uk-flex-center uk-margin"></ul>
+         </div>
+
+         <img id="slideshowimage" t-image=".src" uk-cover class="slideshowimage">
+
+         <li id="simpleslideshowitem"><div tlink="slideshowimage" thoist></div></li>
+
+         <li id="annotatedslideshowitem">
+            <a t-link=".spa()" class="uk-width-expand uk-height-1-1 uk-display-block">
+               <div tlink="slideshowimage" thoist></div>
+            </a>
+            <div class="uk-overlay-primary uk-position-bottom uk-text-center 
+                 uk-text-large uk-text-truncate slideshowtext" 
+               t-title=".internal(show,textContent)" hidden>
+            </div>
+         </li>
+
+         <div id="sbhardware" t-page=".internal(sbhardware)" class="uk-flex-none texticon">
+            <img t-icon="uk-svg">
+            <span t-text=".textContent" class="programsystem"></span>
+         </div>
+
+         <!-- Page controls are SO complex that I want them to be able to
+            function even outside any context, so they get their own page
+            assignment and pinned/permissions fields, etc -->
          <ul id="pagecontrols" t-page=".internal(pagecontrols)" t-pinned t-permissions
             class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove hidelogout" data-loginonly>
             <li>
@@ -846,37 +881,8 @@ function leftpaneclick(event)
             <h1 class="uk-width-expand uk-margin-small-right" t-title=".textContent"></h1>
          </div>
 
-         <div id="sbhardware" t-page=".internal(sbhardware)" class="uk-flex-none texticon">
-            <img t-icon="uk-svg">
-            <span t-text=".textContent" class="programsystem"></span>
-         </div>
-
-         <div id="slideshow" t-page=".internal(slideshowpage)" 
-            t-pages=".internal(slideshowpages)" uk-slideshow="animation: slide; ratio: 16:9;
-                  autoplay: true; autoplay-interval: 6000; pause-on-hover: true">
-            <div class="uk-position-relative uk-visible-toggle uk-light" tabindex="-1">
-               <ul t-images=".internal(slideshowimages)" class="uk-slideshow-items"></ul>
-               <a class="uk-position-center-left uk-position-small uk-hidden-hover" 
-                  href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
-               <a class="uk-position-center-right uk-position-small uk-hidden-hover" 
-                  href="#" uk-slidenav-next uk-slideshow-item="next"></a>
-            </div>
-            <ul class="uk-slideshow-nav uk-dotnav uk-flex-center uk-margin"></ul>
-         </div>
-
-         <img id="slideshowimage" t-image=".src" uk-cover class="slideshowimage">
-
-         <li id="simpleslideshowitem"><div tlink="slideshowimage" thoist></div></li>
-
-         <li id="annotatedslideshowitem">
-            <a t-link=".spa()" class="uk-width-expand uk-height-1-1 uk-display-block">
-               <div tlink="slideshowimage" thoist></div>
-            </a>
-            <div class="uk-overlay-primary uk-position-bottom uk-text-center 
-                 uk-text-large uk-text-truncate slideshowtext" 
-               t-title=".internal(show,textContent)" hidden>
-            </div>
-         </li>
+         <article id="pagecontent" t-content=".render" t-format
+            class="pageblock uk-text-break content uk-margin-remove-top"></article>
 
          <div id="routepage" t-pinned t-permissions
               class="uk-container uk-margin-top uk-margin-bottom contentpage">
@@ -893,8 +899,7 @@ function leftpaneclick(event)
                   </div>
                </div>
             </div>
-            <article t-content=".render" t-format
-               class="pageblock uk-text-break content uk-margin-remove-top"></article>
+            <div tlink="pagecontent" thoist></div>
          </div>
 
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
@@ -907,7 +912,7 @@ function leftpaneclick(event)
                <p>SmileBASIC Source changed websites and databases. The
                original is now hosted at <a href="https://old.smilebasicsource.com">
                old.smilebasicsource.com</a></p>
-               <div data-slideshowcontainer>
+               <div class="homepageslideshow">
                   <div tlink="slideshow" thoist></div>
                </div>
             </div>

@@ -580,14 +580,14 @@ input[data-permission] {
    margin-left: 0.2em;
 }
 
-[data-slideshowcontainer] {
+.homepageslideshow {
    max-width: 600px;
    margin: auto;
 }
-[data-slideshow] .slideshowtext {
+[data-template="slideshow"] .slideshowtext {
    padding: 0.1em 0.5em;
 }
-[data-slideshowitems] {
+[data-template="slideshow"] .uk-slideshow-items {
    border: 1px solid var(--tableoutlinecolor);
 }
 

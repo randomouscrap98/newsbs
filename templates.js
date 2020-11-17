@@ -28,7 +28,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       "d" : "deleted"
    },
 
-
    //Dependency injection, please override these
    //----------------------------------
    signal: (signal) => console.log("Ignoring template signal " + signal + "; please inject click handler"),
@@ -133,11 +132,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       icon(v, ce);
       show(v, ce);
    },
-   showtext: (v, ce) =>
-   {
-      ce.textContent = v;
-      show(v, ce);
-   },
    typeicon: (v, ce, tobj) =>
    {
       if(v)
@@ -146,7 +140,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          ce.removeAttribute("uk-icon");
    },
 
-   //Highly specific template helpers
+   //Highly specific template loading (usually still used with internal/external)
    //----------------------------------
    discussionuser: (v, ce, tobj, name, args) =>
    {
@@ -252,7 +246,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       v.forEach(x =>
       {
-         if(v.link || v.title)
+         if(x.link || x.title)
             ce.appendChild(LoadHere("annotatedslideshowitem", x));
          else
             ce.appendChild(LoadHere("simpleslideshowitem", {image:x.image}));
