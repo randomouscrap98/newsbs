@@ -471,7 +471,7 @@ a:hover { color: inherit; }
 .content { white-space: pre-wrap; }
 .content ul { margin: 0.1em 0 0.4em 0; }
 .content a { text-decoration: revert; }
-.pagecontrols { margin-right: -18px !important; }
+.pagecontrols { margin-right: -10px !important; }
 .pagecontrol { margin: 0 3px; }
 /*.pagetitle { float: left; }*/
 .tableContainer table, .tableContainer td, .tableContainer th {

@@ -252,6 +252,27 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
             ce.appendChild(LoadHere("simpleslideshowitem", {image:x.image}));
       });
    },
+   pagecontrols: (v, ce, tobj) =>
+   {
+      var vt = v.about.votes;
+      var vtt = vt.b.count + vt.o.count + vt.g.count;
+      if(vtt)
+      {
+         tobj.SetFields({
+            dataset: [ 
+               {percent: vt.g.count/vtt,color:"#5F5"}, 
+               {percent: vt.o.count/vtt,color:"#9BF"}, 
+               {percent: vt.b.count/vtt,color:"#F25"} ]
+         });
+      }
+      tobj.SetFields({
+         votecount: vtt,
+         watchcount: v.about.watches.count,
+         permissions: v.myPerms,
+         watched: v.about.watching,
+         pinned: v.pinned
+      });
+   },
    piechart: (v, ce, tobj) =>
    {
       var pie = ce.querySelector("[data-pie]");
@@ -260,11 +281,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       var cumulative = 0;
       v.forEach(x =>
       {
+         if(x.percent == 0) return;
+         if(x.percent == 1) x.percent = 0.999;
          var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
          var thisarc = x.percent * Math.PI * 2;
-         path.setAttribute('d', `M ${cx+r*Math.cos(cumulative)} ${cy-r*Math.sin(cumulative)} ` +  
-          `A ${r} ${r} 0 ${(x.percent > 0.5)?1:0} 0 ` +
-          `${cx+r*Math.cos(cumulative+thisarc)} ${cy-r*Math.sin(cumulative+thisarc)} ` + 
+         path.setAttribute('d', `M ${cx+r*Math.sin(cumulative)} ${cy-r*Math.cos(cumulative)} ` +  
+          `A ${r} ${r} 0 ${(x.percent > 0.5)?1:0} 1 ` +
+          `${cx+r*Math.sin(cumulative+thisarc)} ${cy-r*Math.cos(cumulative+thisarc)} ` + 
           `L 10 10`);
          cumulative+=thisarc;
          path.setAttribute('fill', x.color);
@@ -286,6 +309,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          format : v.values.markupLang,
          content : v
       });
+      tobj.fields.pagecontrols.page = v;
    },
 
    //The actual internal get/set mechanisms

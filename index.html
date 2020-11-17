@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605597114" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605597114"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605597114"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605602508" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605602508"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605602508"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605597114"></script>
-      <script src="templates.js?v=1605597114"></script>
-      <script src="dom.js?v=1605597114"></script>
-      <script src="api.js?v=1605597114"></script>
-      <script src="index.js?v=1605597114"></script>
-      <script src="sbs2-markup/highlight.js?v=1605597114"></script>
-      <script src="sbs2-markup/parse.js?v=1605597114"></script>
-      <script src="sbs2-markup/render.js?v=1605597114"></script>
+      <script src="libbo.js?v=1605602508"></script>
+      <script src="templates.js?v=1605602508"></script>
+      <script src="dom.js?v=1605602508"></script>
+      <script src="api.js?v=1605602508"></script>
+      <script src="index.js?v=1605602508"></script>
+      <script src="sbs2-markup/highlight.js?v=1605602508"></script>
+      <script src="sbs2-markup/parse.js?v=1605602508"></script>
+      <script src="sbs2-markup/render.js?v=1605602508"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605597114" />
+      <link rel="stylesheet" href="index.css?v=1605602508" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -852,7 +852,7 @@ function leftpaneclick(event)
          <svg id="piechart" width="20" height="20" viewbox="0 0 20 20" data-mysvg
             xmlns="http://www.w3.org/2000/svg" t-dataset=".internal(piechart)">
            <g data-pie></g>
-           <circle cx="10" cy="10" r="9.5" fill="none" stroke="#000" stroke-width="1" />
+           <!--<circle cx="10" cy="10" r="9.5" fill="none" stroke="#000" stroke-width="1" />-->
            <path fill="none" stroke="#000" stroke-width="1.03" d="
            M10 7.6C10
            7.6 9.24 6.8 8.296 6.8 7.352 6.8 6.4 7.42 6.4 8.692 6.4 9.536 7.068
@@ -880,12 +880,12 @@ function leftpaneclick(event)
                   <span></span>
                   <span></span>
                </div>
-               <div class="uk-text-meta uk-text-center" t-votecount>0</div>
+               <div class="uk-text-meta uk-text-center" t-votecount=".textContent">0</div>
             </div>
             <div>
                <a href="#" class="pagecontrol" t-watched 
                   t-togglewatch=".onclick" uk-icon="bell"></a>
-               <div class="uk-text-meta uk-text-center" t-watchcount>0</div>
+               <div class="uk-text-meta uk-text-center" t-watchcount=".textContent">0</div>
             </div>
             <div>
                <a href="#" class="pagecontrol" uk-icon="cog"></a>
