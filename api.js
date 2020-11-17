@@ -545,6 +545,12 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
       //Reorganize + mark pinned pages (SUPER dumb way to do this)
       for(var i = 0; i < content.length; i++)
       {
+         if(!("pinned" in content[i]))
+            content[i].pinned = "indeterminate";
+
+         if(content[i].parentId != category.id)
+            continue;
+
          content[i].pinned = pinned.some(x => x == content[i].id);
 
          if(content[i].pinned)

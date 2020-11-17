@@ -1216,37 +1216,70 @@ function routepage_load(spadat)
 
       var users = idMap(data.user);
       var categories = idMap(data.category);
-      //DataFormat.MarkPinned(categories[c.parentId], [c]);
 
       route_complete(spadat, c.name, templ =>
       {
-         var t = templ.template;
-         t.fields.page = c;
-         t.innerTemplates.pagecontrols.SetFields({
-            watchfunc: (watch, fail) =>
-            {
-               var myfail = (apidat) => { 
-                  fail();
-                  notifyError("Watch request failed: " + apidata.request.status + " - " + 
-                              apidata.request.statusText);
-               };
-               log.Info("Setting watch to: " + watch);
-               if(watch) 
-               {
-                  globals.api.Post("watch/" + c.id, {}, apidata => 
-                     log.Info("Watch " + c.id + " successful!"), myfail);
-               }
-               else 
-               {
-                  globals.api.Delete("watch", c.id, data => 
-                     log.Info("Remove watch " + c.id + " successful!"), myfail);
-               }
-            }
-         });
-         
+         finishPageControls(templ.template, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c, data.comment, users, initload);
       }, getChain(data.category, c), c.id);
+   });
+}
+
+function finishPageControls(t, c)
+{
+   t.fields.page = c;
+   t.innerTemplates.pagecontrols.SetFields({
+      deleteaction: (event) =>
+      {
+         event.preventDefault();
+
+         if(confirm("Are you SURE you want to delete this page?"))
+            globals.api.Delete("content", c.id, () => location.href = Links.Category(c.parentId));
+      },
+      pinaction : (event) =>
+      {
+         event.preventDefault();
+         //look up the parent as it is now, parse pinned, add page, convert to
+         //set, store back
+         globals.api.Get("category", "ids=" + c.parentId, apidat =>
+         {
+            var ct = apidat.data[0];
+            DataFormat.AddPinned(ct, c.id);
+            globals.api.Put("category/"+ct.id, ct, () => globals.spa.ProcessLink(location.href));
+         });
+      },
+      unpinaction : (e) =>
+      {
+         event.preventDefault();
+         //look up the parent as it is now, parse pinned, add page, convert to
+         //set, store back
+         globals.api.Get("category", "ids=" + c.parentId, apidat =>
+         {
+            var ct = apidat.data[0];
+            DataFormat.RemovePinned(ct, c.id);
+            globals.api.Put("category/"+ct.id, ct, () => globals.spa.ProcessLink(location.href));
+         });
+      },
+      watchfunc: (watch, fail) =>
+      {
+         var myfail = (apidat) => { 
+            fail();
+            notifyError("Watch request failed: " + apidata.request.status + " - " + 
+            apidata.request.statusText);
+         };
+         log.Info("Setting watch to: " + watch);
+         if(watch) 
+         {
+            globals.api.Post("watch/" + c.id, {}, apidata => 
+               log.Info("Watch " + c.id + " successful!"), myfail);
+         }
+         else 
+         {
+            globals.api.Delete("watch", c.id, data => 
+               log.Info("Remove watch " + c.id + " successful!"), myfail);
+         }
+      }
    });
 }
 

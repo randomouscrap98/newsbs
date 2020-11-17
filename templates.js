@@ -10,6 +10,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
+   _displayRaw : (title, raw) => {
+      rawmodaltitle.textContent = title;
+      rawmodalraw.textContent = raw;
+      UIkit.modal(rawmodal).show();
+   },
+   _displayRawObject : (title, obj) => _displayRaw(title, JSON.stringify(obj, null, 2)),
 
    //More like... website data
    _ttoic : { 
@@ -265,11 +271,14 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
                {percent: vt.b.count/vtt,color:"#F25"} ]
          });
       }
+      console.log(v);
       tobj.SetFields({
          votecount: vtt,
          watchcount: v.about.watches.count,
          permissions: v.myPerms,
          watched: v.about.watching,
+         editlink: "?p=pageedit-"+v.id,
+         rawaction: event => { event.preventDefault(); _displayRawObject(v.name, v); },
          pinned: v.pinned
       });
    },

@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605639717" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605639717"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605639717"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605652454" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605652454"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605652454"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605639717"></script>
-      <script src="templates.js?v=1605639717"></script>
-      <script src="dom.js?v=1605639717"></script>
-      <script src="api.js?v=1605639717"></script>
-      <script src="index.js?v=1605639717"></script>
-      <script src="sbs2-markup/highlight.js?v=1605639717"></script>
-      <script src="sbs2-markup/parse.js?v=1605639717"></script>
-      <script src="sbs2-markup/render.js?v=1605639717"></script>
+      <script src="libbo.js?v=1605652454"></script>
+      <script src="templates.js?v=1605652454"></script>
+      <script src="dom.js?v=1605652454"></script>
+      <script src="api.js?v=1605652454"></script>
+      <script src="index.js?v=1605652454"></script>
+      <script src="sbs2-markup/highlight.js?v=1605652454"></script>
+      <script src="sbs2-markup/parse.js?v=1605652454"></script>
+      <script src="sbs2-markup/render.js?v=1605652454"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605639717" />
+      <link rel="stylesheet" href="index.css?v=1605652454" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -889,15 +889,15 @@ function leftpaneclick(event)
                   <ul class="uk-list uk-margin-remove-bottom">
                      <!-- Unfortunately, UIkit doesn't handle hidden first list items well -->
                      <li>
-                        <a href="#" data-viewraw>Raw Data</a></li>
+                        <a href="#" t-rawaction=".onclick">Raw Data</a></li>
                      <li data-updateonly>
                         <a t-editlink=".spa()">Edit Page</a></li>
                      <li data-deleteonly>
                         <a href="#" t-deleteaction=".onclick">Delete Page</a></li>
                      <li data-superonly data-unpinnedonly>
-                        <a t-pinaction=".onclick" href="#">Pin Page</a></li>
+                        <a href="#" t-pinaction=".onclick">Pin Page</a></li>
                      <li data-superonly data-pinnedonly>
-                        <a t-unpinaction=".onclick" href="#">Unpin Page</a></li>
+                        <a href="#" t-unpinaction=".onclick">Unpin Page</a></li>
                   </ul>
                </div>
             </div>
