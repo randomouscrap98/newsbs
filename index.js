@@ -120,6 +120,7 @@ window.onload = function()
 
    globals.api = new Api(apiroot, signaller);
    globals.api.getToken = getToken;
+   globals.api.getUserId = getUserId;
 
    globals.longpoller = new LongPoller(globals.api, signaller, (m, c) => logConditional(m, c, "loglongpoll"));
    globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
@@ -1325,17 +1326,17 @@ function routeuser_load(spadat)
          return;
       }
 
+      //This is to make breadcrumbs work I think
       u.name = u.username;
       u.link = Links.User(u.id);
 
       route_complete(spadat, "User: " + u.username, templ =>
       {
-         multiSwap(templ, {
-            title : u.username,
-            banned : u.banned,
-            avatar : getAvatarLink(u.avatar, 100)
+         templ.template.SetFields({
+            user : u
          });
 
+         //TODO: This needs to be handled by the template system later
          var history = templ.querySelector("[data-userhistory]");
          history.appendChild(makeActivity(s =>
          {
@@ -1351,19 +1352,9 @@ function routeuser_load(spadat)
 
          if(c)
          {
-            c.name = u.username;
-            finishContent(templ, c);
+            finishPageControls(templ.template, c);
             maincontentinfo.appendChild(makeStandardContentInfo(c, users));
             finishDiscussion(c, data.comment, users, initload);
-         }
-         else
-         {
-            //Find the first "content" and fill it with something custom,
-            //PLEASE BE CAREFUL
-            multiSwap(templ, { 
-               directcontent : 'No user page' + 
-                  (getUserId() === u.id ?  ', <a href="?p=pageedit&type=userpage">Create one</a>' : "")
-            });
          }
       }, [u], c ? c.id : false);
    });

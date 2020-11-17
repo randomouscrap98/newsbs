@@ -9,6 +9,7 @@ function Api(root, signalHandler)
    this.signal = signalHandler || ((n,d) => console.log("Ignoring signal " + name));
    this.nextrequestid = 0;
    this.getToken = (() => null);
+   this.getUserId = (() => null);
    this.defaultUser = { avatar: 0, username: "???", id: 0 };
 }
 
@@ -162,6 +163,11 @@ Api.prototype.AutoLink = function(data)
       DataFormat.LinkField(activity, "contentId", "linked", users);
       DataFormat.LinkField(activity, "contentId", "linked", categories);
       DataFormat.LinkField(activity, "contentId", "linked", content);
+   }
+
+   if(users)
+   {
+      users.forEach(x => x.isCurrentUser = () => x.id == me.getUserId());
    }
 };
 

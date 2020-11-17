@@ -349,6 +349,13 @@ var Utilities =
       //Firefox literally doesn't accept numbesr that are TOO big
       element.scrollTop = 9999999; //Number.MAX_SAFE_INTEGER;
    },
+   ToggleAttribute : function(element, attribute, toggle)
+   {
+      if(toggle)
+         element.setAttribute(attribute, "");
+      else
+         element.removeAttribute(attribute, "");
+   },
    //https://stackoverflow.com/a/11077016/1066474
    InsertAtCursor : function (myField, myValue) 
    {

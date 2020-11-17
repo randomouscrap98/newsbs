@@ -904,7 +904,7 @@ function leftpaneclick(event)
          </div>
 
          <article id="pagecontent" t-content=".render()" t-format
-            class="pageblock uk-text-break content uk-margin-remove-top"></article>
+            class="uk-text-break content uk-margin-remove-top"></article>
 
          <div id="routepage" t-pinned t-permissions t-page=".internal(routepage)"
               class="uk-container uk-margin-top uk-margin-bottom contentpage">
@@ -923,7 +923,34 @@ function leftpaneclick(event)
                   </div>
                </div>
             </div>
-            <div tlink="pagecontent" thoist></div>
+            <div class="pageblock">
+               <div tlink="pagecontent" thoist></div>
+            </div>
+         </div>
+
+         <div id="routeuser" t-pinned t-permissions t-user=".internal(routeuser)"
+            t-userid t-page=".internal(routeuserpage)"
+            class="uk-container uk-margin-top uk-margin-bottom contentpage">
+            <div class="pageblock">
+               <div class="uk-flex-inline">
+                  <h1 t-title=".textContent" t-banned
+                      class="uk-width-expand uk-margin-small-right"></h1>
+                  <div tlink="pagecontrols" hidden></div>
+               </div>
+               <img t-avatar=".internal(icon)" width=100 class="uk-align-right avatar">
+               <div data-nopage hidden>
+                  <span>No user page</span>
+                  <span data-createuserpage hidden>, <a href="?p=pageedit&type=userpage">Create one</a></span>
+               </div>
+               <div tlink="pagecontent" thoist></div>
+            </div>
+            <!-- TODO: Make all this part of template2 -->
+            <div data-userpages class="uk-margin-top uk-margin-bottom pageblock">
+               <h4 data-title hidden>My Pages:</h4>
+            </div>
+            <div data-userhistory class="uk-margin-top uk-margin-bottom">
+               <h4 data-title hidden>Activity:</h4>
+            </div>
          </div>
 
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
@@ -1229,26 +1256,6 @@ function leftpaneclick(event)
       <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
       <button
          onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
-         </div>
-         <div id="routeuser" class="uk-container uk-margin-top uk-margin-bottom contentpage"
-              data-pinned data-permissions=".leftPanePerms">
-            <!-- WARN: DUPLICATED IN ROUTEPAGE -->
-            <div class="pageblock">
-               <div class="uk-flex-inline">
-                  <h1 data-title=".textContent" class="uk-width-expand uk-margin-small-right"
-                     data-banned></h1>
-                  <div data-tmpl="pagecontrols" hidden></div>
-               </div>
-               <img data-avatar="src" width=100 class="uk-align-right avatar">
-               <article data-content=".renderContent" data-directcontent=".innerHTML" data-format="data-fmt" 
-                  class="uk-text-break content uk-margin-remove-top"></article>
-            </div>
-            <div data-userpages class="uk-margin-top uk-margin-bottom pageblock">
-               <h4 data-title hidden>My Pages:</h4>
-            </div>
-            <div data-userhistory class="uk-margin-top uk-margin-bottom">
-               <h4 data-title hidden>Activity:</h4>
-            </div>
          </div>
          <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom"
              data-permissions=".leftPanePerms">

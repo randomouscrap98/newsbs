@@ -327,17 +327,43 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 
    //Routes
    //----------------------------------
-   routepage: (v, ce, tobj) =>
+   generalpage : (v, ce, tobj) =>
    {
-      //console.log(v);
       tobj.SetFields({
-         title: v.name,
          permissions: v.myPerms,
          pinned: v.pinned,
          format : v.values.markupLang,
          content : v
       });
-      tobj.fields.pagecontrols.page = v;
+      //tobj.fields.pagecontrols.page = v;
+      tobj.innerTemplates.pagecontrols.element.removeAttribute("hidden");
+      tobj.innerTemplates.pagecontrols.fields.page = v;
+   },
+   routepage: (v, ce, tobj) =>
+   {
+      generalpage(v, ce, tobj);
+      tobj.SetFields({title: v.name});
+   },
+   routeuser: (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         title: v.username,
+         avatar: v.avatar,
+         banned : v.banned,
+         userid: v.id
+      });
+      //Hide "create page" if we're NOT the current user
+      Utilities.ToggleAttribute(ce.querySelector("[data-createuserpage]"), "hidden", !v.isCurrentUser());
+   },
+   routeuserpage : (v, ce, tobj) =>
+   {
+      if(v)
+      {
+         generalpage(v, ce, tobj);
+      }
+
+      //Hide nopage if there's a v
+      Utilities.ToggleAttribute(ce.querySelector("[data-nopage]"), "hidden", v);
    },
 
    //The actual internal get/set mechanisms
