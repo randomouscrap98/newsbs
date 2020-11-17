@@ -222,6 +222,7 @@ Api.prototype.Search = function(searchops, success, error, always, modify)
 
    var search = { 
       sort: searchops.sort,
+      nottypes : [ "userpage" ], //TODO: this is a special rule, we NEVER want userpages
       reverse: searchops.reverse
    };
    var keysearch = Utilities.ShallowCopy(search);
@@ -251,10 +252,6 @@ Api.prototype.Search = function(searchops, success, error, always, modify)
 
    globals.api.Chain(params, data =>
    {
-      //First, get rid of content that's a userpage, nobody wants that (for now?)
-      if(data.data.content)
-         data.data.content = data.data.content.filter(x => x.type != "userpage");
-
       //Modify the order for data so the ones that start or end with or have
       //the search result all by itself come first.
       this.SearchSort(data.data.content, searchops.value, x => x.name);

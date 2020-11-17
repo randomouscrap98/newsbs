@@ -366,7 +366,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    render_get : (ce, tobj) => ce.getAttribute("data-raw"),
    render_set : (v, ce, tobj) =>
    {
-      ce.setAttribute("data-raw", v);
+      ce.setAttribute("data-raw", v.content);
       ce.innerHTML = "";
       ce.appendChild(Parse.parseLang(v.content, v.values.markupLang)); //content.content, content.format));
          //var content = JSON.parse(repl);

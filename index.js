@@ -1109,6 +1109,7 @@ function routecategory_load(spadat)
       "parentIds" : [cid], 
       "sort" : "editDate",
       "reverse" : true,
+      "nottypes" : [ "userpage" ],
       "limit": getLocalOption("pagedisplaylimit")
    }));
    params.append("requests", "category-" + JSON.stringify({"ComputeExtras":true}));
@@ -1169,9 +1170,6 @@ function routecategory_load(spadat)
 
          var pinCount = DataFormat.MarkPinned(c, data.content, true);
          log.Debug("Found " + pinCount + " pinned pages");
-
-         //TODO: use the API to remove userpages!
-         data.content = data.content.filter(x => x.type != "userpage");
 
          if(!childcats.length)
             hide(sbelm);
