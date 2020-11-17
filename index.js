@@ -1220,6 +1220,7 @@ function routepage_load(spadat)
 
       route_complete(spadat, c.name, templ =>
       {
+         templ.template.fields.page = c;
          finishPageControls(templ.template, c);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c, data.comment, users, initload);
@@ -1229,7 +1230,6 @@ function routepage_load(spadat)
 
 function finishPageControls(t, c)
 {
-   t.fields.page = c;
    t.innerTemplates.pagecontrols.SetFields({
       deleteaction: (event) =>
       {
@@ -1333,7 +1333,8 @@ function routeuser_load(spadat)
       route_complete(spadat, "User: " + u.username, templ =>
       {
          templ.template.SetFields({
-            user : u
+            user : u,
+            page : c || false
          });
 
          //TODO: This needs to be handled by the template system later

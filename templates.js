@@ -229,7 +229,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          pagename : title,
          pagelink : link,
          id : v.id,
-         date : _stdDateDiff(v.date, true) //Utilities.TimeDiff(activity.date, null, true)
+         date : _stdDateDiff(v.date, true)
       });
    },
    slideshowpages: (v, ce, tobj) =>
@@ -271,7 +271,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
                {percent: vt.b.count/vtt,color:"#F25"} ]
          });
       }
-      console.log(v);
       tobj.SetFields({
          votecount: vtt,
          watchcount: v.about.watches.count,
@@ -329,15 +328,15 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    //----------------------------------
    generalpage : (v, ce, tobj) =>
    {
+      v = v || {};
       tobj.SetFields({
          permissions: v.myPerms,
          pinned: v.pinned,
-         format : v.values.markupLang,
+         format : v.values && v.values.markupLang,
          content : v
       });
-      //tobj.fields.pagecontrols.page = v;
-      tobj.innerTemplates.pagecontrols.element.removeAttribute("hidden");
-      tobj.innerTemplates.pagecontrols.fields.page = v;
+      Utilities.ToggleAttribute(tobj.innerTemplates.pagecontrols.element, "hidden", !v.id);
+      if(v.id) tobj.innerTemplates.pagecontrols.fields.page = v;
    },
    routepage: (v, ce, tobj) =>
    {
@@ -346,6 +345,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    routeuser: (v, ce, tobj) =>
    {
+      console.log("Routeuser called with ", v);
       tobj.SetFields({
          title: v.username,
          avatar: v.avatar,
@@ -357,11 +357,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    routeuserpage : (v, ce, tobj) =>
    {
-      if(v)
-      {
-         generalpage(v, ce, tobj);
-      }
-
+      console.log("Routeuserpage called with ", v);
+      generalpage(v, ce, tobj);
       //Hide nopage if there's a v
       Utilities.ToggleAttribute(ce.querySelector("[data-nopage]"), "hidden", v);
    },
@@ -403,8 +400,10 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       ce.setAttribute("data-raw", v.content);
       ce.innerHTML = "";
-      ce.appendChild(Parse.parseLang(v.content, v.values.markupLang)); //content.content, content.format));
-         //var content = JSON.parse(repl);
+
+      //Don't render if there's nothing.
+      if(v.content)
+         ce.appendChild(Parse.parseLang(v.content, v.values.markupLang)); 
    }
 })
 //Private vars can go here
