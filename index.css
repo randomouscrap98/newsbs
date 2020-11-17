@@ -127,6 +127,8 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default,
 }
 .uk-link, a { color: var(--linkcolor); }
 hr { border-top: 1px solid var(--tableoutlinecolor); }
+[data-mysvg] *:not([data-preserve]) { stroke: var(--maintxtcolor); }
+[data-template="piechart"]>path { fill: var(--mainbgcolor); }
 
 /* UIkit reconfiguring */
 code { 

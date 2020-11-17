@@ -252,6 +252,27 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
             ce.appendChild(LoadHere("simpleslideshowitem", {image:x.image}));
       });
    },
+   piechart: (v, ce, tobj) =>
+   {
+      var pie = ce.querySelector("[data-pie]");
+      pie.innerHTML = "";
+      var r = 9.5; var cx = 10; var cy = 10;
+      var cumulative = 0;
+      v.forEach(x =>
+      {
+         var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+         var thisarc = x.percent * Math.PI * 2;
+         path.setAttribute('d', `M ${cx+r*Math.cos(cumulative)} ${cy-r*Math.sin(cumulative)} ` +  
+          `A ${r} ${r} 0 ${(x.percent > 0.5)?1:0} 0 ` +
+          `${cx+r*Math.cos(cumulative+thisarc)} ${cy-r*Math.sin(cumulative+thisarc)} ` + 
+          `L 10 10`);
+         cumulative+=thisarc;
+         path.setAttribute('fill', x.color);
+         path.setAttribute('stroke', x.color);
+         path.setAttribute("data-preserve", "");
+         pie.appendChild(path);
+      });
+   },
 
    //Routes
    //----------------------------------
