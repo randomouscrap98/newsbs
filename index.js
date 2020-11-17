@@ -1003,9 +1003,9 @@ function routehome_load(spadat)
 { 
    route_complete(spadat, null, templ =>
    {
-      finalizeTemplate(templ);
+      //finalizeTemplate(templ);
       //Eventually merge these two together!!!
-      var slideshow = templ.querySelector("[data-slideshowitems]");
+      //var slideshow = templ.querySelector("[data-slideshowitems]");
       var params = new URLSearchParams();
       params.append("requests", "content-" + JSON.stringify({
          "type" : "program",
@@ -1019,10 +1019,11 @@ function routehome_load(spadat)
       {
          log.Datalog("see devlog for frontpage data", apidata);
          var data = apidata.data;
-         data.content.forEach(x =>
-         {
-            slideshow.appendChild(makeAnnotatedSlideshowItem(x));
-         });
+         templ.template.fields.pages = data.content; //data.content.map(x => );
+         //data.content.forEach(x =>
+         //{
+         //   slideshow.appendChild(makeAnnotatedSlideshowItem(x));
+         //});
       });
       var homehistory = templ.querySelector("[data-homehistory]");
       homehistory.appendChild(makeActivity());
@@ -1217,11 +1218,11 @@ function routepage_load(spadat)
 
       var users = idMap(data.user);
       var categories = idMap(data.category);
-      DataFormat.MarkPinned(categories[c.parentId], [c]);
+      //DataFormat.MarkPinned(categories[c.parentId], [c]);
 
       route_complete(spadat, c.name, templ =>
       {
-         finishContent(templ, c, categories);
+         //finishContent(templ, c, categories);
          maincontentinfo.appendChild(makeStandardContentInfo(c, users));
          finishDiscussion(c, data.comment, users, initload);
       }, getChain(data.category, c), c.id);

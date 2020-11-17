@@ -208,13 +208,22 @@ function renderPage(route, applyTemplate, breadcrumbs)
    if(breadcrumbs)
       makeBreadcrumbs(breadcrumbs);
 
-   var template = cloneTemplate(route);
+   if(document.getElementById("templates").content.getElementById(route))
+   {
+      var template = cloneTemplate(route);
 
-   if(applyTemplate)
-      applyTemplate(template);
+      if(applyTemplate)
+         applyTemplate(template);
 
-   finalizeTemplate(template);
-   maincontent.appendChild(template);
+      finalizeTemplate(template);
+      maincontent.appendChild(template);
+   }
+   else
+   {
+      var template = Templates.Load(route);
+      if(applyTemplate) applyTemplate(template.element);
+      maincontent.appendChild(template.element);
+   }
 
    DomDeps.signal("pagerender", route);
 }

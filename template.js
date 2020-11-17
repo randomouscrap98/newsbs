@@ -171,6 +171,8 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          }
          else
          {
+            value = value || "data-" + name;
+
             //It's the field!
             SingleField(tobj.fields, name, {
                get : () => currentelement.getAttribute(value),
@@ -226,6 +228,22 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    //----------------------------------
    _templateData : "tmpldat_",
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
+   //_templateArgGet: (ce, name, args, prefix) => 
+   //{
+   //   var name = _templateArgName(name, args, prefix);
+   //   if(name.startsWith("."))
+   //      return ce[name.substr(1)];
+   //   else
+   //      return ce.getAttribute(name);
+   //},
+   //_templateArgSet: (ce, name, args, prefix, value) => 
+   //{
+   //   var name = _templateArgName(name, args, prefix);
+   //   if(name.startsWith("."))
+   //      ce[name.substr(1)] = v;
+   //   else
+   //      ce.setAttribute(name, v);
+   //},
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
 
@@ -328,6 +346,10 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       else
          ce.setAttribute("hidden", "");
    },
+   click: (v, ce) =>
+   {
+      ce.onclick = (e) => v(e, ce, tobj);
+   },
    icon: (v, ce) =>
    {
       if(v || v == "0")
@@ -347,6 +369,11 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       icon(v, ce);
       show(v, ce);
    },
+   showtext: (v, ce) =>
+   {
+      ce.textContent = v;
+      show(v, ce);
+   },
    typeicon: (v, ce, tobj) =>
    {
       if(v)
@@ -354,6 +381,9 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       else
          ce.removeAttribute("uk-icon");
    },
+
+   //Highly specific template helpers
+   //----------------------------------
    discussionuser: (v, ce, tobj, name, args) =>
    {
       //Already has optimization for uikit non-resetting fields
@@ -438,6 +468,20 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          date : _stdDateDiff(v.date, true) //Utilities.TimeDiff(activity.date, null, true)
       });
    },
+   slideshowimages: (v, ce, tobj) =>
+   {
+      v.forEach(x =>
+      {
+         if(v.link || v.title)
+         {
+            ce.appendChild(LoadHere());
+         }
+         else
+         {
+            ce.appendChild(LoadHere());
+         }
+      });
+   },
 
    //The actual internal get/set mechanisms
    //----------------------------------
@@ -451,9 +495,11 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
 
    external_get: (ce, tobj, name, args) => ce.getAttribute(_templateArgName(name, args, "data-")),
+   //_templateArgGet(name, args, "data-"),
    external_set: (v, ce, tobj, name, args) =>
    {
       ce.setAttribute(_templateArgName(name, args, "data-"), v);
+      //_templateArgSet(name, args, "data-", v);
 
       if(args && args[0])
          Templates[args[0]](v, ce, tobj, name, args);

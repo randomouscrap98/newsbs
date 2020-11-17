@@ -139,7 +139,13 @@ Api.prototype.AutoLink = function(data)
 
          c.forEach(x =>
          {
-            x.isPrivate = () => !x.permissions["0"] || x.permissions["0"].toLowerCase().indexOf("r") < 0;
+            if(x.permissions)
+            {
+               for(let i = 0; i < x.permissions.length; i++)
+                  x.permissions[i] = x.permissions[i].toUpperCase();
+            }
+
+            x.isPrivate = () => !x.permissions["0"] || x.permissions["0"].indexOf("R") < 0;
 
             if(x.type == "userpage" && x.createUser)
                x.name = x.createUser.username + "'s user page";
