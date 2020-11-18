@@ -23,8 +23,8 @@
 
    --spcontrolbg: rgba(113, 164, 255, 0.3);
    --notificationcolor: #ffce34;
-   --votegoodcolor: #5F5;
-   --voteokcolor: #9BF;
+   --votegoodcolor: #2E5;/*#5F5;*/
+   --voteokcolor: #8BF; /*#9BF;*/
    --votebadcolor: #F25;
 
    --bgred: rgba(255,50,50,0.3); 
