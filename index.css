@@ -23,6 +23,9 @@
 
    --spcontrolbg: rgba(113, 164, 255, 0.3);
    --notificationcolor: #ffce34;
+   --votegoodcolor: #5F5;
+   --voteokcolor: #9BF;
+   --votebadcolor: #F25;
 
    --bgred: rgba(255,50,50,0.3); 
    --bgblue: rgba(50,150,255,0.3); 
@@ -130,6 +133,36 @@ hr { border-top: 1px solid var(--tableoutlinecolor); }
 [data-mysvg] *:not([data-preserve]) { stroke: var(--maintxtcolor); }
 [data-template="piechart"]>path { fill: var(--mainbgcolor); }
 [data-template="piechart"]>circle { fill: var(--outlinecolor); } 
+a[data-vote], a[data-vote]:hover {
+   color: white; /*var(--mainbgcolor);*/
+   /*text-shadow: 0px 0px 4px rgb(0,0,0,0.4);*/
+   text-decoration: none;
+   border-radius: 10px;
+   margin: 0 2px;
+}
+[data-voted] a[data-vote]:not([data-selected]) {
+   background-color: transparent !important;
+   color: var(--maintxtcolor);
+   font-weight: bold;
+}
+[data-vote="g"] {
+   border: 1px solid var(--votegoodcolor);
+   background-color: var(--votegoodcolor);
+   fill: var(--votegoodcolor);
+   stroke: var(--votegoodcolor);
+}
+[data-vote="o"] {
+   border: 1px solid var(--voteokcolor);
+   background-color: var(--voteokcolor);
+   fill: var(--voteokcolor);
+   stroke: var(--voteokcolor);
+}
+[data-vote="b"] {
+   border: 1px solid var(--votebadcolor);
+   background-color: var(--votebadcolor);
+   fill: var(--votebadcolor);
+   stroke: var(--votebadcolor);
+}
 /*stroke: var(--outlinecolor) !important; }*/
 
 /* UIkit reconfiguring */

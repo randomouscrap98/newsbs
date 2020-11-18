@@ -1262,12 +1262,32 @@ function finishPageControls(t, c)
             globals.api.Put("category/"+ct.id, ct, () => globals.spa.ProcessLink(location.href));
          });
       },
+      votefunc : (vote, fail) =>
+      {
+         var myfail = (apidat) => { 
+            fail();
+            notifyError("Vote request failed: " + apidata.request.status + " - " + 
+               apidata.request.statusText);
+         };
+         if(vote)
+         {
+            log.Info("Setting vote to " + vote + " for : " + c.id);
+            globals.api.Post("vote/" + c.id + "/" + vote, {}, apidata => 
+               log.Info("Vote " + c.id + " successful!"), myfail);
+         }
+         else
+         {
+            log.Info("Removing vote from : " + c.id);
+            globals.api.Delete("vote", c.id, data => 
+               log.Info("Remove vote " + c.id + " successful!"), myfail);
+         }
+      },
       watchfunc: (watch, fail) =>
       {
          var myfail = (apidat) => { 
             fail();
             notifyError("Watch request failed: " + apidata.request.status + " - " + 
-            apidata.request.statusText);
+               apidata.request.statusText);
          };
          log.Info("Setting watch to: " + watch);
          if(watch) 

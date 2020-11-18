@@ -862,7 +862,7 @@ function leftpaneclick(event)
          <div id="pagecontrols" t-page=".internal(pagecontrols)" t-pinned t-permissions
             class="pagecontrols uk-flex-none uk-flex hidelogout" data-loginonly>
             <div>
-               <a href="#" class="pagecontrol" t-votes>
+               <a href="#" class="pagecontrol">
                   <div tlink="piechart" thoist></div>
                </a>
                <div uk-dropdown="pos: bottom-right; mode: click"
@@ -870,10 +870,10 @@ function leftpaneclick(event)
                   <span class="uk-text-meta">This page is:</span>
                   <div t-vote=".internal(pagecontrolvote)"
                      t-votefunc=".internal(pagecontrolvotefunc)"
-                     class="uk-flex uk-flex-around uk-margin-small-top">
-                     <a href="#" data-votegood>Good</a>
-                     <a href="#" data-voteok>OK</a>
-                     <a href="#" data-votebad>Bad</a>
+                     class="uk-flex uk-margin-small-top">
+                     <a href="#" class="uk-text-center uk-flex-1" data-vote="g">Good</a>
+                     <a href="#" class="uk-text-center uk-flex-1" data-vote="o">OK</a>
+                     <a href="#" class="uk-text-center uk-flex-1" data-vote="b">Bad</a>
                   </div>
                </div>
                <div class="uk-text-meta uk-text-center" t-votecount=".textContent">0</div>
