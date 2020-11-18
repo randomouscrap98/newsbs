@@ -39,11 +39,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       "u" : "edited",
       "d" : "deleted"
    },
-   /*_votecontrol : {
-      "b" : "data-votebad",
-      "o" : "data-voteok",
-      "g" : "data-votegood"
-   },*/
 
    //Dependency injection, please override these
    //----------------------------------
@@ -271,19 +266,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    pagecontrols: (v, ce, tobj) =>
    {
-      var vt = v.about.votes;
-      var vtt = vt.b.count + vt.o.count + vt.g.count;
-      if(vtt)
-      {
-         tobj.SetFields({
-            dataset: [ 
-               {percent: vt.g.count/vtt,attrs:{"data-vote": "g"}}, //color:"#5F5"}, 
-               {percent: vt.o.count/vtt,attrs:{"data-vote": "o"}},//color:"#9BF"}, 
-               {percent: vt.b.count/vtt,attrs:{"data-vote": "b"}} ]//color:"#F25"} ]
-         });
-      }
       tobj.SetFields({
-         votecount: vtt,
+         votes: v.about.votes,
          watchcount: v.about.watches.count,
          permissions: v.myPerms,
          watched: v.about.watching,
@@ -293,9 +277,26 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          pinned: "pinned" in v ? v.pinned : "undefined"
       });
    },
+   pagecontrolvotepie : (v, ce, tobj) =>
+   {
+      var vt = v.b.count + v.o.count + v.g.count;
+      var dataset = [];
+
+      if(vt)
+      {
+         dataset = [ 
+            {percent: v.g.count/vt,attrs:{"data-vote": "g"}}, //color:"#5F5"}, 
+            {percent: v.o.count/vt,attrs:{"data-vote": "o"}},//color:"#9BF"}, 
+            {percent: v.b.count/vt,attrs:{"data-vote": "b"}} ]; //color:"#F25"} ]
+      }
+
+      tobj.SetFields({
+         dataset: dataset,
+         votecount: vt
+      });
+   },
    pagecontrolvote : (v, ce, tobj) =>
    {
-      //var attr = _votecontrol[v];
       ce.removeAttribute("data-voted");
       [...ce.querySelectorAll("[data-vote]")].forEach(x => x.removeAttribute("data-selected"));
       var votelm = ce.querySelector('[data-vote="' + v + '"]');
@@ -311,21 +312,28 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       {
          event.preventDefault();
          var original = tobj.fields.vote;
-         var originalcount = Number(tobj.fields.votecount);
+         var originalvotes = tobj.fields.votes;
+         //var originalcount = Number(tobj.fields.votecount);
          var failure = () => 
          {
             tobj.fields.vote = original;
-            tobj.fields.votecount = originalcount;
+            tobj.fields.votes = originalvotes; //votecount = originalcount;
          };
 
          //Pre-emptively set the watch status
          var newvote = event.currentTarget.getAttribute("data-vote");
+         var newvotes = Utilities.ShallowCopy(originalvotes);
          if(original == newvote) newvote = false;
+         if(newvote)
+            newvotes[newvote].count++;
+         if(original)
+            newvotes[original].count--;
          tobj.fields.vote = newvote;
-         var votediff = 0;
-         if(!original) votediff = 1;
-         else if(!newvote) votediff = -1;
-         tobj.fields.votecount = originalcount + votediff;
+         tobj.fields.votes = newvotes;
+         //var votediff = 0;
+         //if(!original) votediff = 1;
+         //else if(!newvote) votediff = -1;
+         //tobj.fields.votecount = originalcount + votediff;
          tobj.fields.votefunc(newvote, failure);
       };
       [...ce.querySelectorAll("[data-vote]")].forEach(x => x.onclick = clk);
