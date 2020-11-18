@@ -73,7 +73,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       if(selfLoad in Templates)
          return Templates[selfLoad];
       else
-         return StdTemplating.Load(template, Templates); //, templates2);
+         return StdTemplating.Load(template, Templates);
    },
    LoadHere : function(template, data)
    {
@@ -283,12 +283,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       var dataset = [];
 
       if(vt)
-      {
-         dataset = [ 
-            {percent: v.g.count/vt,attrs:{"data-vote": "g"}}, //color:"#5F5"}, 
-            {percent: v.o.count/vt,attrs:{"data-vote": "o"}},//color:"#9BF"}, 
-            {percent: v.b.count/vt,attrs:{"data-vote": "b"}} ]; //color:"#F25"} ]
-      }
+         dataset = ["g","o","b"].map(x => ({percent: v[x].count/vt,attrs:{"data-vote":x}})); 
 
       tobj.SetFields({
          dataset: dataset,
@@ -313,11 +308,10 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          event.preventDefault();
          var original = tobj.fields.vote;
          var originalvotes = tobj.fields.votes;
-         //var originalcount = Number(tobj.fields.votecount);
          var failure = () => 
          {
             tobj.fields.vote = original;
-            tobj.fields.votes = originalvotes; //votecount = originalcount;
+            tobj.fields.votes = originalvotes;
          };
 
          //Pre-emptively set the watch status
@@ -330,10 +324,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
             newvotes[original].count--;
          tobj.fields.vote = newvote;
          tobj.fields.votes = newvotes;
-         //var votediff = 0;
-         //if(!original) votediff = 1;
-         //else if(!newvote) votediff = -1;
-         //tobj.fields.votecount = originalcount + votediff;
          tobj.fields.votefunc(newvote, failure);
       };
       [...ce.querySelectorAll("[data-vote]")].forEach(x => x.onclick = clk);

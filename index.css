@@ -134,8 +134,7 @@ hr { border-top: 1px solid var(--tableoutlinecolor); }
 [data-template="piechart"]>path { fill: var(--mainbgcolor); }
 [data-template="piechart"]>circle { fill: var(--outlinecolor); } 
 a[data-vote], a[data-vote]:hover {
-   color: white; /*var(--mainbgcolor);*/
-   /*text-shadow: 0px 0px 4px rgb(0,0,0,0.4);*/
+   color: white;
    text-decoration: none;
    border-radius: 10px;
    margin: 0 2px;
@@ -143,7 +142,6 @@ a[data-vote], a[data-vote]:hover {
 [data-voted] a[data-vote]:not([data-selected]) {
    background-color: transparent !important;
    color: var(--maintxtcolor);
-   font-weight: bold;
 }
 [data-vote="g"] {
    border: 1px solid var(--votegoodcolor);
@@ -163,7 +161,6 @@ a[data-vote], a[data-vote]:hover {
    fill: var(--votebadcolor);
    stroke: var(--votebadcolor);
 }
-/*stroke: var(--outlinecolor) !important; }*/
 
 /* UIkit reconfiguring */
 code { 
