@@ -14,7 +14,7 @@ var attr = {
    "atoldest" : "data-atoldest"
 };
 
-var rootCategory = { name : "Root", id : 0 }; //, "parentId" : undefined };
+var rootCategory = { name : "Root", id : 0 };
 var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 
 //Will this be stored in user eventually?
@@ -1796,83 +1796,6 @@ function finishDiscussion(content, comments, users, initload)
    signals.Add("finishdiscussion", { content: content, comments: comments, users: users, initload: initload});
 }
 
-function finishContent(templ, content) //, content, comments, users, initload)
-{
-   //Need to finish the template now, hopefully running it twice isn't a big deal
-   finalizeTemplate(templ);
-   if(content.type === "program")// && content.values.photos)
-   {
-      unhide(templ.querySelector("[data-programcontainer]"));
-      if(content.values.photos)
-      {
-         unhide(templ.querySelector("[data-slideshow]"));
-         //hide(templ.querySelector("[data-noimages]"));
-         fillSlideshow(templ.querySelector("[data-slideshowitems]"), content);
-      }
-      multiSwap(templ, {
-         "key" : content.values.key,
-         "system" : content.values.system
-      });
-   }
-   var pagecontrols = templ.querySelector(".pagecontrols");
-   unhide(pagecontrols);
-   templ.querySelector("[data-viewraw]").onclick = e =>
-   {
-      e.preventDefault();
-      displayRaw(content.name, JSON.stringify(content, null, 2));
-   };
-   multiSwap(templ, {
-      title : content.name,
-      content : JSON.stringify({ "content" : content.content, "format" : content.values.markupLang }),
-      permissions : content.myPerms,
-      pinned: content.pinned,
-      format : content.values.markupLang
-   });
-   //TODO: CAREFUL! This assumes something about the page structure, and that's
-   //not the point of the templating system! You should probably tie the
-   //functions to the CLOSEST template to the query selected item when doing swap
-   multiSwap(pagecontrols, {
-      editlink : "?p=pageedit-" + content.id,
-      watched : content.about.watching,
-      deleteaction : (e) =>
-      {
-         if(confirm("Are you SURE you want to delete this page?"))
-         {
-            globals.api.Delete("content", content.id, () => location.href = Links.Category(content.parentId));
-         }
-      },
-      pinaction : (e) =>
-      {
-         //look up the parent as it is now, parse pinned, add page, convert to
-         //set, store back
-         globals.api.Get("category", "ids=" + content.parentId, apidat =>
-         {
-            var c = apidat.data[0];
-            DataFormat.AddPinned(c, content.id);
-            globals.api.Put("category/"+c.id, c, () =>
-            {
-               globals.spa.ProcessLink(location.href);
-            });
-         });
-      },
-      unpinaction : (e) =>
-      {
-         //look up the parent as it is now, parse pinned, add page, convert to
-         //set, store back
-         globals.api.Get("category", "ids=" + content.parentId, apidat =>
-         {
-            var c = apidat.data[0];
-            DataFormat.RemovePinned(c, content.id);
-            globals.api.Put("category/"+c.id, c, () =>
-            {
-               globals.spa.ProcessLink(location.href);
-            });
-         });
-      }
-   });
-   setupWatchLink(templ, content.id);
-}
-
 //This is actually required by index.html... oogh dependencies
 function renderContent(elm, repl)
 {
@@ -2743,39 +2666,6 @@ function formSetupSubmit(form, endpoint, success, validate, baseData)
 }
 
 
-function setupWatchLink(parent, cid)
-{
-   var watchLink = parent.querySelector("[data-watched]");
-   watchLink.onclick = function(event)
-   {
-      event.preventDefault();
-      var watched = getSwap(watchLink, "data-watched");
-      var failure = function(apidata)
-      {
-         findSwap(watchLink, "data-watched", watched); //the original;
-         notifyError("Watch failed: " + apidata.request.status + " - " + apidata.request.statusText);
-      };
-      if(watched === "true")
-      {
-         findSwap(watchLink, "data-watched", "false");
-         globals.api.Delete("watch", cid,
-            data =>
-            {
-               log.Info("Remove watch " + cid + " successful!");
-            }, failure);
-      }
-      else
-      {
-         findSwap(watchLink, "data-watched", "true");
-         globals.api.Post("watch/" + cid, {},
-            apidata =>
-            {
-               log.Info("Watch " + cid + " successful!");
-            }, failure);
-      }
-   };
-}
-
 function setupWatchClear(parent, cid)
 {
    let watchLink = parent.querySelector("[data-clearcount]");
@@ -3628,10 +3518,6 @@ function setPaneCategoryTree(categories)
    rightpanecategorytree.innerHTML = "";
    rightpanecategorytree.appendChild(makeCategoryTreeView(categories));
 }
-/*function addCategoryListParam(params)
-{
-   params.set("content","id,name,type");
-}*/
 
 //A 12me thing for the renderer
 var Nav = {

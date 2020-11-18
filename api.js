@@ -136,7 +136,7 @@ Api.prototype.AutoLink = function(data)
          DataFormat.LinkField(c, "editUserId", "editUser", users, "id", this.defaultUser);
 
          //Pre-mark pinned, this may be desired for css... ugh but it's bad to do this
-         c.forEach(x => { if(!("pinned" in x)) x.pinned = "unknown"; });
+         //c.forEach(x => { if(!("pinned" in x)) x.pinned = "unknown"; });
 
          if(categories)
             categories.forEach(x => DataFormat.MarkPinned(x, c, true));

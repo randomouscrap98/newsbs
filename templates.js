@@ -39,6 +39,11 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       "u" : "edited",
       "d" : "deleted"
    },
+   _votecontrol : {
+      "b" : "data-votebad",
+      "o" : "data-voteok",
+      "g" : "data-votegood"
+   },
 
    //Dependency injection, please override these
    //----------------------------------
@@ -282,12 +287,21 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          watchcount: v.about.watches.count,
          permissions: v.myPerms,
          watched: v.about.watching,
+         vote: v.about.myVote,
          editlink: "?p=pageedit-"+v.id,
          rawaction: event => { event.preventDefault(); _displayRawObject(v.name, v); },
-         pinned: v.pinned
+         pinned: "pinned" in v ? v.pinned : "undefined"
       });
    },
-   pagecontrolwatch: (v, ce, tobj) =>
+   pagecontrolvote : (v, ce, tobj) =>
+   {
+      var attr = _votecontrol[v];
+      [...ce.querySelectorAll("a")].forEach(x => x.removeAttribute("data-selected"));
+
+      if(attr)
+         ce.querySelector("[" + attr + "]").setAttribute("data-selected", "");
+   },
+   pagecontrolwatchfunc: (v, ce, tobj) =>
    {
       ce.onclick = (event) =>
       {
