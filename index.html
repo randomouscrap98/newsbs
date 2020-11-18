@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605659723" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605659723"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605659723"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605660400" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605660400"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605660400"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605659723"></script>
-      <script src="templates.js?v=1605659723"></script>
-      <script src="dom.js?v=1605659723"></script>
-      <script src="api.js?v=1605659723"></script>
-      <script src="index.js?v=1605659723"></script>
-      <script src="sbs2-markup/highlight.js?v=1605659723"></script>
-      <script src="sbs2-markup/parse.js?v=1605659723"></script>
-      <script src="sbs2-markup/render.js?v=1605659723"></script>
+      <script src="libbo.js?v=1605660400"></script>
+      <script src="templates.js?v=1605660400"></script>
+      <script src="dom.js?v=1605660400"></script>
+      <script src="api.js?v=1605660400"></script>
+      <script src="index.js?v=1605660400"></script>
+      <script src="sbs2-markup/highlight.js?v=1605660400"></script>
+      <script src="sbs2-markup/parse.js?v=1605660400"></script>
+      <script src="sbs2-markup/render.js?v=1605660400"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605659723" />
+      <link rel="stylesheet" href="index.css?v=1605660400" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -906,11 +906,14 @@ function leftpaneclick(event)
                <h1 class="uk-margin-small-right uk-width-expand" t-title=".textContent"></h1>
                <div tlink="pagecontrols"></div>
             </div>
+            <!-- TODO: This needs to be another template just in case -->
             <div data-programcontainer hidden>
                <div tlink="slideshow"></div>
                <div class="uk-flex uk-flex-middle uk-margin-small-left uk-margin-small-right">
                   <div tlink="sbhardware"></div>
+                  <!-- this may be something in the future -->
                   <span class="uk-width-expand"></span>
+                  <!-- Does THIS need to be a template too? IDK -->
                   <div class="uk-flex-none texticon">
                      <img data-src="key2.svg" uk-svg="ratio: 1.2">
                      <span class="uk-text-large key" t-key=".textContent"></span>

@@ -340,15 +340,32 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 
    //Routes
    //----------------------------------
+   //What we ALWAYS do for pages no matter what kind they are (this system may
+   //need to be simplified though)
    generalpage : (v, ce, tobj) =>
    {
+      //We ALWAYS want to set fields, even if there's no page. This way, if
+      //someone sets the page to "nothing", it will clear out the data.
       v = v || {};
+      
       tobj.SetFields({
          permissions: v.myPerms,
          pinned: v.pinned,
          format : v.values && v.values.markupLang,
-         key : v.values.key, //This is a little weird, we ALWAYS set the key? It might not exist
          content : v
+      });
+
+      Utilities.ToggleAttribute(tobj.innerTemplates.pagecontrols.element, "hidden", !v.id);
+      if(v.id) tobj.innerTemplates.pagecontrols.fields.page = v;
+   },
+   //Actually setting a page for the standard page display
+   routepage: (v, ce, tobj) =>
+   {
+      generalpage(v, ce, tobj);
+
+      tobj.SetFields({
+         title: v.name,
+         key : v.values.key //This is a little weird, we ALWAYS set the key? It might not exist
       });
 
       if(v.type === "program")
@@ -358,32 +375,25 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.slideshow.page = v;
          tobj.fields.sbhardware.system = v.values.system;
       }
-
-      Utilities.ToggleAttribute(tobj.innerTemplates.pagecontrols.element, "hidden", !v.id);
-      if(v.id) tobj.innerTemplates.pagecontrols.fields.page = v;
    },
-   routepage: (v, ce, tobj) =>
-   {
-      generalpage(v, ce, tobj);
-      tobj.SetFields({title: v.name});
-   },
+   //Setting the user (which should always exist) for the standard user display
    routeuser: (v, ce, tobj) =>
    {
-      console.log("Routeuser called with ", v);
       tobj.SetFields({
          title: v.username,
          avatar: v.avatar,
          banned : v.banned,
          userid: v.id
       });
-      //Hide "create page" if we're NOT the current user
+      //Hide "create page" if we're NOT the current user, this can only be
+      //known upon setting the user
       Utilities.ToggleAttribute(ce.querySelector("[data-createuserpage]"), "hidden", !v.isCurrentUser());
    },
+   //Setting the userpage (which may not exist) for the standard user display
    routeuserpage : (v, ce, tobj) =>
    {
-      console.log("Routeuserpage called with ", v);
       generalpage(v, ce, tobj);
-      //Hide nopage if there's a v
+      //Hide nopage if there's a v, this can only be known upon receiving a page
       Utilities.ToggleAttribute(ce.querySelector("[data-nopage]"), "hidden", v);
    },
 
