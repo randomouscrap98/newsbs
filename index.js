@@ -1614,8 +1614,6 @@ function handleSetting(key, value)
       setExpandableTextbox(value);
    if(key === "theme")
       setTheme(value);
-   //if(key === "oldschool")
-   //   setOldschool(value);
    if(key === "displaynotifications" && value)
    {
       var undosetting = () =>
@@ -1642,14 +1640,12 @@ function handleSetting(key, value)
 
 function handleSearchResults(data)
 {
-   //hide(searchresultscontainer);
    hide(searchpagesresults);
    hide(searchusersresults);
    hide(searchcategoriesresults);
 
    if(data == false)
    {
-      //hide(nosearchresults);
       hide(searchresultscontainer);
       return;
    }
@@ -1774,17 +1770,6 @@ function updateCurrentUserData(user)
       signals.Add("updatecurrentuser", user);
    });
 }
-
-//function formatRememberedDiscussion(spadat, type)//cid, type)
-//{
-//   var hasDiscussion = typeHasDiscussion(spadat.page) && spadat.page !== "user";
-//
-//   if(hasDiscussion)
-//      showDiscussion(Number(spadat.id));
-//   else
-//      hideDiscussion();
-//
-//}
 
 function formatRememberedDiscussion(cid, show, type)
 {

@@ -27,6 +27,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       "category" : "folder",
       "userpage" : "user"
    },
+   _stoic : {
+      "3ds" : {"t" : "3DS", "i" : "3ds.svg" },
+      "n3ds" : {"t" : "New 3DS", "i" : "3ds.svg" },
+      "wiiu" : {"t" : "Wii U", "i" : "wiiu.svg" },
+      "switch" : {"t" : "Switch", "i" : "switch.svg" }
+   },
    _activitytext : {
       "c" : "created",
       "r" : "read",
@@ -245,7 +251,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    slideshowpage: (v, ce, tobj) =>
    {
       tobj.SetFields({
-         images: v.getPhotos().map(x => imageLink(x))
+         images: v.getPhotos().map(x => ({image: imageLink(x)}))
       });
    },
    slideshowimages: (v, ce, tobj) =>
@@ -300,6 +306,14 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.watchfunc(!original, failure);
       };
    },
+   sbhardware : (v, ce, tobj) =>
+   {
+      var dat = v && _stoic[v.toLowerCase()];
+      tobj.SetFields({
+         icon : dat && dat.i,
+         text: dat && dat.t
+      });
+   },
    piechart: (v, ce, tobj) =>
    {
       var pie = ce.querySelector("[data-pie]");
@@ -333,8 +347,18 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          permissions: v.myPerms,
          pinned: v.pinned,
          format : v.values && v.values.markupLang,
+         key : v.values.key, //This is a little weird, we ALWAYS set the key? It might not exist
          content : v
       });
+
+      if(v.type === "program")
+      {
+         tobj.element.querySelector("[data-programcontainer]").removeAttribute("hidden");
+         Utilities.ToggleAttribute(tobj.innerTemplates.slideshow.element, "hidden", !v.values.photos);
+         tobj.fields.slideshow.page = v;
+         tobj.fields.sbhardware.system = v.values.system;
+      }
+
       Utilities.ToggleAttribute(tobj.innerTemplates.pagecontrols.element, "hidden", !v.id);
       if(v.id) tobj.innerTemplates.pagecontrols.fields.page = v;
    },

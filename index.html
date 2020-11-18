@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605657173" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605657173"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605657173"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605659723" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605659723"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605659723"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605657173"></script>
-      <script src="templates.js?v=1605657173"></script>
-      <script src="dom.js?v=1605657173"></script>
-      <script src="api.js?v=1605657173"></script>
-      <script src="index.js?v=1605657173"></script>
-      <script src="sbs2-markup/highlight.js?v=1605657173"></script>
-      <script src="sbs2-markup/parse.js?v=1605657173"></script>
-      <script src="sbs2-markup/render.js?v=1605657173"></script>
+      <script src="libbo.js?v=1605659723"></script>
+      <script src="templates.js?v=1605659723"></script>
+      <script src="dom.js?v=1605659723"></script>
+      <script src="api.js?v=1605659723"></script>
+      <script src="index.js?v=1605659723"></script>
+      <script src="sbs2-markup/highlight.js?v=1605659723"></script>
+      <script src="sbs2-markup/parse.js?v=1605659723"></script>
+      <script src="sbs2-markup/render.js?v=1605659723"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605657173" />
+      <link rel="stylesheet" href="index.css?v=1605659723" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -96,12 +96,6 @@ function typeToIcon(el, replace)
    } 
    return el.curicon;
 }
-var stoic = {
-   "3ds" : {"t" : "3DS", "i" : "3ds.svg" },
-   "n3ds" : {"t" : "New 3DS", "i" : "3ds.svg" },
-   "wiiu" : {"t" : "Wii U", "i" : "wiiu.svg" },
-   "switch" : {"t" : "Switch", "i" : "switch.svg" }
-};
 function systemToIcon(el, replace)
 {
    if(replace !== undefined)
@@ -844,7 +838,7 @@ function leftpaneclick(event)
             </div>
          </li>
 
-         <div id="sbhardware" t-page=".internal(sbhardware)" class="uk-flex-none texticon">
+         <div id="sbhardware" t-system=".internal(sbhardware)" class="uk-flex-none texticon">
             <img t-icon="uk-svg">
             <span t-text=".textContent" class="programsystem"></span>
          </div>
@@ -913,7 +907,7 @@ function leftpaneclick(event)
                <div tlink="pagecontrols"></div>
             </div>
             <div data-programcontainer hidden>
-               <div tlink="slideshow" hidden></div>
+               <div tlink="slideshow"></div>
                <div class="uk-flex uk-flex-middle uk-margin-small-left uk-margin-small-right">
                   <div tlink="sbhardware"></div>
                   <span class="uk-width-expand"></span>
