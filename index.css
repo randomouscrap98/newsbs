@@ -68,13 +68,9 @@ html, body, .uk-modal-dialog, .uk-dropdown {
    background-color: var(--mainbgcolor);
    color: var(--maintxtcolor);
 }
-.databar, .databar a {
-   background-color: var(--databarbgcolor);
-   color: var(--databartxtcolor);
-}
-.databar a:hover { 
-   color: var(--databartxthovcolor); 
-}
+.databar { background-color: var(--databarbgcolor); }
+.databar, .databar a { color: var(--databartxtcolor); }
+.databar a:hover { color: var(--databartxthovcolor); }
 h1, h2, h3, h4, h5, h6, .uk-text-emphasis, .uk-description-list>dt,
 .uk-accordion-title, .uk-form-label, .myinput,
 .uk-select:not([multiple]):not([size]) option { 
