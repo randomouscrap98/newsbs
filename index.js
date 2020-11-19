@@ -129,7 +129,26 @@ window.onload = function()
    interruptSmoothScroll();
 
    CommandSystem.api = globals.api;
-   CommandSystem.print = msg => notifySuccess(msg);
+   CommandSystem.message = msg => 
+   {
+      var d = getActiveDiscussion();
+
+      if(!d)
+      {
+         notifyError("No discussion to place module message: " + msg.message);
+         return;
+      }
+
+      if(!msg.id)
+      {
+         var allmsgs = d.querySelectorAll("[data-messageid]");//.getAttribute("data-messageid")) + 0.001;
+         msg.id = Number(allmsgs[allmsgs.length - 1].getAttribute("data-messageid")) + 0.001;
+      }
+
+      var tmpl = Templates.LoadHere("modulemessage", {modulemessage:msg});
+
+      writeDom(() => d.appendChild(tmpl));
+   }
 
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
    log.Debug("Width REM: " + ww + ", pixelRatio: " + window.devicePixelRatio);
@@ -3354,7 +3373,8 @@ function easyComment(comment, users)
       for(var i = comments.length - 1; i >= 0; i--)
       {
          //This is the place to insert!
-         if(comment.id > Number(getSwap(comments[i], "data-messageid")))
+         if(comment.id > Number(comments[i].getAttribute("data-messageid")))
+         //getSwap(comments[i], "data-messageid")))
          {
             insertAfter = comments[i];
             break;
@@ -3368,11 +3388,13 @@ function easyComment(comment, users)
             " into discussion " + comment.parentId;
       }
 
-      var insertFrame = getFragmentFrame(insertAfter);
+      var insertFrame = (insertAfter.getAttribute("data-template") == "singlemessage")
+         ? getFragmentFrame(insertAfter) : insertAfter;
       var newFrame = null;
 
       //Oops, we need a new frame
-      if(Number(getSwap(insertFrame, "data-userid")) !== Number(comment.createUserId) ||
+      if(insertFrame.getAttribute("data-template") != "messageframe" || 
+         getSwap(insertFrame, "data-userid") != comment.createUserId ||
          (new Date(comment.createDate)).getTime() - (new Date(getSwap(insertAfter, "createdate"))).getTime() 
           > (getLocalOption("breakchatmessagetime") * 1000))
       {

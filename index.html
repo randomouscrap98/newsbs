@@ -16,21 +16,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605755677" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605755677"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605755677"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605777463" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605777463"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605777463"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605755677"></script>
-      <script src="templates.js?v=1605755677"></script>
-      <script src="dom.js?v=1605755677"></script>
-      <script src="api.js?v=1605755677"></script>
-      <script src="commands.js?v=1605755677"></script>
-      <script src="index.js?v=1605755677"></script>
-      <script src="sbs2-markup/highlight.js?v=1605755677"></script>
-      <script src="sbs2-markup/parse.js?v=1605755677"></script>
-      <script src="sbs2-markup/render.js?v=1605755677"></script>
+      <script src="libbo.js?v=1605777463"></script>
+      <script src="templates.js?v=1605777463"></script>
+      <script src="dom.js?v=1605777463"></script>
+      <script src="api.js?v=1605777463"></script>
+      <script src="commands.js?v=1605777463"></script>
+      <script src="index.js?v=1605777463"></script>
+      <script src="sbs2-markup/highlight.js?v=1605777463"></script>
+      <script src="sbs2-markup/parse.js?v=1605777463"></script>
+      <script src="sbs2-markup/render.js?v=1605777463"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605755677" />
+      <link rel="stylesheet" href="index.css?v=1605777463" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -610,7 +610,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00048 (2020-11-18T18:42:44Z)</dd>
+      <dd data-frontendrelease>00049 (2020-11-19T09:17:43Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -810,6 +810,12 @@ function leftpaneclick(event)
             <a t-pagename=".textContent" t-pagelink=".spa()" 
                class="uk-width-expand uk-text-truncate uk-margin-small-left uk-margin-small-right"></a>
             <time t-date=".textContent" class="uk-text-meta"></time>
+         </div>
+
+         <div id="modulemessage" class="uk-flex uk-flex-top uk-text-meta" 
+            t-modulemessage=".internal(modulemessage)" t-id="data-messageid">
+            <time t-time=".textContent"></time>
+            <span class="modulemessage" t-message=".textContent"></span>
          </div>
 
          <div id="slideshow" t-page=".internal(slideshow_page)" 

@@ -9,7 +9,8 @@ function Command(description, process)
 //These need to be injected
 var CommandSystem = {
    api : false,
-   print : (msg) => console.log("Not handling: ", msg)
+   message : (modmsg) => console.log("Not handling: ", msg),
+   print : (msg) => CommandSystem.message({message:msg})
 };
 
 var Commands = { 

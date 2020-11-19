@@ -385,6 +385,15 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          pie.appendChild(path);
       });
    },
+   modulemessage : (v, ce, tobj) =>
+   {
+      var date = v.createDate || new Date().toISOString();
+      tobj.SetFields({
+         id : v.id,
+         message : v.message,
+         time : "[" + (new Date(date)).toISOString().substr(11,8) + "]"
+      });
+   },
 
    //Routes
    //----------------------------------
