@@ -96,6 +96,7 @@ Templates.signal = (name, data) => signals.Add(name, data);
 Templates.imageLink = getComputedImageLink;
 Templates.links = Links;
 
+
 window.Notification = window.Notification || {};
 
 window.onerror = function(message, source, lineno, colno, error)
@@ -126,6 +127,9 @@ window.onload = function()
    globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
    globals.longpoller.instantComplete = handleLongpollData;
    interruptSmoothScroll();
+
+   CommandSystem.api = globals.api;
+   CommandSystem.print = msg => notifySuccess(msg);
 
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
    log.Debug("Width REM: " + ww + ", pixelRatio: " + window.devicePixelRatio);
@@ -904,9 +908,20 @@ function setupDiscussions()
 function handleCommand(full)
 {
    var cmdparts = full.split(" ").filter(x => x);
-   var cmd = cmdparts[0];
+   var cmd = cmdparts[0].toLowerCase();
 
-   notifyError("Commands will come soon");
+   if(cmd == "help")
+   {
+      CommandSystem.print("Help coming soon, try /hide and /unhide");
+   }
+   else if(cmd in Commands)
+   {
+      Commands[cmd].process(full);
+   }
+   else
+   {
+      notifyError("Server commands will come soon");
+   }
 }
 
 function setupSearch()
