@@ -28,10 +28,10 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       "userpage" : "user"
    },
    _stoic : {
-      "3ds" : {"t" : "3DS", "i" : "3ds.svg" },
-      "n3ds" : {"t" : "New 3DS", "i" : "3ds.svg" },
-      "wiiu" : {"t" : "Wii U", "i" : "wiiu.svg" },
-      "switch" : {"t" : "Switch", "i" : "switch.svg" }
+      "3ds" : {"t" : "3DS", "i" : "assets/3ds.svg" },
+      "n3ds" : {"t" : "New 3DS", "i" : "assets/3ds.svg" },
+      "wiiu" : {"t" : "Wii U", "i" : "assets/wiiu.svg" },
+      "switch" : {"t" : "Switch", "i" : "assets/switch.svg" }
    },
    _activitytext : {
       "c" : "created",
@@ -238,7 +238,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          date : _stdDateDiff(v.date, true)
       });
    },
-   slideshowpages: (v, ce, tobj) =>
+   slideshow_pages: (v, ce, tobj) =>
    {
       tobj.SetFields({
          images: v.map(x => ({
@@ -248,13 +248,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          }))
       });
    },
-   slideshowpage: (v, ce, tobj) =>
+   slideshow_page: (v, ce, tobj) =>
    {
       tobj.SetFields({
          images: v.getPhotos().map(x => ({image: imageLink(x)}))
       });
    },
-   slideshowimages: (v, ce, tobj) =>
+   slideshow_images: (v, ce, tobj) =>
    {
       v.forEach(x =>
       {
@@ -277,7 +277,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          pinned: "pinned" in v ? v.pinned : "undefined"
       });
    },
-   pagecontrolvotepie : (v, ce, tobj) =>
+   pagecontrols_votes : (v, ce, tobj) =>
    {
       var vt = v.b.count + v.o.count + v.g.count;
       var dataset = [];
@@ -290,7 +290,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          votecount: vt
       });
    },
-   pagecontrolvote : (v, ce, tobj) =>
+   pagecontrols_vote : (v, ce, tobj) =>
    {
       ce.removeAttribute("data-voted");
       [...ce.querySelectorAll("[data-vote]")].forEach(x => x.removeAttribute("data-selected"));
@@ -301,7 +301,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          ce.setAttribute("data-voted", "");
       }
    },
-   pagecontrolvotefunc: (v, ce, tobj) =>
+   pagecontrols_votefunc: (v, ce, tobj) =>
    {
       var clk = (event) =>
       {
@@ -328,7 +328,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       };
       [...ce.querySelectorAll("[data-vote]")].forEach(x => x.onclick = clk);
    },
-   pagecontrolwatchfunc: (v, ce, tobj) =>
+   pagecontrols_watchfunc: (v, ce, tobj) =>
    {
       ce.onclick = (event) =>
       {
@@ -438,7 +438,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       Utilities.ToggleAttribute(ce.querySelector("[data-createuserpage]"), "hidden", !v.isCurrentUser());
    },
    //Setting the userpage (which may not exist) for the standard user display
-   routeuserpage : (v, ce, tobj) =>
+   routeuser_page : (v, ce, tobj) =>
    {
       generalpage(v, ce, tobj);
       //Hide nopage if there's a v, this can only be known upon receiving a page

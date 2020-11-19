@@ -16,20 +16,20 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605724964" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605724964"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605724964"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605752363" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1605752363"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605752363"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605724964"></script>
-      <script src="templates.js?v=1605724964"></script>
-      <script src="dom.js?v=1605724964"></script>
-      <script src="api.js?v=1605724964"></script>
-      <script src="index.js?v=1605724964"></script>
-      <script src="sbs2-markup/highlight.js?v=1605724964"></script>
-      <script src="sbs2-markup/parse.js?v=1605724964"></script>
-      <script src="sbs2-markup/render.js?v=1605724964"></script>
+      <script src="libbo.js?v=1605752363"></script>
+      <script src="templates.js?v=1605752363"></script>
+      <script src="dom.js?v=1605752363"></script>
+      <script src="api.js?v=1605752363"></script>
+      <script src="index.js?v=1605752363"></script>
+      <script src="sbs2-markup/highlight.js?v=1605752363"></script>
+      <script src="sbs2-markup/parse.js?v=1605752363"></script>
+      <script src="sbs2-markup/render.js?v=1605752363"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605724964" />
+      <link rel="stylesheet" href="index.css?v=1605752363" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -242,7 +242,7 @@ function leftpaneclick(event)
          <!-- LOC:TOPNAV -->
          <div id="topnav" class="databar uk-flex-middle" uk-navbar>
             <a data-connectionindicator class="uk-flex-none" href="." data-spa>
-               <img uk-svg="ratio: 2" data-src="sbs.svg">
+               <img uk-svg="ratio: 2" data-src="assets/sbs.svg">
             </a>
             <!-- LOC:BREADCRUMBS -->
             <ul id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-top uk-margin-remove-bottom
@@ -571,7 +571,7 @@ function leftpaneclick(event)
                <button class="uk-modal-close-default" type="button" uk-close></button>
                <div class="uk-modal-header">
                   <h2 class="uk-modal-title">
-                     <img uk-svg="ratio: 2.5" data-src="sbs.svg" class="uk-margin-small-right">
+                     <img uk-svg="ratio: 2.5" data-src="assets/sbs.svg" class="uk-margin-small-right">
                      SmileBASIC Source
                   </h2>
                </div>
@@ -811,11 +811,11 @@ function leftpaneclick(event)
             <time t-date=".textContent" class="uk-text-meta"></time>
          </div>
 
-         <div id="slideshow" t-page=".internal(slideshowpage)" 
-            t-pages=".internal(slideshowpages)" uk-slideshow="animation: slide; ratio: 16:9;
+         <div id="slideshow" t-page=".internal(slideshow_page)" 
+            t-pages=".internal(slideshow_pages)" uk-slideshow="animation: slide; ratio: 16:9;
                   autoplay: true; autoplay-interval: 6000; pause-on-hover: true">
             <div class="uk-position-relative uk-visible-toggle uk-light" tabindex="-1">
-               <ul t-images=".internal(slideshowimages)" class="uk-slideshow-items"></ul>
+               <ul t-images=".internal(slideshow_images)" class="uk-slideshow-items"></ul>
                <a class="uk-position-center-left uk-position-small uk-hidden-hover" 
                   href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
                <a class="uk-position-center-right uk-position-small uk-hidden-hover" 
@@ -862,14 +862,14 @@ function leftpaneclick(event)
          <div id="pagecontrols" t-page=".internal(pagecontrols)" t-pinned t-permissions
             class="pagecontrols uk-flex-none uk-flex hidelogout" data-loginonly>
             <div>
-               <a href="#" class="pagecontrol" t-votes=".internal(pagecontrolvotepie)">
+               <a href="#" class="pagecontrol" t-votes=".internal(pagecontrols_votes)">
                   <div tlink="piechart" thoist></div>
                </a>
                <div uk-dropdown="pos: bottom-right; mode: click"
                   class="uk-dropdown uk-padding-small"> 
                   <span class="uk-text-meta">This page is:</span>
-                  <div t-vote=".internal(pagecontrolvote)"
-                     t-votefunc=".internal(pagecontrolvotefunc)"
+                  <div t-vote=".internal(pagecontrols_vote)"
+                     t-votefunc=".internal(pagecontrols_votefunc)"
                      class="uk-flex uk-margin-small-top">
                      <a href="#" class="uk-text-center uk-flex-1" data-vote="b">Bad</a>
                      <a href="#" class="uk-text-center uk-flex-1" data-vote="o">OK</a>
@@ -880,7 +880,7 @@ function leftpaneclick(event)
             </div>
             <div>
                <a href="#" class="pagecontrol" t-watched 
-                  t-watchfunc=".internal(pagecontrolwatchfunc)" uk-icon="bell"></a>
+                  t-watchfunc=".internal(pagecontrols_watchfunc)" uk-icon="bell"></a>
                <div class="uk-text-meta uk-text-center" t-watchcount=".textContent">0</div>
             </div>
             <div>
@@ -921,7 +921,7 @@ function leftpaneclick(event)
                   <span class="uk-width-expand"></span>
                   <!-- Does THIS need to be a template too? IDK -->
                   <div class="uk-flex-none texticon">
-                     <img data-src="key2.svg" uk-svg="ratio: 1.2">
+                     <img data-src="assets/key2.svg" uk-svg="ratio: 1.2">
                      <span class="uk-text-large key" t-key=".textContent"></span>
                   </div>
                </div>
@@ -932,7 +932,7 @@ function leftpaneclick(event)
          </div>
 
          <div id="routeuser" t-pinned t-permissions t-user=".internal(routeuser)"
-            t-userid t-page=".internal(routeuserpage)"
+            t-userid t-page=".internal(routeuser_page)"
             class="uk-container uk-margin-top uk-margin-bottom contentpage">
             <div class="pageblock">
                <div class="uk-flex-inline">

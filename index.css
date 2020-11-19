@@ -835,12 +835,12 @@ pre .constant { color: var(--codeconstant); }
 }
 [data-theme="oldschool"] #maincontentcontainer, 
 [data-theme="oldschool"] #discussionuserlistcontainer { 
-   background: url("Sb-bg-tile.png");
+   background: url("assets/Sb-bg-tile.png");
 }
 [data-theme="oldschool"] #rightpanecontent {
    background-position: right bottom;
    background-repeat: no-repeat;
-   background-image: url("Sb-bg-logo.png");
+   background-image: url("assets/Sb-bg-logo.png");
 }
 
 [data-theme="oldschool"] .pageblock, [data-theme="oldschool"] .pagetitle {
