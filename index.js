@@ -31,6 +31,8 @@ var options = {
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
    defaultmarkup : {def:"12y", u: 1, options: [ "12y", "plaintext", "bbcode" ], text: "Default discussion markup"},
+   animatedavatars : { def : "all", u: 1, text : "Animated avatars (must reload)",
+      options: ["all", "none" ] },
    theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "blue",
       "contrast", "dark-contrast","oldschool" ]},
    datalog : { def: false, text : "Log received data objects" },
@@ -2323,7 +2325,7 @@ function getComputedImageLink(id, size, crop, ignoreRatio)
             (ignoreRatio ? 1 : window.devicePixelRatio))); 
    }
 
-   return globals.api.Image(id, size, crop);
+   return globals.api.Image(id, size, crop, getLocalOption("animatedavatars") == "none");
 }
 
 function getAvatarLink(id, size, ignoreRatio) 

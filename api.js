@@ -271,13 +271,14 @@ Api.prototype.Search = function(searchops, success, error, always, modify)
    }, error, always, modify);
 };
 
-Api.prototype.Image = (id, size, crop) =>
+Api.prototype.Image = (id, size, crop, freeze) =>
 {
    var img = apiroot + "/file/raw/" + id;
    var params = new URLSearchParams();
 
    if(size) params.set("size", size); 
    if(crop) params.set("crop", true); 
+   if(freeze) params.set("freeze", true); 
 
    var extra = "?" + params.toString();
    return img + (extra.length > 1 ? extra : "");
