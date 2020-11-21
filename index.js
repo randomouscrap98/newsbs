@@ -2325,7 +2325,7 @@ function getComputedImageLink(id, size, crop, ignoreRatio)
             (ignoreRatio ? 1 : window.devicePixelRatio))); 
    }
 
-   return globals.api.Image(id, size, crop, getLocalOption("animatedavatars") == "none");
+   return globals.api.Image(id, size, crop, (size || crop) && getLocalOption("animatedavatars") == "none");
 }
 
 function getAvatarLink(id, size, ignoreRatio) 
@@ -3238,7 +3238,7 @@ function loadOlderComments(discussion)
    writeDom(() => unhide(loading));
 
    var minId = Number.MAX_SAFE_INTEGER;
-   var msgs = discussion.querySelectorAll("[data-messageid]");
+   var msgs = discussion.querySelectorAll('[data-template="messageframe"] [data-messageid]');
 
    for(var i = 0; i < msgs.length; i++)
    {
