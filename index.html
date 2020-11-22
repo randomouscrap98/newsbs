@@ -16,21 +16,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1605942113" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1605942113"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1605942113"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1606074887" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1606074887"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1606074887"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1605942113"></script>
-      <script src="templates.js?v=1605942113"></script>
-      <script src="dom.js?v=1605942113"></script>
-      <script src="api.js?v=1605942113"></script>
-      <script src="commands.js?v=1605942113"></script>
-      <script src="index.js?v=1605942113"></script>
-      <script src="sbs2-markup/highlight.js?v=1605942113"></script>
-      <script src="sbs2-markup/parse.js?v=1605942113"></script>
-      <script src="sbs2-markup/render.js?v=1605942113"></script>
+      <script src="libbo.js?v=1606074887"></script>
+      <script src="templates.js?v=1606074887"></script>
+      <script src="dom.js?v=1606074887"></script>
+      <script src="api.js?v=1606074887"></script>
+      <script src="commands.js?v=1606074887"></script>
+      <script src="index.js?v=1606074887"></script>
+      <script src="sbs2-markup/highlight.js?v=1606074887"></script>
+      <script src="sbs2-markup/parse.js?v=1606074887"></script>
+      <script src="sbs2-markup/render.js?v=1606074887"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1605942113" />
+      <link rel="stylesheet" href="index.css?v=1606074887" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -610,7 +610,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00052 (2020-11-21T07:01:53Z)</dd>
+      <dd data-frontendrelease>00053 (2020-11-22T19:54:47Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -981,6 +981,37 @@ function leftpaneclick(event)
             <div class="" data-homehistory></div>
          </div>
 
+         <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom"
+            t-permissions t-category=".internal(routecategory)">
+            <div class="uk-flex">
+               <h1 class="uk-width-expand pagetitle uk-margin-small-right" t-title=".textContent"></h1>
+               <ul data-loginonly class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
+                  <li>
+                     <a href="#" uk-icon="cog"></a>
+                     <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
+                        <ul class="uk-list uk-margin-remove-bottom">
+                           <!-- Unfortunately, UIkit doesn't handle hidden first list items well -->
+                           <li><a href="#" t-rawaction=".onclick">Raw Data</a></li>
+                           <li data-updateonly><a t-editlink=".spa()">Edit Category</a></li>
+                           <li data-superonly><a t-newlink=".spa()">Add Category</a></li>
+                           <li data-deleteonly><a href="#" t-deleteaction=".onclick">Delete Category</a></li>
+                           <li data-createonly><a t-newpagelink=".spa()">New Page</a></li>
+                        </ul>
+                     </div>
+                  </li>
+               </ul>
+            </div>
+            <p class="uk-text-meta uk-margin-remove-top" t-description=".internal(show,textContent)" hidden></p>
+            <!--TODO: put subcat/etc loading into template itself-->
+            <div data-subcats class="lightblock"></div>
+            <div data-pages class="uk-margin-top pageblock">
+               <p data-nopages class="">
+                  <span uk-icon="icon: database" class="uk-margin-small-right"></span>
+                  <span>No pages</span>
+               </p>
+            </div>
+         </div>
+
       </template>
       <template id="templates_old"> <!-- style="display: none">-->
          <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
@@ -1266,35 +1297,6 @@ function leftpaneclick(event)
       <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
       <button
          onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
-         </div>
-         <div id="routecategory" class="uk-container uk-margin-top uk-margin-bottom"
-             data-permissions=".leftPanePerms">
-            <div class="uk-flex">
-               <h1 class="uk-width-expand pagetitle uk-margin-small-right" data-title=".textContent"></h1>
-               <ul data-loginonly class="pagecontrols uk-flex-none uk-list uk-list-collapse uk-margin-remove">
-                  <li>
-                     <a href="#" uk-icon="cog"></a>
-                     <div uk-dropdown="pos: bottom-right; mode: click" class="uk-dropdown"> 
-                        <ul class="uk-list uk-margin-remove-bottom">
-                           <!-- Unfortunately, UIkit doesn't handle hidden first list items well -->
-                           <li><a href="#" data-viewraw>Raw Data</a></li>
-                           <li data-updateonly><a data-editlink="href" data-spa>Edit Category</a></li>
-                           <li data-superonly><a data-newlink="href" data-spa>Add Category</a></li>
-                           <li data-deleteonly><a href="#" data-deleteaction=".simpleAction">Delete Category</a></li>
-                           <li data-createonly><a data-newpagelink="href" data-spa>New Page</a></li>
-                        </ul>
-                     </div>
-                  </li>
-               </ul>
-            </div>
-            <p class="uk-text-meta uk-margin-remove-top" data-description=".textContent"></p>
-            <div data-subcats class="lightblock"></div>
-            <div data-pages class="uk-margin-top pageblock">
-               <p data-nopages class="">
-                  <span uk-icon="icon: database" class="uk-margin-small-right"></span>
-                  <span>No pages</span>
-               </p>
-            </div>
          </div>
          <div id="routecategoryedit" data-leaveprotect class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>

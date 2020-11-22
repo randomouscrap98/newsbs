@@ -168,6 +168,18 @@ Api.prototype.AutoLink = function(data)
       DataFormat.LinkField(activity, "contentId", "linked", content);
    }
 
+   if(categories)
+   {
+      categories.forEach(x =>
+      {
+         //PROBABLY unnecessary but it's ok, might as well be safe
+         if(x.id == 0)
+            x.myPerms = "C";
+         if(x.myPerms)
+            x.myPerms = x.myPerms.toUpperCase();
+      });
+   }
+
    if(users)
    {
       users.forEach(x => x.isCurrentUser = () => x.id == me.getUserId());

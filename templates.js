@@ -453,6 +453,18 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       //Hide nopage if there's a v, this can only be known upon receiving a page
       Utilities.ToggleAttribute(ce.querySelector("[data-nopage]"), "hidden", v);
    },
+   routecategory : (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         title: v.name,
+         description: v.description,
+         permissions : v.myPerms,
+         editlink : "?p=categoryedit-" + v.id,
+         newlink : "?p=categoryedit&pid=" + v.id,
+         newpagelink : "?p=pageedit&pid=" + v.id,
+         rawaction: event => { event.preventDefault(); _displayRawObject(v.name, v); },
+      });
+   },
 
    //The actual internal get/set mechanisms
    //----------------------------------

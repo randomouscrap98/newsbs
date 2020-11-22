@@ -11,10 +11,11 @@ var attr = {
    "pulsedate" : "data-maxdate",
    "pulsecount" : "data-pwcount",
    "pulsemaxid" : "data-pwmaxid",
+   "perms" : "data-permissions",
    "atoldest" : "data-atoldest"
 };
 
-var rootCategory = { name : "Root", id : 0 };
+var rootCategory = { name : "Root", id : 0, myPerms: "C" };
 var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 
 //Will this be stored in user eventually?
@@ -513,7 +514,6 @@ function setupSignalProcessors()
    });
 
    signals.Attach("longpollstart", data => writeDom(() => setConnectionState("connected")));
-   //signals.Attach("longpollcomplete", handleLongpollData); 
    signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
    signals.Attach("longpollerror", data => 
    {
@@ -545,6 +545,12 @@ function setupSignalProcessors()
          if(cid) statuses[cid] = "online";
          tryUpdateLongPoll(statuses);
       }
+
+      var page = maincontent.firstElementChild;
+      if(page.hasAttribute(attr.perms))
+         leftpane.setAttribute(attr.perms, page.getAttribute(attr.perms));
+      else
+         leftpane.removeAttribute(attr.perms);
    });
 
    signals.Attach("formatdiscussions", data =>
@@ -1163,7 +1169,7 @@ function routecategory_load(spadat)
       var users = idMap(data.user);
       var categories = idMap(data.category);
       categories[0] = Utilities.ShallowCopy(rootCategory);
-      var c = categories[cid]; //{ "name" : "Website Root", "id" : 0 };
+      var c = categories[cid];
 
       if(!c)
       {
@@ -1173,45 +1179,24 @@ function routecategory_load(spadat)
 
       route_complete(spadat, "Category: " + c.name, templ =>
       {
-         //Some of these attributes GO AWAY as soon as you access them with
-         //getSwap/multiSwap, BE CAREFUL
          var sbelm = templ.querySelector("[data-subcats]");
          var pgelm = templ.querySelector("[data-pages]");
-         var description = templ.querySelector("[data-description]");
          var childcats = data.category.filter(x => x.parentId === cid);
 
-         if(cid == 0)
-            c.myPerms = "C";
-
-         multiSwap(templ, { 
-            title : c.name ,
-            permissions : c.myPerms,
-            editlink : "?p=categoryedit-" + cid,
-            newlink : "?p=categoryedit&pid=" + cid,
-            newpagelink : "?p=pageedit&pid=" + cid,
+         templ.template.SetFields({
+            category : c,
             deleteaction : (e) =>
             {
-               if(confirm("Are you SURE you want to delete this category?"))
+               if(confirm("Are you SURE you want to delete this category? ALL pages " +
+                  "within will have an invalid parent and only be accessible through the API"))
                {
                   globals.api.Delete("category", cid, () => location.href = Links.Category(c.parentId));
                }
             },
-            description : c.description
          });
-
-         templ.querySelector("[data-viewraw]").onclick = e =>
-         {
-            e.preventDefault();
-            displayRaw(c.name, JSON.stringify(c, null, 2));
-         };
-
-         var pinCount = DataFormat.MarkPinned(c, data.content, true);
-         log.Debug("Found " + pinCount + " pinned pages");
 
          if(!childcats.length)
             hide(sbelm);
-         if(!c.description)
-            hide(description);
          if(data.content.length)
             hide(pgelm.querySelector("[data-nopages]"));
 
