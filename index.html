@@ -812,6 +812,13 @@ function leftpaneclick(event)
             <time t-date=".textContent" class="uk-text-meta"></time>
          </div>
 
+         <div id="subcat" t-category=".internal(subcat)" class="uk-flex uk-flex-middle">
+            <span uk-icon="icon: folder; ratio: 1.0" class="uk-margin-small-right
+               uk-flex-none"></span>
+            <a t-link=".spa()" t-name=".textContent"
+               class="uk-link-text title uk-text-truncate"></a>
+         </div>
+
          <div id="modulemessage" class="uk-flex uk-flex-top uk-text-meta" 
             t-modulemessage=".internal(modulemessage)" t-id="data-messageid">
             <time t-time=".textContent"></time>
@@ -1002,9 +1009,10 @@ function leftpaneclick(event)
                </ul>
             </div>
             <p class="uk-text-meta uk-margin-remove-top" t-description=".internal(show,textContent)" hidden></p>
-            <!--TODO: put subcat/etc loading into template itself-->
-            <div data-subcats class="lightblock"></div>
-            <div data-pages class="uk-margin-top pageblock">
+            <div t-subcats=".listshow(subcat,category)" class="lightblock" hidden></div>
+            <div t-pages=".list(pageitem,page)" class="uk-margin-top pageblock">
+               <!-- A funny quick of .list causes this to be removed if there's
+               pages, BUT it won't come back if you set pages to an empty list later!-->
                <p data-nopages class="">
                   <span uk-icon="icon: database" class="uk-margin-small-right"></span>
                   <span>No pages</span>
@@ -1157,12 +1165,6 @@ function leftpaneclick(event)
             <a data-spa data-name=".textContent" data-link="href" 
              class="uk-width-expand uk-margin-small-left uk-margin-small-right"></a>
             <span data-meta=".textContent" class="uk-text-meta nocondensed"></span>
-         </div>
-         <div id="subcat" class="uk-flex uk-flex-middle">
-            <span uk-icon="icon: folder; ratio: 1.0" class="uk-margin-small-right
-               uk-flex-none"></span>
-            <a data-link="href" data-spa data-name=".textContent"
-               class="uk-link-text title uk-text-truncate"></a>
          </div>
          <div id="history" class="pageblock uk-display-block uk-position-relative">
             <div class="historycontainer"> <!-- uk-overflow-auto>-->

@@ -238,6 +238,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          date : _stdDateDiff(v.date, true)
       });
    },
+   subcat: (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         name: v.name,
+         link: Links.Category(v.id)
+      });
+   },
    slideshow_pages: (v, ce, tobj) =>
    {
       tobj.SetFields({
@@ -457,6 +464,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       tobj.SetFields({
          title: v.name,
+         subcats: v.childcategories,
+         pages: v.childpages,
          description: v.description,
          permissions : v.myPerms,
          editlink : "?p=categoryedit-" + v.id,
@@ -507,6 +516,34 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       //Don't render if there's nothing.
       if(v.content)
          ce.appendChild(Parse.parseLang(v.content, v.values.markupLang)); 
+   },
+   list_get : (ce, tobj, name, args) => 
+   {
+      return [...ce.children].filter(x => x.template).map(x => x.template.fields[args[1]])
+   },
+   list_set : (v, ce, tobj, name, args) =>
+   {
+      if(!("length" in v))
+         throw "Can't set non-list object on template field " + name;
+      if(!v.length)
+         return;
+
+      ce.innerHTML = "";
+      v.forEach(x => 
+      {
+         var dt = {};
+         if(args[1])
+            dt[args[1]] = x;
+         else
+            dt = x;
+         ce.appendChild(LoadHere(args[0], dt))
+      });
+   },
+   listshow_get : (ce, tobj, name, args) => list_get(ce, tobj, name, args),
+   listshow_set : (v, ce, tobj, name, args) =>
+   {
+      list_set(v, ce, tobj, name, args);
+      show(v && v.length, ce);
    }
 })
 //Private vars can go here

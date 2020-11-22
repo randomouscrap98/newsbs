@@ -1177,12 +1177,12 @@ function routecategory_load(spadat)
          return
       }
 
+      //treeify also sets the display order!
+      c.childcategories = treeify(data.category.filter(x => x.parentId === cid));
+      c.childpages = data.content;
+
       route_complete(spadat, "Category: " + c.name, templ =>
       {
-         var sbelm = templ.querySelector("[data-subcats]");
-         var pgelm = templ.querySelector("[data-pages]");
-         var childcats = data.category.filter(x => x.parentId === cid);
-
          templ.template.SetFields({
             category : c,
             deleteaction : (e) =>
@@ -1194,15 +1194,6 @@ function routecategory_load(spadat)
                }
             },
          });
-
-         if(!childcats.length)
-            hide(sbelm);
-         if(data.content.length)
-            hide(pgelm.querySelector("[data-nopages]"));
-
-         treeify(childcats);
-         childcats.forEach(x => sbelm.appendChild(makeSubcat(x)));
-         data.content.forEach(x => pgelm.appendChild(Templates.LoadHere("pageitem", {page:x})));
       }, getChain(data.category, c));
    });
 }
@@ -2375,6 +2366,7 @@ function treeify(categories)
    {
       x.children = categories.filter(y => y.parentId === x.id);
    });
+   return categories;
 }
 
 function parseLink(url)
@@ -2426,16 +2418,16 @@ function makeStandardContentInfo(content, users)
    return info;
 }
 
-function makeSubcat(category)
-{
-   var subcat = cloneTemplate("subcat");
-   multiSwap(subcat, {
-      link: Links.Category(category.id),
-      name: category.name
-   });
-   finalizeTemplate(subcat);
-   return subcat;
-}
+//function makeSubcat(category)
+//{
+//   var subcat = cloneTemplate("subcat");
+//   multiSwap(subcat, {
+//      link: Links.Category(category.id),
+//      name: category.name
+//   });
+//   finalizeTemplate(subcat);
+//   return subcat;
+//}
 
 //function makePageitem(page, users)
 //{
