@@ -940,9 +940,16 @@ function handleCommand(full)
       var cmdparts = full.split(" ").filter(x => x);
       var cmd = cmdparts[0].toLowerCase();
 
+      //TODO: Fix this so it understand what KIND of command it is, and also
+      //looks up commands from the server. Commands with no parameters can be
+      //printed as-is with help beside them, but any with parameters will need
+      //their own help
       if(cmd == "help")
       {
-         CommandSystem.print("Help coming soon, try /hide and /unhide");
+         var help = "Available commands:\n";
+         help += Object.keys(Commands).map(x => "/" + x.padEnd(15, " ") + Commands[x].description).join("\n");
+         CommandSystem.print(help);
+         //CommandSystem.print("Help coming soon, try /hide and /unhide");
       }
       else if(cmd in Commands)
       {
