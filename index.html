@@ -825,6 +825,26 @@ function leftpaneclick(event)
             <span class="modulemessage" t-message=".textContent"></span>
          </div>
 
+         <div id="browseitem" t-page=".internal(browseitem)" class="uk-flex uk-flex-top">
+            <img t-thumbnail=".internal(icon)" width=40 class="uk-flex-none">
+            <div class="uk-width-expand">
+               <div class="uk-flex uk-flex-middle">
+                  <h3 t-title=".textContent" class="uk-text-truncate"></h3>
+                  <div tlink="pagecontrols"></div>
+               </div>
+               <div class="uk-text-meta" t-path=".textContent"></div>
+            </div>
+            <div class="uk-flex uk-flex-middle">
+               <img t-useravatar=".internal(icon)" width=20 class="uk-flex-none">
+               <a t-userlink=".spa()" t-username=".textContent"></a>
+               <time t-createdate=".textContent"></time>
+               <div class="uk-width-expand">
+                  <!-- Might do something with this -->
+               </div>
+               <div class="key" t-key=".internal(show,textContent)" hidden></div>
+            </div>
+         </div>
+
          <div id="slideshow" t-page=".internal(slideshow_page)" 
             t-pages=".internal(slideshow_pages)" uk-slideshow="animation: slide; ratio: 16:9;
                   autoplay: true; autoplay-interval: 6000; pause-on-hover: true">
@@ -1017,6 +1037,14 @@ function leftpaneclick(event)
                   <span uk-icon="icon: database" class="uk-margin-small-right"></span>
                   <span>No pages</span>
                </p>
+            </div>
+         </div>
+
+         <div id="routebrowse" class="uk-container uk-margin-top uk-margin-bottom"
+            t-content=".internal(routebrowse)">
+            <div t-params=".browseparams()">
+            </div>
+            <div t-contents=".list(browseitem,content)">
             </div>
          </div>
 

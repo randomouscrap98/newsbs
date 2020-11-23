@@ -401,6 +401,10 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          time : "[" + (new Date(date)).toTimeString().substr(0,8) + "]"
       });
    },
+   browseitem : (v, ce, tobj) =>
+   {
+
+   },
 
    //Routes
    //----------------------------------
@@ -544,6 +548,14 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       list_set(v, ce, tobj, name, args);
       show(v && v.length, ce);
+   },
+   browseparams_get : (ce, tobj) =>
+   {
+
+   },
+   browseparams_set : (ce, tobj) =>
+   {
+
    }
 })
 //Private vars can go here
