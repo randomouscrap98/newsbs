@@ -132,6 +132,7 @@ window.onload = function()
    interruptSmoothScroll();
 
    CommandSystem.api = globals.api;
+   CommandSystem.realmessage = sendDiscussionMessage;
    CommandSystem.message = msg => 
    {
       var d = getActiveDiscussion();
@@ -934,20 +935,28 @@ function setupDiscussions()
 
 function handleCommand(full)
 {
-   var cmdparts = full.split(" ").filter(x => x);
-   var cmd = cmdparts[0].toLowerCase();
+   try
+   {
+      var cmdparts = full.split(" ").filter(x => x);
+      var cmd = cmdparts[0].toLowerCase();
 
-   if(cmd == "help")
-   {
-      CommandSystem.print("Help coming soon, try /hide and /unhide");
+      if(cmd == "help")
+      {
+         CommandSystem.print("Help coming soon, try /hide and /unhide");
+      }
+      else if(cmd in Commands)
+      {
+         Commands[cmd].process(full, cmdparts);
+      }
+      else
+      {
+         notifyError("Server commands will come soon");
+      }
    }
-   else if(cmd in Commands)
+   catch(ex)
    {
-      Commands[cmd].process(full);
-   }
-   else
-   {
-      notifyError("Server commands will come soon");
+      notifyError("Error during command: " + ex.message);
+      console.log(ex);
    }
 }
 

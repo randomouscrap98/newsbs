@@ -10,7 +10,8 @@ function Command(description, process)
 var CommandSystem = {
    api : false,
    message : (modmsg) => console.log("Not handling: ", msg),
-   print : (msg) => CommandSystem.message({message:msg})
+   print : (msg) => CommandSystem.message({message:msg}),
+   realmessage : (msg, format, error) => {throw "No implementation for realmessage!"}
 };
 
 var Commands = { 
@@ -47,6 +48,13 @@ var Commands = {
          {
             CommandSystem.print("Now visible");
          });
+      });
+   }),
+   plaintext : new Command("Send message as plaintext", cmd =>
+   {
+      CommandSystem.realmessage(cmd.substr(cmd.indexOf(" ") + 1), "plaintext", error =>
+      {
+         postdiscussiontext.value = cmd;
       });
    })
 };
