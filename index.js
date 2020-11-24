@@ -1027,6 +1027,8 @@ function route_complete(spadat, title, applyTemplate, breadcrumbs, cid)
             setLeaveProtect(t.hasAttribute("data-leaveprotect"));
             applyTemplate(t);
          }, breadcrumbs);
+         if(!breadcrumbs)
+            makeBreadcrumbs([{link:"?p=" + spadat.page,name:title}]);
          setTitle(title);
          if(!cid)
             hideDiscussion();
@@ -1090,7 +1092,7 @@ function routehome_load(spadat)
 
 function routetest_load(spadat) 
 { 
-   route_complete(spadat, null, templ =>
+   route_complete(spadat, "Test", templ =>
    {
       templ.appendChild(makeUserSearch(x => { console.log("Selected: ", x);}));
    }); 
@@ -1098,7 +1100,7 @@ function routetest_load(spadat)
 
 function routeadmin_load(spadat) 
 { 
-   route_complete(spadat, null, templ =>
+   route_complete(spadat, "Admin", templ =>
    {
       var userselects = templ.querySelectorAll('[data-userselect]');
       [...userselects].forEach(x => x.appendChild(makeUserCollection(x.getAttribute("name"), false, 1)));

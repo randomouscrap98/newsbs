@@ -33,6 +33,18 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          obj[x] = tmp[x];
       });
    },
+   _pagethumbnail: (v) =>
+   {
+      var th = false;
+      if(v.values)
+      {
+         if(v.values.thumbnail) 
+            th = v.values.thumbnail;
+         else if(v.values.photos)
+            th = v.values.photos.split(",")[0];
+      }
+      return th || "assets/placeholder.svg";
+   },
 
    //More like... website data
    _ttoic : { 
@@ -430,7 +442,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       tobj.SetFields({
          title : v.name,
-         thumbnail : (v.values && v.values.thumbnail) ? v.values.thumbnail : "assets/sbs.svg",
+         thumbnail : _pagethumbnail(v),
          type: v.type,
          link: Links.Page(v.id)
       });
@@ -500,7 +512,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       tobj.SetFields({
          title: v.name,
          subcats: v.childcategories,
-         pages: v.childpages,
+         pages: Utilities.StableSort(v.childpages, (a,b) => (b.pinned?1:0)-(a.pinned?1:0)),
          description: v.description,
          permissions : v.myPerms,
          editlink : "?p=categoryedit-" + v.id,

@@ -581,11 +581,14 @@ img.outlined { box-sizing: content-box; }
    outline: 1px solid var(--outlinecolor);
    margin: 0.5em 0;
    padding: 0.25em;
+   box-shadow: 1px 1px 4px 0px var(--bggray);
+   background-color: var(--mainbgcolor);
 }
-/*.browseitem .thumbnail {
-   display: block;
-   min-height: 40px;
-}*/
+.browseitem .thumbnail {
+   background-color: var(--lightblockbgcolor);
+   border: 1px solid var(--outlinecolor);
+   box-sizing: content-box;
+}
 .browseitem .titlecontainer {
    /*margin-right: 8px;*/
    margin-bottom: 2px;

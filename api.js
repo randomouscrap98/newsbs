@@ -141,7 +141,7 @@ Api.prototype.AutoLink = function(data)
          //c.forEach(x => { if(!("pinned" in x)) x.pinned = "unknown"; });
 
          if(categories)
-            categories.forEach(x => DataFormat.MarkPinned(x, c, true));
+            categories.forEach(x => DataFormat.MarkPinned(x, c, false));
 
          c.forEach(x =>
          {
