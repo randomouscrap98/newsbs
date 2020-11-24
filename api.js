@@ -159,6 +159,37 @@ Api.prototype.AutoLink = function(data)
       }
    };
 
+   //Should do categories first since content depends on it
+   if(categories)
+   {
+      //WILL THIS BE OK???
+      categories.push(Utilities.ShallowCopy(this.rootCategory));
+      DataFormat.LinkField(categories, "parentId", "parentCategory", categories, "id");
+      var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
+      categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
+      {
+         x.children = categories.filter(y => y.parentId === x.id);
+         x.getPath = () =>
+         {
+            var ps = [x];
+            while(ps[0].parentCategory)
+            {
+               //A loop, stop
+               if(ps.some(y => y.id == ps[0].parentCategory.id))
+                  break;
+               ps.unshift(ps[0].parentCategory);
+            }
+            return "/" + ps.map(x => x.name).join("/");
+         };
+
+         //PROBABLY unnecessary but it's ok, might as well be safe
+         if(x.id == 0)
+            x.myPerms = "C";
+         if(x.myPerms)
+            x.myPerms = x.myPerms.toUpperCase();
+      });
+   }
+
    contentLink(content);
    contentLink(data.pages); //special names!
 
@@ -168,22 +199,6 @@ Api.prototype.AutoLink = function(data)
       DataFormat.LinkField(activity, "contentId", "linked", users);
       DataFormat.LinkField(activity, "contentId", "linked", categories);
       DataFormat.LinkField(activity, "contentId", "linked", content);
-   }
-
-   if(categories)
-   {
-      //WILL THIS BE OK???
-      categories.push(Utilities.ShallowCopy(this.rootCategory));
-      var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
-      categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
-      {
-         x.children = categories.filter(y => y.parentId === x.id);
-         //PROBABLY unnecessary but it's ok, might as well be safe
-         if(x.id == 0)
-            x.myPerms = "C";
-         if(x.myPerms)
-            x.myPerms = x.myPerms.toUpperCase();
-      });
    }
 
    if(users)

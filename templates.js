@@ -444,6 +444,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          title : v.name,
          thumbnail : _pagethumbnail(v),
          type: v.type,
+         path: v.parentCategory ? v.parentCategory.getPath() : "[Orphaned page]",
          link: Links.Page(v.id)
       });
       tobj.innerTemplates.pagecontrols.fields.page = v;
