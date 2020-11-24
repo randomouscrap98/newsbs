@@ -577,6 +577,27 @@ img.outlined { box-sizing: content-box; }
    z-index: 10;
    color: red;
 }
+.browseitem {
+   outline: 1px solid var(--outlinecolor);
+   margin: 0.5em 0;
+   padding: 0.25em;
+}
+/*.browseitem .thumbnail {
+   display: block;
+   min-height: 40px;
+}*/
+.browseitem .titlecontainer {
+   /*margin-right: 8px;*/
+   margin-bottom: 2px;
+}
+/*.browseitem .title {
+   margin: 0;
+   margin-right: 0.2em;
+}*/
+.browseitem .type {
+   margin-left: 0.2em;
+   margin-right: 0.2em;
+}
 /* User settings */
 #userlocaloptions input { }
 .settings .uk-input, .settings .uk-select { height: 2.1em; min-width: 5em; }

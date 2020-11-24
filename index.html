@@ -825,14 +825,23 @@ function leftpaneclick(event)
             <span class="modulemessage" t-message=".textContent"></span>
          </div>
 
-         <div id="browseitem" t-page=".internal(browseitem)" class="uk-flex uk-flex-top">
-            <img t-thumbnail=".internal(icon)" width=40 class="uk-flex-none">
-            <div class="uk-width-expand">
-               <div class="uk-flex uk-flex-middle">
-                  <h3 t-title=".textContent" class="uk-text-truncate"></h3>
-                  <div tlink="pagecontrols"></div>
+         <div id="browseitem" t-page=".internal(browseitem)" class="uk-flex uk-flex-top 
+            browseitem">
+            <img t-thumbnail=".internal(icon)" width=60 class="uk-flex-none 
+               uk-margin-small-right thumbnail">
+            <!-- "right of thumbnail" -->
+            <div class="uk-width-expand uk-flex">
+               <!-- just title section, includes path -->
+               <div class="uk-width-expand uk-margin-small-right">
+                  <div class="uk-width-expand titlecontainer uk-flex uk-flex-middle">
+                     <h4 class="title uk-width-expand uk-text-truncate uk-margin-remove">
+                        <a t-title=".textContent" t-link=".spa()"></a>
+                     </h4>
+                     <span t-type=".internal(typeicon)" class="uk-flex-none type"></span>
+                  </div >
+                  <div class="uk-text-meta" t-path=".textContent"></div>
                </div>
-               <div class="uk-text-meta" t-path=".textContent"></div>
+               <div tlink="pagecontrols"></div>
             </div>
             <div class="uk-flex uk-flex-middle">
                <img t-useravatar=".internal(icon)" width=20 class="uk-flex-none">
@@ -994,12 +1003,18 @@ function leftpaneclick(event)
             <h1 class="pagetitle">SmileBASIC Source</h1>
             <div class="pageblock">
                <p>A community for talking about SmileBASIC, a program that lets you create
-               BASIC programs on your Nintendo 3DS, Wii U, and Switch! Open the
-               sidebar or <a href="?p=category-0">START HERE</a> to browse!
-               We also have an <a href="/12">alternate frontend</a> developed by local user 12, try it out!</p>
+               BASIC programs on your Nintendo 3DS, Wii U, and Switch! 
+               </p>
+               <h3 class="uk-margin-remove">
+                  Browse: <a href="?p=browse&types=program">Programs</a>, 
+                  <a href="?p=browse&types=chat">Discussions</a>,
+                  <a href="?p=browse&types=tutorial">Tutorials</a>
+               </h3>
                <p>SmileBASIC Source changed websites and databases. The
                original is now hosted at <a href="https://old.smilebasicsource.com">
-               old.smilebasicsource.com</a></p>
+               old.smilebasicsource.com</a>. We also have an <a href="/12">alternate frontend</a> 
+               developed by local user 12, try it out!
+               </p>
                <div class="homepageslideshow">
                   <div tlink="slideshow" thoist></div>
                </div>
@@ -1044,7 +1059,7 @@ function leftpaneclick(event)
             t-content=".internal(routebrowse)">
             <div t-params=".browseparams()">
             </div>
-            <div t-contents=".list(browseitem,content)">
+            <div t-contents=".list(browseitem,page)">
             </div>
          </div>
 

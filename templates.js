@@ -6,6 +6,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 {
    //"Private" (public) helper stuff. You can override these if you REALLY want to...
    //----------------------------------
+   _rawremove : [ "_template", "parentCategory" ],
    _templateData : "tmpldat_",
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
@@ -15,7 +16,23 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       rawmodalraw.textContent = raw;
       UIkit.modal(rawmodal).show();
    },
-   _displayRawObject : (title, obj) => _displayRaw(title, JSON.stringify(obj, null, 2)),
+   _displayRawObject : (title, obj) => 
+   {
+      var tmp = {};
+      _rawremove.forEach(x =>
+      {
+         if(x in obj)
+         {
+            tmp[x] = obj[x];
+            delete obj[x];
+         }
+      });
+      _displayRaw(title, JSON.stringify(obj, null, 2));
+      Object.keys(tmp).forEach(x =>
+      {
+         obj[x] = tmp[x];
+      });
+   },
 
    //More like... website data
    _ttoic : { 
@@ -127,12 +144,20 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    icon: (v, ce) =>
    {
-      if(v || v == "0")
+      var vn = Number(v);
+      if(v !== undefined)
       {
-         var width = Number(ce.getAttribute("width"));
-         if((width % 10) == 5 && width < 100)
-            width *= 2;
-         ce.setAttribute("src", imageLink(v, width, true));
+         var ln = v;
+
+         if(vn >= 0) 
+         {
+            var width = Number(ce.getAttribute("width"));
+            if((width % 10) == 5 && width < 100)
+               width *= 2;
+            ln=imageLink(vn, width, true);
+         }
+
+         ce.setAttribute("src", ln);
       }
       else
       {
@@ -146,7 +171,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    typeicon: (v, ce, tobj) =>
    {
-      if(v)
+      if(v || v === "")
          ce.setAttribute("uk-icon", _ttoic[v] || "close");
       else
          ce.removeAttribute("uk-icon");
@@ -403,7 +428,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    browseitem : (v, ce, tobj) =>
    {
-
+      tobj.SetFields({
+         title : v.name,
+         thumbnail : (v.values && v.values.thumbnail) ? v.values.thumbnail : "assets/sbs.svg",
+         type: v.type,
+         link: Links.Page(v.id)
+      });
+      tobj.innerTemplates.pagecontrols.fields.page = v;
    },
 
    //Routes
@@ -523,7 +554,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    list_get : (ce, tobj, name, args) => 
    {
-      return [...ce.children].filter(x => x.template).map(x => x.template.fields[args[1]])
+      return [...ce.children].filter(x => x.template).map(x => 
+      {
+         var r = x.template.fields[args[1]];
+         if(!("_template" in r))
+            r["_template"] = x.template;
+         return r;
+      });
    },
    list_set : (v, ce, tobj, name, args) =>
    {

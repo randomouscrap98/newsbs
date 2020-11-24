@@ -15,7 +15,6 @@ var attr = {
    "atoldest" : "data-atoldest"
 };
 
-var rootCategory = { name : "Root", id : 0, myPerms: "C" };
 var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 
 //Will this be stored in user eventually?
@@ -1184,7 +1183,7 @@ function routecategory_load(spadat)
       var data = apidata.data;
       var users = idMap(data.user);
       var categories = idMap(data.category);
-      categories[0] = Utilities.ShallowCopy(rootCategory);
+      //categories[0] = Utilities.ShallowCopy(rootCategory);
       var c = categories[cid];
 
       if(!c)
@@ -1194,7 +1193,8 @@ function routecategory_load(spadat)
       }
 
       //treeify also sets the display order!
-      c.childcategories = treeify(data.category.filter(x => x.parentId === cid));
+      //c.childcategories = treeify(data.category.filter(x => x.parentId === cid));
+      c.childcategories = data.category.filter(x => x.parentId === cid);
       c.childpages = data.content;
 
       route_complete(spadat, "Category: " + c.name, templ =>
@@ -1406,6 +1406,52 @@ function routeuser_load(spadat)
             finishDiscussion(c, data.comment, users, initload);
          }
       }, [u], c ? c.id : false);
+   });
+}
+
+function routebrowse_load(spadat)
+{
+   var searchparams = Utilities.GetParams(location.href);
+   var csearch = { "limit": 40, "includeAbout" : true, "reverse" : true };
+
+   //WHY did I make it like this? oh well
+   var types = (searchparams.get("types") || "").split(",").filter(x => x).map(x => x.toLowerCase());
+   csearch.nottypes = Object.keys(Templates._ttoic).filter(x => types.indexOf(x) < 0);
+   csearch.sort = searchparams.get("sort") || "score";
+
+   if(searchparams.has("maxid")) csearch.maxid = searchparams.get("maxid");
+   if(searchparams.has("reverse")) csearch.reverse = searchparams.get("reverse");
+
+   console.log(types,csearch);
+
+   var params = new URLSearchParams();
+   params.append("requests", "content-" + JSON.stringify(csearch));
+   params.append("requests", "category");
+   params.append("requests", "user.0createUserId.0edituserId");
+   params.set("category", "id,name,parentId,values");
+   params.set("content", "id,name,about,type,parentId,createDate,editDate,createUserId,values,permissions");
+
+   globals.api.Chain(params, function(apidata)
+   {
+      log.Datalog("see dev log for browse data", apidata);
+
+      var data = apidata.data;
+
+      //var users = idMap(data.user);
+      //var categories = idMap(data.category);
+
+      route_complete(spadat, "Browse", templ =>
+      {
+         //TODO: This isn't fun to do and isn't very... good design, so think of a
+         //way to make this better.
+         var t = performance.now();
+         templ.template.fields.contents = data.content;
+         templ.template.fields.contents.forEach(x => finishPageControls(x["_template"], x));
+         log.PerformanceLog("Render content list took: " + (performance.now() - t) + "ms");
+         //finishPageControls(templ.template, c);
+         //maincontentinfo.appendChild(makeStandardContentInfo(c, users));
+         //finishDiscussion(c, data.comment, users, initload);
+      });// , getChain(data.category, c), c.id);
    });
 }
 
@@ -1934,11 +1980,11 @@ function makeCategorySelect(categories, name, includeRoot)
 {
    var container = cloneTemplate("categoryselect");
 
-   var rc = Utilities.ShallowCopy(rootCategory);
+   //var rc = Utilities.ShallowCopy(rootCategory);
    //rc.name = "Root";
-   categories.unshift(rc);
+   //categories.unshift(rc);
 
-   treeify(categories);
+   //treeify(categories);
 
    fillTreeSelector(categories, container.querySelector("select"), includeRoot);
    hide(container.querySelector("[data-loading]"));
@@ -2374,16 +2420,16 @@ function getChain(categories, content)
    return crumbs;
 }
 
-function treeify(categories)
-{
-   //Ultra inefficient n^2, don't care at all.
-   var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
-   categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
-   {
-      x.children = categories.filter(y => y.parentId === x.id);
-   });
-   return categories;
-}
+//function treeify(categories)
+//{
+//   //Ultra inefficient n^2, don't care at all.
+//   var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
+//   categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
+//   {
+//      x.children = categories.filter(y => y.parentId === x.id);
+//   });
+//   return categories;
+//}
 
 function parseLink(url)
 {
@@ -3564,9 +3610,9 @@ function makeCategoryTreeView(tree)
 
 function setPaneCategoryTree(categories)
 {
-   var rc = Utilities.ShallowCopy(rootCategory);
-   categories.unshift(rc);
-   treeify(categories);
+   //var rc = Utilities.ShallowCopy(rootCategory);
+   //categories.unshift(rc);
+   //treeify(categories);
    rightpanecategorytree.innerHTML = "";
    rightpanecategorytree.appendChild(makeCategoryTreeView(categories));
 }

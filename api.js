@@ -11,6 +11,7 @@ function Api(root, signalHandler)
    this.getToken = (() => null);
    this.getUserId = (() => null);
    this.defaultUser = { avatar: 0, username: "???", id: 0 };
+   this.rootCategory = { name : "Root", id : 0, myPerms: "C" };
 }
 
 Api.prototype.FormatData = function(data)
@@ -134,6 +135,7 @@ Api.prototype.AutoLink = function(data)
       {
          DataFormat.LinkField(c, "createUserId", "createUser", users, "id", this.defaultUser);
          DataFormat.LinkField(c, "editUserId", "editUser", users, "id", this.defaultUser);
+         DataFormat.LinkField(c, "parentId", "parentCategory", categories, "id");
 
          //Pre-mark pinned, this may be desired for css... ugh but it's bad to do this
          //c.forEach(x => { if(!("pinned" in x)) x.pinned = "unknown"; });
@@ -170,8 +172,12 @@ Api.prototype.AutoLink = function(data)
 
    if(categories)
    {
-      categories.forEach(x =>
+      //WILL THIS BE OK???
+      categories.push(Utilities.ShallowCopy(this.rootCategory));
+      var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
+      categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
       {
+         x.children = categories.filter(y => y.parentId === x.id);
          //PROBABLY unnecessary but it's ok, might as well be safe
          if(x.id == 0)
             x.myPerms = "C";
