@@ -656,6 +656,8 @@ function setupSpa()
          return;
       }
 
+      console.log("SPADATA:", spadata);
+
       //Alert anybody else who wants to know that we've done a click
       signals.Add("spastart", spadata);
       loadFunc(spadata);
@@ -1417,7 +1419,7 @@ function routeuser_load(spadat)
 function routebrowse_load(spadat)
 {
    var limit = getLocalOption("browsedisplaylimit");
-   var searchparams = Utilities.GetParams(location.href);
+   var searchparams = Utilities.GetParams(spadat.url);//location.href);
    var csearch = { "limit": limit, "includeAbout" : true };
 
    //WHY did I make it like this? oh well
@@ -1454,17 +1456,15 @@ function routebrowse_load(spadat)
             updateaction : (e) =>
             {
                e.preventDefault();
-               var params = templ.template.fields.params;
-               params.set("p", "browse");
-               globals.spa.ProcessLinkContextAware("?" + params.toString());
+               var p = templ.template.fields.params;
+               console.log(p.toString());
+               p.set("p", "browse");
+               globals.spa.ProcessLink("?" + p.toString());
             }
          });
          templ.template.fields.contents.forEach(x => finishPageControls(x["_template"], x));
          log.PerformanceLog("Render content list took: " + (performance.now() - t) + "ms");
-         //finishPageControls(templ.template, c);
-         //maincontentinfo.appendChild(makeStandardContentInfo(c, users));
-         //finishDiscussion(c, data.comment, users, initload);
-      });// , getChain(data.category, c), c.id);
+      });
    });
 }
 
