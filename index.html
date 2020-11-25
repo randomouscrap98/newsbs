@@ -16,21 +16,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1606289075" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1606289075"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1606289075"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1606291213" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1606291213"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1606291213"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1606289075"></script>
-      <script src="templates.js?v=1606289075"></script>
-      <script src="dom.js?v=1606289075"></script>
-      <script src="api.js?v=1606289075"></script>
-      <script src="commands.js?v=1606289075"></script>
-      <script src="index.js?v=1606289075"></script>
-      <script src="sbs2-markup/highlight.js?v=1606289075"></script>
-      <script src="sbs2-markup/parse.js?v=1606289075"></script>
-      <script src="sbs2-markup/render.js?v=1606289075"></script>
+      <script src="libbo.js?v=1606291213"></script>
+      <script src="templates.js?v=1606291213"></script>
+      <script src="dom.js?v=1606291213"></script>
+      <script src="api.js?v=1606291213"></script>
+      <script src="commands.js?v=1606291213"></script>
+      <script src="index.js?v=1606291213"></script>
+      <script src="sbs2-markup/highlight.js?v=1606291213"></script>
+      <script src="sbs2-markup/parse.js?v=1606291213"></script>
+      <script src="sbs2-markup/render.js?v=1606291213"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1606289075" />
+      <link rel="stylesheet" href="index.css?v=1606291213" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -610,7 +610,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00056 (2020-11-25T07:24:35Z)</dd>
+      <dd data-frontendrelease>00057 (2020-11-25T08:00:13Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -870,11 +870,11 @@ function leftpaneclick(event)
                   <span uk-icon="icon: comments; ratio: 0.8"></span>
                   <span data-text class=""></span>
                </div>
-               <div tlink="sbhardware"></div>
                <div class="uk-flex-none texticon" t-key=".internal(showtexticon)" hidden>
                   <img data-src="assets/key2.svg" uk-svg="ratio: 1">
                   <span data-text class="key"></span>
                </div>
+               <div tlink="sbhardware"></div>
             </div>
          </div>
 
@@ -1091,8 +1091,10 @@ function leftpaneclick(event)
                </div>
                <div class="uk-margin-right">
                   <div tlink="selectsimple" tname="sort"
-  tdata='{"text":"Sort","options":{"id":"","score":"","name":"","random":"","editdate":""}}'></div>
+  tdata='{"text":"Sort","options":{"id":"","score":"","votes":"","watches":"",
+     "name":"","random":"","editdate":""}}'></div>
                   <div tlink="checksimple" tname="reverse" tdata='{"text":"Descending"}'></div>
+                  <div tlink="checksimple" tname="watches" tdata='{"text":"Watch Only"}'></div>
                </div>
                <a t-updateaction=".onclick" class="uk-button uk-button-primary 
                   browseupdate uk-margin-collapse">Update</a>

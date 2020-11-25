@@ -631,7 +631,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    browseparams_get : (ce, tobj) =>
    {
       var params = new URLSearchParams();
-      params.set("reverse", tobj.fields.reverse.input);
+
+      if(tobj.fields.reverse.input)
+         params.set("reverse", tobj.fields.reverse.input);
+      if(tobj.fields.watches.input)
+         params.set("watches", tobj.fields.watches.input);
+
       params.set("sort", tobj.fields.sort.input);
 
       var types = [];
@@ -656,6 +661,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.sort.input = v.get("sort");
       if(v.has("reverse"))
          tobj.fields.reverse.input = v.get("reverse") == "true";
+      if(v.has("watches"))
+         tobj.fields.watches.input = v.get("watches") == "true";
 
       Object.keys(tobj.fields).forEach(x =>
       {

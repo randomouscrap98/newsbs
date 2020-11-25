@@ -597,6 +597,8 @@ img.outlined { box-sizing: content-box; }
 .browseitem .thumbnail { background-color: var(--lightblockbgcolor); }
 .browseitem .title { margin: 0 0 0.13em 0 !important; }
 .browseitem .type { margin-right: 0.2em; }
+.browseitem .programsystem { margin: 0 !important; }
+.browseitem .key { margin-right: 0.5em; }
 
 /* User settings */
 #userlocaloptions input { }

@@ -656,8 +656,6 @@ function setupSpa()
          return;
       }
 
-      console.log("SPADATA:", spadata);
-
       //Alert anybody else who wants to know that we've done a click
       signals.Add("spastart", spadata);
       loadFunc(spadata);
@@ -1430,14 +1428,15 @@ function routebrowse_load(spadat)
    if(searchparams.has("skip")) csearch.skip = searchparams.get("skip");
    if(searchparams.has("reverse")) csearch.reverse = searchparams.get("reverse") == "true";
 
-   console.log(types,csearch);
-
    var params = new URLSearchParams();
    params.append("requests", "content-" + JSON.stringify(csearch));
    params.append("requests", "category");
    params.append("requests", "user.0createUserId.0edituserId");
+   if(searchparams.get("watches") == "true")
+      params.append("requests", "watch"); 
    params.set("category", "id,name,parentId,values");
    params.set("content", "id,name,about,type,parentId,createDate,editDate,createUserId,values,permissions");
+   params.set("watch", "contentId");
 
    globals.api.Chain(params, function(apidata)
    {
@@ -1450,6 +1449,8 @@ function routebrowse_load(spadat)
          //TODO: This isn't fun to do and isn't very... good design, so think of a
          //way to make this better.
          var t = performance.now();
+         if(data.watch)
+            data.content = data.content.filter(x => data.watch.some(y => y.contentId == x.id));
          templ.template.SetFields({
             contents : data.content,
             params : searchparams,
