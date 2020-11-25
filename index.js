@@ -1459,7 +1459,7 @@ function routebrowse_load(spadat)
                var p = templ.template.fields.params;
                console.log(p.toString());
                p.set("p", "browse");
-               globals.spa.ProcessLink("?" + p.toString());
+               globals.spa.ProcessLinkContextAware("?" + p.toString());
             }
          });
          templ.template.fields.contents.forEach(x => finishPageControls(x["_template"], x));
