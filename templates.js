@@ -457,7 +457,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    browseitem : (v, ce, tobj) =>
    {
-      var key = (v.values && v.values.key && v.type=="program") ? v.values.key : null;
+      var key = (v.values && v.values.key && v.type=="program") ? v.values.key : undefined;
       tobj.SetFields({
          title : v.name,
          thumbnail : _pagethumbnail(v),
@@ -468,9 +468,15 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          userlink: Links.User(v.createUserId),
          useravatar : v.createUser.avatar,
          key : key,
-         comments : key ? null : v.about.comments.count
+         createdate : _stdDate(v.createDate),
+         comments : key ? undefined : v.about.comments.count
       });
       tobj.innerTemplates.pagecontrols.fields.page = v;
+      if(v.values && v.values.system && v.type=="program")
+      {
+         tobj.fields.sbhardware.system = v.values.system;
+         tobj.fields.sbhardware.text = "";
+      }
    },
 
    //Routes

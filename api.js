@@ -12,6 +12,7 @@ function Api(root, signalHandler)
    this.getUserId = (() => null);
    this.defaultUser = { avatar: 0, username: "???", id: 0 };
    this.rootCategory = { name : "Root", id : 0, myPerms: "C" };
+   this.unlinkfields = [ "parentCategory" ];
 }
 
 Api.prototype.FormatData = function(data)
@@ -89,9 +90,23 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    me.signal("apistart", apidat);
 
    if(data)
+   {
+      var tmp = {};
+      me.unlinkfields.forEach(x =>
+      {
+         if(x in data)
+         {
+            tmp[x] = data[x];
+            delete data[x];
+         }
+      });
       req.send(JSON.stringify(data));
+      Object.keys(tmp).forEach(x => data[x] = tmp[x]);
+   }
    else
+   {
       req.send();
+   }
 };
 
 Api.prototype.Get = function(endpoint, params, success, error, always, modify)

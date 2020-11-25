@@ -624,19 +624,27 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          var name = fieldname.substr(2);
          var value = StripField(currentelement, fieldname);
 
+         //NOTHING that uses the t system uses pipe, so...
+         var nowstart = value.indexOf("|");
+         var nowdat = false;
+
+         if(nowstart >= 0)
+         {
+            nowdat = value.substr(nowstart + 1);
+            value = value.slice(0, nowstart);
+         }
+
          //Now the standard old neat things. Except... uhhh wait, how do you
          //define a function just for this template? oh no...
          if(value.startsWith("."))
          {
             var property = value.substr(1);
             var funcparen = property.indexOf("(");
-            //var funcmatch = property.match(/\([^)]\)$/);
 
-            //TODO: The "function" feature may not be used or may be changed
             if(funcparen >= 0)
             {
                var args = property.substr(funcparen + 1).slice(0,-1).split(",").map(x => x.trim()) || [];
-               var func = property.substr(0, funcparen); //property.length - 2);
+               var func = property.substr(0, funcparen);
                var gfunc = func + "_get";
                var sfunc = func + "_set";
 
@@ -669,6 +677,9 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
                set : (v) => currentelement.setAttribute(value, v)
             });
          }
+
+         if(nowdat || nowdat === "")
+            tobj.fields[name] = nowdat;
       }
    },
    //Standard initialization for my index templates, which recurses through
