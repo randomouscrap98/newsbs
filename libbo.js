@@ -552,6 +552,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
       if(!currentelement) return
 
       var link = StripField(currentelement, "tlink");
+      var data = StripField(currentelement, "tdata");
       var hoist = StripField(currentelement, "thoist", true);
       var name = StripField(currentelement, "tname") || link;
 
@@ -564,6 +565,9 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
 
          //Replace ourselves with this.
          currentelement.parentNode.replaceChild(innertobj.element, currentelement);
+
+         if(data)
+            innertobj.SetFields(JSON.parse(data));
 
          //Oh but if we're hoisting, pull all attributes out and place in
          //ourselves, otherwise put them in an aptly named thing

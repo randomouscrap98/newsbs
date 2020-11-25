@@ -8,6 +8,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    //----------------------------------
    _rawremove : [ "_template", "parentCategory" ],
    _templateData : "tmpldat_",
+   _includekey : "include_",
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
@@ -181,12 +182,28 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       icon(v, ce);
       show(v, ce);
    },
+   showtexticon: (v, ce) =>
+   {
+      ce.querySelector("[data-text]").textContent = v;
+      show(v, ce);
+   },
    typeicon: (v, ce, tobj) =>
    {
       if(v || v === "")
          ce.setAttribute("uk-icon", _ttoic[v] || "close");
       else
          ce.removeAttribute("uk-icon");
+   },
+   select: (v, ce, tobj) =>
+   {
+      ce.innerHTML = "";
+      Object.keys(v).forEach(x =>
+      {
+         var opt = document.createElement("option");
+         opt.value = x;
+         opt.textContent = v[x] || x;
+         ce.appendChild(opt);
+      });
    },
 
    //Highly specific template loading (usually still used with internal/external)
@@ -440,12 +457,18 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    browseitem : (v, ce, tobj) =>
    {
+      var key = (v.values && v.values.key && v.type=="program") ? v.values.key : null;
       tobj.SetFields({
          title : v.name,
          thumbnail : _pagethumbnail(v),
          type: v.type,
          path: v.parentCategory ? v.parentCategory.getPath() : "[Orphaned page]",
-         link: Links.Page(v.id)
+         link: Links.Page(v.id),
+         username : v.createUser.username,
+         userlink: Links.User(v.createUserId),
+         useravatar : v.createUser.avatar,
+         key : key,
+         comments : key ? null : v.about.comments.count
       });
       tobj.innerTemplates.pagecontrols.fields.page = v;
    },
@@ -601,11 +624,41 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    },
    browseparams_get : (ce, tobj) =>
    {
+      var params = new URLSearchParams();
+      params.set("reverse", tobj.fields.reverse.input);
+      params.set("sort", tobj.fields.sort.input);
 
+      var types = [];
+
+      Object.keys(tobj.fields).forEach(x =>
+      {
+         if(x.startsWith(_includekey) && tobj.fields[x].input)
+         {
+            types.push(x.substr(_includekey.length));
+         }
+      });
+
+      params.set("types", types.join(","));
+
+      return params;
    },
-   browseparams_set : (ce, tobj) =>
+   browseparams_set : (v, ce, tobj) =>
    {
+      var types = (v.get("types") || "").split(",").filter(x => x).map(x => x.toLowerCase());
 
+      if(v.has("sort"))
+         tobj.fields.sort.input = v.get("sort");
+      if(v.has("reverse"))
+         tobj.fields.reverse.input = v.get("reverse") == "true";
+
+      Object.keys(tobj.fields).forEach(x =>
+      {
+         if(x.startsWith(_includekey))
+         {
+            var name = x.substr(_includekey.length);
+            tobj.fields[x].input = (types.indexOf(name) >= 0);
+         }
+      });
    }
 })
 //Private vars can go here

@@ -16,21 +16,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1606074887" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1606074887"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1606074887"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1606274475" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1606274475"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1606274475"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1606074887"></script>
-      <script src="templates.js?v=1606074887"></script>
-      <script src="dom.js?v=1606074887"></script>
-      <script src="api.js?v=1606074887"></script>
-      <script src="commands.js?v=1606074887"></script>
-      <script src="index.js?v=1606074887"></script>
-      <script src="sbs2-markup/highlight.js?v=1606074887"></script>
-      <script src="sbs2-markup/parse.js?v=1606074887"></script>
-      <script src="sbs2-markup/render.js?v=1606074887"></script>
+      <script src="libbo.js?v=1606274475"></script>
+      <script src="templates.js?v=1606274475"></script>
+      <script src="dom.js?v=1606274475"></script>
+      <script src="api.js?v=1606274475"></script>
+      <script src="commands.js?v=1606274475"></script>
+      <script src="index.js?v=1606274475"></script>
+      <script src="sbs2-markup/highlight.js?v=1606274475"></script>
+      <script src="sbs2-markup/parse.js?v=1606274475"></script>
+      <script src="sbs2-markup/render.js?v=1606274475"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1606074887" />
+      <link rel="stylesheet" href="index.css?v=1606274475" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -773,6 +773,19 @@ function leftpaneclick(event)
             tfunc="UpdateLogs">
          </ul>
 
+         <label id="checksimple" class="uk-flex uk-flex-middle">
+            <input t-input=".checked" type="checkbox" class="uk-checkbox 
+               uk-flex-none uk-margin-right">
+            <span t-text=".textContent"></span>
+         </label>
+
+         <label id="selectsimple" class="uk-flex uk-flex-middle">
+            <select t-options=".internal(select)" t-input=".value" 
+               class="uk-select uk-margin-small-right uk-form-width-medium ">
+            </select>
+            <span t-text=".textContent"></span>
+         </label>
+
          <div id="discussionuser" t-user=".internal(discussionuser)" class="uk-flex-none">
             <img t-avatar=".internal(icon)" width=40>
             <div uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
@@ -825,32 +838,41 @@ function leftpaneclick(event)
             <span class="modulemessage" t-message=".textContent"></span>
          </div>
 
-         <div id="browseitem" t-page=".internal(browseitem)" class="uk-flex uk-flex-top 
-            browseitem">
-            <img t-thumbnail=".internal(icon)" width=60 class="uk-flex-none 
-               uk-margin-small-right thumbnail">
-            <!-- "right of thumbnail" -->
-            <div class="uk-width-expand uk-flex">
-               <!-- just title section, includes path -->
-               <div class="uk-width-expand uk-margin-small-right">
-                  <div class="uk-width-expand titlecontainer uk-flex uk-flex-middle">
-                     <h4 class="title uk-width-expand uk-text-truncate uk-margin-remove">
+         <div id="browseitem" t-page=".internal(browseitem)" class="browseitem">
+            <div class="uk-flex uk-flex-top">
+               <img t-thumbnail=".internal(icon)" width="50" class="uk-flex-none 
+                  uk-margin-small-right thumbnail outlined">
+               <!-- "right of thumbnail" -->
+               <div class="uk-width-expand uk-flex">
+                  <!-- just title section, includes path -->
+                  <div class="uk-width-expand uk-margin-small-right">
+                     <h4 class="title uk-width-expand uk-text-truncate">
                         <a t-title=".textContent" t-link=".spa()"></a>
                      </h4>
-                     <span t-type=".internal(typeicon)" class="uk-flex-none type"></span>
-                  </div >
-                  <div class="uk-text-meta uk-text-truncate" t-path=".textContent"></div>
+                     <div class="uk-flex uk-flex-top uk-text-meta">
+                        <span t-type=".internal(typeicon)" class="uk-flex-none type"></span>
+                        <div class="uk-width-expand uk-text-truncate" t-path=".textContent"></div>
+                     </div>
+                  </div>
+                  <div tlink="pagecontrols"></div>
                </div>
-               <div tlink="pagecontrols"></div>
             </div>
-            <div class="uk-flex uk-flex-middle">
-               <img t-useravatar=".internal(icon)" width=20 class="uk-flex-none">
+            <hr>
+            <div class="uk-flex uk-flex-middle bottomtext">
+               <img t-useravatar=".internal(icon)" width=20 class="uk-flex-none avatar outlined">
                <a t-userlink=".spa()" t-username=".textContent"></a>
                <time t-createdate=".textContent"></time>
                <div class="uk-width-expand">
                   <!-- Might do something with this -->
                </div>
-               <div class="key" t-key=".internal(show,textContent)" hidden></div>
+               <div class="uk-flex-none texticon" t-comments=".internal(showtexticon)" hidden>
+                  <span uk-icon="icon: comments; ratio: 0.8"></span>
+                  <span data-text class=""></span>
+               </div>
+               <div class="uk-flex-none texticon" t-key=".internal(showtexticon)" hidden>
+                  <img data-src="assets/key2.svg" uk-svg="ratio: 1">
+                  <span data-text class="key"></span>
+               </div>
             </div>
          </div>
 
@@ -1006,9 +1028,9 @@ function leftpaneclick(event)
                BASIC programs on your Nintendo 3DS, Wii U, and Switch! 
                </p>
                <h3 class="uk-margin-remove">
-                  Browse: <a href="?p=browse&types=program">Programs</a>, 
-                  <a href="?p=browse&types=chat">Discussions</a>,
-                  <a href="?p=browse&types=tutorial">Tutorials</a>
+                  Browse: <a href="?p=browse&types=program&sort=score&reverse=true">Programs</a>, 
+                  <a href="?p=browse&types=chat&sort=score&reverse=true">Discussions</a>,
+                  <a href="?p=browse&types=tutorial&sort=score&reverse=true">Tutorials</a>
                </h3>
                <p>SmileBASIC Source changed websites and databases. The
                original is now hosted at <a href="https://old.smilebasicsource.com">
@@ -1057,7 +1079,22 @@ function leftpaneclick(event)
 
          <div id="routebrowse" class="uk-container uk-margin-top uk-margin-bottom"
             t-content=".internal(routebrowse)">
-            <div t-params=".browseparams()">
+            <div t-params=".browseparams()" class="lightblock browsesearch">
+               <div class="uk-flex uk-flex-top uk-flex-wrap">
+               <div class="uk-margin-right">
+                  <div tlink="checksimple" tname="include_program" tdata='{"text":"Programs"}'></div>
+                  <div tlink="checksimple" tname="include_chat" tdata='{"text":"Chat"}'></div>
+                  <div tlink="checksimple" tname="include_tutorial" tdata='{"text":"Tutorials"}'></div>
+                  <div tlink="checksimple" tname="include_documentation" tdata='{"text":"Documentation"}'></div>
+               </div>
+               <div class="uk-margin-right">
+                  <div tlink="selectsimple" tname="sort"
+  tdata='{"text":"Sort","options":{"id":"","score":"","name":"","random":"","editdate":""}}'></div>
+                  <div tlink="checksimple" tname="reverse" tdata='{"text":"Reverse"}'></div>
+               </div>
+               <a t-updateaction=".onclick" class="uk-button uk-button-primary 
+                  browseupdate uk-margin-collapse">Update</a>
+               </div>
             </div>
             <div t-contents=".list(browseitem,page)">
             </div>

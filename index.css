@@ -577,30 +577,27 @@ img.outlined { box-sizing: content-box; }
    z-index: 10;
    color: red;
 }
+
+/*.browsesearch { overflow: hidden; }
+.browseupdate { margin: 0; }*/
+/*.browsesearch > * { margin-top: 0.5em; }*/
 .browseitem {
    outline: 1px solid var(--outlinecolor);
-   margin: 0.5em 0;
+   margin: 0.75em 0;
    padding: 0.25em;
    box-shadow: 1px 1px 4px 0px var(--bggray);
    background-color: var(--mainbgcolor);
 }
-.browseitem .thumbnail {
-   background-color: var(--lightblockbgcolor);
-   border: 1px solid var(--outlinecolor);
-   box-sizing: content-box;
-}
-.browseitem .titlecontainer {
-   /*margin-right: 8px;*/
-   margin-bottom: 4px;
-}
-/*.browseitem .title {
-   margin: 0;
-   margin-right: 0.2em;
-}*/
-.browseitem .type {
-   margin-left: 0.2em;
-   margin-right: 0.2em;
-}
+/*.browseitem .pagecontrols { opacity: 0.75; }
+.browseitem .pagecontrols:hover, .browseitem .pagecontrols:focus { opacity: 1; }*/
+.browseitem hr { margin: 0.35em 0; }
+.browseitem .avatar { margin-right: 0.4em; }
+.browseitem .bottomtext { margin: 0.0em 0.35em 0 0.1em; }
+.browseitem .key { font-size: 1.1em; }
+.browseitem .thumbnail { background-color: var(--lightblockbgcolor); }
+.browseitem .title { margin: 0 0 0.13em 0 !important; }
+.browseitem .type { margin-right: 0.2em; }
+
 /* User settings */
 #userlocaloptions input { }
 .settings .uk-input, .settings .uk-select { height: 2.1em; min-width: 5em; }
@@ -748,7 +745,7 @@ pre .constant { color: var(--codeconstant); }
 /* Some reaction crap or whatever it's called */
 @media (min-width: 700px) { 
    .pagecontrol { margin: 0 3px; }
-   .pagecontrols { margin-right: -15px !important; }
+   .pagetitle .pagecontrols { margin-right: -15px !important; }
    #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
    [data-messageframe] .avatar { width: 60px; height: 60px; }
 }

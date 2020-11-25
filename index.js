@@ -49,6 +49,7 @@ var options = {
    initialloadcomments: { def: 30, text: "Initial comment pull" },
    oldloadcomments : { def: 30, text: "Scroll back comment pull" },
    activityload : { def: 100, text: "Activity load count" },
+   browsedisplaylimit : { def: 40, text : "Browse items per page (PLEASE BE CAREFUL)" },
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
    discussionresizelock : { def: 20, text: "Device pixels to snap outer container resize" },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
@@ -1411,18 +1412,21 @@ function routeuser_load(spadat)
    });
 }
 
+//TODO: Lots of repeated code between here and the template (because of the
+//search template part). Consider somehow fixing this.
 function routebrowse_load(spadat)
 {
+   var limit = getLocalOption("browsedisplaylimit");
    var searchparams = Utilities.GetParams(location.href);
-   var csearch = { "limit": 40, "includeAbout" : true, "reverse" : true };
+   var csearch = { "limit": limit, "includeAbout" : true };
 
    //WHY did I make it like this? oh well
    var types = (searchparams.get("types") || "").split(",").filter(x => x).map(x => x.toLowerCase());
    csearch.nottypes = Object.keys(Templates._ttoic).filter(x => types.indexOf(x) < 0);
-   csearch.sort = searchparams.get("sort") || "score";
-
-   if(searchparams.has("maxid")) csearch.maxid = searchparams.get("maxid");
-   if(searchparams.has("reverse")) csearch.reverse = searchparams.get("reverse");
+   
+   if(searchparams.has("sort")) csearch.sort = searchparams.get("sort");
+   if(searchparams.has("skip")) csearch.skip = searchparams.get("skip");
+   if(searchparams.has("reverse")) csearch.reverse = searchparams.get("reverse") == "true";
 
    console.log(types,csearch);
 
@@ -1439,15 +1443,22 @@ function routebrowse_load(spadat)
 
       var data = apidata.data;
 
-      //var users = idMap(data.user);
-      //var categories = idMap(data.category);
-
       route_complete(spadat, "Browse", templ =>
       {
          //TODO: This isn't fun to do and isn't very... good design, so think of a
          //way to make this better.
          var t = performance.now();
-         templ.template.fields.contents = data.content;
+         templ.template.SetFields({
+            contents : data.content,
+            params : searchparams,
+            updateaction : (e) =>
+            {
+               e.preventDefault();
+               var params = templ.template.fields.params;
+               params.set("p", "browse");
+               globals.spa.ProcessLinkContextAware("?" + params.toString());
+            }
+         });
          templ.template.fields.contents.forEach(x => finishPageControls(x["_template"], x));
          log.PerformanceLog("Render content list took: " + (performance.now() - t) + "ms");
          //finishPageControls(templ.template, c);
