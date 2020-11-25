@@ -49,7 +49,7 @@ var options = {
    initialloadcomments: { def: 30, text: "Initial comment pull" },
    oldloadcomments : { def: 30, text: "Scroll back comment pull" },
    activityload : { def: 100, text: "Activity load count" },
-   browsedisplaylimit : { def: 40, text : "Browse items per page (PLEASE BE CAREFUL)" },
+   browsedisplaylimit : { def: 1000, text : "Browse items per page (PLEASE BE CAREFUL)" },
    discussionscrolllock : { def: 0.15, text: "Page height % chat scroll lock", step: 0.01 },
    discussionresizelock : { def: 20, text: "Device pixels to snap outer container resize" },
    notificationtimeout : { def: 5, text: "Notification timeout (seconds)" },
