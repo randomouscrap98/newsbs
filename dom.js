@@ -485,9 +485,10 @@ function makeBreadcrumbs(chain)
    });
 }
 
-function recurseTreeSelector(node, func, path, processed)//, minLevel)
+function recurseTreeSelector(node, func, path, processed, childfield)//, minLevel)
 {
    path = path || [];
+   childfield = childfield || "children";
    processed = processed || [];
    //minLevel = minLevel || 0;
    if(!processed.some(x => x.id === node.id))
@@ -498,11 +499,11 @@ function recurseTreeSelector(node, func, path, processed)//, minLevel)
       //if(level >= minLevel)
       func(node, newPath, level); //newPath.slice(minLevel).map(x => x.name).join(" / "));
       processed.push(node);
-      node.children.forEach(x => recurseTreeSelector(x, func, newPath, processed));
+      node[childfield].forEach(x => recurseTreeSelector(x, func, newPath, processed, childfield));
    }
 }
 
-function fillTreeSelector(tree, selector, includeRoot)
+function fillTreeSelector(tree, selector, includeRoot, childfield)
 {
    //var selector = cloneTemplate("treeselector");
    var rootNodes = tree.filter(x => x.id === 0);
@@ -526,7 +527,7 @@ function fillTreeSelector(tree, selector, includeRoot)
       //option.setAttribute("title", node.description);
       option.textContent = option.getAttribute("data-path");
       selector.appendChild(option);
-   }));
+   }, undefined, undefined, childfield));
 
    finalizeTemplate(selector);
    return selector;

@@ -16,21 +16,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1606291213" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1606291213"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1606291213"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1610595054" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1610595054"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1610595054"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1606291213"></script>
-      <script src="templates.js?v=1606291213"></script>
-      <script src="dom.js?v=1606291213"></script>
-      <script src="api.js?v=1606291213"></script>
-      <script src="commands.js?v=1606291213"></script>
-      <script src="index.js?v=1606291213"></script>
-      <script src="sbs2-markup/highlight.js?v=1606291213"></script>
-      <script src="sbs2-markup/parse.js?v=1606291213"></script>
-      <script src="sbs2-markup/render.js?v=1606291213"></script>
+      <script src="libbo.js?v=1610595054"></script>
+      <script src="templates.js?v=1610595054"></script>
+      <script src="dom.js?v=1610595054"></script>
+      <script src="api.js?v=1610595054"></script>
+      <script src="commands.js?v=1610595054"></script>
+      <script src="index.js?v=1610595054"></script>
+      <script src="sbs2-markup/highlight.js?v=1610595054"></script>
+      <script src="sbs2-markup/parse.js?v=1610595054"></script>
+      <script src="sbs2-markup/render.js?v=1610595054"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1606291213" />
+      <link rel="stylesheet" href="index.css?v=1610595054" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -610,7 +610,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00057 (2020-11-25T08:00:13Z)</dd>
+      <dd data-frontendrelease>00058 (2021-01-14T03:30:54Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -762,6 +762,13 @@ function leftpaneclick(event)
          </div>
       </div>
       <!-- LOC:TEMPLATES -->
+      <!-- t-field are fields you can get/set on templates. the value is how
+         the field is get/set. .name sets it on the element itself (such as
+         .textContent), .func() calls a get_set function instead. the common
+         ones are .internal or .external, for setting fields in the object or
+         on the element (respectively). some functions are custom, and require
+         an _get AND _set function, whereas .internal/.external do not, as they
+         are wrappers around other functions. -->
       <template id="templates">
 
          <li id="log" class="uk-flex uk-text-break">
@@ -1091,7 +1098,7 @@ function leftpaneclick(event)
                </div>
                <div class="uk-margin-right">
                   <div tlink="selectsimple" tname="sort"
-  tdata='{"text":"Sort","options":{"id":"","score":"","votes":"","watches":"",
+  tdata='{"text":"Sort","options":{"id":"created","score":"","votes":"","watches":"",
      "name":"","random":"","editdate":""}}'></div>
                   <div tlink="checksimple" tname="reverse" tdata='{"text":"Descending"}'></div>
                   <div tlink="checksimple" tname="watches" tdata='{"text":"Watch Only"}'></div>

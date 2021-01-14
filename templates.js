@@ -6,7 +6,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 {
    //"Private" (public) helper stuff. You can override these if you REALLY want to...
    //----------------------------------
-   _rawremove : [ "_template", "parentCategory" ],
+   _rawremove : [ "_template", "parentCategory", "childpages", "childCategories" ],
    _templateData : "tmpldat_",
    _includekey : "include_",
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
@@ -541,7 +541,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       tobj.SetFields({
          title: v.name,
-         subcats: v.childcategories,
+         subcats: v.childCategories,
          pages: Utilities.StableSort(v.childpages, (a,b) => (b.pinned?1:0)-(a.pinned?1:0)),
          description: v.description,
          permissions : v.myPerms,

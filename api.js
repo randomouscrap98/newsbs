@@ -12,7 +12,7 @@ function Api(root, signalHandler)
    this.getUserId = (() => null);
    this.defaultUser = { avatar: 0, username: "???", id: 0 };
    this.rootCategory = { name : "Root", id : 0, myPerms: "C" };
-   this.unlinkfields = [ "parentCategory" ];
+   this.unlinkfields = [ "parentCategory", "childpages", "childCategories" ];
 }
 
 Api.prototype.FormatData = function(data)
@@ -183,7 +183,7 @@ Api.prototype.AutoLink = function(data)
       var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
       categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
       {
-         x.children = categories.filter(y => y.parentId === x.id);
+         x.childCategories = categories.filter(y => y.parentId === x.id);
          x.getPath = () =>
          {
             var ps = [x];

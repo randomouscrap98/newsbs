@@ -1197,7 +1197,7 @@ function routecategory_load(spadat)
 
       //treeify also sets the display order!
       //c.childcategories = treeify(data.category.filter(x => x.parentId === cid));
-      c.childcategories = data.category.filter(x => x.parentId === cid);
+      //c.childcategories = data.category.filter(x => x.parentId === cid);
       c.childpages = data.content;
 
       route_complete(spadat, "Category: " + c.name, templ =>
@@ -2000,7 +2000,7 @@ function makeCategorySelect(categories, name, includeRoot)
 
    //treeify(categories);
 
-   fillTreeSelector(categories, container.querySelector("select"), includeRoot);
+   fillTreeSelector(categories, container.querySelector("select"), includeRoot, "childCategories");
    hide(container.querySelector("[data-loading]"));
    //Update the value again since we didn't have options before
    multiSwap(container, {
@@ -3618,7 +3618,7 @@ function makeCategoryTreeView(tree)
       node.subtree = nelm.querySelector("[data-nodelist]");
       finalizeTemplate(nelm);
       subtree.appendChild(nelm);
-   }));
+   }, undefined, undefined, "childCategories"));
    return fragment;
 }
 
