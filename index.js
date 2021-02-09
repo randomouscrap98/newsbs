@@ -1253,7 +1253,8 @@ function routepage_load(spadat)
       {
          templ.template.fields.page = c;
          finishPageControls(templ.template, c);
-         maincontentinfo.appendChild(makeStandardContentInfo(c, users));
+         maincontentinfo.appendChild(Templates.LoadHere("stdcontentinfo", {content:c}));
+         //makeStandardContentInfo(c, users));
          finishDiscussion(c, data.comment, users, initload);
       }, getChain(data.category, c), c.id);
    });
@@ -1405,7 +1406,8 @@ function routeuser_load(spadat)
          if(c)
          {
             finishPageControls(templ.template, c);
-            maincontentinfo.appendChild(makeStandardContentInfo(c, users));
+            maincontentinfo.appendChild(Templates.LoadHere("stdcontentinfo",{content:c}));
+            //makeStandardContentInfo(c, users));
             finishDiscussion(c, data.comment, users, initload);
          }
       }, [u], c ? c.id : false);
@@ -2434,17 +2436,6 @@ function getChain(categories, content)
    return crumbs;
 }
 
-//function treeify(categories)
-//{
-//   //Ultra inefficient n^2, don't care at all.
-//   var ordval = x => (x.values && x.values.order) ? Number(x.values.order) : 999999999999;
-//   categories.sort((a,b) => ordval(a) - ordval(b)).forEach(x =>
-//   {
-//      x.children = categories.filter(y => y.parentId === x.id);
-//   });
-//   return categories;
-//}
-
 function parseLink(url)
 {
    var pVal = Utilities.GetParams(url).get("p") || "home"; 
@@ -2467,61 +2458,6 @@ function isPageLoading()
 // ***********************
 // ---- TEMPLATE CRAP ----
 // ***********************
-
-function makeError(message)
-{
-   var error = cloneTemplate("error");
-   findSwap(error, "message", message);
-   return error;
-}
-
-function makeSuccess(message)
-{
-   var success = cloneTemplate("success");
-   findSwap(error, "message", message);
-   return success;
-}
-
-function makeStandardContentInfo(content, users)
-{
-   var info = cloneTemplate("stdcontentinfo");
-   multiSwap(info, {
-      createavatar : getAvatarLink(users[content.createUserId].avatar, 20),
-      createlink : Links.User(content.createUserId),
-      createdate : (new Date(content.createDate)).toLocaleString()
-   });
-   finalizeTemplate(info);
-   return info;
-}
-
-//function makeSubcat(category)
-//{
-//   var subcat = cloneTemplate("subcat");
-//   multiSwap(subcat, {
-//      link: Links.Category(category.id),
-//      name: category.name
-//   });
-//   finalizeTemplate(subcat);
-//   return subcat;
-//}
-
-//function makePageitem(page, users)
-//{
-//   var citem = cloneTemplate("pageitem");
-//   var u = users[page.createUserId] || {};
-//   var date = (new Date(page.createDate)).toLocaleDateString();
-//   multiSwap(citem, {
-//      link: Links.Page(page.id),
-//      name: page.name,
-//      avatar : getAvatarLink(u.avatar, 50, true),
-//      userlink : Links.User(page.createUserId),
-//      pinned : page.pinned,
-//      time : date
-//   });
-//   thumbType(page, citem);
-//   finalizeTemplate(citem);
-//   return citem;
-//}
 
 function makePWUser(user)
 {
@@ -2557,40 +2493,12 @@ function makeCommentFragment(comment)//, users)
    multiSwap(fragment, {
       messageid: comment.id,
       id: getCommentId(comment.id),
-      createdate: comment.createDate, //(new Date(comment.createDate)).toLocaleString(),
-      editdate: comment.editdate //(new Date(comment.editDate)).toLocaleString()
+      createdate: comment.createDate,
+      editdate: comment.editdate
    });
    finalizeTemplate(fragment);
    return fragment;
 }
-
-//function makeHistoryItem(user, activity, title) //users, activity, contents)
-//{
-//   var item = cloneTemplate("historyitem");
-//   user = user || { avatar: 0, username: "???", id: 0 };
-//   //var content = contents[activity.contentId];
-//   //var title = content ? content.name : activity.extra;
-//   var link = "#";
-//   if(activity.type === "content")
-//      link = Links.Page(activity.contentId);
-//   else if(activity.type === "category")
-//      link = Links.Category(activity.contentId); 
-//   else if(activity.type === "user")
-//      link = Links.User(activity.contentId); 
-//   multiSwap(item, {
-//      avatar : getAvatarLink(user.avatar, 20),
-//      username : user.username,
-//      userlink : Links.User(user.id),
-//      action : activitytext[activity.action],
-//      contentname : title,
-//      contentlink : link,
-//      activityid : activity.id,
-//      time : Utilities.TimeDiff(activity.date, null, true)
-//   });
-//   finalizeTemplate(item);
-//   return item;
-//}
-
 
 
 //-------------------------------------------------
@@ -2735,7 +2643,9 @@ function getIsSuper() { return website.getAttribute("data-issuper") == "true"; }
 
 function formError(form, error)
 {
-   writeDom(() => form.appendChild(makeError(error)));
+   //var tmpl = Templates.LoadHere("modulemessage", {modulemessage:msg});
+   //makeError(error)));
+   writeDom(() => form.appendChild(Templates.LoadHere("notifyelement_error",{message:error})));
    log.Error(error);
 }
 
@@ -3624,9 +3534,6 @@ function makeCategoryTreeView(tree)
 
 function setPaneCategoryTree(categories)
 {
-   //var rc = Utilities.ShallowCopy(rootCategory);
-   //categories.unshift(rc);
-   //treeify(categories);
    rightpanecategorytree.innerHTML = "";
    rightpanecategorytree.appendChild(makeCategoryTreeView(categories));
 }

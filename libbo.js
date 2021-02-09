@@ -562,6 +562,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          //Need to perform standard initialization. Store the template as an inner
          var innertobj = Load(link, tobj.functionPool);
          SingleFieldValue(tobj.innerTemplates, name, innertobj);
+         [...currentelement.attributes].forEach(y => innertobj.element.setAttribute(y.name, y.value));
 
          //Replace ourselves with this.
          currentelement.parentNode.replaceChild(innertobj.element, currentelement);

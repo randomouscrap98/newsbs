@@ -283,7 +283,7 @@ a:hover { color: inherit; }
 #maincontentbar {
    background-color: var(--blockbgcolor);
 }
-#maincontentbar [data-stdcontentinfo] > * {
+#maincontentbar [data-template="stdcontentinfo"] > * {
    margin-right: 0.2em;
    margin-left: 0.1em;
 }

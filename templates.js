@@ -208,17 +208,31 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 
    //Highly specific template loading (usually still used with internal/external)
    //----------------------------------
-   discussionuser: (v, ce, tobj, name, args) =>
+   userdropdown : (v, ce, tobj, name, args) =>
    {
       //Already has optimization for uikit non-resetting fields
       tobj.SetFields({
          id: v.id,
-         date: _stdDate(v.createDate),
+         createdate: _stdDate(v.createDate),
          username : v.username,
-         userlink : links.User(v.id),
-         avatar: v.avatar,
+         link : links.User(v.id),
          super: v.super
       });
+   },
+   discussionuser: (v, ce, tobj, name, args) =>
+   {
+      tobj.SetFields({
+         avatar: v.avatar
+      });
+      tobj.fields.userdropdown.user = v;
+   },
+   stdcontentinfo: (v, ce, tobj, name, args) =>
+   {
+      tobj.SetFields({
+         createuseravatar : v.createUser.avatar,
+         createdate : _stdDate(v.createDate)
+      });
+      tobj.fields.createuserdropdown.user = v.createUser;
    },
    pageicon: (v, ce, tobj) =>
    {

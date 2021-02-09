@@ -16,21 +16,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1610595054" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1610595054"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1610595054"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1612840744" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1612840744"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1612840744"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1610595054"></script>
-      <script src="templates.js?v=1610595054"></script>
-      <script src="dom.js?v=1610595054"></script>
-      <script src="api.js?v=1610595054"></script>
-      <script src="commands.js?v=1610595054"></script>
-      <script src="index.js?v=1610595054"></script>
-      <script src="sbs2-markup/highlight.js?v=1610595054"></script>
-      <script src="sbs2-markup/parse.js?v=1610595054"></script>
-      <script src="sbs2-markup/render.js?v=1610595054"></script>
+      <script src="libbo.js?v=1612840744"></script>
+      <script src="templates.js?v=1612840744"></script>
+      <script src="dom.js?v=1612840744"></script>
+      <script src="api.js?v=1612840744"></script>
+      <script src="commands.js?v=1612840744"></script>
+      <script src="index.js?v=1612840744"></script>
+      <script src="sbs2-markup/highlight.js?v=1612840744"></script>
+      <script src="sbs2-markup/parse.js?v=1612840744"></script>
+      <script src="sbs2-markup/render.js?v=1612840744"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1610595054" />
+      <link rel="stylesheet" href="index.css?v=1612840744" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -610,7 +610,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00058 (2021-01-14T03:30:54Z)</dd>
+      <dd data-frontendrelease>00059 (2021-02-09T03:19:04Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -776,6 +776,16 @@ function leftpaneclick(event)
             <time t-time=".textContent"></time>
          </li>
 
+         <div id="notifyelement_error" class="uk-alert-danger uk-text-break" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p t-message=".textContent"></p>
+         </div>
+
+         <div id="notifyelement_success" class="uk-alert-success uk-text-break" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p t-message=".textContent"></p>
+         </div>
+
          <ul id="logcontainer" class="uk-list uk-list-divider uk-list-collapse"
             tfunc="UpdateLogs">
          </ul>
@@ -793,16 +803,19 @@ function leftpaneclick(event)
             <span t-text=".textContent"></span>
          </label>
 
+         <div id="userdropdown" t-user=".internal(userdropdown)"
+            uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
+            <a t-link=".spa()" class="username" t-username=".textContent"></a>
+            <div class="uk-flex uk-flex-middle userdata">
+               <span class="userid uk-margin-small-right" t-id=".textContent"></span>
+               <time class="uk-margin-small-right" t-createdate=".textContent"></time>
+               <span class="usersuper" t-super=".external(show)" uk-icon="star" hidden></span>
+            </div>
+         </div>
+
          <div id="discussionuser" t-user=".internal(discussionuser)" class="uk-flex-none">
             <img t-avatar=".internal(icon)" width=40>
-            <div uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
-               <a t-userlink=".spa()" class="username" t-username=".textContent"></a>
-               <div class="uk-flex uk-flex-middle userdata">
-                  <span class="userid uk-margin-small-right" t-id=".textContent"></span>
-                  <time class="uk-margin-small-right" t-date=".textContent"></time>
-                  <span class="usersuper" t-super=".external(show)" uk-icon="star" hidden></span>
-               </div>
-            </div>
+            <div tlink="userdropdown"></div>
          </div>
 
          <span id="pageicon" t-page=".internal(pageicon)" t-type=".internal(typeicon)" 
@@ -820,6 +833,14 @@ function leftpaneclick(event)
                <img t-useravatar=".internal(icon)" width=25>
                <div t-pinned=".external(show)" class="uk-cover pin" hidden>📌</div>
             </a>
+         </div>
+
+         <div id="stdcontentinfo" t-content=".internal(stdcontentinfo)" 
+            class="uk-flex uk-flex-middle uk-width-expand">
+            <img t-createuseravatar=".internal(icon)" width=20>
+            <div tlink="userdropdown" tname="createuserdropdown"
+               uk-dropdown="boundary: #website; pos: top-left;"></div>
+            <time class="uk-text-meta" t-createdate=".textContent"></time>
          </div>
 
          <div id="historyitem" t-id="data-activityid" t-activity=".internal(historyitem)" 
@@ -1113,14 +1134,6 @@ function leftpaneclick(event)
 
       </template>
       <template id="templates_old"> <!-- style="display: none">-->
-         <div id="error" class="uk-alert-danger uk-text-break" uk-alert>
-            <a class="uk-alert-close" uk-close></a>
-            <p data-message=".textContent"></p>
-         </div>
-         <div id="success" class="uk-alert-success uk-text-break" uk-alert>
-            <a class="uk-alert-close" uk-close></a>
-            <p data-message=".textContent"></p>
-         </div>
          <div id="spinner" uk-spinner></div>
          <li id="fupmain"><img data-imgsrc="data-src" width="" height="" alt=""
             class="uk-responsive-height uk-responsive-width uk-align-center"></li> 
@@ -1174,12 +1187,6 @@ function leftpaneclick(event)
                   </tr>
                </table>
             </div>
-         </div>
-         <div id="stdcontentinfo" class="uk-flex uk-flex-middle uk-width-expand">
-            <!-- That's right, I'm using flex to fix the image offset crap-->
-            <a data-spa class="uk-flex-none uk-flex uk-flex-middle" 
-               data-createlink="href"><img data-createavatar="src" width=20 height=20></a>
-            <time class="uk-text-meta" data-createdate=".textContent"></time>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
          <div data-nouikit id="discussion" data-discussionid="data-did" data-id="id" class="">
