@@ -492,6 +492,34 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.sbhardware.text = "";
       }
    },
+   messagefragment : (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         createdate : v.createDate,
+         editdate : v.editDate,
+         content : v.content
+      });
+   },
+   messagefragment_editfunc : (v, ce, tobj) =>
+   {
+      ce.onclick = (event) =>
+      {
+         event.preventDefault();
+         tobj.fields.messagefragmenteditfunc(event);
+      };
+   },
+   messageframe : (v, ce, tobj) =>
+   {
+      var parsed = FrontendCoop.ParseComment(v.content);
+
+      tobj.SetFields({
+         userid : v.createUser.id,
+         useravatar : parsed.a || v.createUser.avatar,
+         userlink : Links.User(v.createUser.id),
+         username : v.createUser.username,
+         frametime : v.createDate
+      });
+   },
 
    //Routes
    //----------------------------------
@@ -607,6 +635,20 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       //Don't render if there's nothing.
       if(v.content)
          ce.appendChild(Parse.parseLang(v.content, v.values.markupLang)); 
+   },
+   rendercomment_get : (ce, tobj) => ce.getAttribute("data-raw"),
+   rendercomment_set : (v, ce, tobj) =>
+   {
+      ce.setAttribute("data-raw", v);
+      ce.innerHTML = "";
+
+      //Don't render if there's nothing.
+      if(v)
+      {
+         //TODO: direct dependency on API.js (is this OK?)
+         var parsed = FrontendCoop.ParseComment(v);
+         ce.appendChild(Parse.parseLang(parsed.t, parsed.m));
+      }
    },
    list_get : (ce, tobj, name, args) => 
    {

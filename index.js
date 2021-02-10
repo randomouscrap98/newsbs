@@ -881,7 +881,7 @@ function sendDiscussionMessage(message, markup, error)
    var currentDiscussion = getActiveDiscussionId();
    var sendData = {
       "parentId" : Number(currentDiscussion),
-      "content" : createComment(message, markup)
+      "content" : FrontendCoop.CreateComment(message, markup)
    };
 
    globals.api.Post("comment", sendData, undefined, error );
@@ -1792,7 +1792,7 @@ function quickLoad(spadat)
          }
          initializePage("quickload");
          unhide(maincontentloading);
-         if(typeHasDiscussion(spadat.page) && spadat.page !== "user")
+         if(FrontendCoop.TypeHasDiscussion(spadat.page) && spadat.page !== "user")
          {
             showDiscussion(Number(spadat.id));
             formatRememberedDiscussion(spadat.id, true); //last doesn't matter, default to whatever
@@ -2251,7 +2251,7 @@ function handleAlerts(comments, users)
                var name = getSwap(pw, "pwname");
                var notification = new Notification(users[x.createUserId].username + ": " + name, {
                   tag : "comment" + x.id,
-                  body : parseComment(x.content).t,
+                  body : FrontendCoop.ParseComment(x.content).t,
                   icon : getAvatarLink(users[x.createUserId].avatar, 100),
                });
             }
@@ -2259,7 +2259,7 @@ function handleAlerts(comments, users)
             {
                document.head.querySelector("link[data-favicon]").href = getAvatarLink(
                   users[x.createUserId].avatar, 40);
-               document.title = parseComment(x.content).t; //.substr(0, 100);
+               document.title = FrontendCoop.ParseComment(x.content).t; //.substr(0, 100);
             }
          });
       }
@@ -3248,7 +3248,7 @@ function renderComment(elm, repl)
    if(repl)
    {
       elm.setAttribute("data-rawmessage", repl);
-      var comment = parseComment(repl);
+      var comment = FrontendCoop.ParseComment(repl);
       elm.innerHTML = "";
       elm.appendChild(Parse.parseLang(comment.t, comment.m));
    }
@@ -3403,7 +3403,7 @@ function messageControllerEvent(event)
    commenteditpreview.innerHTML = "";
    commenteditpreview.appendChild(frame);
 
-   var parsedcm = parseComment(rawcm);
+   var parsedcm = FrontendCoop.ParseComment(rawcm);
    commentedittext.value = parsedcm.t;
    commenteditformat.value = parsedcm.m;
    commenteditinfo.textContent = "ID: " + cmid + "  UID: " + getSwap(oframe, "data-userid");
@@ -3433,7 +3433,7 @@ function messageControllerEvent(event)
       { 
          globals.api.Put("comment/" + cmid, 
             {parentId : Number(getActiveDiscussionId()), 
-               content: createComment(commentedittext.value, commenteditformat.value)},
+               content: FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value)},
                x => { if(getLocalOption("generaltoast")) notifySuccess("Comment edited"); },
                x => notifyError("Couldn't edit comment: " + x.request.status + " - " + x.request.statusText));
                UIkit.modal(commentedit).hide();
@@ -3442,7 +3442,7 @@ function messageControllerEvent(event)
 
    commenteditshowpreview.onclick = function() 
    { 
-      findSwap(msg, "data-message", createComment(commentedittext.value, commenteditformat.value));
+      findSwap(msg, "data-message", FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value));
    };
 
    UIkit.modal(commentedit).show();

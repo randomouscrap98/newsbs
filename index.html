@@ -860,6 +860,44 @@ function leftpaneclick(event)
                class="uk-link-text title uk-text-truncate"></a>
          </div>
 
+         <!-- TODO: move all this data-identifier crap out, make the template
+            deal with it. -->
+         <div id="discussion" data-nouikit t-id="data-discussionid" class="">
+            <div data-loadolder class="uk-margin-small-right uk-text-right">
+               <div data-loading uk-spinner="ratio: 0.5" hidden></div>
+               <a href="#" data-loadmore class="uk-text-meta">Load older</a>
+            </div>
+            <p data-nocomments class="uk-text-meta uk-padding-small uk-text-center
+               uk-width-expand" hidden>No comments (yet!)</p>
+            <!-- A placeholder, so inserting will always have a place to stop searching -->
+            <!--<div tlink="messageframe" tdata='{"userid":"0"}'></div>
+            <div data-tmpl="messageframe" data-tmpld='{"userid":"0"}' style="display: none">
+               <div data-tmpl="singlemessage" data-tmpld='{"messageid":"0"}'>
+               </div>
+            </div>-->
+         </div>
+
+         <div id="messageframe" data-nouikit t-message=".internal(messageframe)"
+            t-userid="data-uid" class="uk-flex uk-flex-top">
+            <img class="uk-flex-none avatar" t-useravatar=".internal(icon)" width=60>
+            <div class="messageframemain uk-width-expand">
+               <div class="messageframeinfo uk-flex uk-flex-middle">
+                  <a t-userlink=".spa()" class="uk-flex-none username" 
+                     t-username=".textContent"></a>
+                  <time class="uk-text-meta uk-width-expand uk-text-truncate
+                     uk-margin-small-left" t-frametime=".textContent"></time>
+               </div>
+               <div data-nouikit class="messagelist"> </div>
+            </div>
+         </div>
+
+         <div id="messagefragment" data-nouikit tabindex="2" t-message=".internal(messagefragment)" 
+             t-createdate=".internal()" t-editdate=".internal()" class="uk-flex">
+            <div t-content=".rendercomment()" class="uk-width-expand content uk-text-break"></div>
+            <a href="#" t-editfunc=".internal(messagefragment_editfunc)" 
+               class="messagecontrol hover" data-loginonly>?</a>
+         </div>
+
          <div id="modulemessage" class="uk-flex uk-flex-top uk-text-meta" 
             t-modulemessage=".internal(modulemessage)" t-id="data-messageid">
             <time t-time=".textContent"></time>
@@ -1132,6 +1170,17 @@ function leftpaneclick(event)
             </div>
          </div>
 
+         <div id="routetest" class="uk-container uk-margin-top uk-margin-bottom">
+            <!--<div data-tmpl="categoryselect" data-tmpld='{"data-value":503}'></div>-->
+            <!--<div data-tmpl="minisearch" data-tmpld='{"data-placeholder":"search or whatever"}'></div>-->
+            <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
+            <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
+            <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
+            <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
+            <button
+               onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
+         </div>
+
       </template>
       <template id="templates_old"> <!-- style="display: none">-->
          <div id="spinner" uk-spinner></div>
@@ -1189,37 +1238,6 @@ function leftpaneclick(event)
             </div>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <div data-nouikit id="discussion" data-discussionid="data-did" data-id="id" class="">
-            <div data-loadolder class="uk-margin-small-right uk-text-right">
-               <div data-loading uk-spinner="ratio: 0.5" hidden></div>
-               <a href="#" data-loadmore class="uk-text-meta">Load older</a>
-            </div>
-            <p data-nocomments class="uk-text-meta uk-padding-small uk-text-center
-               uk-width-expand" hidden>No comments (yet!)</p>
-            <!-- A placeholder, so inserting will always have a place to stop searching -->
-            <div data-tmpl="messageframe" data-tmpld='{"userid":"0"}' style="display: none">
-               <div data-tmpl="singlemessage" data-tmpld='{"messageid":"0"}'>
-               </div>
-            </div>
-         </div>
-         <div id="messageframe" data-nouikit data-userid="data-uid" class="uk-flex uk-flex-top">
-            <img class="uk-flex-none avatar" data-useravatar="src">
-            <div class="messageframemain uk-width-expand">
-               <div class="messageframeinfo uk-flex uk-flex-middle">
-                  <a data-spa data-userlink="href" class="uk-flex-none username" 
-                     data-username=".textContent"></a>
-                  <time class="uk-text-meta uk-width-expand uk-text-truncate
-                     uk-margin-small-left" data-frametime=".textContent"></time>
-               </div>
-               <div data-nouikit class="messagelist"> </div>
-            </div>
-         </div>
-         <div id="singlemessage" data-nouikit tabindex="2" data-messageid data-id="id" 
-            data-createdate data-editdate class="uk-flex">
-            <div data-message=".renderComment" class="uk-width-expand 
-               content uk-text-break"></div>
-            <a href="#" class="messagecontrol .hover" data-loginonly>?</a>
-         </div>
          <li id="breadcrumb">
             <a data-link="href" data-spa data-text=".textContent"
                class=""></a>
@@ -1386,17 +1404,6 @@ function leftpaneclick(event)
          <div id="routeerror" class="uk-container uk-margin-top uk-margin-bottom">
             <h1>ERROR - <span data-title=".textContent"></span></h1>
             <p data-message=".textContent" class="uk-text-danger"></p>
-         </div>
-         <div id="routetest" class="uk-container uk-margin-top uk-margin-bottom">
-               <!--<div data-tmpl="categoryselect"
-                  data-tmpld='{"data-value":503}'></div>-->
-               <!--<div data-tmpl="minisearch" data-tmpld='{"data-placeholder":"search or whatever"}'></div>-->
-      <button onclick="notifySuccess('Oh wow, look at that!')">Notify suc</button>
-      <button onclick="notifySuccess('Oh wow, look at that! This is a message that will absolutely overflow')">Notify suc big</button>
-      <button onclick="notifySuccess('i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i i')">Notify suc big</button>
-      <button onclick="notifyError('Oh wow, look at that!')">Notify err</button>
-      <button
-         onclick="notifyError('jkfdls;jkfdsjfdklsfjdkfeirjdkfdkskcmdsfjdkfjdksfjdaklsfjdfdfdklfjdskfdkslfjdskfkdsjfdklsfjdkslfjdkslfjdkfjdskmksdlj')">Notify err</button>
          </div>
          <div id="routecategoryedit" data-leaveprotect class="uk-container uk-margin-top uk-margin-bottom">
             <h1 data-title=".textContent" class="uk-inline"></h1>

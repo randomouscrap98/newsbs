@@ -604,9 +604,9 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          //var func = fieldname.substr(6);
          var parts = StripField(currentelement, fieldname).split("/");
          var func = parts[0];
-         var pollfunc = parts[1] || func;
+         var poolfunc = parts[1] || func;
 
-         _CheckFunctionPool(pollfunc, tobj);
+         _CheckFunctionPool(poolfunc, tobj);
 
          //Define a function on the tobj itself (if possible, it can't collide)
          //which calls a function within the function pool but WITH the template
@@ -614,7 +614,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          {
             args.push(tobj);
             args.push(currentelement);
-            tobj.functionPool[pollfunc].call(tobj.functionPool[pollfunc], ...args);
+            tobj.functionPool[poolfunc].call(tobj.functionPool[poolfunc], ...args);
          };
 
          SingleFieldValue(tobj, func, f);
@@ -631,6 +631,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
 
          if(nowstart >= 0)
          {
+            //Note: "pipe" is used to pass data to the field IN the template.
             nowdat = value.substr(nowstart + 1);
             value = value.slice(0, nowstart);
          }
