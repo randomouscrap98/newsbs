@@ -9,6 +9,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _rawremove : [ "_template", "parentCategory", "childpages", "childCategories" ],
    _templateData : "tmpldat_",
    _includekey : "include_",
+   _commentId : (id) => "comment-" + id,
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
@@ -75,6 +76,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    signal: (signal) => console.log("Ignoring template signal " + signal + "; please inject click handler"),
    imageLink: (id, size, square) => { throw "No image linker defined for Templates object!"; },
    links : {},
+   log : false, //This HAS to be overridden, otherwise things fail!
 
    //"Global" functions for people using the template system from the outside
    //(the internal machinations don't really need these)
@@ -141,7 +143,20 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 
       ce.scrollTop = ce.scrollHeight;
    },
+   HandleComment_Discussion: function(comment, tobj, ce)
+   {
+      //As comments come in, they are all the same format, but represent
+      //different actions. Handle any action here.
+      if(comment.parentId != tobj.fields.discussionid)
+      {
+         log.Warn("Tried to handle comment in incorrect discussion. " +
+           `DiscussionID: ${tobj.fields.discussionid}, commentParent: ${}`);
+         return;
+      }
 
+      //TODO: DON'T assume the discussion is IN the document!! It's fine for now but...
+      var existing = document.getElementById(_commentId(comment.id));
+   },
    //Generic helper functions for any internal/external set to call
    //----------------------------------
    show: (v, ce) =>
@@ -151,10 +166,16 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       else
          ce.setAttribute("hidden", "");
    },
-   click: (v, ce) =>
-   {
-      ce.onclick = (e) => v(e, ce, tobj);
-   },
+   //click: (v, ce, tobj, name) =>
+   //{
+   //   //Remove the existing event handler
+   //   ce.removeEventListener("click", tobj.fields[name]);
+   //   ce.addEventListener("click", (event) =>
+   //   {
+   //      event.preventDefault();
+   //      v(e, ce, tobj)
+   //   });
+   //},
    icon: (v, ce) =>
    {
       var vn = Number(v);
@@ -500,14 +521,14 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          content : v.content
       });
    },
-   messagefragment_editfunc : (v, ce, tobj) =>
-   {
-      ce.onclick = (event) =>
-      {
-         event.preventDefault();
-         tobj.fields.messagefragmenteditfunc(event);
-      };
-   },
+   //messagefragment_editfunc : (v, ce, tobj) =>
+   //{
+   //   ce.onclick = (event) =>
+   //   {
+   //      event.preventDefault();
+   //      tobj.fields.messagefragmenteditfunc(event);
+   //   };
+   //},
    messageframe : (v, ce, tobj) =>
    {
       var parsed = FrontendCoop.ParseComment(v.content);

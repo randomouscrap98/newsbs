@@ -385,19 +385,19 @@ a:hover { color: inherit; }
 #discussions {
    overflow-anchor: none;
 }
-[data-messageframe] {
+[data-template="messageframe"] {
    padding: 0.3em 0;
 }
-[data-messageframe] .avatar {
+[data-template="messageframe"] .avatar {
    margin: 0.3em;
    margin-bottom: 0;
    width: 30px;
    height: 30px;
 }
-[data-messageframe] .messagelist {
+[data-template="messageframe"] [data-messagelist] {
    padding: 0.0em 0.5em 0.0em 0.5em;
 }
-[data-messageframe] .messagecontrol {
+[data-template="messageframe"] .messagecontrol {
    visibility: hidden;
    width: 20px;
    height: 20px;
@@ -412,26 +412,26 @@ a:hover { color: inherit; }
    background-color: var(--blockbgcolor);
    /*color: var(--mainbgcolor);*/
 }
-[data-messageframe] time {
+[data-template="messageframe"] time {
    font-size: 0.75em;
 }
-[data-singlemessage]:focus, [data-singlemessage]:hover  {
+[data-template="messagefragment"]:focus, [data-template="messagefragment"]:hover  {
    background-color: var(--lightblockbgcolor);
    border: none;
    outline: none;
 }
-[data-singlemessage]:focus .messagecontrol,
-[data-singlemessage]:hover .messagecontrol {
+[data-template="messagefragment"]:focus .messagecontrol,
+[data-template="messagefragment"]:hover .messagecontrol {
    visibility: visible;
 }
-[data-singlemessage] .content [data-contentimage] {
+[data-template="messagefragment"] .content [data-contentimage] {
    font-size: 0;
    min-height: 100px;
    max-height: 55vh;
    width: 100%;
    margin: 0.5rem 0;
 }
-[data-singlemessage] .content img {
+[data-template="messagefragment"] .content img {
    max-height: 100px;
    max-width: 100%;
    height: auto;
@@ -440,7 +440,7 @@ a:hover { color: inherit; }
    border: none;
    outline: none;
 }
-[data-singlemessage] .content [data-contentimage] img[data-expand] {
+[data-template="messagefragment"] .content [data-contentimage] img[data-expand] {
    max-height: 55vh;
 }
 .spoilerButton {
@@ -749,7 +749,7 @@ pre .constant { color: var(--codeconstant); }
    .pagecontrol { margin: 0 3px; }
    .pagetitle .pagecontrols { margin-right: -15px !important; }
    #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
-   [data-messageframe] .avatar { width: 60px; height: 60px; }
+   [data-template="messageframe"] .avatar { width: 60px; height: 60px; }
 }
 
 /* Dark mode? */

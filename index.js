@@ -98,6 +98,7 @@ DomDeps.signal = (name, data) => signals.Add(name, data);
 Templates.signal = (name, data) => signals.Add(name, data);
 Templates.imageLink = getComputedImageLink;
 Templates.links = Links;
+Templates.log = log;
 
 
 window.Notification = window.Notification || {};
@@ -2117,10 +2118,13 @@ function makeImageCollection(name)
 {
    var fragment = new DocumentFragment();
    var base = cloneTemplate("collection");
-   var select = cloneTemplate("imageselect");
-   multiSwap(select, {
-      action : () => { globals.fileselectcallback = id => addImageItem(id, base) }
+   var select = Templates.LoadHere("imageselect", { selectimage : 
+      () => { globals.fileselectcallback = id => addImageItem(id, base) }
    });
+   //cloneTemplate("imageselect");
+   //multiSwap(select, {
+   //   action : () => { globals.fileselectcallback = id => addImageItem(id, base) }
+   //});
    multiSwap(base, {
       name : name
    });

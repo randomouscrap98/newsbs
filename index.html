@@ -46,13 +46,13 @@ function loginEmailSwitch(element)
    }
 }
 //Scripts for templates/THIS file etc
-function loglevel(el, replace)
-{
-   var loglevel = "log_" + replace;
-   if(el.className.indexOf(loglevel) < 0)
-      el.className += " " + loglevel;
-   return loglevel;
-}
+//function loglevel(el, replace)
+//{
+//   var loglevel = "log_" + replace;
+//   if(el.className.indexOf(loglevel) < 0)
+//      el.className += " " + loglevel;
+//   return loglevel;
+//}
 function selectOptionSetup(el, replace)
 {
    if(replace)
@@ -97,21 +97,21 @@ function typeToIcon(el, replace)
    } 
    return el.curicon;
 }
-function systemToIcon(el, replace)
-{
-   if(replace !== undefined)
-   {
-      el.system = replace;
-
-      if(stoic[replace])
-      {
-         el.querySelector("[data-icon]").setAttribute("data-src", stoic[replace].i);
-         el.querySelector("[data-text]").textContent = stoic[replace].t;
-      }
-   }
-
-   return el.system;
-}
+//function systemToIcon(el, replace)
+//{
+//   if(replace !== undefined)
+//   {
+//      el.system = replace;
+//
+//      if(stoic[replace])
+//      {
+//         el.querySelector("[data-icon]").setAttribute("data-src", stoic[replace].i);
+//         el.querySelector("[data-text]").textContent = stoic[replace].t;
+//      }
+//   }
+//
+//   return el.system;
+//}
 function pwcountset(el, replace)
 {
    if(replace !== undefined)
@@ -124,17 +124,17 @@ function pwcountset(el, replace)
    }
    return el.textContent;
 }
-function leftPanePerms(el, replace)
-{
-   if(replace !== undefined)
-   {
-      if(replace)
-         leftpane.setAttribute("data-permissions", replace.toUpperCase());
-      else
-         leftpane.removeAttribute("data-permissions");
-   }
-   return el.textContent;
-}
+//function leftPanePerms(el, replace)
+//{
+//   if(replace !== undefined)
+//   {
+//      if(replace)
+//         leftpane.setAttribute("data-permissions", replace.toUpperCase());
+//      else
+//         leftpane.removeAttribute("data-permissions");
+//   }
+//   return el.textContent;
+//}
 function srcUnhide(el, replace)
 {
    if(replace !== undefined)
@@ -152,22 +152,22 @@ function srcUnhide(el, replace)
    }
    return el.src;
 }
-function simpleAction(el, replace)
-{
-   if(replace)
-   {
-      if(!el.simpact)
-      {
-         el.addEventListener("click", (e) =>
-         {
-            e.preventDefault();
-            el.simpact(el);
-         });
-      }
-      el.simpact = replace;
-   }
-   return el.simpact;
-}
+//function simpleAction(el, replace)
+//{
+//   if(replace)
+//   {
+//      if(!el.simpact)
+//      {
+//         el.addEventListener("click", (e) =>
+//         {
+//            e.preventDefault();
+//            el.simpact(el);
+//         });
+//      }
+//      el.simpact = replace;
+//   }
+//   return el.simpact;
+//}
 //function simpleAction(el, replace)
 //{
 //   if(replace)
@@ -215,14 +215,14 @@ function showdrop(el, show)
       }, 300);
    }
 }
-function retext(el, attr)
-{
-   [...el.childNodes].forEach(x =>
-   {
-      if(x.getAttribute)
-         x.textContent = x.getAttribute(attr);
-   });
-}
+//function retext(el, attr)
+//{
+//   [...el.childNodes].forEach(x =>
+//   {
+//      if(x.getAttribute)
+//         x.textContent = x.getAttribute(attr);
+//   });
+//}
 function leftpaneclick(event)
 {
    if(event.target.hasAttribute("data-contentimageimage"))
@@ -803,6 +803,10 @@ function leftpaneclick(event)
             <span t-text=".textContent"></span>
          </label>
 
+         <!-- TODO: this might override the toggle function on click! -->
+         <button id="imageselect" class="uk-button uk-button-default"
+            t-selectimage=".onclick" type="button" uk-toggle="target: #fileupload">Upload / Pick</button>
+
          <div id="userdropdown" t-user=".internal(userdropdown)"
             uk-dropdown="boundary: #website; pos: bottom-left;" class="userdropdown">
             <a t-link=".spa()" class="username" t-username=".textContent"></a>
@@ -862,13 +866,19 @@ function leftpaneclick(event)
 
          <!-- TODO: move all this data-identifier crap out, make the template
             deal with it. -->
-         <div id="discussion" data-nouikit t-id="data-discussionid" class="">
+         <!-- All of the children associated with discussions have fields that
+         link to their parents. PLEASE make sure to use these, as discussions
+         are a complex system and it's easier to just have references as needed. -->
+         <div id="discussion" data-nouikit t-discussionid class="">
             <div data-loadolder class="uk-margin-small-right uk-text-right">
                <div data-loading uk-spinner="ratio: 0.5" hidden></div>
                <a href="#" data-loadmore class="uk-text-meta">Load older</a>
             </div>
             <p data-nocomments class="uk-text-meta uk-padding-small uk-text-center
                uk-width-expand" hidden>No comments (yet!)</p>
+            <!-- New: Stop using stupid 0 id placeholders, start using a proper
+             container for messages and detecting the top -->
+            <div data-comments tfunc="HandleComment_Discussion"> </div>
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <!--<div tlink="messageframe" tdata='{"userid":"0"}'></div>
             <div data-tmpl="messageframe" data-tmpld='{"userid":"0"}' style="display: none">
@@ -878,7 +888,7 @@ function leftpaneclick(event)
          </div>
 
          <div id="messageframe" data-nouikit t-message=".internal(messageframe)"
-            t-userid="data-uid" class="uk-flex uk-flex-top">
+            t-discussion=".internal()" t-userid="data-uid" class="uk-flex uk-flex-top">
             <img class="uk-flex-none avatar" t-useravatar=".internal(icon)" width=60>
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
@@ -887,14 +897,14 @@ function leftpaneclick(event)
                   <time class="uk-text-meta uk-width-expand uk-text-truncate
                      uk-margin-small-left" t-frametime=".textContent"></time>
                </div>
-               <div data-nouikit class="messagelist"> </div>
+               <div data-nouikit data-messagelist> </div>
             </div>
          </div>
 
          <div id="messagefragment" data-nouikit tabindex="2" t-message=".internal(messagefragment)" 
-             t-createdate=".internal()" t-editdate=".internal()" class="uk-flex">
+             t-frame=".internal()" t-createdate=".internal()" t-editdate=".internal()" class="uk-flex">
             <div t-content=".rendercomment()" class="uk-width-expand content uk-text-break"></div>
-            <a href="#" t-editfunc=".internal(messagefragment_editfunc)" 
+            <a href="#" t-editfunc=".onclick" 
                class="messagecontrol hover" data-loginonly>?</a>
          </div>
 
@@ -1323,8 +1333,6 @@ function leftpaneclick(event)
                 class="uk-margin-small-right myinput uk-flex-none" >
          </div>
          <img id="imageitem" data-id data-src="src">
-         <button id="imageselect" class="uk-button uk-button-default"
-            data-action=".simpleAction" type="button" uk-toggle="target: #fileupload">Upload / Pick</button>
          <div id="categoryselect">
             <div data-loading uk-spinner></div>
             <!-- This is a SPECIAL select and will ALWAYS have its options
