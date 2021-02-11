@@ -443,7 +443,7 @@ function setupSignalProcessors()
    //proper dependency injection and interfacing and all that, this is a 
    //simple-ish project. They should follow the _event convention to distinguish them
    signals.Attach("wdom", data => data());
-   signals.Attach("loadoldercomments_event", data => loadOlderComments(data));
+   //signals.Attach("loadoldercomments_event", data => loadOlderComments(data));
    signals.Attach("spaclick_event", data => globals.spa.ProcessLinkContextAware(data.url));
    signals.Attach("localsettingupdate_event", data => setLocalOption(data.key, data.value));
    
@@ -1898,10 +1898,10 @@ function formatRememberedDiscussion(cid, show, type)
 function finishDiscussion(content, comments, users, initload)
 {
    var d = getDiscussion(content.id);
-   if(initload && (comments.length !== initload))
-      d.setAttribute(attr.atoldest, "");
+   //if(initload && (comments.length !== initload))
+   //   d.setAttribute(attr.atoldest, "");
    showDiscussion(content.id);
-   easyComments(comments, users, content.id);
+   easyComments(comments, initload); //, users); //, content.id);
    formatRememberedDiscussion(content.id, true, content.type);
 
    signals.Add("finishdiscussion", { content: content, comments: comments, users: users, initload: initload});
@@ -2299,7 +2299,7 @@ function handleLongpollData(lpdata)
          );
             //&& lpdata.clearNotifications.indexOf(x.parentId) < 0));
          handleAlerts(data.chains.comment, users);
-         writeDom(() => easyComments(data.chains.comment, users));
+         writeDom(() => easyComments(data.chains.comment)); //users));
       }
 
       if(data.chains.activity)
@@ -2476,38 +2476,37 @@ function makePWUser(user)
    return pu;
 }
 
-function makeCommentFrame(comment) //, users)
-{
-   //var u = users[comment.createUserId];
-   return Templates.LoadHere("messageframe", { message : comment }); 
-   //cloneTemplate("messageframe");
-   //multiSwap(frame, {
-   //   userid: comment.createUserId,
-   //   userlink: Links.User(comment.createUserId),
-   //   useravatar: getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
-   //   username: u.username,
-   //   frametime: (new Date(comment.createDate)).toLocaleString()
-   //});
-   //finalizeTemplate(frame);
-   //return frame;
-}
+//function makeCommentFrame(comment) //, users)
+//{
+//   //var u = users[comment.createUserId];
+//   //cloneTemplate("messageframe");
+//   //multiSwap(frame, {
+//   //   userid: comment.createUserId,
+//   //   userlink: Links.User(comment.createUserId),
+//   //   useravatar: getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
+//   //   username: u.username,
+//   //   frametime: (new Date(comment.createDate)).toLocaleString()
+//   //});
+//   //finalizeTemplate(frame);
+//   //return frame;
+//}
 
-function makeCommentFragment(comment)//, users)
-{
-   return Templates.LoadHere("messagefragment", { 
-      message : comment ,
-      editfunc : messageControllerEvent
-   } );
-   //var fragment = cloneTemplate("singlemessage");
-   //multiSwap(fragment, {
-   //   messageid: comment.id,
-   //   id: getCommentId(comment.id),
-   //   createdate: comment.createDate,
-   //   editdate: comment.editdate
-   //});
-   //finalizeTemplate(fragment);
-   //return fragment;
-}
+//function makeCommentFragment(comment)//, users)
+//{
+//   return Templates.LoadHere("messagefragment", { 
+//      message : comment ,
+//      editfunc : messageControllerEvent
+//   } );
+//   //var fragment = cloneTemplate("singlemessage");
+//   //multiSwap(fragment, {
+//   //   messageid: comment.id,
+//   //   id: getCommentId(comment.id),
+//   //   createdate: comment.createDate,
+//   //   editdate: comment.editdate
+//   //});
+//   //finalizeTemplate(fragment);
+//   //return fragment;
+//}
 
 
 //-------------------------------------------------
@@ -3186,96 +3185,96 @@ function clearWatchVisual(contentId)
 // ---- Discussion ----
 // ********************
 
-function loadOlderCommentsActive()
-{
-   if(!globals.loadingOlderDiscussions && 
-      globals.loadingOlderDiscussionsTime < performance.now() - 
-      getLocalOption("scrolldiscloadcooldown"))
-   {
-      var activeDiscussion = getActiveDiscussion();
+//function loadOlderCommentsActive()
+//{
+//   if(!globals.loadingOlderDiscussions && 
+//      globals.loadingOlderDiscussionsTime < performance.now() - 
+//      getLocalOption("scrolldiscloadcooldown"))
+//   {
+//      var activeDiscussion = getActiveDiscussion();
+//
+//      if(!activeDiscussion.hasAttribute(attr.atoldest))
+//         loadOlderComments(activeDiscussion);
+//   }
+//}
+//
+//function loadOlderComments(discussion)
+//{
+//   globals.loadingOlderDiscussions = true;
+//
+//   var did = getSwap(discussion, "discussionid");
+//   log.Info("Loading older messages in " + did);
+//
+//   var loading = discussion.querySelector("[data-loadolder] [data-loading]");
+//   writeDom(() => unhide(loading));
+//
+//   var minId = Number.MAX_SAFE_INTEGER;
+//   var msgs = discussion.querySelectorAll('[data-template="messageframe"] [data-messageid]');
+//
+//   for(var i = 0; i < msgs.length; i++)
+//   {
+//      var messageId = Number(msgs[i].getAttribute("data-messageid"));
+//      if(messageId > 0)
+//         minId = Math.min(minId, messageId);
+//   }
+//
+//   var initload = getLocalOption("oldloadcomments");
+//   var params = new URLSearchParams();
+//   params.append("requests", "comment-" + JSON.stringify({
+//      Reverse : true,
+//      Limit : initload,
+//      ParentIds : [ Number(did) ],
+//      MaxId : Number(minId)
+//   }));
+//   params.append("requests", "user.0createUserId.0edituserId");
+//
+//   globals.api.Chain(params, apidata =>
+//   {
+//      log.Datalog("check dev log for oldcomments: ", apidata);
+//      var data = apidata.data;
+//      var users = idMap(data.user);
+//      writeDom(() =>
+//      {
+//         var oldHeight = discussions.scrollHeight;
+//         var oldScroll = discussions.scrollTop;
+//         easyComments(data.comment, users);
+//         discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
+//
+//         if(data.comment.length !== initload)
+//            discussion.setAttribute(attr.atoldest, "");
+//      });
+//   }, undefined, apidata => /* always */
+//   {
+//      globals.loadingOlderDiscussions = false;
+//      globals.loadingOlderDiscussionsTime = performance.now();
+//      writeDom(() => hide(loading));
+//   });
+//}
 
-      if(!activeDiscussion.hasAttribute(attr.atoldest))
-         loadOlderComments(activeDiscussion);
-   }
-}
+//function renderComment(elm, repl)
+//{
+//   if(repl)
+//   {
+//      elm.setAttribute("data-rawmessage", repl);
+//      var comment = FrontendCoop.ParseComment(repl);
+//      elm.innerHTML = "";
+//      elm.appendChild(Parse.parseLang(comment.t, comment.m));
+//   }
+//
+//   return elm.getAttribute("data-rawmessage");
+//}
 
-function loadOlderComments(discussion)
-{
-   globals.loadingOlderDiscussions = true;
-
-   var did = getSwap(discussion, "discussionid");
-   log.Info("Loading older messages in " + did);
-
-   var loading = discussion.querySelector("[data-loadolder] [data-loading]");
-   writeDom(() => unhide(loading));
-
-   var minId = Number.MAX_SAFE_INTEGER;
-   var msgs = discussion.querySelectorAll('[data-template="messageframe"] [data-messageid]');
-
-   for(var i = 0; i < msgs.length; i++)
-   {
-      var messageId = Number(msgs[i].getAttribute("data-messageid"));
-      if(messageId > 0)
-         minId = Math.min(minId, messageId);
-   }
-
-   var initload = getLocalOption("oldloadcomments");
-   var params = new URLSearchParams();
-   params.append("requests", "comment-" + JSON.stringify({
-      Reverse : true,
-      Limit : initload,
-      ParentIds : [ Number(did) ],
-      MaxId : Number(minId)
-   }));
-   params.append("requests", "user.0createUserId.0edituserId");
-
-   globals.api.Chain(params, apidata =>
-   {
-      log.Datalog("check dev log for oldcomments: ", apidata);
-      var data = apidata.data;
-      var users = idMap(data.user);
-      writeDom(() =>
-      {
-         var oldHeight = discussions.scrollHeight;
-         var oldScroll = discussions.scrollTop;
-         easyComments(data.comment, users);
-         discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
-
-         if(data.comment.length !== initload)
-            discussion.setAttribute(attr.atoldest, "");
-      });
-   }, undefined, apidata => /* always */
-   {
-      globals.loadingOlderDiscussions = false;
-      globals.loadingOlderDiscussionsTime = performance.now();
-      writeDom(() => hide(loading));
-   });
-}
-
-function renderComment(elm, repl)
-{
-   if(repl)
-   {
-      elm.setAttribute("data-rawmessage", repl);
-      var comment = FrontendCoop.ParseComment(repl);
-      elm.innerHTML = "";
-      elm.appendChild(Parse.parseLang(comment.t, comment.m));
-   }
-
-   return elm.getAttribute("data-rawmessage");
-}
-
-function updateCommentFragment(comment, element)
-{
-   //nothing for now, but there might be other things
-   element.template.SetFields({
-      message : comment
-   });
-   //multiSwap(element, {
-   //   message: comment.content,
-   //   editdate: comment.editDate //new Date(comment.editDate).toLocaleString()
-   //});
-}
+//function updateCommentFragment(comment, element)
+//{
+//   //nothing for now, but there might be other things
+//   element.template.SetFields({
+//      message : comment
+//   });
+//   //multiSwap(element, {
+//   //   message: comment.content,
+//   //   editdate: comment.editDate //new Date(comment.editDate).toLocaleString()
+//   //});
+//}
 
 function getFragmentFrame(element)
 {
@@ -3283,27 +3282,34 @@ function getFragmentFrame(element)
    //x.hasAttribute("data-messageframe"));
 }
 
-function easyComments(comments, users, firstLoad)
+function easyComments(comments, expected) //users) //, firstLoad)
 {
    if(comments && comments.length)
    {
       var n = performance.now();
       globals.commentsrendered = (globals.commentsrendered || 0) + comments.length;
-      sortById(comments).forEach(x => easyComment(x, users));
-      signals.Add("easycomments", { comments: comments, users: users });
+      sortById(comments).forEach(x => easyComment(x)); //, users));
+
+      if(expected)
+      {
+         var d = getDiscussion(comments[0].parentId);
+         d.template.fields.hasmorecomments = comments.length == expected;
+      }
+
+      //signals.Add("easycomments", { comments: comments, users: users });
       //log.Debug("Rendered " + comments.length + " comments, " + globals.commentsrendered + " total");
       log.PerformanceLog("easyComments(" + comments.length + "," + globals.commentsrendered + "): " + 
          (performance.now() - n) + "ms");
    }
-   else if(firstLoad)
-   {
-      var d = getDiscussion(firstLoad);
-      var nocom = d.querySelector("[data-nocomments]");
-      unhide(nocom);
-   }
+   //else if(firstLoad)
+   //{
+   //   var d = getDiscussion(firstLoad);
+   //   var nocom = d.querySelector("[data-nocomments]");
+   //   unhide(nocom);
+   //}
 }
 
-function easyComment(comment, users)
+function easyComment(comment) //, users)
 {
    //First, find existing comment. If it's there, just update information?
    var existing = document.getElementById(getCommentId(comment.id));
@@ -3325,7 +3331,8 @@ function easyComment(comment, users)
       }
       else
       {
-         updateCommentFragment(comment, existing);
+         existing.template.SetFields({ message : comment });
+         //updateCommentFragment(comment, existing);
       }
    }
    else
@@ -3380,12 +3387,16 @@ function easyComment(comment, users)
           > (getLocalOption("breakchatmessagetime") * 1000))
       {
          //create a frame to insert into
-         newFrame = makeCommentFrame(comment, users);
+         newFrame = Templates.LoadHere("messageframe", { message : comment }); 
          insertAfter = newFrame.querySelector("[data-messagelist]").firstChild;
       }
 
-      var fragment = makeCommentFragment(comment);
-      updateCommentFragment(comment, fragment);
+      var fragment = Templates.LoadHere("messagefragment", { 
+         message : comment ,
+         editfunc : messageControllerEvent
+      });
+      //fragment.template.SetFields({ message : comment });
+      //updateCommentFragment(comment, fragment);
 
       //var messageController = fragment.querySelector(".messagecontrol");
       //messageController.addEventListener("click", messageControllerEvent);

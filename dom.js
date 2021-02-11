@@ -869,63 +869,62 @@ function getDiscussion(id)
    {
       //TODO: is the template system allowed to be in here???
       //discussion = //cloneTemplate("discussion");
-      discussion = Templates.LoadHere("discussion", {
-         discussionid : id,
-         loadcommentsfunc : (event) =>
+      discussion = Templates.LoadHere("discussion", { discussionid : id });
+      discussion.template.fields.loadcommentsfunc = (event) =>
+      {
+         event.preventDefault();
+         var tmpl = discussion.template;
+         writeDom(() => { tmpl.fields.loadingcomments = true; });
+
+         log.Info("Loading older messages in " + id);
+
+         //tmpl.fields.hascomments = result.commentCount;
+         //tmpl.fields.loadingcomments = false;
+         //tmpl.fields.hasmorecomments = result.atEnd;
+
+         var minId = Number.MAX_SAFE_INTEGER;
+         var msgs = tmpl.element.querySelectorAll('[data-template="messageframe"] [data-messageid]');
+
+         for(var i = 0; i < msgs.length; i++)
          {
-            event.preventDefault();
-            var tmpl = event.currentTarget.template;
-            writeDom(() => { tmpl.fields.loadingcomments = true; });
-
-            log.Info("Loading older messages in " + id);
-
-            tobj.fields.hascomments = result.commentCount;
-            tobj.fields.loadingcomments = false;
-            tobj.fields.hasmorecomments = result.atEnd;
-
-            var minId = Number.MAX_SAFE_INTEGER;
-            var msgs = tmpl.element.querySelectorAll('[data-template="messageframe"] [data-messageid]');
-
-            for(var i = 0; i < msgs.length; i++)
-            {
-               var messageId = Number(msgs[i].getAttribute("data-messageid"));
-               if(messageId > 0) minId = Math.min(minId, messageId);
-            }
-
-            var initload = getLocalOption("oldloadcomments");
-            var params = new URLSearchParams();
-            params.append("requests", "comment-" + JSON.stringify({
-               Reverse : true,
-               Limit : initload,
-               ParentIds : [ Number(id) ],
-               MaxId : Number(minId)
-            }));
-            params.append("requests", "user.0createUserId.0edituserId");
-
-            globals.api.Chain(params, apidata =>
-            {
-               log.Datalog("check dev log for loadcomments: ", apidata);
-               var data = apidata.data;
-               var users = idMap(data.user);
-               writeDom(() =>
-               {
-                  //var oldHeight = discussions.scrollHeight;
-                  //var oldScroll = discussions.scrollTop;
-                  easyComments(data.comment, users);
-                  //discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
-
-                  tmpl.fields.hasmorecomments = data.comment.length == initload;
-                     //discussion.setAttribute(attr.atoldest, "");
-               });
-            }, undefined, apidata => /* always */
-            {
-               writeDom(() => {tmpl.fields.loadingcomments = false});
-               //globals.loadingOlderDiscussions = false;
-               //globals.loadingOlderDiscussionsTime = performance.now();
-               //writeDom(() => hide(loading));
-            });
+            var messageId = Number(msgs[i].getAttribute("data-messageid"));
+            if(messageId > 0) minId = Math.min(minId, messageId);
          }
-      });
+
+         var initload = getLocalOption("oldloadcomments");
+         var params = new URLSearchParams();
+         params.append("requests", "comment-" + JSON.stringify({
+            Reverse : true,
+            Limit : initload,
+            ParentIds : [ Number(id) ],
+            MaxId : Number(minId)
+         }));
+         params.append("requests", "user.0createUserId.0edituserId");
+
+         globals.api.Chain(params, apidata =>
+         {
+            log.Datalog("check dev log for loadcomments: ", apidata);
+            var data = apidata.data;
+            var users = idMap(data.user);
+            writeDom(() =>
+            {
+               //var oldHeight = discussions.scrollHeight;
+               //var oldScroll = discussions.scrollTop;
+               easyComments(data.comment, initload); //users);
+               //discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
+
+               //tmpl.fields.hasmorecomments = data.comment.length == initload;
+                  //discussion.setAttribute(attr.atoldest, "");
+            });
+         }, undefined, apidata => /* always */
+         {
+            writeDom(() => {tmpl.fields.loadingcomments = false});
+            //globals.loadingOlderDiscussions = false;
+            //globals.loadingOlderDiscussionsTime = performance.now();
+            //writeDom(() => hide(loading));
+         });
+      };
+      //});
       discussion.id = getDiscussionId(id);
 
       //multiSwap(discussion, {
@@ -947,12 +946,12 @@ function getDiscussion(id)
    return discussion;
 }
 
-function getActiveDiscussion() { return discussions.querySelector("[data-did]"); }
+function getActiveDiscussion() { return discussions.querySelector('[data-template="discussion"]'); }
 
 function getActiveDiscussionId()
 {
    var d = getActiveDiscussion();
-   return d ? Number(d.getAttribute("data-did")) : null;
+   return d ? Number(d.template.fields.discussionid) : null;
 }
 
 function showDiscussion(id)
