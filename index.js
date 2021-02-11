@@ -11,8 +11,7 @@ var attr = {
    "pulsedate" : "data-maxdate",
    "pulsecount" : "data-pwcount",
    "pulsemaxid" : "data-pwmaxid",
-   "perms" : "data-permissions",
-   "atoldest" : "data-atoldest"
+   "perms" : "data-permissions"
 };
 
 var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
@@ -588,7 +587,8 @@ function setupSignalProcessors()
          log.Info("Removing " + remove + " messages from background discussion " + dsc.id);
          for(var i = 0; i < remove; i++)
             Utilities.RemoveElement(messages[i]);
-         dsc.removeAttribute(attr.atoldest);
+         dsc.template.hasmorecomments = true;
+         //dsc.removeAttribute(attr.atoldest);
       }
    });
 }
@@ -1255,8 +1255,7 @@ function routepage_load(spadat)
          templ.template.fields.page = c;
          finishPageControls(templ.template, c);
          maincontentinfo.appendChild(Templates.LoadHere("stdcontentinfo", {content:c}));
-         //makeStandardContentInfo(c, users));
-         finishDiscussion(c, data.comment, users, initload);
+         finishDiscussion(c, data.comment, initload);
       }, getChain(data.category, c), c.id);
    });
 }
@@ -1409,7 +1408,7 @@ function routeuser_load(spadat)
             finishPageControls(templ.template, c);
             maincontentinfo.appendChild(Templates.LoadHere("stdcontentinfo",{content:c}));
             //makeStandardContentInfo(c, users));
-            finishDiscussion(c, data.comment, users, initload);
+            finishDiscussion(c, data.comment, initload);
          }
       }, [u], c ? c.id : false);
    });
@@ -1895,16 +1894,13 @@ function formatRememberedDiscussion(cid, show, type)
    formatDiscussions(show, getRememberedFormat(cid) || fmt);
 }
 
-function finishDiscussion(content, comments, users, initload)
+function finishDiscussion(content, comments, initload)
 {
    var d = getDiscussion(content.id);
-   //if(initload && (comments.length !== initload))
-   //   d.setAttribute(attr.atoldest, "");
    showDiscussion(content.id);
-   easyComments(comments, initload); //, users); //, content.id);
+   easyComments(comments, initload);
    formatRememberedDiscussion(content.id, true, content.type);
-
-   signals.Add("finishdiscussion", { content: content, comments: comments, users: users, initload: initload});
+   signals.Add("finishdiscussion", { content: content, comments: comments, initload: initload});
 }
 
 //This is actually required by index.html... oogh dependencies
@@ -2476,38 +2472,6 @@ function makePWUser(user)
    return pu;
 }
 
-//function makeCommentFrame(comment) //, users)
-//{
-//   //var u = users[comment.createUserId];
-//   //cloneTemplate("messageframe");
-//   //multiSwap(frame, {
-//   //   userid: comment.createUserId,
-//   //   userlink: Links.User(comment.createUserId),
-//   //   useravatar: getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
-//   //   username: u.username,
-//   //   frametime: (new Date(comment.createDate)).toLocaleString()
-//   //});
-//   //finalizeTemplate(frame);
-//   //return frame;
-//}
-
-//function makeCommentFragment(comment)//, users)
-//{
-//   return Templates.LoadHere("messagefragment", { 
-//      message : comment ,
-//      editfunc : messageControllerEvent
-//   } );
-//   //var fragment = cloneTemplate("singlemessage");
-//   //multiSwap(fragment, {
-//   //   messageid: comment.id,
-//   //   id: getCommentId(comment.id),
-//   //   createdate: comment.createDate,
-//   //   editdate: comment.editdate
-//   //});
-//   //finalizeTemplate(fragment);
-//   //return fragment;
-//}
-
 
 //-------------------------------------------------
 // ***********************************************
@@ -2651,8 +2615,6 @@ function getIsSuper() { return website.getAttribute("data-issuper") == "true"; }
 
 function formError(form, error)
 {
-   //var tmpl = Templates.LoadHere("modulemessage", {modulemessage:msg});
-   //makeError(error)));
    writeDom(() => form.appendChild(Templates.LoadHere("notifyelement_error",{message:error})));
    log.Error(error);
 }
@@ -3198,91 +3160,13 @@ function clearWatchVisual(contentId)
 //   }
 //}
 //
-//function loadOlderComments(discussion)
-//{
-//   globals.loadingOlderDiscussions = true;
-//
-//   var did = getSwap(discussion, "discussionid");
-//   log.Info("Loading older messages in " + did);
-//
-//   var loading = discussion.querySelector("[data-loadolder] [data-loading]");
-//   writeDom(() => unhide(loading));
-//
-//   var minId = Number.MAX_SAFE_INTEGER;
-//   var msgs = discussion.querySelectorAll('[data-template="messageframe"] [data-messageid]');
-//
-//   for(var i = 0; i < msgs.length; i++)
-//   {
-//      var messageId = Number(msgs[i].getAttribute("data-messageid"));
-//      if(messageId > 0)
-//         minId = Math.min(minId, messageId);
-//   }
-//
-//   var initload = getLocalOption("oldloadcomments");
-//   var params = new URLSearchParams();
-//   params.append("requests", "comment-" + JSON.stringify({
-//      Reverse : true,
-//      Limit : initload,
-//      ParentIds : [ Number(did) ],
-//      MaxId : Number(minId)
-//   }));
-//   params.append("requests", "user.0createUserId.0edituserId");
-//
-//   globals.api.Chain(params, apidata =>
-//   {
-//      log.Datalog("check dev log for oldcomments: ", apidata);
-//      var data = apidata.data;
-//      var users = idMap(data.user);
-//      writeDom(() =>
-//      {
-//         var oldHeight = discussions.scrollHeight;
-//         var oldScroll = discussions.scrollTop;
-//         easyComments(data.comment, users);
-//         discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
-//
-//         if(data.comment.length !== initload)
-//            discussion.setAttribute(attr.atoldest, "");
-//      });
-//   }, undefined, apidata => /* always */
-//   {
-//      globals.loadingOlderDiscussions = false;
-//      globals.loadingOlderDiscussionsTime = performance.now();
-//      writeDom(() => hide(loading));
-//   });
-//}
-
-//function renderComment(elm, repl)
-//{
-//   if(repl)
-//   {
-//      elm.setAttribute("data-rawmessage", repl);
-//      var comment = FrontendCoop.ParseComment(repl);
-//      elm.innerHTML = "";
-//      elm.appendChild(Parse.parseLang(comment.t, comment.m));
-//   }
-//
-//   return elm.getAttribute("data-rawmessage");
-//}
-
-//function updateCommentFragment(comment, element)
-//{
-//   //nothing for now, but there might be other things
-//   element.template.SetFields({
-//      message : comment
-//   });
-//   //multiSwap(element, {
-//   //   message: comment.content,
-//   //   editdate: comment.editDate //new Date(comment.editDate).toLocaleString()
-//   //});
-//}
 
 function getFragmentFrame(element)
 {
    return Utilities.FindParent(element, x => x.getAttribute("data-template") == "messageframe");
-   //x.hasAttribute("data-messageframe"));
 }
 
-function easyComments(comments, expected) //users) //, firstLoad)
+function easyComments(comments, expected)
 {
    if(comments && comments.length)
    {
@@ -3296,17 +3180,9 @@ function easyComments(comments, expected) //users) //, firstLoad)
          d.template.fields.hasmorecomments = comments.length == expected;
       }
 
-      //signals.Add("easycomments", { comments: comments, users: users });
-      //log.Debug("Rendered " + comments.length + " comments, " + globals.commentsrendered + " total");
       log.PerformanceLog("easyComments(" + comments.length + "," + globals.commentsrendered + "): " + 
          (performance.now() - n) + "ms");
    }
-   //else if(firstLoad)
-   //{
-   //   var d = getDiscussion(firstLoad);
-   //   var nocom = d.querySelector("[data-nocomments]");
-   //   unhide(nocom);
-   //}
 }
 
 function easyComment(comment) //, users)
@@ -3320,7 +3196,6 @@ function easyComment(comment) //, users)
       if(comment.deleted)
       {
          log.Debug("Removing comment " + comment.id);
-         //var existingframe = existing.template.fields.
          var prnt = Utilities.RemoveElement(existing); 
 
          if(!prnt.firstElementChild)
@@ -3332,7 +3207,6 @@ function easyComment(comment) //, users)
       else
       {
          existing.template.SetFields({ message : comment });
-         //updateCommentFragment(comment, existing);
       }
    }
    else
@@ -3347,14 +3221,8 @@ function easyComment(comment) //, users)
       //Automatically create discussion?
       var d = getDiscussion(comment.parentId);
       d.template.fields.hascomments = true;
-      //var nocom = d.querySelector("[data-nocomments]");
-
-      //Need a "safe" hide (safe from uikit anyway)
-      //if(!nocom.hasAttribute("hidden"))
-      //   nocom.setAttribute("hidden", "");
 
       //Starting from bottom, find place to insert.
-      //console.log(d);
       var comments = d.querySelectorAll("[data-messageid]");
       var insertAfter = d.querySelector("[data-comments]").firstChild; //false;
 
@@ -3362,7 +3230,6 @@ function easyComment(comment) //, users)
       {
          //This is the place to insert!
          if(comment.id > Number(comments[i].getAttribute("data-messageid")))
-         //getSwap(comments[i], "data-messageid")))
          {
             insertAfter = comments[i];
             break;
@@ -3395,11 +3262,6 @@ function easyComment(comment) //, users)
          message : comment ,
          editfunc : messageControllerEvent
       });
-      //fragment.template.SetFields({ message : comment });
-      //updateCommentFragment(comment, fragment);
-
-      //var messageController = fragment.querySelector(".messagecontrol");
-      //messageController.addEventListener("click", messageControllerEvent);
 
       Utilities.InsertAfter(fragment, insertAfter);
 
@@ -3411,12 +3273,13 @@ function easyComment(comment) //, users)
 function messageControllerEvent(event)
 {
    event.preventDefault();
-   var omsg = Utilities.FindParent(event.target, x => x.hasAttribute("data-singlemessage"));
+   var omsg = Utilities.FindParent(event.target, x => x.getAttribute("data-template") == "messagefragment");
+   //x.hasAttribute("data-singlemessage"));
    var oframe = getFragmentFrame(omsg);
 
    var msg = copyExistingTemplate(omsg); //.cloneNode(true);
    var frame = copyExistingTemplate(oframe); //.cloneNode(true);
-   var msglist = frame.querySelector(".messagelist");
+   var msglist = frame.querySelector("[data-messagelist]");
    msglist.innerHTML = "";
    msglist.appendChild(msg);
    Utilities.RemoveElement(msg.querySelector(".messagecontrol"));

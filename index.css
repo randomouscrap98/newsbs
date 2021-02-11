@@ -361,9 +361,6 @@ a:hover { color: inherit; }
 [data-discussion] {
    position: relative;
 }
-[data-atoldest] [data-loadolder] {
-   display: none; 
-}
 #discussionuserlist {
    background-color: var(--lightblockbgcolor);
    border-bottom: 1px solid var(--outlinecolor);

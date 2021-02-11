@@ -868,7 +868,6 @@ function getDiscussion(id)
    if(!discussion)
    {
       //TODO: is the template system allowed to be in here???
-      //discussion = //cloneTemplate("discussion");
       discussion = Templates.LoadHere("discussion", { discussionid : id });
       discussion.template.fields.loadcommentsfunc = (event) =>
       {
@@ -877,10 +876,6 @@ function getDiscussion(id)
          writeDom(() => { tmpl.fields.loadingcomments = true; });
 
          log.Info("Loading older messages in " + id);
-
-         //tmpl.fields.hascomments = result.commentCount;
-         //tmpl.fields.loadingcomments = false;
-         //tmpl.fields.hasmorecomments = result.atEnd;
 
          var minId = Number.MAX_SAFE_INTEGER;
          var msgs = tmpl.element.querySelectorAll('[data-template="messageframe"] [data-messageid]');
@@ -912,9 +907,6 @@ function getDiscussion(id)
                //var oldScroll = discussions.scrollTop;
                easyComments(data.comment, initload); //users);
                //discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
-
-               //tmpl.fields.hasmorecomments = data.comment.length == initload;
-                  //discussion.setAttribute(attr.atoldest, "");
             });
          }, undefined, apidata => /* always */
          {
