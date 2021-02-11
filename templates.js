@@ -9,9 +9,10 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _rawremove : [ "_template", "parentCategory", "childpages", "childCategories" ],
    _templateData : "tmpldat_",
    _includekey : "include_",
-   _commentId : (id) => "comment-" + id,
+   //_commentId : (id) => "comment-" + id,
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
+   _stdDateTime : (d) => (new Date(d)).toLocaleString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
    _displayRaw : (title, raw) => {
       rawmodaltitle.textContent = title;
@@ -143,20 +144,29 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 
       ce.scrollTop = ce.scrollHeight;
    },
-   HandleComment_Discussion: function(comment, tobj, ce)
+   ClickSelf : (v, tobj, ce) =>
    {
-      //As comments come in, they are all the same format, but represent
-      //different actions. Handle any action here.
-      if(comment.parentId != tobj.fields.discussionid)
-      {
-         log.Warn("Tried to handle comment in incorrect discussion. " +
-           `DiscussionID: ${tobj.fields.discussionid}, commentParent: ${}`);
-         return;
-      }
-
-      //TODO: DON'T assume the discussion is IN the document!! It's fine for now but...
-      var existing = document.getElementById(_commentId(comment.id));
+      ce.click();
    },
+   //FrameFromMessage : function(message, tobj, ce)
+   //{
+   //   //With an existing template, load it and add a message from
+   //},
+   //HandleComment_Discussion: function(comment, tobj, ce)
+   //{
+   //   //As comments come in, they are all the same format, but represent
+   //   //different actions. Handle any action here.
+   //   if(comment.parentId != tobj.fields.discussionid)
+   //   {
+   //      log.Warn("Tried to handle comment in incorrect discussion. " +
+   //        `DiscussionID: ${tobj.fields.discussionid}, commentParent: ${}`);
+   //      return;
+   //   }
+
+   //   //TODO: DON'T assume the discussion is IN the document!! It's fine for now but...
+   //   var existing = document.getElementById(_commentId(comment.id));
+   //},
+
    //Generic helper functions for any internal/external set to call
    //----------------------------------
    show: (v, ce) =>
@@ -166,6 +176,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       else
          ce.setAttribute("hidden", "");
    },
+   hide: (v, ce) => show(!v, ce),
    //click: (v, ce, tobj, name) =>
    //{
    //   //Remove the existing event handler
@@ -518,7 +529,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       tobj.SetFields({
          createdate : v.createDate,
          editdate : v.editDate,
-         content : v.content
+         content : v.content,
+         messageid : v.id
       });
    },
    //messagefragment_editfunc : (v, ce, tobj) =>
@@ -532,13 +544,34 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    messageframe : (v, ce, tobj) =>
    {
       var parsed = FrontendCoop.ParseComment(v.content);
+      //console.log(v);
 
       tobj.SetFields({
          userid : v.createUser.id,
          useravatar : parsed.a || v.createUser.avatar,
          userlink : Links.User(v.createUser.id),
          username : v.createUser.username,
-         frametime : v.createDate
+         frametime : _stdDateTime(v.createDate)
+      });
+   },
+   //discussion_loadcomments : (v, ce, tobj) =>
+   //{
+   //   ce.onclick = (event) =>
+   //   {
+   //      event.preventDefault();
+   //      v(() =>
+   //      {
+   //         tobj.fields.loadingcomments = true;
+   //      },(result) =>
+   //      {
+   //      });
+   //   };
+   //},
+   discussion_loadingcomments : (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         showloading: v,
+         showloader: !v
       });
    },
 

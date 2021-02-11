@@ -565,18 +565,18 @@ function setupSignalProcessors()
       }
    });
 
-   signals.Attach("discussionscrollup", data =>
-   {
-      //if(!isSmoothScrollInterrupted())
-      //Don't let smooth scrolling perform a load of comments etc.
-      if(data.currentScrollTop !== 0 && isSmoothScrollInterrupted() && 
-         getLocalOption("loadcommentonscroll") && data.currentScrollTop <
-         getLocalOption("scrolldiscloadheight") * data.currentClientHeight &&
-         !shouldAutoScroll(data))
-      {
-         loadOlderCommentsActive();
-      }
-   });
+   //signals.Attach("discussionscrollup", data =>
+   //{
+   //   //if(!isSmoothScrollInterrupted())
+   //   //Don't let smooth scrolling perform a load of comments etc.
+   //   if(data.currentScrollTop !== 0 && isSmoothScrollInterrupted() && 
+   //      getLocalOption("loadcommentonscroll") && data.currentScrollTop <
+   //      getLocalOption("scrolldiscloadheight") * data.currentClientHeight &&
+   //      !shouldAutoScroll(data))
+   //   {
+   //      loadOlderCommentsActive();
+   //   }
+   //});
 
    signals.Attach("hidediscussion", d =>
    {
@@ -2476,32 +2476,37 @@ function makePWUser(user)
    return pu;
 }
 
-function makeCommentFrame(comment, users)
+function makeCommentFrame(comment) //, users)
 {
-   var frame = cloneTemplate("messageframe");
-   var u = users[comment.createUserId];
-   multiSwap(frame, {
-      userid: comment.createUserId,
-      userlink: Links.User(comment.createUserId),
-      useravatar: getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
-      username: u.username,
-      frametime: (new Date(comment.createDate)).toLocaleString()
-   });
-   finalizeTemplate(frame);
-   return frame;
+   //var u = users[comment.createUserId];
+   return Templates.LoadHere("messageframe", { message : comment }); 
+   //cloneTemplate("messageframe");
+   //multiSwap(frame, {
+   //   userid: comment.createUserId,
+   //   userlink: Links.User(comment.createUserId),
+   //   useravatar: getAvatarLink(u.avatar, getLocalOption("discussionavatarsize")),
+   //   username: u.username,
+   //   frametime: (new Date(comment.createDate)).toLocaleString()
+   //});
+   //finalizeTemplate(frame);
+   //return frame;
 }
 
 function makeCommentFragment(comment)//, users)
 {
-   var fragment = cloneTemplate("singlemessage");
-   multiSwap(fragment, {
-      messageid: comment.id,
-      id: getCommentId(comment.id),
-      createdate: comment.createDate,
-      editdate: comment.editdate
-   });
-   finalizeTemplate(fragment);
-   return fragment;
+   return Templates.LoadHere("messagefragment", { 
+      message : comment ,
+      editfunc : messageControllerEvent
+   } );
+   //var fragment = cloneTemplate("singlemessage");
+   //multiSwap(fragment, {
+   //   messageid: comment.id,
+   //   id: getCommentId(comment.id),
+   //   createdate: comment.createDate,
+   //   editdate: comment.editdate
+   //});
+   //finalizeTemplate(fragment);
+   //return fragment;
 }
 
 
@@ -3263,15 +3268,19 @@ function renderComment(elm, repl)
 function updateCommentFragment(comment, element)
 {
    //nothing for now, but there might be other things
-   multiSwap(element, {
-      message: comment.content,
-      editdate: comment.editDate //new Date(comment.editDate).toLocaleString()
+   element.template.SetFields({
+      message : comment
    });
+   //multiSwap(element, {
+   //   message: comment.content,
+   //   editdate: comment.editDate //new Date(comment.editDate).toLocaleString()
+   //});
 }
 
 function getFragmentFrame(element)
 {
-   return Utilities.FindParent(element, x => x.hasAttribute("data-messageframe"));
+   return Utilities.FindParent(element, x => x.getAttribute("data-template") == "messageframe");
+   //x.hasAttribute("data-messageframe"));
 }
 
 function easyComments(comments, users, firstLoad)
@@ -3305,6 +3314,7 @@ function easyComment(comment, users)
       if(comment.deleted)
       {
          log.Debug("Removing comment " + comment.id);
+         //var existingframe = existing.template.fields.
          var prnt = Utilities.RemoveElement(existing); 
 
          if(!prnt.firstElementChild)
@@ -3329,15 +3339,17 @@ function easyComment(comment, users)
 
       //Automatically create discussion?
       var d = getDiscussion(comment.parentId);
-      var nocom = d.querySelector("[data-nocomments]");
+      d.template.fields.hascomments = true;
+      //var nocom = d.querySelector("[data-nocomments]");
 
       //Need a "safe" hide (safe from uikit anyway)
-      if(!nocom.hasAttribute("hidden"))
-         nocom.setAttribute("hidden", "");
+      //if(!nocom.hasAttribute("hidden"))
+      //   nocom.setAttribute("hidden", "");
 
       //Starting from bottom, find place to insert.
+      //console.log(d);
       var comments = d.querySelectorAll("[data-messageid]");
-      var insertAfter = false;
+      var insertAfter = d.querySelector("[data-comments]").firstChild; //false;
 
       for(var i = comments.length - 1; i >= 0; i--)
       {
@@ -3357,26 +3369,26 @@ function easyComment(comment, users)
             " into discussion " + comment.parentId;
       }
 
-      var insertFrame = (insertAfter.getAttribute("data-template") == "singlemessage")
+      var insertFrame = (insertAfter.getAttribute("data-template") == "messagefragment")
          ? getFragmentFrame(insertAfter) : insertAfter;
       var newFrame = null;
 
       //Oops, we need a new frame
       if(insertFrame.getAttribute("data-template") != "messageframe" || 
-         getSwap(insertFrame, "data-userid") != comment.createUserId ||
-         (new Date(comment.createDate)).getTime() - (new Date(getSwap(insertAfter, "createdate"))).getTime() 
+         insertFrame.template.fields.userid != comment.createUserId ||
+         (new Date(comment.createDate)).getTime() - (new Date(insertAfter.template.fields.createdate)).getTime() 
           > (getLocalOption("breakchatmessagetime") * 1000))
       {
          //create a frame to insert into
          newFrame = makeCommentFrame(comment, users);
-         insertAfter = newFrame.querySelector(".messagelist").firstChild;
+         insertAfter = newFrame.querySelector("[data-messagelist]").firstChild;
       }
 
       var fragment = makeCommentFragment(comment);
       updateCommentFragment(comment, fragment);
 
-      var messageController = fragment.querySelector(".messagecontrol");
-      messageController.addEventListener("click", messageControllerEvent);
+      //var messageController = fragment.querySelector(".messagecontrol");
+      //messageController.addEventListener("click", messageControllerEvent);
 
       Utilities.InsertAfter(fragment, insertAfter);
 

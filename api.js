@@ -143,6 +143,7 @@ Api.prototype.AutoLink = function(data)
    var categories = data.category;
    var activity = data.activity;
    var content = data.content;
+   var comments = data.comment;
 
    var contentLink = (c) =>
    {
@@ -216,10 +217,24 @@ Api.prototype.AutoLink = function(data)
       DataFormat.LinkField(activity, "contentId", "linked", content);
    }
 
+   if(comments)
+   {
+      if(users)
+      {
+         DataFormat.LinkField(comments, "createUserId", "createUser", users, "id", this.defaultUser);
+         DataFormat.LinkField(comments, "editUserId", "editUser", users, "id", this.defaultUser);
+      }
+
+      if(content)
+         DataFormat.LinkField(comments, "parentId", "parentContent", content, "id");
+   }
+
    if(users)
    {
       users.forEach(x => x.isCurrentUser = () => x.id == me.getUserId());
    }
+
+   //console.log("RAN AUTOLINK ON: ", data);
 };
 
 //Chain does something special and pre-links some data together for you
@@ -458,6 +473,8 @@ LongPoller.prototype.Repeater = function(lpdata)
                lpdata.lastId = data.lastId;
             if(data.listeners)
                lpdata.lastListeners = data.listeners;
+
+            //if(data.chains)
          }
 
          if(me.instantComplete)
@@ -630,7 +647,7 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
 // *********************
 
 var FrontendCoop = {
-   Parsecomment : function(content) {
+   ParseComment : function(content) {
       var newline = content.indexOf("\n");
       try {
          // try to parse the first line as JSON

@@ -870,15 +870,20 @@ function leftpaneclick(event)
          link to their parents. PLEASE make sure to use these, as discussions
          are a complex system and it's easier to just have references as needed. -->
          <div id="discussion" data-nouikit t-discussionid class="">
-            <div data-loadolder class="uk-margin-small-right uk-text-right">
-               <div data-loading uk-spinner="ratio: 0.5" hidden></div>
-               <a href="#" data-loadmore class="uk-text-meta">Load older</a>
+            <div t-hasmorecomments=".internal(show)|" 
+                 t-loadingcomments=".internal(discussion_loadingcomments)"
+                 class="uk-margin-small-right uk-text-right">
+               <div t-showloading=".internal(show)|" uk-spinner="ratio: 0.5"></div>
+               <a href="#" t-showloader=".internal(show)|true" tfunc="LoadComments/ClickSelf"
+                  t-loadcommentsfunc=".onclick"
+                  class="uk-text-meta">Load older</a>
             </div>
-            <p data-nocomments class="uk-text-meta uk-padding-small uk-text-center
-               uk-width-expand" hidden>No comments (yet!)</p>
+            <p t-hascomments=".internal(hide)|"
+               class="uk-text-meta uk-padding-small uk-text-center uk-width-expand">No comments (yet!)</p>
             <!-- New: Stop using stupid 0 id placeholders, start using a proper
              container for messages and detecting the top -->
-            <div data-comments tfunc="HandleComment_Discussion"> </div>
+             <div data-comments><div hidden>Placeholder</div></div> 
+             <!--tfunc="HandleComment_Discussion"> </div>-->
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <!--<div tlink="messageframe" tdata='{"userid":"0"}'></div>
             <div data-tmpl="messageframe" data-tmpld='{"userid":"0"}' style="display: none">
@@ -889,6 +894,7 @@ function leftpaneclick(event)
 
          <div id="messageframe" data-nouikit t-message=".internal(messageframe)"
             t-discussion=".internal()" t-userid="data-uid" class="uk-flex uk-flex-top">
+            <!--tfunc="FrameFromMessage">-->
             <img class="uk-flex-none avatar" t-useravatar=".internal(icon)" width=60>
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
@@ -902,7 +908,8 @@ function leftpaneclick(event)
          </div>
 
          <div id="messagefragment" data-nouikit tabindex="2" t-message=".internal(messagefragment)" 
-             t-frame=".internal()" t-createdate=".internal()" t-editdate=".internal()" class="uk-flex">
+             t-messageid t-frame=".internal()" t-createdate=".internal()" t-editdate=".internal()" 
+             class="uk-flex">
             <div t-content=".rendercomment()" class="uk-width-expand content uk-text-break"></div>
             <a href="#" t-editfunc=".onclick" 
                class="messagecontrol hover" data-loginonly>?</a>
