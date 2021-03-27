@@ -7,6 +7,8 @@
       <meta name="viewport" content="width=device-width"><!--,maximum-scale=1">-->
       <meta name="rating" content="general">
       <meta name="description" content="New SmileBASIC Source">
+      <meta property="og:site_name" content="SmileBASIC Source">
+      <meta name="theme-color" content="#009688">
       <!-- LOC:METAEND -->
       <link data-favicon rel="shortcut icon" href="favicon.ico">
 <script>
@@ -17,21 +19,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1616870483" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1616870483"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1616870483"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1616880177" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1616880177"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1616880177"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1616870483"></script>
-      <script src="templates.js?v=1616870483"></script>
-      <script src="dom.js?v=1616870483"></script>
-      <script src="api.js?v=1616870483"></script>
-      <script src="commands.js?v=1616870483"></script>
-      <script src="index.js?v=1616870483"></script>
-      <script src="sbs2-markup/highlight.js?v=1616870483"></script>
-      <script src="sbs2-markup/parse.js?v=1616870483"></script>
-      <script src="sbs2-markup/render.js?v=1616870483"></script>
+      <script src="libbo.js?v=1616880177"></script>
+      <script src="templates.js?v=1616880177"></script>
+      <script src="dom.js?v=1616880177"></script>
+      <script src="api.js?v=1616880177"></script>
+      <script src="commands.js?v=1616880177"></script>
+      <script src="index.js?v=1616880177"></script>
+      <script src="sbs2-markup/highlight.js?v=1616880177"></script>
+      <script src="sbs2-markup/parse.js?v=1616880177"></script>
+      <script src="sbs2-markup/render.js?v=1616880177"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1616870483" />
+      <link rel="stylesheet" href="index.css?v=1616880177" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -177,7 +179,8 @@ function leftpaneclick(event)
                <img uk-svg="ratio: 2" data-src="assets/sbs.svg">
             </a>
             <!-- LOC:BREADCRUMBS -->
-            <ul id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-top uk-margin-remove-bottom
+            <ul itemscope itemtype="https://schema.org/BreadcrumbList"
+               id="breadcrumbs" class="uk-breadcrumb uk-margin-remove-top uk-margin-remove-bottom
                bc-collapse uk-margin-small-right uk-margin-small-left">
             </ul>
             <!-- Just a spacer for now... maybe something will go here -->
@@ -318,8 +321,10 @@ function leftpaneclick(event)
                              id="searchchatresults"></div>
                         <p class="" id="nosearchresults">No results...</p>
                      </ul>
-                     <ul id="rightpanecategorytree" class="uk-list lightblock">
-                     </ul>
+                     <nav>
+                        <ul id="rightpanecategorytree" class="uk-list lightblock">
+                        </ul>
+                     </nav>
                   </li>
                   <!-- LOC:ACTIVITY -->
                   <li id="pulseparent" class="uk-margin-large-bottom">
@@ -541,7 +546,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00060 (2021-03-27T18:41:23Z)</dd>
+      <dd data-frontendrelease>00061 (2021-03-27T21:22:57Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -1186,9 +1191,12 @@ function leftpaneclick(event)
             </div>
          </div>
          <!-- ROOT discussion, holds the whole thing? -->
-         <li id="breadcrumb">
-            <a data-link="href" data-spa data-text=".textContent"
-               class=""></a>
+         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"
+            id="breadcrumb">
+            <a itemprop="item" data-link="href" data-spa class="">
+               <span itemprop="name" data-text=".textContent"></span>
+            </a>
+            <meta style="display:none" itemprop="position" data-position="content" />
          </li>
          <a id="sbslink" data-link="href" data-spa></a>
          <div id="booloption">

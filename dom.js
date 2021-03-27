@@ -473,13 +473,16 @@ function makePermissionUser(imageLink, name, permissions, special)
 
 function makeBreadcrumbs(chain)
 {
+   let pos = 1;
    chain.forEach(x =>
    {
       var bc = cloneTemplate("breadcrumb");
       multiSwap(bc, {
          "data-link" : x.link,
-         "data-text" : x.name
+         "data-text" : x.name,
+         "data-position" : pos
       });
+      pos++;
       finalizeTemplate(bc);
       breadcrumbs.appendChild(bc);
    });

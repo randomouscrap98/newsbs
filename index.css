@@ -190,6 +190,7 @@ blockquote {
 .uk-modal h3 { margin-top: 25px; } /* Reduce margin top wow */
 .uk-sortable-empty { min-height: unset; }
 
+/*.thinwrapper { margin: 0 !important; padding: 0 !important; }*/
 .notext { font-size: 0; } /*display: contents; }*/
 .nowrap { white-space: nowrap; }
 .noselect {
