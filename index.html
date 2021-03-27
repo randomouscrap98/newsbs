@@ -47,13 +47,6 @@ function loginEmailSwitch(element)
    }
 }
 //Scripts for templates/THIS file etc
-//function loglevel(el, replace)
-//{
-//   var loglevel = "log_" + replace;
-//   if(el.className.indexOf(loglevel) < 0)
-//      el.className += " " + loglevel;
-//   return loglevel;
-//}
 function selectOptionSetup(el, replace)
 {
    if(replace)
@@ -98,21 +91,6 @@ function typeToIcon(el, replace)
    } 
    return el.curicon;
 }
-//function systemToIcon(el, replace)
-//{
-//   if(replace !== undefined)
-//   {
-//      el.system = replace;
-//
-//      if(stoic[replace])
-//      {
-//         el.querySelector("[data-icon]").setAttribute("data-src", stoic[replace].i);
-//         el.querySelector("[data-text]").textContent = stoic[replace].t;
-//      }
-//   }
-//
-//   return el.system;
-//}
 function pwcountset(el, replace)
 {
    if(replace !== undefined)
@@ -125,17 +103,6 @@ function pwcountset(el, replace)
    }
    return el.textContent;
 }
-//function leftPanePerms(el, replace)
-//{
-//   if(replace !== undefined)
-//   {
-//      if(replace)
-//         leftpane.setAttribute("data-permissions", replace.toUpperCase());
-//      else
-//         leftpane.removeAttribute("data-permissions");
-//   }
-//   return el.textContent;
-//}
 function srcUnhide(el, replace)
 {
    if(replace !== undefined)
@@ -153,35 +120,6 @@ function srcUnhide(el, replace)
    }
    return el.src;
 }
-//function simpleAction(el, replace)
-//{
-//   if(replace)
-//   {
-//      if(!el.simpact)
-//      {
-//         el.addEventListener("click", (e) =>
-//         {
-//            e.preventDefault();
-//            el.simpact(el);
-//         });
-//      }
-//      el.simpact = replace;
-//   }
-//   return el.simpact;
-//}
-//function simpleAction(el, replace)
-//{
-//   if(replace)
-//   {
-//      el.simpact = replace;
-//      el.onclick = (e) =>
-//      {
-//         e.preventDefault();
-//         el.simpact(el);
-//      };
-//   }
-//   return el.simpact;
-//}
 function deferredselect(el, replace)
 {
    if(replace)
@@ -216,14 +154,6 @@ function showdrop(el, show)
       }, 300);
    }
 }
-//function retext(el, attr)
-//{
-//   [...el.childNodes].forEach(x =>
-//   {
-//      if(x.getAttribute)
-//         x.textContent = x.getAttribute(attr);
-//   });
-//}
 function leftpaneclick(event)
 {
    if(event.target.hasAttribute("data-contentimageimage"))

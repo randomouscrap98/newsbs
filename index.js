@@ -3260,6 +3260,7 @@ function easyComment(comment) //, users)
 
       var fragment = Templates.LoadHere("messagefragment", { 
          message : comment ,
+         frame : insertFrame,
          editfunc : messageControllerEvent
       });
 
@@ -3273,33 +3274,30 @@ function easyComment(comment) //, users)
 function messageControllerEvent(event)
 {
    event.preventDefault();
+
    var omsg = Utilities.FindParent(event.target, x => x.getAttribute("data-template") == "messagefragment");
-   //x.hasAttribute("data-singlemessage"));
-   var oframe = getFragmentFrame(omsg);
+   var msg = omsg.template.fields.message;
 
-   var msg = copyExistingTemplate(omsg); //.cloneNode(true);
-   var frame = copyExistingTemplate(oframe); //.cloneNode(true);
+   var frame = Templates.LoadHere("messageframe", { message : msg } ); 
+   var fragment = Templates.LoadHere("messagefragment", { message : msg, frame : frame } ); 
+
    var msglist = frame.querySelector("[data-messagelist]");
-   msglist.innerHTML = "";
-   msglist.appendChild(msg);
-   Utilities.RemoveElement(msg.querySelector(".messagecontrol"));
-
-   var cmid = getSwap(omsg, "data-messageid");
-   var rawcm = getSwap(omsg, "data-message"); 
-   var msgdate = getSwap(omsg, "data-createdate");
-   var msgedate = getSwap(omsg, "data-editdate");
-   findSwap(frame, "data-frametime", (new Date(msgdate)).toLocaleString());
+   msglist.appendChild(fragment);
+   Utilities.RemoveElement(fragment.querySelector(".messagecontrol"));
 
    commenteditpreview.innerHTML = "";
    commenteditpreview.appendChild(frame);
 
-   var parsedcm = FrontendCoop.ParseComment(rawcm);
+   var parsedcm = FrontendCoop.ParseComment(msg.content);
    commentedittext.value = parsedcm.t;
    commenteditformat.value = parsedcm.m;
-   commenteditinfo.textContent = "ID: " + cmid + "  UID: " + getSwap(oframe, "data-userid");
-   if(msgedate !== msgdate) commenteditinfo.textContent += "  Edited: " + (new Date(msgedate)).toLocaleString();
+   commenteditinfo.textContent = "ID: " + msg.id + "  UID: " + msg.createUserId;
+   if(msg.createDate !== msg.editDate) 
+      commenteditinfo.textContent += "  Edited: " + (new Date(msg.editDate)).toLocaleString();
 
-   if(getUserId() != getSwap(oframe, "userid") && !getIsSuper())
+   var getEditorComment = () => FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value);
+
+   if(getUserId() != msg.createUserId && !getIsSuper())
    {
       hide(commenteditdelete);
       hide(commenteditedit);
@@ -3312,7 +3310,7 @@ function messageControllerEvent(event)
       { 
          if(confirm("Are you SURE you want to delete this comment?"))
          {
-            globals.api.Post("comment/" + cmid + "/delete", {},
+            globals.api.Post("comment/" + msg.id + "/delete", {},
                x => { if(getLocalOption("generaltoast")) notifySuccess("Comment deleted"); },
                x => notifyError("Couldn't delete comment: " + x.request.status + " - " + x.request.statusText));
                UIkit.modal(commentedit).hide();
@@ -3321,9 +3319,9 @@ function messageControllerEvent(event)
 
       commenteditedit.onclick = function() 
       { 
-         globals.api.Put("comment/" + cmid, 
+         globals.api.Put("comment/" + msg.id, 
             {parentId : Number(getActiveDiscussionId()), 
-               content: FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value)},
+               content: getEditorComment()},
                x => { if(getLocalOption("generaltoast")) notifySuccess("Comment edited"); },
                x => notifyError("Couldn't edit comment: " + x.request.status + " - " + x.request.statusText));
                UIkit.modal(commentedit).hide();
@@ -3332,7 +3330,7 @@ function messageControllerEvent(event)
 
    commenteditshowpreview.onclick = function() 
    { 
-      findSwap(msg, "data-message", FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value));
+      fragment.template.SetFields({content : getEditorComment()});
    };
 
    UIkit.modal(commentedit).show();
