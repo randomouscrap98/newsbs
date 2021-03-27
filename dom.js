@@ -903,35 +903,15 @@ function getDiscussion(id)
             var users = idMap(data.user);
             writeDom(() =>
             {
-               //var oldHeight = discussions.scrollHeight;
-               //var oldScroll = discussions.scrollTop;
                easyComments(data.comment, initload); //users);
-               //discussions.scrollTop = discussions.scrollHeight - oldHeight + oldScroll;
             });
          }, undefined, apidata => /* always */
          {
             writeDom(() => {tmpl.fields.loadingcomments = false});
-            //globals.loadingOlderDiscussions = false;
-            //globals.loadingOlderDiscussionsTime = performance.now();
-            //writeDom(() => hide(loading));
          });
       };
-      //});
       discussion.id = getDiscussionId(id);
 
-      //multiSwap(discussion, {
-      //   "data-id": getDiscussionId(id),
-      //   "data-discussionid": id
-      //});
-
-      //var loadolder = discussion.querySelector("[data-loadolder] [data-loadmore]");
-      //loadolder.onclick = event => 
-      //{
-      //   event.preventDefault();
-      //   DomDeps.signal("loadoldercomments_event", discussion);
-      //};
-
-      //finalizeTemplate(discussion);
       discussionmemory.appendChild(discussion);
    }
 
