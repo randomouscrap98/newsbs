@@ -3206,6 +3206,7 @@ function easyComment(comment) //, users)
       }
       else
       {
+         log.Debug("Editing comment " + comment.id);
          existing.template.SetFields({ message : comment });
       }
    }
@@ -3263,6 +3264,8 @@ function easyComment(comment) //, users)
          frame : insertFrame,
          editfunc : messageControllerEvent
       });
+
+      fragment.id = getCommentId(comment.id);
 
       Utilities.InsertAfter(fragment, insertAfter);
 
