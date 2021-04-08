@@ -1336,7 +1336,7 @@ function finishPageControls(t, c)
    });
 }
 
-function routecomments_load(spadat)
+function routecomment_load(spadat)
 {
    var pid = Number(spadat.id);
 
@@ -3555,7 +3555,8 @@ function setPaneCategoryTree(categories)
 var Nav = {
    link: function(path, element) {
       var a = cloneTemplate("sbslink");
-      multiSwap(a, { "data-link" : "?p=" + path.replace(/s?\//g, "-") });
+      var p = path.replace(/s?\//g, "-").replace("?","&");
+      multiSwap(a, { "data-link" : "?p=" + p });
       finalizeTemplate(a);
       return a;
    }

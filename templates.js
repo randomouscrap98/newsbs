@@ -649,7 +649,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.sbhardware.system = v.values.system;
       }
    },
-   routecomments: (v, ce, tobj) =>
+   routecomment: (v, ce, tobj) =>
    {
       tobj.SetFields({
          title: v.name,
