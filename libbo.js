@@ -614,7 +614,7 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
          {
             args.push(tobj);
             args.push(currentelement);
-            tobj.functionPool[poolfunc].call(tobj.functionPool[poolfunc], ...args);
+            return tobj.functionPool[poolfunc].call(tobj.functionPool[poolfunc], ...args);
          };
 
          SingleFieldValue(tobj, func, f);

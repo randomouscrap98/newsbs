@@ -19,21 +19,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617875766" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1617875766"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617875766"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617880519" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1617880519"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617880519"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1617875766"></script>
-      <script src="templates.js?v=1617875766"></script>
-      <script src="dom.js?v=1617875766"></script>
-      <script src="api.js?v=1617875766"></script>
-      <script src="commands.js?v=1617875766"></script>
-      <script src="index.js?v=1617875766"></script>
-      <script src="sbs2-markup/highlight.js?v=1617875766"></script>
-      <script src="sbs2-markup/parse.js?v=1617875766"></script>
-      <script src="sbs2-markup/render.js?v=1617875766"></script>
+      <script src="libbo.js?v=1617880519"></script>
+      <script src="templates.js?v=1617880519"></script>
+      <script src="dom.js?v=1617880519"></script>
+      <script src="api.js?v=1617880519"></script>
+      <script src="commands.js?v=1617880519"></script>
+      <script src="index.js?v=1617880519"></script>
+      <script src="sbs2-markup/highlight.js?v=1617880519"></script>
+      <script src="sbs2-markup/parse.js?v=1617880519"></script>
+      <script src="sbs2-markup/render.js?v=1617880519"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1617875766" />
+      <link rel="stylesheet" href="index.css?v=1617880519" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -823,7 +823,8 @@ function leftpaneclick(event)
                class="uk-text-meta uk-padding-small uk-text-center uk-width-expand">No comments (yet!)</p>
             <!-- New: Stop using stupid 0 id placeholders, start using a proper
              container for messages and detecting the top -->
-             <div data-comments><div hidden>Placeholder</div></div> 
+             <!--<div data-comments><div hidden>Placeholder</div></div> -->
+             <div tlink="messagecontainer"></div>
              <!--tfunc="HandleComment_Discussion"> </div>-->
             <!-- A placeholder, so inserting will always have a place to stop searching -->
             <!--<div tlink="messageframe" tdata='{"userid":"0"}'></div>
@@ -831,6 +832,10 @@ function leftpaneclick(event)
                <div data-tmpl="singlemessage" data-tmpld='{"messageid":"0"}'>
                </div>
             </div>-->
+         </div>
+
+         <div id="messagecontainer" tfunc="AddComment" class="thinwrapper" data-nouikit>
+            <div hidden>Placeholder</div>
          </div>
 
          <div id="messageframe" data-nouikit t-message=".internal(messageframe)"

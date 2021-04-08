@@ -148,24 +148,58 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       ce.click();
    },
-   //FrameFromMessage : function(message, tobj, ce)
-   //{
-   //   //With an existing template, load it and add a message from
-   //},
-   //HandleComment_Discussion: function(comment, tobj, ce)
-   //{
-   //   //As comments come in, they are all the same format, but represent
-   //   //different actions. Handle any action here.
-   //   if(comment.parentId != tobj.fields.discussionid)
-   //   {
-   //      log.Warn("Tried to handle comment in incorrect discussion. " +
-   //        `DiscussionID: ${tobj.fields.discussionid}, commentParent: ${}`);
-   //      return;
-   //   }
+   AddComment : (comment, mergetime, tobj, ce) =>
+   {
+      //Starting from bottom, find place to insert.
+      var comments = ce.querySelectorAll("[data-messageid]");
+      var insertAfter = ce.firstElementChild;
 
-   //   //TODO: DON'T assume the discussion is IN the document!! It's fine for now but...
-   //   var existing = document.getElementById(_commentId(comment.id));
-   //},
+      for(var i = comments.length - 1; i >= 0; i--)
+      {
+         //This is the place to insert!
+         if(comment.id > Number(comments[i].getAttribute("data-messageid")))
+         {
+            insertAfter = comments[i];
+            break;
+         }
+      }
+
+      //console.log("CE:", ce, "insertafter:", insertAfter, "comments:", comments);
+
+      //Oops, this really shouldn't happen!!
+      if(!insertAfter)
+      {
+         throw "Didn't find a place to insert comment " + comment.id + 
+            " into discussion " + comment.parentId;
+      }
+
+      var insertFrame = (insertAfter.getAttribute("data-template") == "messagefragment")
+         ? insertAfter.template.fields.frame : insertAfter;
+      var newFrame = null;
+
+      //Oops, we need a new frame
+      if(insertFrame.getAttribute("data-template") != "messageframe" || 
+         insertFrame.template.fields.userid != comment.createUserId ||
+         (new Date(comment.createDate)).getTime() - (new Date(insertAfter.template.fields.createdate)).getTime() 
+          > mergetime)
+      {
+         //create a frame to insert into
+         newFrame = LoadHere("messageframe", { message : comment }); 
+         insertAfter = newFrame.template.fields.messagelist.firstChild;
+      }
+
+      var fragment = Templates.LoadHere("messagefragment", { 
+         message : comment,
+         frame : newFrame || insertFrame
+      });
+
+      Utilities.InsertAfter(fragment, insertAfter);
+
+      if(newFrame)
+         Utilities.InsertAfter(newFrame, insertFrame);
+
+      return { fragment : fragment, frame : insertFrame };
+   },
 
    //Generic helper functions for any internal/external set to call
    //----------------------------------
@@ -184,16 +218,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          ce.className = ce.className.replace(/uk-spinner/g, '');
    },
    hide: (v, ce) => show(!v, ce),
-   //click: (v, ce, tobj, name) =>
-   //{
-   //   //Remove the existing event handler
-   //   ce.removeEventListener("click", tobj.fields[name]);
-   //   ce.addEventListener("click", (event) =>
-   //   {
-   //      event.preventDefault();
-   //      v(e, ce, tobj)
-   //   });
-   //},
    icon: (v, ce) =>
    {
       var vn = Number(v);

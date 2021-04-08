@@ -3352,58 +3352,20 @@ function easyComment(comment) //, users)
          return;
       }
 
-      //Automatically create discussion?
       var d = getDiscussion(comment.parentId);
-      d.template.fields.hascomments = true;
+      var result = d.template.innerTemplates.messagecontainer.AddComment(
+         comment, getLocalOption("breakchatmessagetime") * 1000);
 
-      //Starting from bottom, find place to insert.
-      var comments = d.querySelectorAll("[data-messageid]");
-      var insertAfter = d.querySelector("[data-comments]").firstChild; //false;
-
-      for(var i = comments.length - 1; i >= 0; i--)
+      if(result)
       {
-         //This is the place to insert!
-         if(comment.id > Number(comments[i].getAttribute("data-messageid")))
-         {
-            insertAfter = comments[i];
-            break;
-         }
+         d.template.fields.hascomments = true;
+
+         result.fragment.template.SetFields({
+            editfunc : messageControllerEvent
+         });
+
+         result.fragment.id = getCommentId(comment.id);
       }
-
-      //Oops, this really shouldn't happen!!
-      if(!insertAfter)
-      {
-         throw "Didn't find a place to insert comment " + comment.id + 
-            " into discussion " + comment.parentId;
-      }
-
-      var insertFrame = (insertAfter.getAttribute("data-template") == "messagefragment")
-         ? getFragmentFrame(insertAfter) : insertAfter;
-      var newFrame = null;
-
-      //Oops, we need a new frame
-      if(insertFrame.getAttribute("data-template") != "messageframe" || 
-         insertFrame.template.fields.userid != comment.createUserId ||
-         (new Date(comment.createDate)).getTime() - (new Date(insertAfter.template.fields.createdate)).getTime() 
-          > (getLocalOption("breakchatmessagetime") * 1000))
-      {
-         //create a frame to insert into
-         newFrame = Templates.LoadHere("messageframe", { message : comment }); 
-         insertAfter = newFrame.template.fields.messagelist.firstChild;
-      }
-
-      var fragment = Templates.LoadHere("messagefragment", { 
-         message : comment ,
-         frame : insertFrame,
-         editfunc : messageControllerEvent
-      });
-
-      fragment.id = getCommentId(comment.id);
-
-      Utilities.InsertAfter(fragment, insertAfter);
-
-      if(newFrame)
-         Utilities.InsertAfter(newFrame, insertFrame);
    }
 }
 
