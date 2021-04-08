@@ -151,7 +151,7 @@ window.onload = function()
 
       var tmpl = Templates.LoadHere("modulemessage", {modulemessage:msg});
 
-      writeDom(() => d.appendChild(tmpl));
+      writeDom(() => d.template.innerTemplates.messagecontainer.element.appendChild(tmpl));
    }
 
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
