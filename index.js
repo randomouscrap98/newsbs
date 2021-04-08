@@ -1406,7 +1406,7 @@ function routecommentsearch_load(spadat)
             doCommentSearch(pagetempl.fields.searchvalue, pagetempl.innerTemplates.genericsearch, pagetempl);
          }
 
-      }, getChain(data.category, c), c.id);
+      }, getChain(data.category, c));
    });
 }
 
