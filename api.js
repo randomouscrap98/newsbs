@@ -521,6 +521,8 @@ LongPoller.prototype.Repeater = function(lpdata)
 var Links = {
    User : (id) => "?p=user-" + id,
    Page : (id) => "?p=page-" + id,
+   //WARN: should this be its own thing???
+   CommentSearch : (id) => "?p=commentsearch-" + id,
    Category : (id) => "?p=category-" + id,
 };
 

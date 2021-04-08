@@ -213,6 +213,8 @@ function leftpaneclick(event)
                <div class="uk-flex-none uk-flex" id="maincontentbar">
                   <div id="maincontentinfo" class="uk-flex uk-width-expand">
                   </div>
+                  <!--<div id="maincontentadditional" class="">
+                  </div>-->
                   <div id="maincontentbarcontrols" class="uk-flex uk-height-1-1 uk-flex-middle">
                      <a href="#" class="ufk-text-primary" id="moveupmode" data-hide0
                         uk-icon="icon: triangle-up; ratio: 1.2" ufk-tooltip="Expand Chat"></a>
@@ -280,7 +282,7 @@ function leftpaneclick(event)
                            <a href="" class="uk-margin-small-left uk-flex-none" uk-icon="cog"
                               uk-toggle="#searchconstraints"></a>
                         </div>
-                        <div id="searchconstraints" class="uk-padding-small" hidden uk-margin>
+                        <div id="searchconstraints" class="searchconstraints uk-padding-small" hidden uk-margin>
                            <div class="uk-flex uk-flex-wrap" uk-margin>
             <div data-tmpl="searchconstraint" data-tmpld=
                '{"data-id":"searchpagesoption", "data-text":"Pages","data-checked":true}'></div>
@@ -776,11 +778,14 @@ function leftpaneclick(event)
          </div>
 
          <div id="stdcontentinfo" t-content=".internal(stdcontentinfo)" 
-            class="uk-flex uk-flex-middle uk-width-expand">
+            class="uk-flex uk-flex-wrap uk-flex-middle uk-width-expand">
             <img t-createuseravatar=".internal(icon)" width=20>
             <div tlink="userdropdown" tname="createuserdropdown"
                uk-dropdown="boundary: #website; pos: top-left;"></div>
             <time class="uk-text-meta" t-createdate=".textContent"></time>
+            <div class="uk-width-expand"> <!-- Just filler for now --> </div>
+            <a t-commentsearchlink=".spa()" uk-tooltip="Search Comments" 
+               class="uk-margin-small-right uk-flex-none" uk-icon="icon: search; ratio: 1"></a>
          </div>
 
          <div id="historyitem" t-id="data-activityid" t-activity=".internal(historyitem)" 
@@ -992,6 +997,8 @@ function leftpaneclick(event)
          <article id="pagecontent" t-content=".render()" t-format
             class="uk-text-break content uk-margin-remove-top"></article>
 
+         <!-- Additional content will be a template too. -->
+
          <div id="routepage" t-pinned t-permissions t-page=".internal(routepage)"
               class="uk-container uk-margin-top uk-margin-bottom contentpage">
             <div class="pagetitle uk-flex uk-flex-top uk-flex-wrap">
@@ -1040,6 +1047,38 @@ function leftpaneclick(event)
             <div data-userhistory class="uk-margin-top uk-margin-bottom">
                <h4 data-title hidden>Activity:</h4>
             </div>
+         </div>
+
+         <div id="routecommentsearch" t-page=".internal(routecommentsearch)"
+              class="uk-container uk-margin-top uk-margin-bottom">
+            <h2>Comment search: <span t-title=".textContent"></span></h2>
+            <div class="uk-flex uk-flex-middle uk-margin-small-top">
+               <form id="routecmsform" class="uk-width-expand uk-search uk-search-default">
+                  <a href="#" id="routecmsformicon" class="uk-search-icon-flip" uk-search-icon></a>
+                  <input id="routecmsinput" class="uk-search-input" placeholder="Search...">
+               </form>
+               <a href="" class="uk-margin-small-left uk-flex-none" uk-icon="cog"
+                  uk-toggle="#routecmsconstraints"></a>
+            </div>
+            <div id="routecmsconstraints" class="searchconstraints uk-padding-small" hidden uk-margin>
+               <div class="uk-flex uk-flex-wrap" uk-margin>
+                  <label class="uk-margin-right uk-text-nowrap">
+                     <select class="uk-select uk-width-small uk-form-small" id="routecmssortoption">
+                        <option value="id">Id</option>
+                        <option value="createDate">Create Date</option>
+                        <option value="editDate">Edit Date</option>
+                     </select>
+                     <span>Sort</span>
+                  </label>
+                  <label class="uk-margin-right uk-text-nowrap">
+                     <input id="routecmsreverseoption" type="checkbox" class="uk-checkbox" checked>
+                     <span>Reverse</span>
+                  </label>
+               </div>
+            </div>
+            <!--<div class="pagetitle uk-flex uk-flex-top uk-flex-wrap">
+               <h1 class="uk-margin-small-right uk-width-expand" t-title=".textContent"></h1>
+            </div>-->
          </div>
 
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">

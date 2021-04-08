@@ -1185,10 +1185,10 @@ function routecategory_load(spadat)
       log.Datalog("see devlog for category data", apidata);
 
       var data = apidata.data;
-      var users = idMap(data.user);
-      var categories = idMap(data.category);
+      //var users = idMap(data.user);
+      var c = idMap(data.category)[cid];
       //categories[0] = Utilities.ShallowCopy(rootCategory);
-      var c = categories[cid];
+      //var c = categories[cid];
 
       if(!c)
       {
@@ -1247,8 +1247,8 @@ function routepage_load(spadat)
          return
       }
 
-      var users = idMap(data.user);
-      var categories = idMap(data.category);
+      //var users = idMap(data.user);
+      //var categories = idMap(data.category);
 
       route_complete(spadat, c.name, templ =>
       {
@@ -1333,6 +1333,42 @@ function finishPageControls(t, c)
                log.Info("Remove watch " + c.id + " successful!"), myfail);
          }
       }
+   });
+}
+
+function routecommentsearch_load(spadat)
+{
+   var pid = Number(spadat.id);
+
+   var params = new URLSearchParams();
+   params.append("requests", "content-" + JSON.stringify({"ids" : [pid]})); //, "includeAbout" : true}));
+   params.append("requests", "category");
+   params.append("requests", "user.0createUserId.0edituserId");
+   params.set("category", "id,name,parentId,values");
+
+   globals.api.Chain(params, function(apidata)
+   {
+      log.Datalog("see dev log for page data", apidata);
+
+      var data = apidata.data;
+      var c = data.content[0];
+
+      if(!c)
+      {
+         pageerror("NOT FOUND", "Couldn't find page " + pid);
+         return
+      }
+
+      //var users = idMap(data.user);
+      //var categories = idMap(data.category);
+
+      route_complete(spadat, c.name, templ =>
+      {
+         templ.template.fields.page = c;
+         //finishPageControls(templ.template, c);
+         //maincontentinfo.appendChild(Templates.LoadHere("stdcontentinfo", {content:c}));
+         //finishDiscussion(c, data.comment, initload);
+      }, getChain(data.category, c), c.id);
    });
 }
 

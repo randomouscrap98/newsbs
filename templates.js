@@ -262,7 +262,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       tobj.SetFields({
          createuseravatar : v.createUser.avatar,
-         createdate : _stdDate(v.createDate)
+         createdate : _stdDate(v.createDate),
+         commentsearchlink : Links.CommentSearch(v.id)
       });
       tobj.fields.createuserdropdown.user = v.createUser;
    },
@@ -612,6 +613,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.slideshow.page = v;
          tobj.fields.sbhardware.system = v.values.system;
       }
+   },
+   routecommentsearch: (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         title: v.name
+      });
    },
    //Setting the user (which should always exist) for the standard user display
    routeuser: (v, ce, tobj) =>

@@ -603,7 +603,7 @@ img.outlined { box-sizing: content-box; }
 .settings .uk-input, .settings .uk-select { height: 2.1em; min-width: 5em; }
 .settings { font-size: 0.9em; }
 /* Search */
-#searchconstraints {
+.searchconstraints {
    border: 1px solid var(--outlinecolor);
    margin-top: 5px;
 }
