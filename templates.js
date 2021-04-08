@@ -111,7 +111,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    LoadHere : function(template, data)
    {
       var template = Load(template);
-      template.SetFields(data);
+      if(data) template.SetFields(data);
       return template.element;
    },
 
@@ -198,7 +198,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       if(newFrame)
          Utilities.InsertAfter(newFrame, insertFrame);
 
-      return { fragment : fragment, frame : insertFrame };
+      return { fragment : fragment, frame : fragment.template.fields.frame };
    },
 
    //Generic helper functions for any internal/external set to call
@@ -653,7 +653,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       tobj.SetFields({
          title: v.name,
-         pageid : v.id
+         pageid : v.id,
+         resetlink : Links.CommentSearch(v.id)
       });
    },
    //Setting the user (which should always exist) for the standard user display

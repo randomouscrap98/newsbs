@@ -1420,9 +1420,9 @@ function doCommentSearch(value, template, stemplate)
    };
 
    if(stemplate.fields.minid)
-      csearch.minid = stemplate.fields.minid;
+      csearch.minid = Number(stemplate.fields.minid);
    if(stemplate.fields.maxid)
-      csearch.maxid = stemplate.fields.maxid;
+      csearch.maxid = Number(stemplate.fields.maxid);
    if(stemplate.fields.createstart)
       csearch.createstart = stemplate.fields.createstart;
    if(stemplate.fields.createend)
@@ -1438,24 +1438,38 @@ function doCommentSearch(value, template, stemplate)
 
       stemplate.fields.results.innerHTML = "";
 
+      var singlecontainer = null;
+
+      //The results look different if they're contiguous or not. The only
+      //time they're NOT is when there's a search value. Later, it will
+      //also be when users are limited, or sorting is weird.
+      if(!value)
+      {
+         singlecontainer = Templates.LoadHere("messagecontainer");
+         stemplate.fields.results.appendChild(singlecontainer);
+      }
+
       apidata.data.comment.forEach(cm =>
       {
-         var frame = Templates.LoadHere("messageframe", { message : cm }); 
-         var fragment = Templates.LoadHere("messagefragment", { 
-            message : cm,
-            frame : frame,
-            editfunc : messageControllerEvent
-         });
-         //frame.setAttribute("data-condensed", "");
-         var messagelist = frame.template.fields.messagelist;
-         messagelist.appendChild(fragment);
-         stemplate.fields.results.appendChild(frame);
-         if(value)
+         var container = singlecontainer || Templates.LoadHere("messagecontainer");
+
+         var addresult = container.template.AddComment(
+               cm, getLocalOption("breakchatmessagetime") * 1000);
+
+         if(addresult)
          {
-            messagelist.appendChild(Templates.LoadHere("commentsearchexpand", { comment : cm }));
-            var divider = document.createElement("hr");
-            divider.className = "uk-margin-small";
-            stemplate.fields.results.appendChild(divider);
+            addresult.fragment.template.SetFields({
+               editfunc : messageControllerEvent
+            });
+
+            //Oh this is special, put some extra crap
+            if(!singlecontainer)
+            {
+               stemplate.fields.results.appendChild(container);
+               addresult.frame.template.fields.messagelist.appendChild(
+                  Templates.LoadHere("commentsearchexpand", { comment : cm }));
+               stemplate.fields.results.appendChild(Templates.LoadHere("messagedivider"));
+            }
          }
       });
 
@@ -3305,7 +3319,7 @@ function easyComments(comments, expected)
    {
       var n = performance.now();
       globals.commentsrendered = (globals.commentsrendered || 0) + comments.length;
-      sortById(comments).forEach(x => easyComment(x)); //, users));
+      sortById(comments).forEach(x => easyComment(x));
 
       if(expected)
       {
@@ -3318,7 +3332,7 @@ function easyComments(comments, expected)
    }
 }
 
-function easyComment(comment) //, users)
+function easyComment(comment)
 {
    //First, find existing comment. If it's there, just update information?
    var existing = document.getElementById(getCommentId(comment.id));
@@ -3339,7 +3353,8 @@ function easyComment(comment) //, users)
       }
       else
       {
-         log.Debug("Editing comment " + comment.id);
+         log.Debug("Editing comment " + comment.id)
+         console.log(comment, existing);
          existing.template.SetFields({ message : comment });
       }
    }

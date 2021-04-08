@@ -19,21 +19,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617881037" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1617881037"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617881037"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617883353" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1617883353"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617883353"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1617881037"></script>
-      <script src="templates.js?v=1617881037"></script>
-      <script src="dom.js?v=1617881037"></script>
-      <script src="api.js?v=1617881037"></script>
-      <script src="commands.js?v=1617881037"></script>
-      <script src="index.js?v=1617881037"></script>
-      <script src="sbs2-markup/highlight.js?v=1617881037"></script>
-      <script src="sbs2-markup/parse.js?v=1617881037"></script>
-      <script src="sbs2-markup/render.js?v=1617881037"></script>
+      <script src="libbo.js?v=1617883353"></script>
+      <script src="templates.js?v=1617883353"></script>
+      <script src="dom.js?v=1617883353"></script>
+      <script src="api.js?v=1617883353"></script>
+      <script src="commands.js?v=1617883353"></script>
+      <script src="index.js?v=1617883353"></script>
+      <script src="sbs2-markup/highlight.js?v=1617883353"></script>
+      <script src="sbs2-markup/parse.js?v=1617883353"></script>
+      <script src="sbs2-markup/render.js?v=1617883353"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1617881037" />
+      <link rel="stylesheet" href="index.css?v=1617883353" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -548,7 +548,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00064 (2021-04-08T09:56:06Z)</dd>
+      <dd data-frontendrelease>00065 (2021-04-08T12:02:33Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -821,26 +821,17 @@ function leftpaneclick(event)
             </div>
             <p t-hascomments=".internal(hide)|"
                class="uk-text-meta uk-padding-small uk-text-center uk-width-expand">No comments (yet!)</p>
-            <!-- New: Stop using stupid 0 id placeholders, start using a proper
-             container for messages and detecting the top -->
-             <!--<div data-comments><div hidden>Placeholder</div></div> -->
              <div tlink="messagecontainer"></div>
-             <!--tfunc="HandleComment_Discussion"> </div>-->
-            <!-- A placeholder, so inserting will always have a place to stop searching -->
-            <!--<div tlink="messageframe" tdata='{"userid":"0"}'></div>
-            <div data-tmpl="messageframe" data-tmpld='{"userid":"0"}' style="display: none">
-               <div data-tmpl="singlemessage" data-tmpld='{"messageid":"0"}'>
-               </div>
-            </div>-->
          </div>
 
          <div id="messagecontainer" tfunc="AddComment" class="thinwrapper" data-nouikit>
             <div hidden>Placeholder</div>
          </div>
 
+         <hr id="messagedivider" class="uk-margin-small">
+
          <div id="messageframe" data-nouikit t-message=".internal(messageframe)"
             t-discussion=".internal()" t-userid="data-uid" class="uk-flex uk-flex-top">
-            <!--tfunc="FrameFromMessage">-->
             <img class="uk-flex-none avatar" t-useravatar=".internal(icon)" width=60>
             <div class="messageframemain uk-width-expand">
                <div class="messageframeinfo uk-flex uk-flex-middle">
@@ -1110,8 +1101,10 @@ function leftpaneclick(event)
                      <input type="checkbox" class="uk-checkbox" t-reverse=".checked">
                      <span>Reverse</span>
                   </label>
+                  <a class="uk-margin-right uk-text-nowrap" t-resetlink=".spa()">Reset all</a>
                </div>
             </div>
+            <div class="uk-text-meta uk-margin-small">NOTE: Some contiguous results are displayed like chat</div>
             <div t-results=".self()" class="pageblock">
             </div>
          </div>
