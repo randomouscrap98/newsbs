@@ -618,6 +618,9 @@ img.outlined { box-sizing: content-box; }
 [data-history] {
    padding-bottom: 1.3em;
 }
+[data-template="commentsearchexpand"] > * {
+   margin-right: 0.3em;
+}
 .historycontainer {
    background-color: rgba(128,128,128,0.02);
    clear: both;
@@ -747,7 +750,7 @@ pre .constant { color: var(--codeconstant); }
    .pagecontrol { margin: 0 3px; }
    .pagetitle .pagecontrols { margin-right: -15px !important; }
    #breadcrumbs a, #breadcrumbs>*::before { font-size: 1.1em; }
-   [data-template="messageframe"] .avatar { width: 60px; height: 60px; }
+   [data-template="messageframe"]:not([data-condensed]) .avatar { width: 60px; height: 60px; }
 }
 
 /* Dark mode? */

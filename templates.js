@@ -176,6 +176,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       else
          ce.setAttribute("hidden", "");
    },
+   spin: (v, ce) =>
+   {
+      if(v) //if it's a truthy value at ALL, stop hiding, otherwise hide
+         ce.className += " uk-spinner"; 
+      else
+         ce.className = ce.className.replace(/uk-spinner/g, '');
+   },
    hide: (v, ce) => show(!v, ce),
    //click: (v, ce, tobj, name) =>
    //{
@@ -455,6 +462,20 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.watchfunc(!original, failure);
       };
    },
+   genericsearch : (v, ce, tobj) =>
+   {
+      var sub = (e) =>
+      {
+         tobj.fields.loading = true;
+         e.preventDefault();
+         v(tobj.fields.searchvalue, tobj);
+      };
+
+      tobj.SetFields({
+         searchsubmit : sub,
+         searchclick : sub
+      });
+   },
    sbhardware : (v, ce, tobj) =>
    {
       var dat = v && _stoic[v.toLowerCase()];
@@ -534,14 +555,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          messageid : v.id
       });
    },
-   //messagefragment_editfunc : (v, ce, tobj) =>
-   //{
-   //   ce.onclick = (event) =>
-   //   {
-   //      event.preventDefault();
-   //      tobj.fields.messagefragmenteditfunc(event);
-   //   };
-   //},
    messageframe : (v, ce, tobj) =>
    {
       var parsed = FrontendCoop.ParseComment(v.content);
@@ -555,24 +568,22 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          frametime : _stdDateTime(v.createDate)
       });
    },
-   //discussion_loadcomments : (v, ce, tobj) =>
-   //{
-   //   ce.onclick = (event) =>
-   //   {
-   //      event.preventDefault();
-   //      v(() =>
-   //      {
-   //         tobj.fields.loadingcomments = true;
-   //      },(result) =>
-   //      {
-   //      });
-   //   };
-   //},
    discussion_loadingcomments : (v, ce, tobj) =>
    {
       tobj.SetFields({
          showloading: v,
          showloader: !v
+      });
+   },
+   commentsearchexpand : (v, ce, tobj) =>
+   {
+      var d = (new Date(v.createDate)).getTime();
+      var dd = (d) => { return (new Date(d)).toISOString(); };
+      var cs = (ds, de) => Links.CommentSearch(v.parentId, { cs : dd(d + ds), ce : dd(d + de) });
+      tobj.SetFields({
+         searchtimeone : cs(-60000 * 1, 60000 * 1),
+         searchtimetwo : cs(-60000 * 15, 60000 * 15),
+         searchtimethree : cs(-60000 * 60, 60000 * 60)
       });
    },
 
@@ -617,7 +628,8 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    routecommentsearch: (v, ce, tobj) =>
    {
       tobj.SetFields({
-         title: v.name
+         title: v.name,
+         pageid : v.id
       });
    },
    //Setting the user (which should always exist) for the standard user display
@@ -677,6 +689,11 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
 
    //All the rest of the get/set
    //----------------------------------
+   self_get : (ce, tobj) => ce,
+   self_set : function(v, ce, tobj)
+   {
+      throw "Can't replace template elements through fields (yet)!";
+   },
    spa_get : (ce, tobj) => ce.getAttribute("href"),
    spa_set : function(v, ce, tobj)
    {

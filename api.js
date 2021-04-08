@@ -519,11 +519,19 @@ LongPoller.prototype.Repeater = function(lpdata)
 // ****************
 
 var Links = {
-   User : (id) => "?p=user-" + id,
-   Page : (id) => "?p=page-" + id,
+   _base : (page, extras) =>
+   {
+      var params = new URLSearchParams();
+      params.append("p", page);
+      if(extras)
+         Object.keys(extras).forEach(x => params.append(x, extras[x]));
+      return "?" + params.toString();
+   },
+   User : (id, args) => Links._base(`user-${id}`, args),
+   Page : (id, args) => Links._base(`page-${id}`, args),
    //WARN: should this be its own thing???
-   CommentSearch : (id) => "?p=commentsearch-" + id,
-   Category : (id) => "?p=category-" + id,
+   CommentSearch : (id, args) => Links._base(`commentsearch-${id}`, args),
+   Category : (id, args) => Links._base(`category-${id}`, args)
 };
 
 // *******************
@@ -666,7 +674,7 @@ var FrontendCoop = {
    CreateComment : function(rawtext, markup, avatar) {
       var meta = {"m":markup};
       if(avatar !== undefined)
-         meta.a = "avatar";
+         meta.a = avatar;
       return JSON.stringify(meta) + "\n" + rawtext;
    },
    TypeHasDiscussion : function(type) {

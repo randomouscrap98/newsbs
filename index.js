@@ -882,7 +882,7 @@ function sendDiscussionMessage(message, markup, error)
    var currentDiscussion = getActiveDiscussionId();
    var sendData = {
       "parentId" : Number(currentDiscussion),
-      "content" : FrontendCoop.CreateComment(message, markup)
+      "content" : FrontendCoop.CreateComment(message, markup, getUserAvatar())
    };
 
    globals.api.Post("comment", sendData, undefined, error );
@@ -1341,7 +1341,7 @@ function routecommentsearch_load(spadat)
    var pid = Number(spadat.id);
 
    var params = new URLSearchParams();
-   params.append("requests", "content-" + JSON.stringify({"ids" : [pid]})); //, "includeAbout" : true}));
+   params.append("requests", "content-" + JSON.stringify({"ids" : [pid]}));
    params.append("requests", "category");
    params.append("requests", "user.0createUserId.0edituserId");
    params.set("category", "id,name,parentId,values");
@@ -1359,17 +1359,110 @@ function routecommentsearch_load(spadat)
          return
       }
 
-      //var users = idMap(data.user);
-      //var categories = idMap(data.category);
-
       route_complete(spadat, c.name, templ =>
       {
-         templ.template.fields.page = c;
-         //finishPageControls(templ.template, c);
-         //maincontentinfo.appendChild(Templates.LoadHere("stdcontentinfo", {content:c}));
-         //finishDiscussion(c, data.comment, initload);
+         var paramMap = { 
+            cs: "createstart", 
+            ce: "createend", 
+            mx : "maxid", 
+            mn: "minid", 
+            s: "contentlike"
+         };
+         var params = Object.keys(paramMap);
+
+         var pagetempl = templ.template;
+         var fields = {
+            page : c,
+            searchfunc : (v,t) => 
+            {
+               var csearch = doCommentSearch(v, t, pagetempl);
+               var args = {};
+               params.forEach(x => {
+                  var csv = csearch[paramMap[x]];
+                  if(x == "s") csv = csv.replace(/%/g, "");
+                  if(csv) args[x] = csv;
+               });
+               var url = Links.CommentSearch(c.id, args);
+               history.pushState({"url" : url}, url, url);
+            }
+         };
+
+         var hasparam = false;
+         params.forEach(x =>
+         {
+            if(spadat.params.has(x))
+            {
+               fields[x == "s" ? "searchvalue" : paramMap[x]] = spadat.params.get(x);
+               hasparam = true;
+            }
+         });
+
+         pagetempl.SetFields(fields);
+
+         //If some parameter field was set, perform a search now!
+         if(hasparam)
+         {
+            pagetempl.fields.loading = true;
+            doCommentSearch(pagetempl.fields.searchvalue, pagetempl.innerTemplates.genericsearch, pagetempl);
+         }
+
       }, getChain(data.category, c), c.id);
    });
+}
+
+function doCommentSearch(value, template, stemplate)
+{
+   var csearch = {
+      "contentlike" : `%${value}%`,
+      "reverse" : stemplate.fields.reverse,
+      "sort" : stemplate.fields.sort,
+      "parentids" : [stemplate.fields.pageid]
+   };
+
+   if(stemplate.fields.minid)
+      csearch.minid = stemplate.fields.minid;
+   if(stemplate.fields.maxid)
+      csearch.maxid = stemplate.fields.maxid;
+   if(stemplate.fields.createstart)
+      csearch.createstart = stemplate.fields.createstart;
+   if(stemplate.fields.createend)
+      csearch.createend = stemplate.fields.createend;
+
+   var params = new URLSearchParams();
+   params.append("requests", "comment-" + JSON.stringify(csearch));
+   params.append("requests", "user.0createUserId.0edituserId");
+
+   globals.api.Chain(params, function(apidata)
+   {
+      log.Datalog("see dev log for page data", apidata);
+
+      stemplate.fields.results.innerHTML = "";
+
+      apidata.data.comment.forEach(cm =>
+      {
+         var frame = Templates.LoadHere("messageframe", { message : cm }); 
+         var fragment = Templates.LoadHere("messagefragment", { 
+            message : cm,
+            frame : frame,
+            editfunc : messageControllerEvent
+         });
+         //frame.setAttribute("data-condensed", "");
+         var messagelist = frame.template.fields.messagelist;
+         messagelist.appendChild(fragment);
+         stemplate.fields.results.appendChild(frame);
+         if(value)
+         {
+            messagelist.appendChild(Templates.LoadHere("commentsearchexpand", { comment : cm }));
+            var divider = document.createElement("hr");
+            divider.className = "uk-margin-small";
+            stemplate.fields.results.appendChild(divider);
+         }
+      });
+
+      template.fields.loading = false;
+   });
+
+   return csearch;
 }
 
 //This is EXTREMELY similar to pages, think about doing something different to
@@ -1906,6 +1999,7 @@ function updateCurrentUserData(user)
       //Just username and avatar for now?
       website.setAttribute("data-issuper", user.super);
       navuseravatar.src = getAvatarLink(user.avatar, 40);
+      navuseravatar.setAttribute("data-avatar", user.avatar);
       userusername.firstElementChild.textContent = user.username;
       userusername.setAttribute("data-username", user.username);
       userusername.href = Links.User(user.id);
@@ -2474,11 +2568,13 @@ function getChain(categories, content)
 
 function parseLink(url)
 {
-   var pVal = Utilities.GetParams(url).get("p") || "home"; 
+   var params = Utilities.GetParams(url);
+   var pVal = params.get("p") || "home"; 
    var pParts = pVal.split("-");
    return {
       url : url,
       p : pVal,
+      params : params,
       page : pParts[0],
       id : pParts[1]
    };
@@ -2647,6 +2743,7 @@ function updateDiscussionUserlist(listeners, users)
 
 function getUserId() { return Number(userid.dataset.userid); }
 function getUsername() { return userusername.dataset.username; }
+function getUserAvatar() { return Number(navuseravatar.dataset.avatar); }
 function getIsSuper() { return website.getAttribute("data-issuper") == "true"; }
 
 function formError(form, error)
@@ -3292,7 +3389,7 @@ function easyComment(comment) //, users)
       {
          //create a frame to insert into
          newFrame = Templates.LoadHere("messageframe", { message : comment }); 
-         insertAfter = newFrame.querySelector("[data-messagelist]").firstChild;
+         insertAfter = newFrame.template.fields.messagelist.firstChild;
       }
 
       var fragment = Templates.LoadHere("messagefragment", { 
@@ -3320,7 +3417,7 @@ function messageControllerEvent(event)
    var frame = Templates.LoadHere("messageframe", { message : msg } ); 
    var fragment = Templates.LoadHere("messagefragment", { message : msg, frame : frame } ); 
 
-   var msglist = frame.querySelector("[data-messagelist]");
+   var msglist = frame.templates.fields.messagelist;
    msglist.appendChild(fragment);
    Utilities.RemoveElement(fragment.querySelector(".messagecontrol"));
 

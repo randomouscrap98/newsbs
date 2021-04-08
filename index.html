@@ -844,7 +844,7 @@ function leftpaneclick(event)
                   <time class="uk-text-meta uk-width-expand uk-text-truncate
                      uk-margin-small-left" t-frametime=".textContent"></time>
                </div>
-               <div data-nouikit data-messagelist> </div>
+               <div data-nouikit data-messagelist t-messagelist=".self()"> </div>
             </div>
          </div>
 
@@ -994,6 +994,22 @@ function leftpaneclick(event)
             </div>
          </div>
 
+         <form id="genericsearch" t-searchfunc=".internal(genericsearch)" 
+            t-searchsubmit=".onsubmit" class="uk-width-expand uk-search uk-search-default">
+            <a href="#" t-loading=".internal(spin)|" t-searchclick=".onclick" 
+               class="uk-search-icon-flip" uk-search-icon></a>
+            <input t-searchvalue=".value" class="uk-search-input" placeholder="Search...">
+         </form>
+
+         <div id="commentsearchexpand" t-comment=".internal(commentsearchexpand)"
+            class="uk-flex uk-flex-middle">
+            <span uk-icon="icon: history; ratio: 0.75" 
+               class=""></span>
+            <a class="uk-link-muted" t-searchtimeone=".spa()">1m</a>
+            <a class="uk-link-muted" t-searchtimetwo=".spa()">15m</a>
+            <a class="uk-link-muted" t-searchtimethree=".spa()">60m</a>
+         </div>
+
          <article id="pagecontent" t-content=".render()" t-format
             class="uk-text-break content uk-margin-remove-top"></article>
 
@@ -1050,35 +1066,49 @@ function leftpaneclick(event)
          </div>
 
          <div id="routecommentsearch" t-page=".internal(routecommentsearch)"
+              t-pageid=".internal()"
               class="uk-container uk-margin-top uk-margin-bottom">
             <h2>Comment search: <span t-title=".textContent"></span></h2>
             <div class="uk-flex uk-flex-middle uk-margin-small-top">
-               <form id="routecmsform" class="uk-width-expand uk-search uk-search-default">
-                  <a href="#" id="routecmsformicon" class="uk-search-icon-flip" uk-search-icon></a>
-                  <input id="routecmsinput" class="uk-search-input" placeholder="Search...">
-               </form>
+               <div tlink="genericsearch" thoist></div>
                <a href="" class="uk-margin-small-left uk-flex-none" uk-icon="cog"
                   uk-toggle="#routecmsconstraints"></a>
             </div>
-            <div id="routecmsconstraints" class="searchconstraints uk-padding-small" hidden uk-margin>
+            <div id="routecmsconstraints" class="searchconstraints uk-padding-small" uk-margin>
                <div class="uk-flex uk-flex-wrap" uk-margin>
                   <label class="uk-margin-right uk-text-nowrap">
-                     <select class="uk-select uk-width-small uk-form-small" id="routecmssortoption">
+                     <input class="uk-input uk-width-small" t-createstart=".value">
+                     <span>Create Start</span>
+                  </label>
+                  <label class="uk-margin-right uk-text-nowrap">
+                     <input class="uk-input uk-width-small" t-createend=".value">
+                     <span>Create End</span>
+                  </label>
+                  <label class="uk-margin-right uk-text-nowrap">
+                     <input type="number" class="uk-input uk-width-small" t-minid=".value">
+                     <span>Min ID</span>
+                  </label>
+                  <label class="uk-margin-right uk-text-nowrap">
+                     <input type="number" class="uk-input uk-width-small" t-maxid=".value">
+                     <span>Max ID</span>
+                  </label>
+               </div>
+               <hr>
+               <div class="uk-flex uk-flex-wrap" uk-margin>
+                  <label class="uk-margin-right uk-text-nowrap">
+                     <select class="uk-select uk-width-small uk-form-small" t-sort=".value">
                         <option value="id">Id</option>
-                        <option value="createDate">Create Date</option>
-                        <option value="editDate">Edit Date</option>
                      </select>
                      <span>Sort</span>
                   </label>
                   <label class="uk-margin-right uk-text-nowrap">
-                     <input id="routecmsreverseoption" type="checkbox" class="uk-checkbox" checked>
+                     <input type="checkbox" class="uk-checkbox" t-reverse=".checked">
                      <span>Reverse</span>
                   </label>
                </div>
             </div>
-            <!--<div class="pagetitle uk-flex uk-flex-top uk-flex-wrap">
-               <h1 class="uk-margin-small-right uk-width-expand" t-title=".textContent"></h1>
-            </div>-->
+            <div t-results=".self()" class="pageblock">
+            </div>
          </div>
 
          <div id="routehome" class="uk-container uk-margin-top uk-margin-bottom">
