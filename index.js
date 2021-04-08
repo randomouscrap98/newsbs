@@ -3417,7 +3417,7 @@ function messageControllerEvent(event)
    var frame = Templates.LoadHere("messageframe", { message : msg } ); 
    var fragment = Templates.LoadHere("messagefragment", { message : msg, frame : frame } ); 
 
-   var msglist = frame.templates.fields.messagelist;
+   var msglist = frame.template.fields.messagelist;
    msglist.appendChild(fragment);
    Utilities.RemoveElement(fragment.querySelector(".messagecontrol"));
 
