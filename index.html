@@ -19,21 +19,21 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617909101" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1617909101"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617909101"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617913213" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1617913213"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617913213"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1617909101"></script>
-      <script src="templates.js?v=1617909101"></script>
-      <script src="dom.js?v=1617909101"></script>
-      <script src="api.js?v=1617909101"></script>
-      <script src="commands.js?v=1617909101"></script>
-      <script src="index.js?v=1617909101"></script>
-      <script src="sbs2-markup/highlight.js?v=1617909101"></script>
-      <script src="sbs2-markup/parse.js?v=1617909101"></script>
-      <script src="sbs2-markup/render.js?v=1617909101"></script>
+      <script src="libbo.js?v=1617913213"></script>
+      <script src="templates.js?v=1617913213"></script>
+      <script src="dom.js?v=1617913213"></script>
+      <script src="api.js?v=1617913213"></script>
+      <script src="commands.js?v=1617913213"></script>
+      <script src="index.js?v=1617913213"></script>
+      <script src="sbs2-markup/highlight.js?v=1617913213"></script>
+      <script src="sbs2-markup/parse.js?v=1617913213"></script>
+      <script src="sbs2-markup/render.js?v=1617913213"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1617909101" />
+      <link rel="stylesheet" href="index.css?v=1617913213" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -548,7 +548,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00066 (2021-04-08T19:11:41Z)</dd>
+      <dd data-frontendrelease>00067 (2021-04-08T20:20:13Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -1061,7 +1061,7 @@ function leftpaneclick(event)
             </div>
          </div>
 
-         <div id="routecommentsearch" t-page=".internal(routecommentsearch)"
+         <div id="routecomments" t-page=".internal(routecomments)"
               t-pageid=".internal()"
               class="uk-container uk-margin-top uk-margin-bottom">
             <h2>Comment search: <span t-title=".textContent"></span></h2>
@@ -1081,12 +1081,8 @@ function leftpaneclick(event)
                      <span>Create End</span>
                   </label>
                   <label class="uk-margin-right uk-text-nowrap">
-                     <input type="number" class="uk-input uk-width-small" t-minid=".value">
-                     <span>Min ID</span>
-                  </label>
-                  <label class="uk-margin-right uk-text-nowrap">
-                     <input type="number" class="uk-input uk-width-small" t-maxid=".value">
-                     <span>Max ID</span>
+                     <input class="uk-input uk-width-small" t-searchids=".value">
+                     <span>IDs</span>
                   </label>
                </div>
                <hr>

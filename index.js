@@ -1336,7 +1336,7 @@ function finishPageControls(t, c)
    });
 }
 
-function routecommentsearch_load(spadat)
+function routecomments_load(spadat)
 {
    var pid = Number(spadat.id);
 
@@ -1361,12 +1361,12 @@ function routecommentsearch_load(spadat)
 
       route_complete(spadat, c.name, templ =>
       {
+         //A mapping of parameters to template fields
          var paramMap = { 
-            cs: "createstart", 
-            ce: "createend", 
-            mx : "maxid", 
-            mn: "minid", 
-            s: "contentlike"
+            "start" : "createstart",
+            "end" : "createend",
+            "ids" : "searchids",
+            "s" : "searchvalue"
          };
          var params = Object.keys(paramMap);
 
@@ -1375,12 +1375,11 @@ function routecommentsearch_load(spadat)
             page : c,
             searchfunc : (v,t) => 
             {
-               var csearch = doCommentSearch(v, t, pagetempl);
+               doCommentSearch(t, pagetempl);
                var args = {};
                params.forEach(x => {
-                  var csv = csearch[paramMap[x]];
-                  if(x == "s") csv = csv.replace(/%/g, "");
-                  if(csv) args[x] = csv;
+                  if(pagetempl.fields[paramMap[x]])
+                     args[x] = pagetempl.fields[paramMap[x]];
                });
                var url = Links.CommentSearch(c.id, args);
                history.pushState({"url" : url}, url, url);
@@ -1392,7 +1391,8 @@ function routecommentsearch_load(spadat)
          {
             if(spadat.params.has(x))
             {
-               fields[x == "s" ? "searchvalue" : paramMap[x]] = spadat.params.get(x);
+               //fields[x == "s" ? "searchvalue" : paramMap[x]] = spadat.params.get(x);
+               fields[paramMap[x]] = spadat.params.get(x);
                hasparam = true;
             }
          });
@@ -1403,30 +1403,42 @@ function routecommentsearch_load(spadat)
          if(hasparam)
          {
             pagetempl.fields.loading = true;
-            doCommentSearch(pagetempl.fields.searchvalue, pagetempl.innerTemplates.genericsearch, pagetempl);
+            doCommentSearch(pagetempl.innerTemplates.genericsearch, pagetempl);
          }
 
       }, getChain(data.category, c));
    });
 }
 
-function doCommentSearch(value, template, stemplate)
+function doCommentSearch(template, stemplate)
 {
    var csearch = {
-      "contentlike" : `%${value}%`,
+      //"contentlike" : `%${value}%`,
       "reverse" : stemplate.fields.reverse,
       "sort" : stemplate.fields.sort,
       "parentids" : [stemplate.fields.pageid]
    };
 
-   if(stemplate.fields.minid)
-      csearch.minid = Number(stemplate.fields.minid);
-   if(stemplate.fields.maxid)
-      csearch.maxid = Number(stemplate.fields.maxid);
+   if(stemplate.fields.searchvalue)
+      csearch.contentlike = `%${stemplate.fields.searchvalue}%`;
    if(stemplate.fields.createstart)
       csearch.createstart = stemplate.fields.createstart;
    if(stemplate.fields.createend)
       csearch.createend = stemplate.fields.createend;
+   if(stemplate.fields.searchids)
+   {
+      var match = stemplate.fields.searchids.match(/^(\d*)-(\d*)$/);
+      if (match)
+      {
+         //+/-1 because frontend inclusive, backend exclusive
+         if(match[1]) csearch.minid = Number(match[1]) - 1;
+         if(match[2]) csearch.maxid = Number(match[2]) + 1;
+      }
+      else
+      {
+         csearch.ids = stemplate.fields.searchids.split(",").map(x=>Number(x));
+      }
+   }
 
    var params = new URLSearchParams();
    params.append("requests", "comment-" + JSON.stringify(csearch));
@@ -1443,7 +1455,7 @@ function doCommentSearch(value, template, stemplate)
       //The results look different if they're contiguous or not. The only
       //time they're NOT is when there's a search value. Later, it will
       //also be when users are limited, or sorting is weird.
-      if(!value)
+      if(!csearch.contentlike)
       {
          singlecontainer = Templates.LoadHere("messagecontainer");
          stemplate.fields.results.appendChild(singlecontainer);

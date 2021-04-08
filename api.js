@@ -530,7 +530,7 @@ var Links = {
    User : (id, args) => Links._base(`user-${id}`, args),
    Page : (id, args) => Links._base(`page-${id}`, args),
    //WARN: should this be its own thing???
-   CommentSearch : (id, args) => Links._base(`commentsearch-${id}`, args),
+   CommentSearch : (id, args) => Links._base(`comments-${id}`, args),
    Category : (id, args) => Links._base(`category-${id}`, args)
 };
 

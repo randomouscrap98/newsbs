@@ -603,7 +603,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       var d = (new Date(v.createDate)).getTime();
       var dd = (d) => { return (new Date(d)).toISOString(); };
-      var cs = (ds, de) => Links.CommentSearch(v.parentId, { cs : dd(d + ds), ce : dd(d + de) });
+      var cs = (ds, de) => Links.CommentSearch(v.parentId, { start : dd(d + ds), end : dd(d + de) });
       tobj.SetFields({
          searchtimeone : cs(-60000 * 1, 60000 * 1),
          searchtimetwo : cs(-60000 * 15, 60000 * 15),
@@ -649,7 +649,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          tobj.fields.sbhardware.system = v.values.system;
       }
    },
-   routecommentsearch: (v, ce, tobj) =>
+   routecomments: (v, ce, tobj) =>
    {
       tobj.SetFields({
          title: v.name,
