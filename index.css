@@ -319,10 +319,15 @@ a:hover { color: inherit; }
 /* -------------------- */
 /* Notification special */
 /* -------------------- */
+.uk-notification {
+   background: var(--mainbgcolor);
+}
 .uk-notification-message {
    border: 2px solid var(--outlinecolor);
+   background: var(--lightblockbgcolor);
 }
 .notification-actual {
+   color: var(--maintxtcolor);
    padding-left: 0.5em;
    padding-right: 0.4em;
 }
