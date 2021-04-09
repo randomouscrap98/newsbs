@@ -1336,7 +1336,7 @@ function finishPageControls(t, c)
    });
 }
 
-function routecomment_load(spadat)
+function routecomments_load(spadat)
 {
    var pid = Number(spadat.id);
 
@@ -3553,9 +3553,17 @@ function setPaneCategoryTree(categories)
 
 //A 12me thing for the renderer
 var Nav = {
+   replacements : { 
+      "/": "-", //Replace the first / with - (will deeper paths work...?)
+      "?": "&", //Replace the first ? with &
+      "pages" : "page", //Want some plurals to go to non-plural
+      "users" : "user", 
+      "categories" : "category"
+   },
    link: function(path, element) {
       var a = cloneTemplate("sbslink");
-      var p = path.replace(/s?\//g, "-").replace("?","&");
+      var p = path; // why do we have a copy? IDK
+      Object.keys(Nav.replacements).forEach(x => p = p.replace(x, Nav.replacements[x]));
       multiSwap(a, { "data-link" : "?p=" + p });
       finalizeTemplate(a);
       return a;
