@@ -514,26 +514,6 @@ LongPoller.prototype.Repeater = function(lpdata)
 };
 
 
-// ****************
-// --- ENDPOINT ---
-// ****************
-
-var Links = {
-   _base : (page, extras) =>
-   {
-      var params = new URLSearchParams();
-      params.append("p", page);
-      if(extras)
-         Object.keys(extras).forEach(x => params.append(x, extras[x]));
-      return "?" + params.toString();
-   },
-   User : (id, args) => Links._base(`user-${id}`, args),
-   Page : (id, args) => Links._base(`page-${id}`, args),
-   //WARN: should this be its own thing???
-   CommentSearch : (id, args) => Links._base(`comments-${id}`, args),
-   Category : (id, args) => Links._base(`category-${id}`, args)
-};
-
 // *******************
 // --- DATA FORMAT ---
 // *******************
