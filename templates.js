@@ -152,7 +152,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       //Starting from bottom, find place to insert.
       var comments = ce.querySelectorAll("[data-messageid]");
-      var insertAfter = ce.firstElementChild;
+      var insertAfter = ce.firstElementChild; //Expected to be a comment!
 
       for(var i = comments.length - 1; i >= 0; i--)
       {
@@ -163,8 +163,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
             break;
          }
       }
-
-      //console.log("CE:", ce, "insertafter:", insertAfter, "comments:", comments);
 
       //Oops, this really shouldn't happen!!
       if(!insertAfter)
@@ -403,6 +401,47 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
             ce.appendChild(LoadHere("simpleslideshowitem", {image:x.image}));
       });
    },
+   youtubepreview : (v, ce, tobj) =>
+   {
+      //Our DEFAULT actions are to load our own youtube player, but you can
+      //do something else if you want!
+      if(v)
+      {
+         tobj.SetFields({
+            startplayerfunc : t => ce.appendChild(LoadHere("youtubeplayer", {url:v})),
+            quitplayerfunc : t => 
+            {
+               [...(ce.querySelectorAll('[data-template="youtubeplayer"]'))].forEach(
+                  x => x.parentNode.removeChild(x));
+            }
+         });
+      }
+      else
+      {
+         tobj.SetFields({
+            startplayervisible : false,
+            quitplayervisible : false
+         });
+      }
+   },
+   youtubepreview_startplayerfunc : (v, ce, tobj) =>
+   {
+      ce.onclick = e =>
+      {
+         e.preventDefault();
+         v(tobj);
+         tobj.SetFields({ startplayervisible : false, quitplayervisible : true });
+      };
+   },
+   youtubepreview_quitplayerfunc : (v, ce, tobj) =>
+   {
+      ce.onclick = e =>
+      {
+         e.preventDefault();
+         v(tobj);
+         tobj.SetFields({ startplayervisible : true, quitplayervisible : false });
+      };
+   },
    pagecontrols: (v, ce, tobj) =>
    {
       tobj.SetFields({
@@ -582,7 +621,6 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    messageframe : (v, ce, tobj) =>
    {
       var parsed = FrontendCoop.ParseComment(v.content);
-      //console.log(v);
 
       tobj.SetFields({
          userid : v.createUser.id,
@@ -727,6 +765,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          event.preventDefault();
          signal("spaclick_event", { element: event.target, url: event.target.href });
       };
+      ce.setAttribute("href", v);
+   },
+   link_get : (ce, tobj) => ce.getAttribute("href"),
+   link_set : (v, ce, tobj) =>
+   {
+      ce.textContent = v;
       ce.setAttribute("href", v);
    },
    render_get : (ce, tobj) => ce.getAttribute("data-raw"),

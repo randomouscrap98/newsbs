@@ -19,22 +19,22 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617959107" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1617959107"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617959107"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617962011" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1617962011"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617962011"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1617959107"></script>
-      <script src="templates.js?v=1617959107"></script>
-      <script src="dom.js?v=1617959107"></script>
-      <script src="api.js?v=1617959107"></script>
-      <script src="commands.js?v=1617959107"></script>
-      <script src="index.js?v=1617959107"></script>
-      <script src="routing.js?v=1617959107"></script>
-      <script src="sbs2-markup/highlight.js?v=1617959107"></script>
-      <script src="sbs2-markup/parse.js?v=1617959107"></script>
-      <script src="sbs2-markup/render.js?v=1617959107"></script>
+      <script src="libbo.js?v=1617962011"></script>
+      <script src="templates.js?v=1617962011"></script>
+      <script src="dom.js?v=1617962011"></script>
+      <script src="api.js?v=1617962011"></script>
+      <script src="commands.js?v=1617962011"></script>
+      <script src="index.js?v=1617962011"></script>
+      <script src="routing.js?v=1617962011"></script>
+      <script src="sbs2-markup/highlight.js?v=1617962011"></script>
+      <script src="sbs2-markup/parse.js?v=1617962011"></script>
+      <script src="sbs2-markup/render.js?v=1617962011"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1617959107" />
+      <link rel="stylesheet" href="index.css?v=1617962011" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -549,7 +549,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00069 (2021-04-09T05:05:24Z)</dd>
+      <dd data-frontendrelease>00070 (2021-04-09T09:53:31Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -943,6 +943,32 @@ function leftpaneclick(event)
            7.6L10 7.6Z
            "></path>
          </svg>
+
+         <div id="youtubepreview" t-youtubeurl=".internal(youtubepreview)">
+            <div class="uk-flex uk-flex-middle">
+               <a t-url=".link()" target="_blank"
+                  class="uk-text-truncate uk-margin-small-right"></a>
+               <!-- This inline SVG is temporary... UIkit is disabled on
+                  messages right now -->
+               <a href="#" class="uk-flex-none uk-icon" t-startplayervisible=".internal(show)"
+                  t-startplayerfunc=".internal(youtubepreview_startplayerfunc)"><svg 
+                     width="20" height="20" viewBox="0 0 20 20"
+                     xmlns="http://www.w3.org/2000/svg" data-svg="youtube"><path
+                        d="M15,4.1c1,0.1,2.3,0,3,0.8c0.8,0.8,0.9,2.1,0.9,3.1C19,9.2,19,10.9,19,12c-0.1,1.1,0,2.4-0.5,3.4c-0.5,1.1-1.4,1.5-2.5,1.6 c-1.2,0.1-8.6,0.1-11,0c-1.1-0.1-2.4-0.1-3.2-1c-0.7-0.8-0.7-2-0.8-3C1,11.8,1,10.1,1,8.9c0-1.1,0-2.4,0.5-3.4C2,4.5,3,4.3,4.1,4.2 C5.3,4.1,12.6,4,15,4.1z M8,7.5v6l5.5-3L8,7.5z"></path></svg>
+               </a>
+               <a href="#" class="uk-flex-none uk-icon" t-quitplayervisible=".internal(show)|"
+                  t-quitplayerfunc=".internal(youtubepreview_quitplayerfunc)"><svg 
+                     width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" 
+                     data-svg="close"><path 
+                        fill="none" stroke="#000" stroke-width="1.06" d="M16,16 L4,4"></path><path 
+                        fill="none" stroke="#000" stroke-width="1.06" d="M16,4 L4,16"></path></svg>
+               </a>
+            </div>
+         </div>
+
+         <div id="youtubeplayer" class="uk-margin-small-top">
+            <iframe width=480 height=270 allow="autoplay; fullscreen" t-url="src"></iframe> 
+         </div>
 
          <!-- Page controls are SO complex that I want them to be able to
             function even outside any context, so they get their own page
@@ -1364,33 +1390,6 @@ function leftpaneclick(event)
             <option value="resource">General Page</option>
             <option value="userpage" hidden>User Page</option>
          </select>
-         <div id="youtube">
-            <div class="uk-flex uk-flex-middle">
-               <a data-link="href" data-title=".textContent" class="uk-text-truncate
-                  uk-margin-small-right" target="_blank"></a>
-               <!-- This inline SVG is temporary... UIkit is disabled on
-                  messages right now -->
-               <a href="#" class="uk-flex-none uk-icon" data-showplayer>
-                  <svg width="20" height="20" viewBox="0 0 20 20"
-                     xmlns="http://www.w3.org/2000/svg"
-                     data-svg="youtube"><path
-                     d="M15,4.1c1,0.1,2.3,0,3,0.8c0.8,0.8,0.9,2.1,0.9,3.1C19,9.2,19,10.9,19,12c-0.1,1.1,0,2.4-0.5,3.4c-0.5,1.1-1.4,1.5-2.5,1.6
-                     c-1.2,0.1-8.6,0.1-11,0c-1.1-0.1-2.4-0.1-3.2-1c-0.7-0.8-0.7-2-0.8-3C1,11.8,1,10.1,1,8.9c0-1.1,0-2.4,0.5-3.4C2,4.5,3,4.3,4.1,4.2
-                     C5.3,4.1,12.6,4,15,4.1z
-                     M8,7.5v6l5.5-3L8,7.5z"></path></svg>
-               </a>
-               <a href="#" class="uk-flex-none uk-icon" data-hideplayer hidden>
-                  <svg width="20" height="20" viewBox="0 0 20 20"
-                     xmlns="http://www.w3.org/2000/svg" data-svg="close"><path
-                     fill="none" stroke="#000" stroke-width="1.06" d="M16,16
-                     L4,4"></path><path fill="none" stroke="#000"
-                     stroke-width="1.06" d="M16,4 L4,16"></path></svg>
-               </a>
-            </div>
-         </div>
-         <div id="youtubeplayer" class="uk-margin-small-top">
-            <iframe width=480 height=270 allow="autoplay; fullscreen" data-source="src"></iframe> 
-         </div>
          <div id="collection" uk-sortable data-name="name" 
             class="uk-margin-small-bottom">
          </div>

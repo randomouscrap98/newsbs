@@ -166,14 +166,6 @@ function setTheme(theme)
    DomDeps.signal("settheme", theme);
 }
 
-//function setOldschool(yes)
-//{
-//   if(yes)
-//      document.body.setAttribute("data-oldschool", yes);
-//   else
-//      document.body.removeAttribute("data-oldschool");
-//}
-
 //Set up a clean slate for someone to put content onto the page,
 //assuming immediately after.
 function initializePage(requester)
@@ -194,7 +186,6 @@ function initializePage(requester)
 
    //Clean page isn't loading...?
    hide(maincontentloading);
-   //setLoading(topnav, false);
 
    DomDeps.signal("pageinitialize", requester);
 }
@@ -488,19 +479,17 @@ function makeBreadcrumbs(chain)
    });
 }
 
-function recurseTreeSelector(node, func, path, processed, childfield)//, minLevel)
+function recurseTreeSelector(node, func, path, processed, childfield)
 {
    path = path || [];
    childfield = childfield || "children";
    processed = processed || [];
-   //minLevel = minLevel || 0;
    if(!processed.some(x => x.id === node.id))
    {
       var level = path.length;
       var newPath = path.slice();
       newPath.push(node);
-      //if(level >= minLevel)
-      func(node, newPath, level); //newPath.slice(minLevel).map(x => x.name).join(" / "));
+      func(node, newPath, level); 
       processed.push(node);
       node[childfield].forEach(x => recurseTreeSelector(x, func, newPath, processed, childfield));
    }
@@ -508,7 +497,6 @@ function recurseTreeSelector(node, func, path, processed, childfield)//, minLeve
 
 function fillTreeSelector(tree, selector, includeRoot, childfield)
 {
-   //var selector = cloneTemplate("treeselector");
    var rootNodes = tree.filter(x => x.id === 0);
 
    if(!rootNodes.length)
@@ -526,55 +514,12 @@ function fillTreeSelector(tree, selector, includeRoot, childfield)
       option.value = node.id;
       option.setAttribute("data-name", node.name);
       option.setAttribute("data-path", path.slice(minLevel).map(x => x.name).join(" / "));
-      //option.setAttribute("data-tree", ((level > 0) ? ("| ".repeat(level - 1) + "|-") : "") + node.name);
-      //option.setAttribute("title", node.description);
       option.textContent = option.getAttribute("data-path");
       selector.appendChild(option);
    }, undefined, undefined, childfield));
 
    finalizeTemplate(selector);
    return selector;
-}
-
-function makeYoutube(url, playerurl)
-{
-   var youtube = cloneTemplate("youtube");
-   multiSwap(youtube, {
-      "data-title" : url,
-      "data-link" : url
-   });
-   var showplayer = youtube.querySelector("[data-showplayer]");
-   var hideplayer = youtube.querySelector("[data-hideplayer]");
-
-   if(playerurl)
-   {
-      showplayer.onclick = e =>
-      {
-         e.preventDefault();
-         var player = cloneTemplate("youtubeplayer");
-         multiSwap(player, {
-            "data-source" : playerurl 
-         });
-         youtube.appendChild(player);
-         hide(showplayer);
-         unhide(hideplayer);
-      };
-      hideplayer.onclick = e =>
-      {
-         e.preventDefault();
-         [...(youtube.querySelectorAll("[data-youtubeplayer]"))].forEach(
-            x => x.parentNode.removeChild(x));
-         unhide(showplayer);
-         hide(hideplayer);
-      };
-   }
-   else
-   {
-      hide(showplayer);
-      hide(hideplayer);
-   }
-   finalizeTemplate(youtube);
-   return youtube;
 }
 
 function makeCollectionItem(element, getValue, key, inline)

@@ -541,8 +541,8 @@ a:hover { color: inherit; }
    color: #111;
    opacity: 0.8;
 }
-[data-youtube] { white-space: initial; }
-[data-youtubeplayer] iframe {
+[data-template="youtubepreview"] { white-space: initial; }
+[data-template="youtubeplayer"] iframe {
    max-width: 100%; 
 }
 /* CategoryLists */

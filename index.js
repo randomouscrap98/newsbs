@@ -1,4 +1,4 @@
-var apiroot = "https://newdev.smilebasicsource.com/api";
+   var apiroot = "https://newdev.smilebasicsource.com/api";
 
 var actiontext = {
    "c" : "Create",
@@ -203,7 +203,7 @@ window.onload = function()
          if (yti.end) parseurl += "&end="+yti.end;
          if (yti.loop) parseurl += "&loop=1&playlist="+yti.id;
       }
-      return {block:true, node:makeYoutube(url, parseurl)};
+      return {block:true,node:Templates.LoadHere("youtubepreview", {url: url, youtubeurl:parseurl}) };
    };
    Parse.options.image = (args) =>
    {
