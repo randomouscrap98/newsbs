@@ -676,7 +676,13 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
             //It's the field!
             SingleField(tobj.fields, name, {
                get : () => currentelement.getAttribute(value),
-               set : (v) => currentelement.setAttribute(value, v)
+               set : (v) => 
+               {
+                  if(v === undefined || v === null || v === false)
+                     currentelement.removeAttribute(value);
+                  else
+                     currentelement.setAttribute(value, v)
+               }
             });
          }
 

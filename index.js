@@ -1,4 +1,4 @@
-   var apiroot = "https://newdev.smilebasicsource.com/api";
+var apiroot = "https://newdev.smilebasicsource.com/api";
 
 var actiontext = {
    "c" : "Create",
@@ -765,6 +765,10 @@ function setupUserStuff()
    };
 
    refreshOptions();
+
+   loadstoreoptionsbody.appendChild(Templates.LoadHere("variablemanager", {
+
+   }));
 
    log.Debug("Setup all user forms");
 }
@@ -1772,10 +1776,7 @@ function writeDom(func) { signals.Add("wdom", func); }
 function login(token) { setToken(token); location.reload(); }
 function logout() { setToken(null); location.reload(); }
 
-function localOptionKey(key)
-{
-   return "localsetting_" + key;
-}
+function localOptionKey(key) { return "localsetting_" + key; }
 
 function getLocalOption(key)
 {

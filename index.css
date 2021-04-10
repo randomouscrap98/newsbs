@@ -88,6 +88,9 @@ pre, .uk-input, .uk-search-input, .uk-select, .uk-textarea, .uk-button-default,
    border: 1px solid var(--outlinecolor) !important;
    color: inherit !important;
 }
+textarea:read-only {
+   background-color: var(--lightblockbgcolor) !important;
+}
 .uk-button-default:focus, .uk-button-default:hover {
    /*background-color: rgba(255,255,255,0.1);*/
    border: 1px solid var(--linkcolor) !important; /*1px solid rgba(128,128,128, 0.3);*/
@@ -193,6 +196,7 @@ blockquote {
 .thinwrapper { margin: 0; padding: 0; }
 .notext { font-size: 0; } /*display: contents; }*/
 .nowrap { white-space: nowrap; }
+.min50 { min-width: 50%; }
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -830,7 +834,7 @@ pre .constant { color: var(--codeconstant); }
    --tabhoverbg: #9ddcff55; /*#4da9dc;*/
    --tabselectcolor: #06518e; /*#fff;*/
    --linkcolor: #4190dc; /*#59a9f9;*/
-   --outlinecolor: #7ebbff1f; /*#4195f31f;*/
+   --outlinecolor: #7ebbff30; /*#7ebbff1f; /*#4195f31f;*/
    --scrollblockcolor: #6ca7d857;
    --scrollblockhovercolor: #6ca7d87d;
 }

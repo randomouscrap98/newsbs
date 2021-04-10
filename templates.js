@@ -648,6 +648,10 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          searchtimethree : cs(-60000 * 60, 60000 * 60)
       });
    },
+   variablemanager_variables : (v, ce, tobj) =>
+   {
+
+   },
 
    //Routes
    //----------------------------------

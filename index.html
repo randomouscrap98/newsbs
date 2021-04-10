@@ -19,22 +19,22 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1617962011" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1617962011"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1617962011"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1618017995" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1618017995"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1618017995"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1617962011"></script>
-      <script src="templates.js?v=1617962011"></script>
-      <script src="dom.js?v=1617962011"></script>
-      <script src="api.js?v=1617962011"></script>
-      <script src="commands.js?v=1617962011"></script>
-      <script src="index.js?v=1617962011"></script>
-      <script src="routing.js?v=1617962011"></script>
-      <script src="sbs2-markup/highlight.js?v=1617962011"></script>
-      <script src="sbs2-markup/parse.js?v=1617962011"></script>
-      <script src="sbs2-markup/render.js?v=1617962011"></script>
+      <script src="libbo.js?v=1618017995"></script>
+      <script src="templates.js?v=1618017995"></script>
+      <script src="dom.js?v=1618017995"></script>
+      <script src="api.js?v=1618017995"></script>
+      <script src="commands.js?v=1618017995"></script>
+      <script src="index.js?v=1618017995"></script>
+      <script src="routing.js?v=1618017995"></script>
+      <script src="sbs2-markup/highlight.js?v=1618017995"></script>
+      <script src="sbs2-markup/parse.js?v=1618017995"></script>
+      <script src="sbs2-markup/render.js?v=1618017995"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1617962011" />
+      <link rel="stylesheet" href="index.css?v=1618017995" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -372,9 +372,12 @@ function leftpaneclick(event)
                               <a class="uk-display-block" uk-toggle="#developerlocaloptions">
                                  Developer Options</a>
                               <div id="developerlocaloptions" class="settings" hidden></div>
+                              <button uk-toggle="#loadstoreoptions" 
+                                 class="uk-button uk-button-default">Load/Store</button>
                               <button id="restoredefaultsettings" 
                                  class="uk-button uk-button-default">Restore Defaults</button>
                            </div>
+                           <hr>
                            <button id="userlogout" class="uk-button uk-button-default">Logout</button>
                         </div>
                      </div>
@@ -577,7 +580,7 @@ function leftpaneclick(event)
                </div>
             </div>
          </div>
-         <!-- LOC: RAWMODAL -->
+         <!-- LOC: PREVIEWMODAL -->
          <div id="previewmodal" class="uk-modal-container" uk-modal>
             <div class="uk-modal-dialog">
                <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -663,6 +666,20 @@ function leftpaneclick(event)
                         to edit or delete every comment</p>-->
                   </div>
                   <div id="commenteditinfo" class="uk-text-meta"></div>
+               </div>
+            </div>
+         </div>
+         <!-- LOC: RAWMODAL -->
+         <div id="loadstoreoptions" class="uk-modal-container" uk-modal>
+            <div class="uk-modal-dialog">
+               <button class="uk-modal-close-default" type="button" uk-close></button>
+               <div class="uk-modal-header">
+                  <h2 class="uk-modal-title">Load/Store Options</h2>
+               </div>
+               <div class="uk-modal-body" id="loadstoreoptionsbody" uk-overflow-auto>
+                  <p>Save your device settings to your account, or restore
+                  previously saved settings to a device. This uses your "user
+                  variables"; there is an API endpoint to manage these.</p>
                </div>
             </div>
          </div>
@@ -759,6 +776,26 @@ function leftpaneclick(event)
          <div id="discussionuser" t-user=".internal(discussionuser)" class="uk-flex-none">
             <img t-avatar=".internal(icon)" width=40>
             <div tlink="userdropdown"></div>
+         </div>
+
+         <div id="variablemanager" uk-margin>
+            <div>
+               <textarea class="uk-width-expand uk-resize-vertical uk-height-medium uk-textarea" 
+                  t-variableedit=".value" t-lockedit="readonly"></textarea>
+            </div>
+            <div class="uk-flex uk-flex-middle uk-flex-wrap">
+               <input class="min50 uk-input uk-width-expand uk-margin-small-right" placeholder="Name"
+                  t-variablename=".value">
+               <div class="uk-flex-none">
+                  <button t-loadvariablefunc=".internal(variablemanager_loadvariablefunc)"
+                     class="uk-button uk-button-default">Load</button>
+                  <button t-storevariablefunc=".internal(variablemanager_storevariablefunc)"
+                     class="uk-button uk-button-default">Store</button>
+               </div>
+            </div>
+            <pre t-variables=".internal(variablemanager_variables)" 
+               t-getvariablesfunc=".internal(variablemanager_getvariablesfunc)" class="uk-margin-top lightblock">
+            </pre>
          </div>
 
          <span id="pageicon" t-page=".internal(pageicon)" t-type=".internal(typeicon)" 
