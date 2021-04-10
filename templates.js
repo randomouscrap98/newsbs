@@ -648,7 +648,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          searchtimethree : cs(-60000 * 60, 60000 * 60)
       });
    },
-   variablemanager_varcheck: (variable, value) =>
+   variablemanager_varcheck: (variable, value, action) =>
    {
       if(!variable)
       {
@@ -660,7 +660,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          alert("Bad characters in name! Keep to alpha-numeric and underscore!");
          return false;
       }
-      return confirm(`Are you sure you want to store user variable ${variable}? You may overwrite something`);
+      return confirm(`Are you sure you want to ${action} user variable ${variable}? You may overwrite something`);
    },
    variablemanager_loadvariablefunc: (v, ce, tobj) =>
    {
@@ -668,12 +668,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       {
          e.preventDefault();
 
-         if(variablemanager_varcheck(tobj.fields.variablename, tobj.fields.variablevalue))
+         if(variablemanager_varcheck(tobj.fields.variablename, tobj.fields.variablevalue, "load"))
          {
             //Name, success(with retrieved value)
             v(tobj.fields.variablename, (value) => {
                tobj.fields.variablevalue = value;
-            }, tobj);
+            });
          }
       };
    },
@@ -683,12 +683,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       {
          e.preventDefault();
 
-         if(variablemanager_varcheck(tobj.fields.variablename, tobj.fields.variablevalue))
+         if(variablemanager_varcheck(tobj.fields.variablename, tobj.fields.variablevalue, "store"))
          {
             //Name, value, success
             v(tobj.fields.variablename, tobj.fields.variablevalue, () => {
                tobj.fields.refreshlist.click();
-            }, tobj);
+            });
          }
       };
    },
@@ -699,7 +699,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          e.preventDefault();
          v(l => {
             tobj.SetFields({ variables : l });
-         }, tobj);
+         });
       };
    },
    variableitem : (v, ce, tobj) =>

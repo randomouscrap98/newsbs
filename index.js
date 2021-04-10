@@ -769,7 +769,7 @@ function setupUserStuff()
    var storeprepend = "savedsettings_";
    var vm = Templates.LoadHere("variablemanager", {
       editlabel : "Current local settings:",
-      listlabel : "Saved options set:",
+      listlabel : "Saved options:",
       lockedit : true,
       storevariablefunc : (name, value, complete) =>
       {
@@ -783,20 +783,8 @@ function setupUserStuff()
             //BEFORE we complete, we must parse the variable! If this fails,
             //don't run complete!
             var newoptions = JSON.parse(apidata.data);
-            for(key in newoptions)
-            {
-               try
-               {
-                  if(key in options)
-                     setLocalOption(key, newoptions[key]);
-                  else
-                     log.Warn(`Skipping load setting ${key}: not a setting key`);
-               }
-               catch(ex)
-               {
-                  log.Error(ex);
-               }
-            }
+            setLocalOptions(newoptions);
+            refreshOptions();
             complete(apidata.data);
          });
       },
@@ -1849,6 +1837,24 @@ function clearLocalOption(key)
    log.Info("Clearing option " + key);
    localStorage.removeItem(localOptionKey(key));
    signals.Add("clearlocaloption", { key : key, value : getLocalOption(key) });
+}
+
+function setLocalOptions(newoptions)
+{
+   for(key in newoptions)
+   {
+      try
+      {
+         if(key in options)
+            setLocalOption(key, newoptions[key]);
+         else
+            log.Warn(`Skipping load setting ${key}: not a setting key`);
+      }
+      catch(ex)
+      {
+         log.Error(ex);
+      }
+   }
 }
 
 function getToken()
