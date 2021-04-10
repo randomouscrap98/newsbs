@@ -2696,7 +2696,6 @@ function easyComment(comment)
       else
       {
          log.Debug("Editing comment " + comment.id)
-         console.log(comment, existing);
          existing.template.SetFields({ message : comment });
       }
    }

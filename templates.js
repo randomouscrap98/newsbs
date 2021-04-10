@@ -655,7 +655,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          alert("Name is required!");
          return false;
       }
-      else if(! /[a-zA-Z0-9_]/.test(variable))
+      else if(! /^[a-zA-Z0-9_]+$/.test(variable))
       {
          alert("Bad characters in name! Keep to alpha-numeric and underscore!");
          return false;
