@@ -66,7 +66,9 @@ var options = {
    frontpageslideshownum : {def:10},
    bgdiscussionmsgkeep : {def:30}, /* these are message BLOCKS, not individual */
    initiallogintab : {def:1},
-   defaultpermissions: {def:"cr"}
+   defaultpermissions: {def:"cr"},
+   sitecss : {def:"",text: "WARN: Custom CSS; ?safemode=1 to disable"},
+   sitejs : {def:"",text: "WARN: Custom JS; ?safemode=1 to disable"}
 };
 
 var globals = { 
