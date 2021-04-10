@@ -766,9 +766,59 @@ function setupUserStuff()
 
    refreshOptions();
 
-   loadstoreoptionsbody.appendChild(Templates.LoadHere("variablemanager", {
+   var storeprepend = "savedsettings_";
+   var vm = Templates.LoadHere("variablemanager", {
+      editlabel : "Current local settings:",
+      listlabel : "Saved options set:",
+      lockedit : true,
+      storevariablefunc : (name, value, complete) =>
+      {
+         globals.api.Post(`variable/${storeprepend}${name}`, value, apidata => {
+            complete();
+         });
+      },
+      loadvariablefunc : (name, complete, tobj) =>
+      {
+         globals.api.Get(`variable/${storeprepend}${name}`, null, apidata => {
+            //BEFORE we complete, we must parse the variable! If this fails,
+            //don't run complete!
+            var newoptions = JSON.parse(apidata.data);
+            for(key in newoptions)
+            {
+               try
+               {
+                  if(key in options)
+                     setLocalOption(key, newoptions[key]);
+                  else
+                     log.Warn(`Skipping load setting ${key}: not a setting key`);
+               }
+               catch(ex)
+               {
+                  log.Error(ex);
+               }
+            }
+            complete(apidata.data);
+         });
+      },
+      listvariablesfunc : (complete) =>
+      {
+         globals.api.Get("variable", null, apidata => {
+            complete(apidata.data.filter(x => x.startsWith(storeprepend))
+               .map(x => x.replace(storeprepend, "")));
+         });
+      }
+   });
 
-   }));
+   loadstoreoptionsbody.appendChild(vm);
+
+   UIkit.util.on('#loadstoreoptions', 'beforeshow', () =>
+   {
+      var opts = {};
+      for(key in options)
+         opts[key] = getLocalOption(key);
+      vm.template.fields.variablevalue = JSON.stringify(opts, null, 2);
+      vm.template.fields.refreshlist.click();
+   });
 
    log.Debug("Setup all user forms");
 }

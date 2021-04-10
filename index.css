@@ -9,8 +9,8 @@
    --inputbgcolor: rgba(255,255,255,0.9);
    --lightblockbgcolor : rgba(128,128,128,0.05);
    --blockbgcolor: rgba(128,128,128,0.1);
-   --outlinecolor : rgba(128,128,128,0.1);
-   --tableoutlinecolor: rgba(128,128,128,0.2);
+   --outlinecolor : rgba(128,128,128,0.15);
+   --tableoutlinecolor: rgba(128,128,128,0.25);
    --mutedtextcolor : rgba(128,128,128, 0.7);
    --tabselectbg: rgba(128,255,240,0.4);
    --tabhoverbg: rgba(128,255,240,0.1);
@@ -549,6 +549,14 @@ a:hover { color: inherit; }
 [data-template="youtubeplayer"] iframe {
    max-width: 100%; 
 }
+/* Variable manager */
+[data-template="variableitem"] {
+   font-family: monospace;
+   white-space: pre;
+   min-width: 15em;
+   display: inline-block;
+   padding: 0 0.5em;
+}
 /* CategoryLists */
 /*[data-template="pageitem"]:nth-child(even), [data-historyitem]:nth-child(even),
 [data-banhistoryitem]:nth-child(even)*/
@@ -827,7 +835,7 @@ pre .constant { color: var(--codeconstant); }
    --databartxthovcolor: #bce3ff;
    --headercolor: #2d4156; /*#447fbb; /*#236db7;*/
    --mutedtextcolor: #73a3d0;
-   --tableoutlinecolor: #6a98d438;
+   --tableoutlinecolor: #6a98d448; /*#6a98d438;*/
    --blockbgcolor: #ecf6ff; /*#cfe8ff;*/
    --lightblockbgcolor: #ecf6ff42; /*#f1f7ff;*/
    --tabselectbg: #9ddcff; /*#4da9dc;*/

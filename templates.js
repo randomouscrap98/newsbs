@@ -648,9 +648,65 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          searchtimethree : cs(-60000 * 60, 60000 * 60)
       });
    },
-   variablemanager_variables : (v, ce, tobj) =>
+   variablemanager_varcheck: (variable, value) =>
    {
+      if(!variable)
+      {
+         alert("Name is required!");
+         return false;
+      }
+      else if(! /[a-zA-Z0-9_]/.test(variable))
+      {
+         alert("Bad characters in name! Keep to alpha-numeric and underscore!");
+         return false;
+      }
+      return confirm(`Are you sure you want to store user variable ${variable}? You may overwrite something`);
+   },
+   variablemanager_loadvariablefunc: (v, ce, tobj) =>
+   {
+      ce.onclick = (e) =>
+      {
+         e.preventDefault();
 
+         if(variablemanager_varcheck(tobj.fields.variablename, tobj.fields.variablevalue))
+         {
+            //Name, success(with retrieved value)
+            v(tobj.fields.variablename, (value) => {
+               tobj.fields.variablevalue = value;
+            }, tobj);
+         }
+      };
+   },
+   variablemanager_storevariablefunc: (v, ce, tobj) =>
+   {
+      ce.onclick = (e) =>
+      {
+         e.preventDefault();
+
+         if(variablemanager_varcheck(tobj.fields.variablename, tobj.fields.variablevalue))
+         {
+            //Name, value, success
+            v(tobj.fields.variablename, tobj.fields.variablevalue, () => {
+               tobj.fields.refreshlist.click();
+            }, tobj);
+         }
+      };
+   },
+   variablemanager_listvariablesfunc : (v, ce, tobj) =>
+   {
+      tobj.fields.refreshlist.onclick = (e) =>
+      {
+         e.preventDefault();
+         v(l => {
+            tobj.SetFields({ variables : l });
+         }, tobj);
+      };
+   },
+   variableitem : (v, ce, tobj) =>
+   {
+      tobj.SetFields({
+         name : v.name || v
+      });
    },
 
    //Routes
@@ -806,7 +862,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       return [...ce.children].filter(x => x.template).map(x => 
       {
          var r = x.template.fields[args[1]];
-         if(!("_template" in r))
+         if(typeof r === "object" && !("_template" in r))
             r["_template"] = x.template;
          return r;
       });

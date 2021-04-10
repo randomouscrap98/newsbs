@@ -92,14 +92,17 @@ Api.prototype.Generic = function(suburl, success, error, always, method, data, m
    if(data)
    {
       var tmp = {};
-      me.unlinkfields.forEach(x =>
+      if(typeof data === "object")
       {
-         if(x in data)
+         me.unlinkfields.forEach(x =>
          {
-            tmp[x] = data[x];
-            delete data[x];
-         }
-      });
+            if(x in data)
+            {
+               tmp[x] = data[x];
+               delete data[x];
+            }
+         });
+      }
       req.send(JSON.stringify(data));
       Object.keys(tmp).forEach(x => data[x] = tmp[x]);
    }

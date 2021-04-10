@@ -19,22 +19,22 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1618017995" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1618017995"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1618017995"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1618023195" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1618023195"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1618023195"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1618017995"></script>
-      <script src="templates.js?v=1618017995"></script>
-      <script src="dom.js?v=1618017995"></script>
-      <script src="api.js?v=1618017995"></script>
-      <script src="commands.js?v=1618017995"></script>
-      <script src="index.js?v=1618017995"></script>
-      <script src="routing.js?v=1618017995"></script>
-      <script src="sbs2-markup/highlight.js?v=1618017995"></script>
-      <script src="sbs2-markup/parse.js?v=1618017995"></script>
-      <script src="sbs2-markup/render.js?v=1618017995"></script>
+      <script src="libbo.js?v=1618023195"></script>
+      <script src="templates.js?v=1618023195"></script>
+      <script src="dom.js?v=1618023195"></script>
+      <script src="api.js?v=1618023195"></script>
+      <script src="commands.js?v=1618023195"></script>
+      <script src="index.js?v=1618023195"></script>
+      <script src="routing.js?v=1618023195"></script>
+      <script src="sbs2-markup/highlight.js?v=1618023195"></script>
+      <script src="sbs2-markup/parse.js?v=1618023195"></script>
+      <script src="sbs2-markup/render.js?v=1618023195"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1618017995" />
+      <link rel="stylesheet" href="index.css?v=1618023195" />
       <script>
 function loginEmailSwitch(element)
 {
@@ -780,8 +780,10 @@ function leftpaneclick(event)
 
          <div id="variablemanager" uk-margin>
             <div>
+               <div class="uk-text-meta uk-text-small" 
+                  t-editlabel=".textContent">Variable edit:</div>
                <textarea class="uk-width-expand uk-resize-vertical uk-height-medium uk-textarea" 
-                  t-variableedit=".value" t-lockedit="readonly"></textarea>
+                  t-variablevalue=".value" t-lockedit="readonly"></textarea>
             </div>
             <div class="uk-flex uk-flex-middle uk-flex-wrap">
                <input class="min50 uk-input uk-width-expand uk-margin-small-right" placeholder="Name"
@@ -793,10 +795,19 @@ function leftpaneclick(event)
                      class="uk-button uk-button-default">Store</button>
                </div>
             </div>
-            <pre t-variables=".internal(variablemanager_variables)" 
-               t-getvariablesfunc=".internal(variablemanager_getvariablesfunc)" class="uk-margin-top lightblock">
-            </pre>
+            <div class="uk-text-meta uk-text-small">
+               <span t-listlabel=".textContent">Variable list:</span>
+               <a class="uk-align-right" href="#" t-refreshlist=".self()">Refresh</a>
+            </div>
+            <div t-variables=".list(variableitem,variable)" 
+               t-listvariablesfunc=".internal(variablemanager_listvariablesfunc)" 
+               class="uk-flex uk-flex-middle uk-flex-wrap uk-margin-top lightblock">
+            </div>
          </div>
+
+         <span id="variableitem" t-variable=".internal(variableitem)" t-name=".textContent"
+            class="uk-flex-none">
+         </span>
 
          <span id="pageicon" t-page=".internal(pageicon)" t-type=".internal(typeicon)" 
             class="pageicon uk-flex-none uk-flex uk-flex-middle uk-position-relative">
