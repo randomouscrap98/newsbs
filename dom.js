@@ -735,6 +735,10 @@ function renderOptions(options)
          {
             templn = "select";
          }
+         else if(o.multiline)
+         {
+            templn = "multiline";
+         }
          else 
          {
             templn = "raw";

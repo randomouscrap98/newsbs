@@ -19,7 +19,6 @@ var everyoneUser = { username: "Everyone", avatar: 0, id: 0};
 //Will this be stored in user eventually?
 var options = {
    displaynotifications : { def : false, u: 1, text : "Device Notifications" },
-   titlenotifications : { def : false, u: 1, text : "Title Notifications" },
    //loadcommentonscroll : { def: true, u: 1, text : "Auto load comments on scroll (iOS buggy)" },
    quickload : { def: true, u: 1, text : "Load parts of page as they become available" },
    collapsechatinput : { def: false, u: 1, text : "Collapse chat textbox" },
@@ -29,6 +28,8 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
+   titlenotifications : { def : "all", u: 1, text : "Title Notifications",
+      options: ["none", "all", "currentpage"] },
    defaultmarkup : {def:"12y", u: 1, options: [ "12y", "plaintext", "bbcode" ], text: "Default discussion markup"},
    animatedavatars : { def : "all", u: 1, text : "Animated avatars (must reload)",
       options: ["all", "none" ] },
@@ -67,8 +68,8 @@ var options = {
    bgdiscussionmsgkeep : {def:30}, /* these are message BLOCKS, not individual */
    initiallogintab : {def:1},
    defaultpermissions: {def:"cr"},
-   sitecss : {def:"",text: "WARN: Custom CSS; ?safemode=1 to disable"},
-   sitejs : {def:"",text: "WARN: Custom JS; ?safemode=1 to disable"}
+   sitecss : {def:"",text: "WARN: Custom CSS; ?safemode=1 to disable", multiline : true},
+   sitejs : {def:"",text: "WARN: Custom JS; ?safemode=1 to disable", multiline : true}
 };
 
 var globals = { 
@@ -1713,7 +1714,7 @@ function handleAlerts(comments, users)
    var tdo = getLocalOption("titlenotifications");
    var ndo = Notification.permission === "granted" && getLocalOption("displaynotifications");
 
-   if(ndo || tdo)
+   if(ndo || (tdo != "none"))
    {
       var alertids = getWatchLastIds();
       var activedisc = getActiveDiscussionId();
@@ -1742,7 +1743,7 @@ function handleAlerts(comments, users)
                   icon : getAvatarLink(users[x.createUserId].avatar, 100),
                });
             }
-            if(tdo)
+            if(tdo == "all" || (tdo == "currentpage" && x.parentId == getActiveDiscussionId()))
             {
                document.head.querySelector("link[data-favicon]").href = getAvatarLink(
                   users[x.createUserId].avatar, 40);
