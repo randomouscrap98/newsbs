@@ -56,5 +56,12 @@ var Commands = {
       {
          postdiscussiontext.value = cmd;
       });
+   }),
+   cmdlast : new Command("Fill text area with last command", cmd =>
+   {
+      CommandSystem.realmessage(cmd.substr(cmd.indexOf(" ") + 1), "plaintext", error =>
+      {
+         postdiscussiontext.value = cmd;
+      });
    })
 };

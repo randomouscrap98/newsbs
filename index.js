@@ -28,7 +28,7 @@ var options = {
    imageresolution : { def: 1, u: 1, text: "Image resolution scale", step : 0.05 },
    filedisplaylimit: { def: 40, u: 1, text : "Image select files per page" },
    pagedisplaylimit: { def: 1000, u: 1, text: "Display pages per category" },
-   titlenotifications : { def : "all", u: 1, text : "Title Notifications",
+   titlenotifications : { def : "none", u: 1, text : "Title Notifications",
       options: ["none", "all", "currentpage"] },
    defaultmarkup : {def:"12y", u: 1, options: [ "12y", "plaintext", "bbcode" ], text: "Default discussion markup"},
    animatedavatars : { def : "all", u: 1, text : "Animated avatars (must reload)",

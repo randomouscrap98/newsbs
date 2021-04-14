@@ -897,7 +897,7 @@ function hideDiscussion(quiet)
 
    if(d)
    {
-      [...d.querySelectorAll("[data-hideplayer]")].forEach(x => x.click());
+      [...d.querySelectorAll('[data-template="youtubepreview"]')].forEach(x => x.template.fields.quitplayer.click());
       discussionmemory.appendChild(d);
       DomDeps.signal("hidediscussion", { discussion: d });
    }
