@@ -136,6 +136,7 @@ window.onload = function()
    interruptSmoothScroll();
 
    CommandSystem.api = globals.api;
+   CommandSystem.commandinput = postdiscussiontext;
    CommandSystem.realmessage = sendDiscussionMessage;
    CommandSystem.message = msg => 
    {
@@ -959,6 +960,8 @@ function handleCommand(full)
 {
    try
    {
+      CommandSystem.addHistory(full);
+
       var cmdparts = full.split(" ").filter(x => x);
       var cmd = cmdparts[0].toLowerCase();
 

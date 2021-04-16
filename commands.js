@@ -6,12 +6,21 @@ function Command(description, process)
    this.process = process;
 }
 
-//These need to be injected
 var CommandSystem = {
+   _history : [],
+   _historyMax : 100,
+   addHistory : (cmd) =>
+   {
+      CommandSystem._history.push(cmd);
+      while(CommandSystem._history.length > CommandSystem._historyMax)
+         CommandSystem._history.shift();
+   },
+   //These need to be injected
    api : false,
    message : (modmsg) => console.log("Not handling: ", msg),
    print : (msg) => CommandSystem.message({message:msg}),
-   realmessage : (msg, format, error) => {throw "No implementation for realmessage!"}
+   realmessage : (msg, format, error) => {throw "No implementation for realmessage!"},
+   commandinput : false
 };
 
 var Commands = { 
@@ -50,6 +59,22 @@ var Commands = {
          });
       });
    }),
+   memoryusage : new Command("Check server memory usage estimate (not highly accurate)", cmd =>
+   {
+      CommandSystem.print("Contacting server to check memory...");
+      CommandSystem.api.Get("test/memory", "", apidat =>
+      {
+         CommandSystem.print(`Server memory usage: ${apidat.data>>20}mb`);
+      });
+   }),
+   garbagecollect : new Command("(Super only): Perform deep garbage collection on server", cmd =>
+   {
+      CommandSystem.print("Contacting server to garbage collect...");
+      CommandSystem.api.Get("test/gc", "", apidat =>
+      {
+         CommandSystem.print(`Garbage collection complete! ${apidat.data.memoryBefore>>20}mb -> ${apidat.data.memoryAfter>>20}mb`);
+      });
+   }),
    plaintext : new Command("Send message as plaintext", cmd =>
    {
       CommandSystem.realmessage(cmd.substr(cmd.indexOf(" ") + 1), "plaintext", error =>
@@ -57,11 +82,21 @@ var Commands = {
          postdiscussiontext.value = cmd;
       });
    }),
-   cmdlast : new Command("Fill text area with last command", cmd =>
+   ".." : new Command("Fill text area with last command", (cmd, parts) =>
    {
-      CommandSystem.realmessage(cmd.substr(cmd.indexOf(" ") + 1), "plaintext", error =>
+      var backIndex = 1;
+      if(parts.length > 0)
       {
-         postdiscussiontext.value = cmd;
-      });
+         var backMore = parseInt(parts[0]);
+         if(!isNaN(backMore))
+            backIndex += backMore;
+      }
+
+      var index = CommandSystem._history.length - 1 - backIndex;
+
+      if(index >= 0 && index < CommandSystem._history.length)
+         CommandSystem.commandinput.value = "/" + CommandSystem._history[index];
+      else
+         CommandSystem.print("No command at history " + backIndex);
    })
 };
