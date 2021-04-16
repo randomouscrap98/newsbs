@@ -982,13 +982,16 @@ function handleCommand(full)
       }
       else
       {
-         notifyError("Server commands will come soon");
+         throw "Server commands will come soon";
       }
    }
    catch(ex)
    {
       notifyError("Error during command: " + ex.message);
       console.log(ex);
+      //CommandSystem.commandinput.value = CommandSystem._history[CommandSystem._history.length - 1];
+      //Do this... better.
+      Commands[".."].process("", ["-1"]);
    }
 }
 
