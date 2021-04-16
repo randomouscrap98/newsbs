@@ -987,7 +987,7 @@ function handleCommand(full)
    }
    catch(ex)
    {
-      notifyError("Error during command: " + ex.message);
+      notifyError("Error during command: " + (ex.message || ex));
       console.log(ex);
       //CommandSystem.commandinput.value = CommandSystem._history[CommandSystem._history.length - 1];
       //Do this... better.
