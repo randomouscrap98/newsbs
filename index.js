@@ -1792,6 +1792,17 @@ function handleLongpollData(lpdata)
          writeDom(() => easyComments(data.chains.comment)); //users));
       }
 
+      if(data.chains.modulemessage)
+      {
+         data.chains.modulemessage.forEach(x =>
+         {
+            //var msg = x.message;
+            for(var j = 0; j < data.chains.user.length; j++)
+               x.message = x.message.replace(new RegExp("%" + data.chains.user[j].id + "%","g"), data.chains.user[j].username);
+            CommandSystem.message(x);
+         });
+      }
+
       if(data.chains.activity)
       {
          data.chains.activityaggregate = DataFormat.ActivityToAggregate(

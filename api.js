@@ -445,9 +445,9 @@ LongPoller.prototype.Repeater = function(lpdata)
       "lastId" : lpdata.lastId,
       "statuses" : lpdata.statuses,
       "clearNotifications" : clearNotifications,
-      "chains" : [ "comment.0id", "activity.0id", "watch.0id",
+      "chains" : [ "comment.0id", "activity.0id", "watch.0id","modulemessage.0id",
          "content.1parentId.2contentId.3contentId",
-         "user.1createUserId.2userId.4createUserId" ]
+         "user.1createUserId.2userId.4usersInMessage.4sendUserId.4receiveUserId.5createUserId" ]
    }));
 
    if(lpdata.lastListeners)
