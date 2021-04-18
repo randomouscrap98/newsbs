@@ -30,7 +30,7 @@ window.onload = function()
    var loadbutton = document.getElementById("loadbutton");
    var savebutton = document.getElementById("savebutton");
    var commandbutton = document.getElementById("commandbutton");
-   var commandname = document.getElementById("commandname");
+   //var commandname = document.getElementById("commandname");
    var commanddata = document.getElementById("commanddata");
    var debugbutton = document.getElementById("debugbutton");
    var debugoutput = document.getElementById("debugoutput");
@@ -79,7 +79,7 @@ window.onload = function()
    savebutton.addEventListener("click", function()
    {
       var data = saveInputs();
-      var url = modend(data.endpoint) + "/" + data.modulename;
+      var url = modend(data.endpoint) + "/byname"; // + data.modulename;
       if(confirm("You will overwrite the module on the server. Are you sure you want to write " + 
                   data.modulename + " to " + url))
       {
@@ -89,10 +89,10 @@ window.onload = function()
    commandbutton.addEventListener("click", function()
    {
       var data = saveInputs();
-      var url = modend(data.endpoint) + "/" + data.modulename + "/" + commandname.value;
+      var url = modend(data.endpoint) + "/" + data.modulename;// + "/" + commandname.value;
       quickAJAX(url, data.token, function(d) 
       { 
-         commandname.value = "";
+         //commandname.value = "";
          commanddata.value = "";
          console.log(d); 
          debugbutton.click();
@@ -117,7 +117,10 @@ window.onload = function()
    });
 
    var data = saveInputs();
-   nextListen(data.endpoint, data.token, {"lastId": 0}, document.getElementById("moduleoutput"));
+   if(data.endpoint)
+      nextListen(data.endpoint, data.token, {"lastId": 0}, document.getElementById("moduleoutput"));
+   else
+      console.log("Not running listener");
 };
 
 function findUsername(users, uid)
@@ -277,12 +280,61 @@ function quickAJAX(url, token, callback, error, postData)
    <body>
       <div id="editor" class="expandowidth">--Modules are written in Lua
 
---An example command. Commands must start with command_
---Commands are given the sender uid and string data (perhaps arguments/whatever)
-function command_echo(uid, data)
-    sendmessage(uid, data) --sendmessage is a builtin, sends message to given uid
+--"Unhandled" commands run through the "default" handler. Think "default" on
+--a switch statement. You get the command sender uid and the whole command line
+--sent on the API (which isn't supposed to include the module name)
+function default(uid, data)
+   sendmessage(uid, "You sent:" .. data) --sendmessage is a builtin, sends message to given uid
 end
-      
+
+--If you want to handle all command parsing yourself, you can simply use the 
+--default handler. But, any command that you want parsed automatically can
+--be placed in the "subcommands" table, like what follows. The arguments are
+--in the format 'name_type', where the available types are 'user', 'word',
+--and 'freeform'. Freeform arguments consume the rest of the argument list
+--and must come at the end. Users are in the form "uid(username)", where 
+--username is optional. Word is a single word with no spaces.
+subcommands={
+   ["wow"]={
+      ["arguments"]={"first_user","second_word","third_freeform"},
+      ["description"]="The thing to display on help or something"
+   } 
+}
+
+--In the above example, your command may look like:
+-- /test wow 2(haloopdy) programs some really dumb stuff
+--Where 'wow' is the subcommand as we defined above, 2(haloopdy) is the user
+--(which doesn't require the userrname), 'programs' is the word, and the
+--rest goes into the final argument. By default, this command will be routed
+--to 'command_wow', but you can define the function by adding a 'function'
+--field to the subcommand. The names of the arguments in your defined function
+--don't matter, it just should match the amount of arguments. The system will
+--parse your command and handle errors for you automatically if you go this
+--route.
+function command_wow(uid, user, word, freeform)
+   --You have no access to usernames or any user data. However, %UID% will be 
+   --captured, and the listener endpoint can chain against the field called
+   --"usersInMessage". The listener must manually replace the UIDs though
+   --(this is done to allow many types of configuration, such as nicknames, 
+   -- titles, special formatting (like links to usernames), etc. I'm sorry
+   -- it's more work, but I think it's neat if usernames could be linked 
+   -- in module messages, and manual replacement allows that)
+   sendmessage(uid, "User %" .. user .. "% " .. word .. " " .. freeform)
+end
+
+--Now, let's define the rest of the subcommands. You don't normally have to
+--split this, it's just part of this example. You'll notice some don't 
+--define args, if no args are defined, the entire command line is sent
+--to the function, just like the 'default' function. Basically, you can
+--be as verbose or as sparse as you like, depending on how much you want
+--to let the system do
+subcommands["broadcast"]={}
+subcommands["store"]={}
+subcommands["read"]={}
+subcommands["getuid"]={["arguments"]={"uid_user"}}
+subcommands["alert"]={}
+subcommands["debug"]={}
+
 --Send to uid 0 to broadcast to everyone. There may be a rate limit
 function command_broadcast(uid, data)
     sendmessage(0, "The test module is broadcasting!")
@@ -298,15 +350,8 @@ function command_read(uid, data)
    sendmessage(uid, "You stored: " .. getdata("somekey"))
 end
 
---You have no access to usernames or any user data. However, %UID% will be 
---captured, and the listener endpoint can chain against the field called
---"usersInMessage". The listener must manually replace the UIDs though
---(this is done to allow many types of configuration, such as nicknames, 
--- titles, special formatting (like links to usernames), etc. I'm sorry
--- it's more work, but I think it's neat if usernames could be linked 
--- in module messages, and manual replacement allows that)
-function command_getuid(uid, data)
-   sendmessage(uid, "UID " .. data .. " is %" .. data .. "%")
+function command_getuid(uid, user)
+   sendmessage(uid, "UID " .. user .. " is %" .. user .. "%")
 end
 
 --Any string you return from a function will be given as the result
@@ -377,8 +422,8 @@ end
          <button id="savebutton">Save</button>
       </div>
       <div id="commandcontrols">
-         <input id="commandname" placeholder="command">
-         <input id="commanddata" placeholder="data">
+         <!--<input id="commandname" placeholder="command">-->
+         <input id="commanddata" placeholder="module args">
          <button id="commandbutton">Send</button>
       </div>
    </div>
