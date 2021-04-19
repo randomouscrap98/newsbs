@@ -245,7 +245,7 @@ function routepage_load(spadat)
    var pid = Number(spadat.id);
 
    var params = new URLSearchParams();
-   params.append("requests", "content-" + JSON.stringify({"ids" : [pid], "includeAbout" : true}));
+   params.append("requests", "content-" + JSON.stringify({ids : [pid], includeAbout : ["watches","votes"]}));
    params.append("requests", "category");
    params.append("requests", "comment-" + JSON.stringify({
       "Reverse" : true,
@@ -361,20 +361,20 @@ function routeuser_load(spadat)
    var params = new URLSearchParams();
    params.append("requests", "user-" + JSON.stringify({"ids" : [uid]}));
    params.append("requests", "content-" + JSON.stringify({
-      "createUserIds" : [uid],
-      "type" : "userpage",
-      "includeAbout" : true,
-      "limit" : 1
+      createUserIds : [uid],
+      type : "userpage",
+      includeAbout : ["watches","votes"],
+      limit : 1
    }));
    params.append("requests", "comment.1id$ParentIds-" + JSON.stringify({
-      "Reverse" : true,
-      "Limit" : initload
+      Reverse : true,
+      Limit : initload
    }));
    params.append("requests", "content~pages-" + JSON.stringify({
-      "createUserIds" : [uid],
-      "nottypes" : ["userpage"],
-      "sort" : "editDate",
-      "reverse" : true
+      createUserIds : [uid],
+      nottypes : ["userpage"],
+      sort : "editDate",
+      reverse : true
    }));
    params.append("requests", "user.1createUserId.1edituserId.2createUserId");
 
@@ -434,7 +434,7 @@ function routebrowse_load(spadat)
 {
    var limit = getLocalOption("browsedisplaylimit");
    var searchparams = Utilities.GetParams(spadat.url);
-   var csearch = { "limit": limit, "includeAbout" : true };
+   var csearch = { limit: limit, includeAbout : ["comments","votes", "watches"] };
 
    //WHY did I make it like this? oh well
    var types = (searchparams.get("types") || "").split(",").filter(x => x).map(x => x.toLowerCase());
