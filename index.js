@@ -494,6 +494,16 @@ function setupSignalProcessors()
          {
             notifyError("You're temporarily banned: '" + data.request.responseText + "'");
          }
+         else if(data.request.status == 401)
+         {
+            globals.longpoller.TryAbortAll(); //TODO: This could break things if other stuff throws 401
+            writeDom(() => setConnectionState("error"));
+            UIkit.modal.confirm("Unauthorized access: assuming your login token expired. " +
+               "Press OK to reload so you can login again.").then(x =>
+            {
+               location.reload();
+            });
+         }
          else if(data.request.status == 429 && data.endpoint === "read/listen")
          {
             if(getLocalOption("toastrequestoverload"))
