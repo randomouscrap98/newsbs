@@ -175,9 +175,13 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          ? insertAfter.template.fields.frame : insertAfter;
       var newFrame = null;
 
+      //We will end up parsing a comment twice because of the next line but oh well (This one is for message splitting)
+      var parsed = FrontendCoop.ParseComment(comment.content);
       //Oops, we need a new frame
       if(insertFrame.getAttribute("data-template") != "messageframe" || 
          insertFrame.template.fields.userid != comment.createUserId ||
+         insertFrame.template.fields.useravatar != (parsed.a || comment.createUser.avatar) ||
+         insertFrame.template.fields.username != (parsed.b || comment.createUser.username) ||
          (new Date(comment.createDate)).getTime() - (new Date(insertAfter.template.fields.createdate)).getTime() 
           > mergetime)
       {
@@ -626,7 +630,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          userid : v.createUser.id,
          useravatar : parsed.a || v.createUser.avatar,
          userlink : Links.User(v.createUser.id),
-         username : v.createUser.username,
+         username : parsed.b ? parsed.b + " (" + v.createUser.username + ")" : v.createUser.username,
          frametime : _stdDateTime(v.createDate)
       });
    },
@@ -854,6 +858,12 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       {
          //TODO: direct dependency on API.js (is this OK?)
          var parsed = FrontendCoop.ParseComment(v);
+         //Remove the <Username> part added by the discord bridge, if it's there
+         if (parsed.b !== undefined) {
+            if (parsed.m == "12y" && parsed.t.substr(0, parsed.b.length + 3) == "<" + parsed.b + "> ") {
+               parsed.t = parsed.t.substring(parsed.b.length + 3, parsed.t.length)
+            }
+         }
          ce.appendChild(Parse.parseLang(parsed.t, parsed.m));
       }
    },
