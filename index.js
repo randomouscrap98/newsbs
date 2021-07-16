@@ -1,4 +1,5 @@
 var apiroot = "https://newdev.smilebasicsource.com/api";
+//var discordBots = [ ];
 
 var actiontext = {
    "c" : "Create",
@@ -2776,11 +2777,12 @@ function messageControllerEvent(event)
    commentedittext.value = parsedcm.t;
    commenteditformat.value = parsedcm.m;
    commenteditinfo.textContent = "ID: " + msg.id + "  UID: " + msg.createUserId;
-   commenteditavatar = parsedcm.a;
+   //var commenteditavatar = parsedcm.a;
    if(msg.createDate !== msg.editDate) 
       commenteditinfo.textContent += "  Edited: " + (new Date(msg.editDate)).toLocaleString();
 
-   var getEditorComment = () => FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value, commenteditavatar);
+   var getEditorComment = () => 
+      FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value, parsedcm.a);
 
    if(getUserId() != msg.createUserId && !getIsSuper())
    {
