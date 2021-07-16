@@ -181,7 +181,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       if(insertFrame.getAttribute("data-template") != "messageframe" || 
          insertFrame.template.fields.userid != comment.createUserId ||
          insertFrame.template.fields.useravatar != (parsed.a || comment.createUser.avatar) ||
-         insertFrame.template.fields.username != (parsed.b || comment.createUser.username) ||
+         insertFrame.template.fields.username != (parsed.b ? parsed.b + " (" + comment.createUser.username + ")" : comment.createUser.username) ||
          (new Date(comment.createDate)).getTime() - (new Date(insertAfter.template.fields.createdate)).getTime() 
           > mergetime)
       {
