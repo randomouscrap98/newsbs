@@ -9,11 +9,11 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _rawremove : [ "_template", "parentCategory", "childpages", "childCategories" ],
    _templateData : "tmpldat_",
    _includekey : "include_",
-   //_commentId : (id) => "comment-" + id,
    _templateArgName : (name, args, prefix) => (args && args[1]) ? args[1] : (prefix ? prefix:"") + name,
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateTime : (d) => (new Date(d)).toLocaleString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
+   _chatDisplayName : (parsed, real) => (parsed.b ? `${parsed.b} (${real})` : real),
    _displayRaw : (title, raw) => {
       rawmodaltitle.textContent = title;
       rawmodalraw.textContent = raw;
@@ -181,7 +181,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       if(insertFrame.getAttribute("data-template") != "messageframe" || 
          insertFrame.template.fields.userid != comment.createUserId ||
          insertFrame.template.fields.useravatar != (parsed.a || comment.createUser.avatar) ||
-         insertFrame.template.fields.username != (parsed.b ? parsed.b + " (" + comment.createUser.username + ")" : comment.createUser.username) ||
+         insertFrame.template.fields.username != _chatDisplayName(parsed, comment.createUser.username) ||
          (new Date(comment.createDate)).getTime() - (new Date(insertAfter.template.fields.createdate)).getTime() 
           > mergetime)
       {
@@ -630,7 +630,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          userid : v.createUser.id,
          useravatar : parsed.a || v.createUser.avatar,
          userlink : Links.User(v.createUser.id),
-         username : parsed.b ? parsed.b + " (" + v.createUser.username + ")" : v.createUser.username,
+         username : _chatDisplayName(parsed, v.createUser.username),
          frametime : _stdDateTime(v.createDate)
       });
    },
