@@ -860,7 +860,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          var parsed = FrontendCoop.ParseComment(v);
          //Remove the <Username> part added by the discord bridge, if it's there
          if (parsed.b !== undefined) {
-            if (parsed.m == "12y" && parsed.t.substr(0, parsed.b.length + 3) == "<" + parsed.b + "> ") {
+            if (parsed.m == "12y" && parsed.t.substr(0, parsed.b.length + 3) == `<${parsed.b}> `) {
                parsed.t = parsed.t.substring(parsed.b.length + 3, parsed.t.length)
             }
          }

@@ -1749,22 +1749,30 @@ function handleAlerts(comments, users)
       {
          cms.forEach(x => 
          {
+            var parsed = FrontendCoop.ParseComment(x.content);
+            //this is the second instance of stripping the '<username> ' part. ideally i would make this a function now but i don't know where to put it
+            if (parsed.b !== undefined) {
+               if (parsed.m == "12y" && parsed.t.substr(0, parsed.b.length + 3) == `<${parsed.b}> `) {
+                  parsed.t = parsed.t.substring(parsed.b.length + 3, parsed.t.length)
+               }
+            }
             //this may be dangerous
             if(ndo)
             {
                var pw = document.getElementById(getPulseId(x.parentId));
                var name = getSwap(pw, "pwname");
-               var notification = new Notification(users[x.createUserId].username + ": " + name, {
+               var notification = new Notification(Templates._chatDisplayName(parsed, users[x.createUserId].username) + ": " + name, {
                   tag : "comment" + x.id,
-                  body : FrontendCoop.ParseComment(x.content).t,
-                  icon : getAvatarLink(users[x.createUserId].avatar, 100),
+                  body : parsed.t,
+                  icon : getAvatarLink(parsed.a ||  users[x.createUserId].avatar, 100),
                });
             }
             if(tdo == "all" || (tdo == "currentpage" && x.parentId == getActiveDiscussionId()))
             {
                document.head.querySelector("link[data-favicon]").href = getAvatarLink(
-                  users[x.createUserId].avatar, 40);
-               document.title = FrontendCoop.ParseComment(x.content).t; //.substr(0, 100);
+                  parsed.a || users[x.createUserId].avatar, 40);
+               document.title = parsed.t; //.substr(0, 100);
+			   
             }
          });
       }
