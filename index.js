@@ -831,31 +831,10 @@ function setupFileUpload()
    var resetFileUploadList = () => 
    {
       log.Debug("Refreshing file upload images");
-      setFileUploadList(0, fileuploadsearchall.checked);
-      signals.Add("refreshfileupload", { page: 0, all: fileuploadsearchall.checked });
+      setFileUploadList(0, fileuploadsearchall.checked, fileuploadbucket.value);
    };
 
-   UIkit.util.on('#fileupload', 'beforeshow', resetFileUploadList);
-   fileuploadsearchall.addEventListener("change", resetFileUploadList);
-
-   //this is the "dynamic loading" to save data: only load big images when
-   //users click on them
-   UIkit.util.on("#fileuploadslideshow", "beforeitemshow", e => writeDom(() => 
-      e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src")));
-
-   fileuploadselect.addEventListener("click", function()
-   {
-      //Find the selected image
-      var selectedImage = document.querySelector("#fileuploadthumbnails li.uk-active");
-
-      //Call the "function" (a global variable! yay!)
-      if(globals.fileselectcallback)
-      {
-         //for safety, remove callback
-         globals.fileselectcallback(getSwap(selectedImage, "fileid")); 
-         globals.fileselectcallback = false;
-      }
-   });
+   var generalProgress = e => writeDom(() => { bar.max = e.total; bar.value = e.loaded; });
 
    var bar = fileuploadprogress;
    var generalError = () => writeDom(() => {
@@ -870,10 +849,16 @@ function setupFileUpload()
       }
       bar.setAttribute('hidden', 'hidden');
    });
-   var generalProgress = e => writeDom(() => { bar.max = e.total; bar.value = e.loaded; });
 
-   UIkit.upload('#fileuploadform', {
-      url: apiroot + '/file',
+   var generateFUParams = () => {
+      var fuparams = new URLSearchParams();
+      if(fileuploadbucket.value) 
+         fuparams.append("bucket", fileuploadbucket.value);
+      return fuparams.toString();
+   };
+   
+   var baseFUuikitObject =
+   {
       multiple: false,
       mime: "image/*",
       name: "file",
@@ -894,7 +879,40 @@ function setupFileUpload()
             }, 200); // for some reason, must wait before can click
          });
       }
+   };
+
+   var resetUpload = () =>
+   {
+      baseFUuikitObject.url = apiroot + '/file?' + generateFUParams(), 
+      log.Debug("Resetting file upload to point to: " + baseFUuikitObject.url);
+      UIkit.upload('#fileuploadform', baseFUuikitObject);
+   };
+
+   resetUpload();
+
+   UIkit.util.on('#fileupload', 'beforeshow', resetFileUploadList);
+   fileuploadsearchall.addEventListener("change", resetFileUploadList);
+   fileuploadbucket.addEventListener("input", () => { resetFileUploadList(); resetUpload(); });
+
+   //this is the "dynamic loading" to save data: only load big images when
+   //users click on them
+   UIkit.util.on("#fileuploadslideshow", "beforeitemshow", e => writeDom(() => 
+      e.target.firstElementChild.src = e.target.firstElementChild.getAttribute("data-src")));
+
+   fileuploadselect.addEventListener("click", function()
+   {
+      //Find the selected image
+      var selectedImage = document.querySelector("#fileuploadthumbnails li.uk-active");
+
+      //Call the "function" (a global variable! yay!)
+      if(globals.fileselectcallback)
+      {
+         //for safety, remove callback
+         globals.fileselectcallback(getSwap(selectedImage, "fileid")); 
+         globals.fileselectcallback = false;
+      }
    });
+
 
    fileupload.addEventListener('paste', function(event) {
       var data = event.clipboardData;
@@ -1318,7 +1336,7 @@ function refreshOptions()
    });
 }
 
-function setFileUploadList(page, allImages)
+function setFileUploadList(page, allImages, bucket)
 {
    writeDom(() =>
    {
@@ -1331,13 +1349,15 @@ function setFileUploadList(page, allImages)
       
    if(!allImages)
       url += "&createuserids=" + getUserId();
+   if(bucket)
+      url += "&bucket=" + encodeURIComponent(bucket);
 
    //Api.prototype.Generic = function(suburl, success, error, always, method, data, modify)
    globals.api.Generic(url, apidata =>
    {
       var files = apidata.data;
-      fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1, allImages); }
-      fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages); }
+      fileuploadnewer.onclick = e => { e.preventDefault(); setFileUploadList(page - 1, allImages, bucket); }
+      fileuploadolder.onclick = e => { e.preventDefault(); setFileUploadList(page + 1, allImages, bucket); }
 
       writeDom(() =>
       {
@@ -1349,6 +1369,12 @@ function setFileUploadList(page, allImages)
          setHidden(fileuploadolder, files.length !== fdl);
       });
    }, undefined, undefined, "GET");
+
+   signals.Add("refreshfileupload", { 
+      page: page, 
+      all: allImages, 
+      bucket : bucket 
+   });
 }
 
 function addFileUploadImage(file, num)
