@@ -487,7 +487,7 @@ function setupSignalProcessors()
    });
    signals.Attach("apierror", data => 
    {
-      if(!data.abortNow && !data.networkError)
+      if(!data.abortNow && !data.networkError && !data.ignoreError)
       {
          //TODO: This eventually needs to tell you HOW LONG you're banned and
          //who banned you. Make it return json you can parse from responseText
@@ -856,6 +856,20 @@ function setupFileUpload()
          fuparams.append("bucket", fileuploadbucket.value);
       return fuparams.toString();
    };
+
+   //Set the last used bucket
+   globals.api.Get(`variable/multi/`, "keys=lastUsedBucket", apidata => {
+      if(apidata.data.lastUsedBucket)
+      {
+         log.Debug("Previous bucket found, setting bucket to " + apidata.data.lastUsedBucket);
+         fileuploadbucket.value = apidata.data.lastUsedBucket;
+      }
+      else
+      {
+         log.Debug("No previous bucket found, clearing bucket");
+         fileuploadbucket.value = "";
+      }
+   }); //, err => {err.ignoreError = true;});
    
    var baseFUuikitObject =
    {
@@ -870,6 +884,8 @@ function setupFileUpload()
       fail: generalError,
       completeAll: function () {
          log.Info("Upload complete");
+         globals.api.Post(`variable/lastUsedBucket`, fileuploadbucket.value, apidata => 
+            log.Info("Saved last used bucket as " + fileuploadbucket.value));
          writeDom(() => 
          {
             addFileUploadImage(JSON.parse(arguments[0].responseText), fileuploaditems.childElementCount);

@@ -19,22 +19,22 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1626645090" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1626645090"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1626645090"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1626892049" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1626892049"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1626892049"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1626645090"></script>
-      <script src="templates.js?v=1626645090"></script>
-      <script src="dom.js?v=1626645090"></script>
-      <script src="api.js?v=1626645090"></script>
-      <script src="commands.js?v=1626645090"></script>
-      <script src="index.js?v=1626645090"></script>
-      <script src="routing.js?v=1626645090"></script>
-      <script src="sbs2-markup/highlight.js?v=1626645090"></script>
-      <script src="sbs2-markup/parse.js?v=1626645090"></script>
-      <script src="sbs2-markup/render.js?v=1626645090"></script>
+      <script src="libbo.js?v=1626892049"></script>
+      <script src="templates.js?v=1626892049"></script>
+      <script src="dom.js?v=1626892049"></script>
+      <script src="api.js?v=1626892049"></script>
+      <script src="commands.js?v=1626892049"></script>
+      <script src="index.js?v=1626892049"></script>
+      <script src="routing.js?v=1626892049"></script>
+      <script src="sbs2-markup/highlight.js?v=1626892049"></script>
+      <script src="sbs2-markup/parse.js?v=1626892049"></script>
+      <script src="sbs2-markup/render.js?v=1626892049"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1626645090" />
+      <link rel="stylesheet" href="index.css?v=1626892049" />
       <style id="sitecss"></style>
       <script>
 (function() {
@@ -565,7 +565,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00083 (2021-07-18T21:51:30Z)</dd>
+      <dd data-frontendrelease>00084 (2021-07-21T18:27:29Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -617,7 +617,8 @@ function leftpaneclick(event)
                </div>
                <div id="fileuploadbody" class="uk-modal-body">
                   <!--<h3 class="uk-heading-divider"><span>Upload</span></h3>-->
-                  <input type="text" class="uk-input" placeholder="Bucket (optional)" id="fileuploadbucket">
+                  <input type="text" class="uk-input" placeholder="Bucket (optional)" 
+                     name="bucket-name" autocomplete="on" id="fileuploadbucket">
                   <div id="fileuploadform" class="uk-placeholder uk-text-center">
                      <span uk-icon="icon: cloud-upload"></span>
                      <span class="uk-text-middle">Drop image or</span>
