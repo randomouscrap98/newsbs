@@ -858,18 +858,21 @@ function setupFileUpload()
    };
 
    //Set the last used bucket
-   globals.api.Get(`variable/multi/`, "keys=lastUsedBucket", apidata => {
-      if(apidata.data.lastUsedBucket)
-      {
-         log.Debug("Previous bucket found, setting bucket to " + apidata.data.lastUsedBucket);
-         fileuploadbucket.value = apidata.data.lastUsedBucket;
-      }
-      else
-      {
-         log.Debug("No previous bucket found, clearing bucket");
-         fileuploadbucket.value = "";
-      }
-   }); //, err => {err.ignoreError = true;});
+   if(getToken())
+   {
+      globals.api.Get(`variable/multi/`, "keys=lastUsedBucket", apidata => {
+         if(apidata.data.lastUsedBucket)
+         {
+            log.Debug("Previous bucket found, setting bucket to " + apidata.data.lastUsedBucket);
+            fileuploadbucket.value = apidata.data.lastUsedBucket;
+         }
+         else
+         {
+            log.Debug("No previous bucket found, clearing bucket");
+            fileuploadbucket.value = "";
+         }
+      });
+   }
    
    var baseFUuikitObject =
    {
