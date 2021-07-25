@@ -13,7 +13,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateTime : (d) => (new Date(d)).toLocaleString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
-   _chatDisplayName : (parsed, real) => (parsed.b ? `${parsed.b} (${real})` : parsed.n ? `${parsed.n} (${real})` : real),
+   _chatDisplayName : (parsed, real) => (typeof parsed.b == "string" ? `${parsed.b} (${real})` : typeof parsed.n == "string" ? `${parsed.n} (${real})` : real),
    _displayRaw : (title, raw) => {
       rawmodaltitle.textContent = title;
       rawmodalraw.textContent = raw;
@@ -859,7 +859,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
          //TODO: direct dependency on API.js (is this OK?)
          var parsed = FrontendCoop.ParseComment(v);
          //Remove the <Username> part added by the discord bridge, if it's there
-         if (parsed.b !== undefined) {
+         if (typeof parsed.b == "string") {
             if (parsed.m == "12y" && parsed.t.substr(0, parsed.b.length + 3) == `<${parsed.b}> `) {
                parsed.t = parsed.t.substring(parsed.b.length + 3, parsed.t.length)
             }
