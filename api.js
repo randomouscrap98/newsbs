@@ -642,15 +642,31 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
 var FrontendCoop = {
    ParseComment : function(content) {
       var newline = content.indexOf("\n");
+      var data;
       try {
          // try to parse the first line as JSON
-         var data = JSON.parse(newline>=0 ? content.substr(0, newline) : content);
+         data = JSON.parse(newline>=0 ? content.substr(0, newline) : content);
       } finally {
          if (data && data.constructor == Object) { // new or legacy format
             if (newline >= 0)
                data.t = content.substr(newline+1); // new format
-         } else // raw
+         } else { // raw
             data = {t: content};
+         }
+         //Figure out the nickname so others don't have to. Leave the b/n etc
+         //in the parsed comment just in case though
+         data.nickname = (typeof data.b == "string") ? data.b : (typeof data.n == "string") ? data.n : undefined;
+         //Save the original text before modification
+         data.rawText = data.t;
+         data.rawContent = content;
+         //Added by perska to perform additional modifications to text area
+         //based on bot stuff
+         if (data.nickname != undefined) {
+            if (data.m == "12y" && data.t.substr(0, data.nickname.length + 3) == `<${data.nickname}> `) {
+               data.t = data.t.substring(data.nickname.length + 3, data.t.length)
+            }
+         }
+         console.log(data);
          return data;
       }
    },

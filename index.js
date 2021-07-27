@@ -1795,12 +1795,6 @@ function handleAlerts(comments, users)
          cms.forEach(x => 
          {
             var parsed = FrontendCoop.ParseComment(x.content);
-            //this is the second instance of stripping the '<username> ' part. ideally i would make this a function now but i don't know where to put it
-            if (typeof parsed.b == "string") {
-               if (parsed.m == "12y" && parsed.t.substr(0, parsed.b.length + 3) == `<${parsed.b}> `) {
-                  parsed.t = parsed.t.substring(parsed.b.length + 3, parsed.t.length)
-               }
-            }
             //this may be dangerous
             if(ndo)
             {
@@ -1816,8 +1810,7 @@ function handleAlerts(comments, users)
             {
                document.head.querySelector("link[data-favicon]").href = getAvatarLink(
                   parsed.a || users[x.createUserId].avatar, 40);
-               document.title = parsed.t; //.substr(0, 100);
-			   
+               document.title = parsed.t;
             }
          });
       }
