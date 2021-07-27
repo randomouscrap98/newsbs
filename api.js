@@ -666,7 +666,6 @@ var FrontendCoop = {
                data.t = data.t.substring(data.nickname.length + 3, data.t.length)
             }
          }
-         console.log(data);
          return data;
       }
    },
@@ -681,30 +680,3 @@ var FrontendCoop = {
    }
 };
 
-//function parseComment(content) {
-//   var newline = content.indexOf("\n");
-//   try {
-//      // try to parse the first line as JSON
-//      var data = JSON.parse(newline>=0 ? content.substr(0, newline) : content);
-//   } finally {
-//      if (data && data.constructor == Object) { // new or legacy format
-//         if (newline >= 0)
-//            data.t = content.substr(newline+1); // new format
-//      } else // raw
-//         data = {t: content};
-//      return data;
-//   }
-//}
-//
-//function createComment(rawtext, markup, avatar) {
-//   var meta = {"m":markup};
-//   if(avatar !== undefined)
-//      meta.a = "avatar";
-//   return JSON.stringify(meta) + "\n" + rawtext;
-//}
-//
-////Does the given (agreed upon) page name type have discussions? This would be
-////user, page, category, etc (those names)
-//function typeHasDiscussion(type) {
-//   return type === "page" || type === "user";
-//}
