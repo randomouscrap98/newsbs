@@ -220,6 +220,9 @@ a:hover { color: inherit; }
    border-top: 1px solid var(--outlinecolor);
 }
 
+/* white-space: pre-wrap messes up ruby alignment */
+ruby { white-space: normal; } 
+
 /* OOPS accidental(?) generic stuff */
 .username { margin: 0 0.4em; } /* pwusername, history, messageframeinfo, etc */
 .userdata { margin: 0 0.5em; }
