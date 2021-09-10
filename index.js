@@ -887,8 +887,10 @@ function setupFileUpload()
       fail: generalError,
       completeAll: function () {
          log.Info("Upload complete");
-         globals.api.Post(`variable/lastUsedBucket`, fileuploadbucket.value, apidata => 
-            log.Info("Saved last used bucket as " + fileuploadbucket.value));
+         if(fileuploadbucket.value) {
+            globals.api.Post(`variable/lastUsedBucket`, fileuploadbucket.value, apidata => 
+               log.Info("Saved last used bucket as " + fileuploadbucket.value));
+         }
          writeDom(() => 
          {
             addFileUploadImage(JSON.parse(arguments[0].responseText), fileuploaditems.childElementCount);
