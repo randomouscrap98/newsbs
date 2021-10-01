@@ -36,6 +36,7 @@ var options = {
       options: ["all", "none" ] },
    theme : {def: "light", u: 1, text: "Theme", options: [ "default", "dark", "blue",
       "contrast", "dark-contrast","oldschool" ]},
+   chatnickname : { def : "", u: 1, text : "Discussion Nickname (set blank to disable)" },
    datalog : { def: false, text : "Log received data objects" },
    drawlog : { def: false, text : "Log custom render data" },
    domlog : { def: false, text : "Log major DOM manipulation" },
@@ -954,7 +955,7 @@ function sendDiscussionMessage(message, markup, error)
    var currentDiscussion = getActiveDiscussionId();
    var sendData = {
       "parentId" : Number(currentDiscussion),
-      "content" : FrontendCoop.CreateComment(message, markup, getUserAvatar())
+      "content" : FrontendCoop.CreateComment(message, markup, getUserAvatar(), getNickname())
    };
 
    globals.api.Post("comment", sendData, undefined, error );
@@ -2181,6 +2182,11 @@ function getUsername() { return userusername.dataset.username; }
 function getUserAvatar() { return Number(navuseravatar.dataset.avatar); }
 function getIsSuper() { return website.getAttribute("data-issuper") == "true"; }
 
+function getNickname() {
+   var nickname = getLocalOption("chatnickname").substr(0, 50).replace(/\n/g, "  ");
+   return nickname != "" ? nickname : undefined;
+}
+
 function formError(form, error)
 {
    writeDom(() => form.appendChild(Templates.LoadHere("notifyelement_error",{message:error})));
@@ -2830,7 +2836,7 @@ function messageControllerEvent(event)
       commenteditinfo.textContent += "  Edited: " + (new Date(msg.editDate)).toLocaleString();
 
    var getEditorComment = () => 
-      FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value, parsedcm.a);
+      FrontendCoop.CreateComment(commentedittext.value, commenteditformat.value, parsedcm.a, parsedcm.n);
 
    if(getUserId() != msg.createUserId && !getIsSuper())
    {

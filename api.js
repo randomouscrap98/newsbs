@@ -669,10 +669,12 @@ var FrontendCoop = {
          return data;
       }
    },
-   CreateComment : function(rawtext, markup, avatar) {
+   CreateComment : function(rawtext, markup, avatar, nickname) {
       var meta = {"m":markup};
       if(avatar !== undefined)
          meta.a = avatar;
+      if(nickname !== undefined)
+         meta.n = nickname;
       return JSON.stringify(meta) + "\n" + rawtext;
    },
    TypeHasDiscussion : function(type) {
