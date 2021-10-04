@@ -2183,8 +2183,8 @@ function getUserAvatar() { return Number(navuseravatar.dataset.avatar); }
 function getIsSuper() { return website.getAttribute("data-issuper") == "true"; }
 
 function getNickname() {
-   var nickname = getLocalOption("chatnickname").substr(0, 50).replace(/\n/g, "  ");
-   return nickname != "" ? nickname : undefined;
+   var nickname = FrontendCoop.CleanNickname(getLocalOption("chatnickname"));
+   return nickname == "" ? undefined : nickname;
 }
 
 function formError(form, error)

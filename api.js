@@ -640,6 +640,12 @@ var DataFormat = Object.create(null); with (DataFormat) (function($) { Object.as
 // *********************
 
 var FrontendCoop = {
+   CleanNickname : function(nickname) {
+      if(typeof nickname == "string")
+         return nickname.substr(0,50).replace(/\n/g, "  ");
+      else
+         return nickname;
+   },
    ParseComment : function(content) {
       var newline = content.indexOf("\n");
       var data;
@@ -655,7 +661,8 @@ var FrontendCoop = {
          }
          //Figure out the nickname so others don't have to. Leave the b/n etc
          //in the parsed comment just in case though
-         data.nickname = (typeof data.b == "string") ? data.b : (typeof data.n == "string") ? data.n : undefined;
+         data.nickname = FrontendCoop.CleanNickname(
+            (typeof data.b == "string") ? data.b : (typeof data.n == "string") ? data.n : undefined);
          //Save the original text before modification
          data.rawText = data.t;
          data.rawContent = content;

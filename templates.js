@@ -13,7 +13,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    _stdDate : (d) => (new Date(d)).toLocaleDateString(),
    _stdDateTime : (d) => (new Date(d)).toLocaleString(),
    _stdDateDiff : (d, short) => Utilities.TimeDiff(d, null, short),
-   _chatDisplayName : (parsed, real) => (typeof parsed.nickname == "string" ? `${parsed.nickname.substr(0, 50).replace(/\n/g, "  ")} (${real})` : real),
+   _chatDisplayName : (parsed, real) => (typeof parsed.nickname == "string" ? `${parsed.nickname} (${real})` : real),
    _displayRaw : (title, raw) => {
       rawmodaltitle.textContent = title;
       rawmodalraw.textContent = raw;
