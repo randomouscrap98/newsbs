@@ -137,6 +137,8 @@ window.onload = function()
    globals.longpoller.instantComplete = handleLongpollData;
    interruptSmoothScroll();
 
+   globals.pendingModuleMessages = [];
+
    CommandSystem.api = globals.api;
    CommandSystem.commandinput = postdiscussiontext;
    CommandSystem.realmessage = sendDiscussionMessage;
@@ -146,19 +148,20 @@ window.onload = function()
 
       if(!d)
       {
-         notifyError("No discussion to place module message: " + msg.message);
+         log.Debug("Backlog pending module message: " + msg.message);
+         globals.pendingModuleMessages.push(msg);
          return;
       }
 
       if(!msg.id)
       {
-         var allmsgs = d.querySelectorAll("[data-messageid]");//.getAttribute("data-messageid")) + 0.001;
+         var allmsgs = d.querySelectorAll("[data-messageid]");
          msg.id = Number(allmsgs[allmsgs.length - 1].getAttribute("data-messageid")) + 0.001;
       }
 
-      var tmpl = Templates.LoadHere("modulemessage", {modulemessage:msg});
-
-      writeDom(() => d.template.innerTemplates.messagecontainer.element.appendChild(tmpl));
+      writeDom(() => {
+         var result = d.template.innerTemplates.messagecontainer.AddModuleMessage(msg);
+      });
    }
 
    var ww = Utilities.ConvertRem(Utilities.WindowWidth());
@@ -560,7 +563,19 @@ function setupSignalProcessors()
       {
          var statuses = { "-1" : "online" };
          var cid = getActiveDiscussionId();
-         if(cid) statuses[cid] = "online";
+         if(cid)
+         {
+            statuses[cid] = "online";
+            if(globals.pendingModuleMessages.length)
+            {
+               var d = getActiveDiscussion();
+               var pending = [...globals.pendingModuleMessages];
+               globals.pendingModuleMessages = [];
+               pending.forEach(x => CommandSystem.message(x));
+               interruptSmoothScroll();
+               scrollBottom(d);
+            }
+         }
          tryUpdateLongPoll(statuses);
       }
 
@@ -1896,6 +1911,9 @@ function handleLongpollData(lpdata)
       var watchlastids = getWatchLastIds();
       writeDom(() => updatePulse(data.chains));
 
+      //This already happens in a writedom
+      updateModuleMessages(data.chains)
+
       if(data.chains.comment)
       {
          //I filter out comments from watch updates if we're currently in
@@ -1912,17 +1930,6 @@ function handleLongpollData(lpdata)
             //&& lpdata.clearNotifications.indexOf(x.parentId) < 0));
          handleAlerts(data.chains.comment, users);
          writeDom(() => easyComments(data.chains.comment)); //users));
-      }
-
-      if(data.chains.modulemessage)
-      {
-         data.chains.modulemessage.forEach(x =>
-         {
-            //var msg = x.message;
-            for(var j = 0; j < data.chains.user.length; j++)
-               x.message = x.message.replace(new RegExp("%" + data.chains.user[j].id + "%","g"), data.chains.user[j].username);
-            CommandSystem.message(x);
-         });
       }
 
       if(data.chains.activity)
@@ -2143,15 +2150,17 @@ function setupSession()
       refreshUserFull(); 
 
       var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
+      var searchStr = JSON.stringify(search);
       var watchsearch = {"ContentLimit":{"Watches":true}};
       params.append("requests", "systemaggregate"); //1
-      params.append("requests", "comment-" + JSON.stringify(search));   //2
-      params.append("requests", "activity-" + JSON.stringify(search));  //3
+      params.append("requests", "comment-" + searchStr);   //2
+      params.append("requests", "activity-" + searchStr);  //3
       params.append("requests", "watch");    //4
-      params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //5
-      params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //6
-      params.append("requests", "content.3contentId.2parentId.4contentId"); //7
-      params.append("requests", "user.3userId.2createUserId.5userIds.6userIds.7createUserId"); //8
+      params.append("requests", "modulemessage-" + searchStr); //5
+      params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //6
+      params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //7
+      params.append("requests", "content.3contentId.2parentId.4contentId"); //8
+      params.append("requests", "user.3userId.2createUserId.5usersInMessage.5sendUserId.6userIds.7userIds.8createUserId"); //9
       params.set("comment","id,parentId,createUserId,createDate");
       params.set("content","id,name,type,values,createUserId,permissions");
       params.set("user","id,username,avatar,super,createDate");
@@ -2187,6 +2196,7 @@ function setupSession()
          //Fully stock (with reset) the sidepanel
          updatePulse(data, true);
          updateWatches(data, true);
+         updateModuleMessages(data)
       }
 
       setPaneCategoryTree(apidata.data.category)
@@ -2782,6 +2792,19 @@ function clearWatchVisual(contentId)
 // ********************
 // ---- Discussion ----
 // ********************
+
+function updateModuleMessages(chains)
+{
+   if(chains.modulemessage)
+   {
+      chains.modulemessage.forEach(x =>
+      {
+         for(var j = 0; j < chains.user.length; j++)
+            x.message = x.message.replace(new RegExp("%" + chains.user[j].id + "%","g"), chains.user[j].username);
+         CommandSystem.message(x);
+      });
+   }
+}
 
 //function loadOlderCommentsActive()
 //{

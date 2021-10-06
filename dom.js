@@ -853,9 +853,13 @@ function getDiscussion(id)
             log.Datalog("check dev log for loadcomments: ", apidata);
             var data = apidata.data;
             var users = idMap(data.user);
+            //TODO: this is... is this ok?
+            var top = discussions.scrollTop;
+            var height = discussions.scrollHeight;
             writeDom(() =>
             {
                easyComments(data.comment, initload); //users);
+               discussions.scrollTop = discussions.scrollHeight - height + top;
             });
          }, undefined, apidata => /* always */
          {

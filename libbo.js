@@ -599,26 +599,31 @@ var StdTemplating = Object.create(null); with (StdTemplating) (function($) { Obj
    ProcessField: function(currentelement, fieldname, tobj)
    {
       //Check for function first, do some special processing
-      if(fieldname == "tfunc") //fieldname.startsWith("tfunc-"))
+      if(fieldname == "tfunc")
       {
-         //var func = fieldname.substr(6);
-         var parts = StripField(currentelement, fieldname).split("/");
-         var func = parts[0];
-         var poolfunc = parts[1] || func;
+         var funcs = StripField(currentelement, fieldname).split(",");
 
-         _CheckFunctionPool(poolfunc, tobj);
-
-         //Define a function on the tobj itself (if possible, it can't collide)
-         //which calls a function within the function pool but WITH the template
-         var f = (...args) =>
+         funcs.forEach(f =>
          {
-            args.push(tobj);
-            args.push(currentelement);
-            return tobj.functionPool[poolfunc].call(tobj.functionPool[poolfunc], ...args);
-         };
+            var parts = f.split("/");
+            var func = parts[0];
+            var poolfunc = parts[1] || func;
 
-         SingleFieldValue(tobj, func, f);
-         SingleFieldValue(tobj.functions, func, f);
+            _CheckFunctionPool(poolfunc, tobj);
+
+            //Define a function on the tobj itself (if possible, it can't collide)
+            //which calls a function within the function pool but WITH the template
+            var f = (...args) =>
+            {
+               args.push(tobj);
+               args.push(currentelement);
+               return tobj.functionPool[poolfunc].call(tobj.functionPool[poolfunc], ...args);
+            };
+
+            SingleFieldValue(tobj, func, f);
+            SingleFieldValue(tobj.functions, func, f);
+
+         });
       }
       else if(fieldname.startsWith("t-"))
       {

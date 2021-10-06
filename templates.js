@@ -148,7 +148,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
    {
       ce.click();
    },
-   AddComment : (comment, mergetime, tobj, ce) =>
+   _FindDiscussionInsert(iid, ce)
    {
       //Starting from bottom, find place to insert.
       var comments = ce.querySelectorAll("[data-messageid]");
@@ -157,7 +157,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       for(var i = comments.length - 1; i >= 0; i--)
       {
          //This is the place to insert!
-         if(comment.id > Number(comments[i].getAttribute("data-messageid")))
+         if(iid > Number(comments[i].getAttribute("data-messageid")))
          {
             insertAfter = comments[i];
             break;
@@ -167,12 +167,27 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       //Oops, this really shouldn't happen!!
       if(!insertAfter)
       {
-         throw "Didn't find a place to insert comment " + comment.id + 
-            " into discussion " + comment.parentId;
+         throw "Didn't find a place to insert discussion item " + iid + 
+            " into discussion " + ce.parentNode.id;
       }
 
       var insertFrame = (insertAfter.getAttribute("data-template") == "messagefragment")
          ? insertAfter.template.fields.frame : insertAfter;
+
+      return { "insertAfter" : insertAfter, "insertAfterFrame" : insertFrame };
+   },
+   AddModuleMessage : (message, tobj, ce) =>
+   {
+      var fins = _FindDiscussionInsert(message.id, ce);
+      var tmpl = Templates.LoadHere("modulemessage", {modulemessage:message});
+      Utilities.InsertAfter(tmpl, fins.insertAfterFrame);
+   },
+   AddComment : (comment, mergetime, tobj, ce) =>
+   {
+      var fins = _FindDiscussionInsert(comment.id, ce);
+      var insertAfter = fins.insertAfter;
+      var insertFrame = fins.insertAfterFrame;
+
       var newFrame = null;
 
       //We will end up parsing a comment twice because of the next line but oh well (This one is for message splitting)
