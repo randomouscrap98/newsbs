@@ -1007,6 +1007,11 @@ function setupDiscussions()
    log.Debug("Setup discussions (scrolling/etc)");
 }
 
+function getModuleHelp(success)
+{
+   globals.api.Chain("requests=module&module=name,subcommands,id,loaded,description", success);
+}
+
 function handleCommand(full)
 {
    try
@@ -1022,10 +1027,63 @@ function handleCommand(full)
       //their own help
       if(cmd == "help")
       {
-         var help = "Available commands:\n";
-         help += Object.keys(Commands).map(x => "/" + x.padEnd(15, " ") + Commands[x].description).join("\n");
-         CommandSystem.print(help);
-         //CommandSystem.print("Help coming soon, try /hide and /unhide");
+         if(cmdparts.length > 1)
+         {
+            getModuleHelp(apidata =>
+            {
+               var help = "";
+               for(var i = 1; i < cmdparts.length; i++)
+               {
+                  var found = false;
+                  apidata.data.module.forEach(mod => {
+                     if(mod.name == cmdparts[i])
+                     {
+                        found = true;
+
+                        if(i != 1)
+                           help += "\n-------------------\n\n";
+
+                        if(mod.description)
+                           help += `About '${mod.name}':\n${mod.description}\n\n`;
+
+                        if(mod.subcommands)
+                        {
+                           help += `Commands for '${mod.name}':\n`;
+                           Object.keys(mod.subcommands).forEach(k => {
+                              help += `/${mod.name} ${k} `;
+                              mod.subcommands[k].arguments.forEach(a => {
+                                 help += `${a.name}(${a.type.substr(0,1)}) `;
+                              });
+                              help += "\n";
+                           });
+                        }
+                        else
+                        {
+                           help += "No command help given for " + mod.name + "\n";
+                        }
+                     }
+                  }); 
+
+                  if(!found)
+                  {
+                     help += "Unknown module: " + cmdparts[i] + "\n";
+                  }
+               }
+               CommandSystem.print(help);
+            });
+         }
+         else
+         {
+            var help = "Local commands:\n";
+            help += Object.keys(Commands).map(x => "/" + x.padEnd(15, " ") + Commands[x].description).join("\n");
+            help += "\n\nModules (type /help modname for more info):\n";
+
+            getModuleHelp(apidata =>
+            {
+               apidata.data.module.forEach(mod => help += mod.name + "\n");
+               CommandSystem.print(help);
+            });
+         }
       }
       else if(cmd in Commands)
       {
@@ -1033,7 +1091,11 @@ function handleCommand(full)
       }
       else
       {
-         throw "Server commands will come soon";
+         globals.api.Post(`module/${cmd}`, full.substr(cmd.length), apidat =>
+         {
+            if(apidat.data)
+               log.Debug(`Module command '/${full}' returned: ${apidat.data}`);
+         });
       }
    }
    catch(ex)
