@@ -291,8 +291,8 @@ end
 --default handler. But, any command that you want parsed automatically can
 --be placed in the "subcommands" table, like what follows. The arguments are
 --in the format 'name_type', where the available types are 'user', 'word',
---and 'freeform'. Freeform arguments consume the rest of the argument list
---and must come at the end. Users are in the form "uid(username)", where 
+--'int', and 'freeform'. Freeform arguments consume the rest of the argument 
+--list and must come at the end. Users are in the form "uid(username)", where 
 --username is optional. Word is a single word with no spaces.
 subcommands={
    ["wow"]={
@@ -340,7 +340,10 @@ function command_broadcast(uid, data)
     sendmessage(0, "The test module is broadcasting!")
 end
 
---To read and write persistent data, use setdata and getdata
+--To read and write persistent data, use setdata and getdata. Data is string
+--only, but this version of lua is "moonsharp" and you have access to the 
+--functions "json.parse(string)" and "json.serialize(table)". It only works
+--for tables I believe. See: https://www.moonsharp.org/additions.html
 function command_store(uid, data)
    setdata("somekey", data)
    sendmessage(uid, "Stored " .. data .. " in 'somekey'") -- .. is string concat
@@ -349,6 +352,10 @@ end
 function command_read(uid, data)
    sendmessage(uid, "You stored: " .. getdata("somekey"))
 end
+
+--Special note about getdata: there's a "getalldata" version that accepts a
+--'like' key. For instance, getalldata("a%") will get you a table of values
+--from your storage where the key starts with 'a'.
 
 function command_getuid(uid, user)
    sendmessage(uid, "UID " .. user .. " is %" .. user .. "%")
@@ -407,6 +414,8 @@ end
 -- can also chain against "sendUserId" and "receiveUserId" (note that chaining
 -- against 0 for broadcast messages shouldn't match anything... but I'm not sure)
 
+-- Additional functions available in lua and their implementations:
+--  https://github.com/randomouscrap98/contentapi/blob/e178850ac191b2a4a02101e9b9f3d6b7b5a4b6ae/contentapi/Services/Implementations/ModuleService.cs#L133
 
 -- Add "keyboard=vim" to set keybindings to vim. There may be other options
 -- too, lookup the ace editor for more details

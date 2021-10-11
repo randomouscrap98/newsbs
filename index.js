@@ -1065,11 +1065,12 @@ function handleCommand(full)
                         {
                            help += `Commands for '${mod.name}':\n`;
                            Object.keys(mod.subcommands).forEach(k => {
-                              help += `/${mod.name} ${k} `;
+                              var subcm = `/${mod.name} ${k} `;
                               mod.subcommands[k].arguments.forEach(a => {
-                                 help += `${a.name}(${a.type.substr(0,1)}) `;
+                                 subcm += `${a.name}(${a.type.substr(0,1)}) `;
                               });
-                              help += "\n";
+                              help += subcm.padEnd(28, " ") + "   " + mod.subcommands[k].description + "\n";
+                              //help += "\n";
                            });
                         }
                         else
@@ -1110,6 +1111,13 @@ function handleCommand(full)
          {
             if(apidat.data)
                log.Debug(`Module command '/${full}' returned: ${apidat.data}`);
+         }, apidata =>
+         {
+            if(apidata.request.status == 400)
+            {
+               CommandSystem.print("Error while parsing command: " + apidata.request.responseText);
+               apidata.ignoreError = true;
+            }
          });
       }
    }
