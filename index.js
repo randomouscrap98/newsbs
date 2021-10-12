@@ -1091,7 +1091,7 @@ function handleCommand(full)
          else
          {
             var help = "Local commands:\n";
-            help += Object.keys(Commands).map(x => "/" + x.padEnd(15, " ") + Commands[x].description).join("\n");
+            help += Object.keys(Commands).map(x => "/" + x.padEnd(20, " ") + Commands[x].description).join("\n");
             help += "\n\nModules (type /help modname for more info):\n";
 
             getModuleHelp(apidata =>
@@ -2160,11 +2160,11 @@ function setupSession()
       var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
       var searchStr = JSON.stringify(search);
       var watchsearch = {"ContentLimit":{"Watches":true}};
-      params.append("requests", "systemaggregate"); //1
+      params.append("requests", "systemaggregate"); //1 (0 is category)
       params.append("requests", "comment-" + searchStr);   //2
       params.append("requests", "activity-" + searchStr);  //3
       params.append("requests", "watch");    //4
-      params.append("requests", "modulemessage-" + searchStr); //5
+      params.append("requests", "modulemessage-" + JSON.stringify({maxId:0}));//searchStr); //5 (DISABLED)
       params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //6
       params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //7
       params.append("requests", "content.3contentId.2parentId.4contentId"); //8

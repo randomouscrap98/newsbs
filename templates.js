@@ -153,12 +153,18 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       //Starting from bottom, find place to insert.
       var comments = ce.querySelectorAll("[data-messageid]");
       var insertAfter = ce.firstElementChild; //Expected to be a comment!
+      var alreadyInserted = false;
 
       for(var i = comments.length - 1; i >= 0; i--)
       {
+         var msgid = Number(comments[i].getAttribute("data-messageid"));
+
          //This is the place to insert!
-         if(iid > Number(comments[i].getAttribute("data-messageid")))
+         if(iid >= msgid)
          {
+            if(iid == msgid)
+               alreadyInserted = true;
+               
             insertAfter = comments[i];
             break;
          }
@@ -174,11 +180,17 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       var insertFrame = (insertAfter.getAttribute("data-template") == "messagefragment")
          ? insertAfter.template.fields.frame : insertAfter;
 
-      return { "insertAfter" : insertAfter, "insertAfterFrame" : insertFrame };
+      return { "insertAfter" : insertAfter, "insertAfterFrame" : insertFrame,
+               "alreadyInserted" : alreadyInserted };
    },
    AddModuleMessage : (message, tobj, ce) =>
    {
       var fins = _FindDiscussionInsert(message.id, ce);
+      if(fins.alreadyInserted)
+      {
+         log.Debug(`Skipping module message ${message.id}, already inserted!`);
+         return;
+      }
       var tmpl = Templates.LoadHere("modulemessage", {modulemessage:message});
       Utilities.InsertAfter(tmpl, fins.insertAfterFrame);
    },

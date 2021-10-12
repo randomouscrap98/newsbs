@@ -82,6 +82,21 @@ var Commands = {
          postdiscussiontext.value = cmd;
       });
    }),
+   loadmodulemessages : new Command("Load module messages up to the given number of hours ago (default: 12)", cmd =>
+   {
+      var hours = Number(cmd.match(/\d+/) || 12);
+      CommandSystem.print(`Pulling module messages from the last ${hours} hours...`);
+      var params = new URLSearchParams();
+      var search = {"reverse":true,"createstart":Utilities.SubHours(hours).toISOString()};
+      params.append("requests", "modulemessage-" + JSON.stringify(search));
+      params.append("requests", "user.0usersInMessage.0sendUserId"); 
+      CommandSystem.api.Chain(params, apidata =>
+      {
+         var data = apidata.data;
+         updateModuleMessages(data); //TODO: This requires direct access to index.js...
+         CommandSystem.print(`Finished pulling module messages from the last ${hours} hours; they were inserted in chronological order`);
+      });
+   }),
    ".." : new Command("Fill text area with last command", (cmd, parts) =>
    {
       var backIndex = 1;
