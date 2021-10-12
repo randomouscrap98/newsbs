@@ -223,6 +223,7 @@ window.onload = function()
    };
    StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
 
+   signals.Add("onloadcomplete", null);
 };
 
 function safety(func)
