@@ -614,6 +614,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       tobj.SetFields({
          id : v.id,
          message : v.message,
+         parentid : v.parentId,
          time : "[" + (new Date(date)).toTimeString().substr(0,8) + "]"
       });
    },

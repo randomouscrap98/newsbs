@@ -144,7 +144,7 @@ window.onload = function()
    CommandSystem.realmessage = sendDiscussionMessage;
    CommandSystem.message = msg => 
    {
-      var d = getActiveDiscussion();
+      var d = msg.parentId ? getDiscussion(msg.parentId) : getActiveDiscussion();
 
       if(!d)
       {
@@ -1108,7 +1108,8 @@ function handleCommand(full)
       }
       else
       {
-         globals.api.Post(`module/${cmd}`, full.substr(cmd.length), apidat =>
+         var discid = getActiveDiscussionId();
+         globals.api.Post(`module/${cmd}/${discid}`, full.substr(cmd.length), apidat =>
          {
             if(apidat.data)
                log.Debug(`Module command '/${full}' returned: ${apidat.data}`);
@@ -2814,20 +2815,6 @@ function updateModuleMessages(chains)
       });
    }
 }
-
-//function loadOlderCommentsActive()
-//{
-//   if(!globals.loadingOlderDiscussions && 
-//      globals.loadingOlderDiscussionsTime < performance.now() - 
-//      getLocalOption("scrolldiscloadcooldown"))
-//   {
-//      var activeDiscussion = getActiveDiscussion();
-//
-//      if(!activeDiscussion.hasAttribute(attr.atoldest))
-//         loadOlderComments(activeDiscussion);
-//   }
-//}
-//
 
 function getFragmentFrame(element)
 {

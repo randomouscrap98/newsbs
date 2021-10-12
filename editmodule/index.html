@@ -319,7 +319,10 @@ function command_wow(uid, user, word, freeform)
    -- titles, special formatting (like links to usernames), etc. I'm sorry
    -- it's more work, but I think it's neat if usernames could be linked 
    -- in module messages, and manual replacement allows that)
-   sendmessage(uid, "User %" .. user .. "% " .. word .. " " .. freeform)
+
+   --NOTE: you can send messages directly to a user with "usermessage". These 
+   --don't have a room associated with them, and can be pulled from anywhere
+   usermessage(uid, "User %" .. user .. "% " .. word .. " " .. freeform)
 end
 
 --Now, let's define the rest of the subcommands. You don't normally have to
@@ -334,10 +337,12 @@ subcommands["read"]={}
 subcommands["getuid"]={["arguments"]={"uid_user"}}
 subcommands["alert"]={}
 subcommands["debug"]={}
+subcommands["checkroom"]={}
 
---Send to uid 0 to broadcast to everyone. There may be a rate limit
+--Broadcast messages are sent to everyone in the current room. The current
+--room is the one in which the module message was sent.
 function command_broadcast(uid, data)
-    sendmessage(0, "The test module is broadcasting!")
+    broadcastmessage("The test module is broadcasting!")
 end
 
 --To read and write persistent data, use setdata and getdata. Data is string
@@ -346,11 +351,11 @@ end
 --for tables I believe. See: https://www.moonsharp.org/additions.html
 function command_store(uid, data)
    setdata("somekey", data)
-   sendmessage(uid, "Stored " .. data .. " in 'somekey'") -- .. is string concat
+   usermessage(uid, "Stored " .. data .. " in 'somekey'") -- .. is string concat
 end
 
 function command_read(uid, data)
-   sendmessage(uid, "You stored: " .. getdata("somekey"))
+   usermessage(uid, "You stored: " .. getdata("somekey"))
 end
 
 --Special note about getdata: there's a "getalldata" version that accepts a
@@ -358,20 +363,37 @@ end
 --from your storage where the key starts with 'a'.
 
 function command_getuid(uid, user)
-   sendmessage(uid, "UID " .. user .. " is %" .. user .. "%")
+   usermessage(uid, "UID " .. user .. " is %" .. user .. "%")
 end
 
 --Any string you return from a function will be given as the result
 --text when POSTing the command. It should not be used to send messages
 function command_alert(uid, data)
-   sendmessage(uid, "Returned data in the response")
+   usermessage(uid, "Returned data in the response")
    return "The data was: " .. data
 end
 
 --You can log debug messages, which are viewable from /api/module/debug/{modname}
 function command_debug(uid, data)
    prntdbg("This should show the user, command, and data")
-   sendmessage(uid, "Check the debug logs!")
+   usermessage(uid, "Check the debug logs!")
+end
+
+--There are times when you need the ID of the room the user is sending the
+--command in. For instance, if a user starts a game and you're broadcasting
+--messages, only the people in that room will see the game. It wouldn't make
+--sense for users outside that room to be able to join (in some cases). This
+--isn't necessary of course; it's up to you
+function command_checkroom(uid)
+   local currentroom = getbroadcastid()
+   local lastroom = tonumber(getdata(uid.."lastroom"))
+   local message = "Your room id is: "..currentroom.."\n"
+   if currentroom ~= lastroom then
+      message = message.."This is different than your last room!"
+      if lastroom ~= nil then message = message.." You were in "..lastroom end
+   end
+   usermessage(uid, message)
+   setdata(uid.."lastroom", currentroom)
 end
 
 --You can define your own functions as long as they don't start with command_
@@ -387,8 +409,11 @@ end
 -- the code, POST modules if you're a super user, and delete them (if you're super).
 -- You can also POST data to a command endpoint. To post a command such as:
 --   cgame draw 500
--- you would POST to endpoint (with body set to "500"):
---  /api/module/cgame/draw
+-- in room 55, you would POST to endpoint (with body set to "500"):
+--  /api/module/cgame/draw/55
+-- Please note that module messages are room-aware, so you must always include
+-- the room id when sending commands. Broadcast messages performed during a
+-- command will use this id to send to everyone in that room.
 -- If a command has no extra arguments, you can simply post an empty body (I think)
 
 -- If you utilize the "subcommands" automatic parsing (please do), you ALSO get
@@ -403,11 +428,20 @@ end
 
 -- Module messages are stored in the database and are part of the chainer. They
 -- share the id space with comments. As such, you can chain "modulemessage" to
--- your actions listener to also get module messages. Modules send messages
--- directly to users or to everyone with uid = 0. They have no concept of rooms,
--- it's up to you to figure out where when and how you want to display them. Since
--- they share the id space with all other actions, you can continue using lastId
--- as usual. You may want to chain users to various fields in the module messages.
+-- your actions listener to also get module messages. Modules can either send
+-- messages directly to users, regardless of room (parentId will be 0), or send 
+-- messages to all within a specific room (receiverId will be 0). You should
+-- display module messages with a parentId in the appropriate rooms, but
+-- messages directly to users is up to you. I personally display user-specific
+-- messages in all rooms. Furthermore, accessing ANY module message endpoint
+-- will give you BOTH direct user messages to you as well as all module messages
+-- across all rooms. There is a parentId limiter if you want to use it, same as
+-- comments, but you will still get your user-specific messages mixed in. To 
+-- ONLY get room messages, set the "RecipientIds" array to contain some
+-- impossible value, like -1 
+-- Since module messages share the id space with all other actions, you can 
+-- continue using lastId as usual on your listener endpoints. You may want to 
+-- chain users to various fields in the module messages.
 -- Example:
 --   { "lastId" : 0, "chains" : ["modulemessage.0id", "user.1usersInMessage.1sendUserId" ] }
 -- "usersInMessage" will be all the parsed %UID% found in the message, and you 
