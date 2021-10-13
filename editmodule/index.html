@@ -268,6 +268,7 @@ function quickAJAX(url, token, callback, error, postData)
    position: absolute;
    right: 0;
    top: 0;
+   z-index: 100;
 }
 #debugoutput
 {
@@ -447,6 +448,12 @@ end
 -- "usersInMessage" will be all the parsed %UID% found in the message, and you 
 -- can also chain against "sendUserId" and "receiveUserId" (note that chaining
 -- against 0 for broadcast messages shouldn't match anything... but I'm not sure)
+
+-- The "json" implementation in this lua library is broken for strings. If you
+-- want to encode your tables as json strings for storage, please use the
+-- functions "b64encode" and "b64decode" on any string in your table. The
+-- strings NEED TO BE base64 before serialization in order to be stored 
+-- without error. And of course, decode them after loading from the storage.
 
 -- Additional functions available in lua and their implementations:
 --  https://github.com/randomouscrap98/contentapi/blob/e178850ac191b2a4a02101e9b9f3d6b7b5a4b6ae/contentapi/Services/Implementations/ModuleService.cs#L133
