@@ -2230,7 +2230,10 @@ function refreshUserFull(always)
 
 function updateDiscussionUserlist(listeners, users)
 {
-   var list = listeners ? listeners[getActiveDiscussionId()] : {};
+   var list = listeners ? listeners[getActiveDiscussionId()] : null;
+
+   //Sometimes... the listener list is empty (even the listeners list might not have the element)
+   if(!list) list = {};
 
    for(key in list)
    {
