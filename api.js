@@ -630,11 +630,12 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
       };
       socket.onmessage = function(event)
       {
-         console.log("onmessage: " , event);
+         //console.log("onmessage: " , event);
          var data = event.data ? JSON.parse(event.data) : null;
 
          if(data.lastId) senddata.lastId = data.lastId;
          if(data.listeners) senddata.lastListeners = data.listeners;
+         if(data) me.api.AutoLink(data.chains);
 
          me.signal("longpollalways", sigdata("onmessage"));
          me.signal("longpollsuccess", sigdata("onmessage"));
