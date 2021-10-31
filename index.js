@@ -1,5 +1,5 @@
-//var apiroot = "https://localhost:5001/api";
 var apiroot = "https://newdev.smilebasicsource.com/api";
+//var apiroot = "https://localhost:5001/api";
 
 var actiontext = {
    "c" : "Create",

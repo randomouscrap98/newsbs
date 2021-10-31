@@ -629,9 +629,10 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
       };
       socket.onerror = function(event)
       {
-         me.signal("longpollerror", sigdata(`Unknown error in websocket ${socket.myId}`));
-         me.log(`Websocket ${socket.myId} failed, retrying in ${me.errortime} ms`);
-         redo();
+         me.log(`Websocket ${socket.myId} encountered an error, it will probably disconnect`);
+         //me.signal("longpollerror", sigdata(`Unknown error in websocket ${socket.myId}`));
+         //me.log(`Websocket ${socket.myId} failed, retrying in ${me.errortime} ms`);
+         //redo();
       };
       socket.onmessage = function(event)
       {
