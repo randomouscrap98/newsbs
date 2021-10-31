@@ -2230,10 +2230,14 @@ function refreshUserFull(always)
 
 function updateDiscussionUserlist(listeners, users)
 {
-   var list = listeners ? listeners[getActiveDiscussionId()] : null;
+   var list = listeners ? listeners[getActiveDiscussionId()] : {};
 
-   //Sometimes... the listener list is empty (even the listeners list might not have the element)
-   if(!list) list = {};
+   //I don't understand this bug, and I'm not sure what the right thing to do
+   //is. We ASSUME that if we get listeners, we SHOULD get the active
+   //discussion with it. Perhaps not? That seems to sometimes happen, and
+   //allowing them to pass through causes errors. So, I ignore them. I think
+   //that might cause problems, TODO: please see if ignoring causes problems
+   if(!list) return;
 
    for(key in list)
    {

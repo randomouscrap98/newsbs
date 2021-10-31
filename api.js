@@ -549,20 +549,27 @@ function WebSocketListener(api, signalHandler, log, dataHandler)
    this.log = log || ((msg, msg2, msg3) => console.log(msg, msg2, msg3));
    this.dataHandler = dataHandler;
    this.errortime = 3000; //Amount of time to wait before restarting websocket on failure
+   this.lasterror = performance.now();
 
    this.nextId = 1;
    this.forceclosed = [];
    this.socket = null;
 }
 
+WebSocketListener.prototype.UnregisterWebsocket = function()
+{
+   var socket = this.socket;
+   this.forceclosed.push(socket.myId);
+   this.socket = null;
+   return socket;
+};
+
 WebSocketListener.prototype.TryAbortAll = function()
 {
    //Aborting is ACTUALLY closing the websocket, if it exists. 
    if(this.socket)
    {
-      var socket = this.socket;
-      this.forceclosed.push(socket.myId);
-      this.socket = null;
+      var socket = this.UnregisterWebsocket(); 
       this.log(`Closing websocket ${socket.myId}; any outstanding requests will be lost`);
       try{ socket.close(); }
       catch(ex) { this.log(`Error closing websocket ${socket.myId}: ${ex}`); }
@@ -582,15 +589,6 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
 {
    var me = this;
    var senddata = new ListenerData(lastId, statuses);
-   var beginNewListen = (s) =>
-   {
-      me.RefreshAuth(d => 
-      { 
-         var sendreq = senddata.ToRequest();
-         sendreq.auth = d; 
-         s.send(JSON.stringify(sendreq));
-      });
-   };
    var sigdata = (message) => ({
       lpdata : senddata,
       request : {
@@ -598,10 +596,16 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
          statusText : message
       }
    });
-   var redo = () => setTimeout(() => { 
-      me.TryAbortAll();
-      me.Update(senddata.lastId, senddata.statuses); 
-   }, me.errortime);
+   var beginNewListen = (s) =>
+   {
+      me.RefreshAuth(d => 
+      { 
+         var sendreq = senddata.ToRequest();
+         sendreq.auth = d; 
+         s.send(JSON.stringify(sendreq));
+         me.signal("longpollsuccess", sigdata("auth success"));
+      });
+   };
 
    if(!this.socket)
    {
@@ -618,9 +622,16 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
       {
          if(me.forceclosed.indexOf(socket.myId) < 0) //this was an unexpected close
          {
-            me.signal("longpollerror", sigdata(`Unknown error during websocket [${socket.myId}] close`));
-            me.log(`Websocket ${socket.myId} closed unexpectedly, retrying in ${me.errortime} ms`);
-            redo();
+            //Parenthesis in the performance now calc unnecessary, but shows
+            //that the amount of time to wait is reduced by the amount of time
+            //since last error. This allows infrequent errors to not have a
+            //forced wait.
+            var retryms = Math.max(0, me.errortime - (performance.now() - me.lasterror));
+            me.lasterror = performance.now();
+            me.signal("longpollerror", 
+               sigdata(`Unknown error during websocket [${socket.myId}] close, retry in ${retryms} ms`));
+            me.UnregisterWebsocket();
+            setTimeout(() => me.Update(senddata.lastId, senddata.statuses), retryms);
          }
          else
          {
@@ -630,30 +641,37 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
       socket.onerror = function(event)
       {
          me.log(`Websocket ${socket.myId} encountered an error, it will probably disconnect`);
-         //me.signal("longpollerror", sigdata(`Unknown error in websocket ${socket.myId}`));
-         //me.log(`Websocket ${socket.myId} failed, retrying in ${me.errortime} ms`);
-         //redo();
       };
       socket.onmessage = function(event)
       {
-         //console.log("onmessage: " , event);
-         var data = event.data ? JSON.parse(event.data) : null;
+         if(event.data)
+         {
+            if(event.data.indexOf("accepted:") == 0)
+            {
+               //The server is just acknowledging the receipt
+               me.log(`Successfully updated configuration for websocket ${socket.myId}`);
+            }
+            else
+            {
+               var data = JSON.parse(event.data);
 
-         if(data.lastId) senddata.lastId = data.lastId;
-         if(data.listeners) senddata.lastListeners = data.listeners;
-         if(data) me.api.AutoLink(data.chains);
+               if(data.lastId) senddata.lastId = data.lastId;
+               if(data.listeners) senddata.lastListeners = data.listeners;
+               if(data) me.api.AutoLink(data.chains);
+            }
+         }
 
          //Technically, if you ever get a message, your connection is clearly stable
          me.signal("longpollstart", sigdata("onmessage"));
-         me.signal("longpollalways", sigdata("onmessage"));
          me.signal("longpollsuccess", sigdata("onmessage"));
+         me.signal("longpollalways", sigdata("onmessage"));
 
          me.dataHandler(data, senddata);
       };
    }
    else
    {
-      this.log(`Updating websocket listener, using existing websocket [${this.socket.myId}]`);
+      this.log(`Updating existing websocket listener [${this.socket.myId}]`);
       beginNewListen(this.socket);
    }
 };
@@ -663,7 +681,6 @@ function GetGenericListener(api, signalHandler, log, dataHandler)
    //Return one or the other based on if websockets is supported
    if(Utilities.HasWebSockets())
       return new WebSocketListener(api, signalHandler, log, dataHandler);
-      //return new LongPoller(api, signalHandler, log, dataHandler);
    else
       return new LongPoller(api, signalHandler, log, dataHandler);
 }
