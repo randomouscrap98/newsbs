@@ -49,6 +49,13 @@ function setConnectionState(state)
    indicator.setAttribute(constate, state || "");
 }
 
+function getConnectionState()
+{
+   const constate = "data-connectionindicator";
+   var indicator = document.querySelector("[" + constate + "]");
+   return indicator.getAttribute(constate);
+}
+
 function setTitle(title)
 {
    if(title)

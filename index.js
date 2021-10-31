@@ -271,6 +271,28 @@ function refreshCycle()
    var ctime = getLocalOption("signalcleanup");
    var now = performance.now();
 
+   if(getConnectionState() == "error" && !globals.showingConnectionError)
+   {
+      if(globals.lastConnectionError && (now - globals.lastConnectionError) > 10000)
+      {
+         globals.showingConnectionError = true;
+         UIkit.modal.confirm("There seems to be an error in your live updates connection. " +
+            "This frontend has some underlying problems that I haven't been able to fix. " +
+            "It's recommended you reload the page.\n\n" +
+            "Press OK to reload page.\n\nIf you " +
+            "CANCEL, the website MAY not function properly!").then(x =>
+         {
+            location.reload();
+         });
+      }
+
+      globals.lastConnectionError = now;
+   }
+   else
+   {
+      globals.lastConnectionError = 0;
+   }
+
    if(getLocalOption("logperiodicdata"))
    {
       var message = "Periodic data:";

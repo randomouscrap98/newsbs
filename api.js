@@ -582,7 +582,13 @@ WebSocketListener.prototype.TryAbortAll = function()
 
 WebSocketListener.prototype.RefreshAuth = function(oncomplete)
 {
-   this.api.Get("read/wsauth", null, data => oncomplete(data.data));
+   var me = this;
+   this.api.Get("read/wsauth", null, 
+      data => oncomplete(data.data),
+      error => {
+         me.log(`Error while retrieving websocket auth, trying again in ${me.errortime} ms`);
+         setTimeout(() => me.RefreshAuth(oncomplete), me.errortime);
+      });
 };
 
 WebSocketListener.prototype.Update = function (lastId, statuses)
@@ -603,7 +609,7 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
          var sendreq = senddata.ToRequest();
          sendreq.auth = d; 
          s.send(JSON.stringify(sendreq));
-         me.signal("longpollsuccess", sigdata("auth success"));
+         me.signal("longpollstart", sigdata("auth success"));
       });
    };
 
@@ -663,7 +669,6 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
 
          //Technically, if you ever get a message, your connection is clearly stable
          me.signal("longpollstart", sigdata("onmessage"));
-         me.signal("longpollsuccess", sigdata("onmessage"));
          me.signal("longpollalways", sigdata("onmessage"));
 
          me.dataHandler(data, senddata);
