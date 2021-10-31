@@ -550,6 +550,8 @@ function WebSocketListener(api, signalHandler, log, dataHandler)
    this.dataHandler = dataHandler;
    this.errortime = 3000; //Amount of time to wait before restarting websocket on failure
 
+   this.nextId = 1;
+   this.forceclosed = [];
    this.socket = null;
 }
 
@@ -559,10 +561,11 @@ WebSocketListener.prototype.TryAbortAll = function()
    if(this.socket)
    {
       var socket = this.socket;
+      this.forceclosed.push(socket.myId);
       this.socket = null;
-      this.log("Closing previous websocket; any outstanding requests will be lost");
+      this.log(`Closing websocket ${socket.myId}; any outstanding requests will be lost`);
       try{ socket.close(); }
-      catch(ex) { this.log("Error closing websocket: ", ex); }
+      catch(ex) { this.log(`Error closing websocket ${socket.myId}: ${ex}`); }
    }
    else
    {
@@ -602,8 +605,10 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
 
    if(!this.socket)
    {
-      this.log("Creating new websocket, then sending update data down");
+      this.log(`Creating new websocket [${me.nextId}], then sending update data down`);
       var socket = new WebSocket(apiroot.replace("http", "ws") + "/read/wslisten");
+      this.socket = socket;
+      socket.myId = me.nextId++;
       socket.onopen = function(event)
       {
          beginNewListen(socket);
@@ -611,21 +616,21 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
       //Immediately start the request to get a new auth
       socket.onclose = function(event)
       {
-         if(me.socket != null) //this was an unexpected close
+         if(me.forceclosed.indexOf(socket.myId) < 0) //this was an unexpected close
          {
-            me.signal("longpollerror", sigdata("Unknown error during close"));
-            me.log("Websocket closed unexpectedly, retrying in " + me.errortime + " ms");
+            me.signal("longpollerror", sigdata(`Unknown error during websocket [${socket.myId}] close`));
+            me.log(`Websocket ${socket.myId} closed unexpectedly, retrying in ${me.errortime} ms`);
             redo();
          }
          else
          {
-            me.log("Websocket closing on request");
+            me.log(`Websocket ${socket.myId} closing on request`);
          }
       };
       socket.onerror = function(event)
       {
-         me.signal("longpollerror", sigdata("Unknown error"));
-         me.log("Websocket failed, retrying in " + me.errortime + " ms");
+         me.signal("longpollerror", sigdata(`Unknown error in websocket ${socket.myId}`));
+         me.log(`Websocket ${socket.myId} failed, retrying in ${me.errortime} ms`);
          redo();
       };
       socket.onmessage = function(event)
@@ -637,16 +642,17 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
          if(data.listeners) senddata.lastListeners = data.listeners;
          if(data) me.api.AutoLink(data.chains);
 
+         //Technically, if you ever get a message, your connection is clearly stable
+         me.signal("longpollstart", sigdata("onmessage"));
          me.signal("longpollalways", sigdata("onmessage"));
          me.signal("longpollsuccess", sigdata("onmessage"));
 
          me.dataHandler(data, senddata);
       };
-      this.socket = socket;
    }
    else
    {
-      this.log("Updating websocket listener, using existing websocket");
+      this.log(`Updating websocket listener, using existing websocket [${this.socket.myId}]`);
       beginNewListen(this.socket);
    }
 };
