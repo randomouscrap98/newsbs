@@ -394,6 +394,9 @@ var Utilities =
          array[i] = stabilizedThis[i][0];
       }
       return array;
+   },
+   HasWebSockets : function() {
+      return 'WebSocket' in window && window.WebSocket.CLOSING === 2;
    }
 };
 

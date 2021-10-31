@@ -354,7 +354,57 @@ Api.prototype.Image = (id, size, crop, freeze) =>
 // ---- LONG POLLING ----
 // **********************
 
-function LongPoller(api, signalHandler, log)
+function ListenerData(lastId, statuses, lastListeners)
+{
+   this.statuses = statuses;
+   this.lastId = lastId;
+   this.lastListeners = lastListeners;
+
+   if(!this.lastListeners)
+   {
+      this.lastListeners = {};
+
+      for(key in statuses)
+         this.lastListeners[key] = { "0" : "" };
+   }
+}
+
+ListenerData.prototype.GetClearNotifications = function()
+{
+   return Object.keys(this.statuses).map(x => Number(x)).filter(x => x > 0);
+};
+
+//Probably not the way to do this but whatever, change it later
+ListenerData.prototype.ToRequest = function()
+{
+   var result = {
+      actions : {
+         "lastId" : this.lastId,
+         "statuses" : this.statuses,
+         "clearNotifications" : this.GetClearNotifications(),
+         "chains" : [ "comment.0id", "activity.0id", "watch.0id","modulemessage.0id",
+            "content.1parentId.2contentId.3contentId",
+            "user.1createUserId.2userId.4usersInMessage.4sendUserId.4receiveUserId.5createUserId" ]
+      },
+      fields : {
+         user : ["id","username","avatar","super","createDate"],
+         content : ["id","name","type","values","createUserId","permissions"]
+      }
+   };
+
+   if(this.lastListeners)
+   {
+      result.listeners = {
+         "lastListeners" : this.lastListeners,
+         "chains" : [ "user.0listeners" ]
+      };
+   }
+
+   return result;
+};
+
+
+function LongPoller(api, signalHandler, log, dataHandler)
 {
    this.api = api;
    this.signal = signalHandler || ((n,d) => console.log("Ignoring signal " + name));
@@ -363,15 +413,9 @@ function LongPoller(api, signalHandler, log)
    this.errortime = 5000;
    this.ratetimeout = 1500;
    this.recallrids = [];
-   this.instantComplete = false;
+   this.instantComplete = dataHandler;
 }
 
-function LongPollData(lastId, statuses, lastListeners)
-{
-   this.statuses = statuses;
-   this.lastId = lastId;
-   this.lastListeners = lastListeners;
-}
 
 LongPoller.prototype.TryAbortAll = function()
 {
@@ -394,12 +438,7 @@ LongPoller.prototype.Update = function (lastId, statuses)
    //Just always abort, if they want an update, they'll GET one
    this.TryAbortAll();
 
-   var emptyLastListeners = {};
-
-   for(key in statuses)
-      emptyLastListeners[key] = { "0" : "" };
-
-   this.Repeater(new LongPollData(lastId, statuses, emptyLastListeners));
+   this.Repeater(new ListenerData(lastId, statuses));
 };
 
 LongPoller.prototype.Repeater = function(lpdata)
@@ -408,7 +447,7 @@ LongPoller.prototype.Repeater = function(lpdata)
 
    me.signal("longpollstart", lpdata);
 
-   var clearNotifications = Object.keys(lpdata.statuses).map(x => Number(x)).filter(x => x > 0);
+   var clearNotifications = lpdata.GetClearNotifications();
 
    var recall = (apidat) => 
    {
@@ -430,36 +469,27 @@ LongPoller.prototype.Repeater = function(lpdata)
       }
    };
 
-   var packdata = (apidat) => ({request:apidat.request, lpdata:lpdata, data:apidat.data,
-         clearNotifications:clearNotifications});
+   var packdata = (apidat) => 
+   {
+      apidat.lpdata = lpdata;
+      return apidat;
+   };
 
    var reqsig = (name, apidat, msg) => 
    {
-      if(msg)
-         me.log(msg + " : " + me.api.FormatData(apidat));
+      if(msg) me.log(msg + " : " + me.api.FormatData(apidat));
       me.signal(name, packdata(apidat));
    };
 
    var params = new URLSearchParams();
-   params.append("actions", JSON.stringify({
-      "lastId" : lpdata.lastId,
-      "statuses" : lpdata.statuses,
-      "clearNotifications" : clearNotifications,
-      "chains" : [ "comment.0id", "activity.0id", "watch.0id","modulemessage.0id",
-         "content.1parentId.2contentId.3contentId",
-         "user.1createUserId.2userId.4usersInMessage.4sendUserId.4receiveUserId.5createUserId" ]
-   }));
+   var lreq = lpdata.ToRequest();
 
-   if(lpdata.lastListeners)
-   {
-      params.append("listeners", JSON.stringify({
-         "lastListeners" : lpdata.lastListeners,
-         "chains" : [ "user.0listeners" ]
-      }));
-   }
-
-   params.set("user","id,username,avatar,super,createDate");
-   params.set("content","id,name,type,values,createUserId,permissions");
+   if(lreq.actions)
+      params.append("actions", JSON.stringify(lreq.actions));
+   if(lreq.listeners)
+      params.append("listeners", JSON.stringify(lreq.listeners));
+   for(var k in lreq.fields)
+      params.set(k, lreq.fields[k].join(","));
 
    me.api.Listen(params, (apidat) =>
    {
@@ -472,16 +502,12 @@ LongPoller.prototype.Repeater = function(lpdata)
          var data = apidat.data;
          if(data)
          {
-            if(data.lastId)
-               lpdata.lastId = data.lastId;
-            if(data.listeners)
-               lpdata.lastListeners = data.listeners;
-
-            //if(data.chains)
+            if(data.lastId) lpdata.lastId = data.lastId;
+            if(data.listeners) lpdata.lastListeners = data.listeners;
          }
 
          if(me.instantComplete)
-            me.instantComplete(packdata(apidat));
+            me.instantComplete(data, lpdata);
 
          reqsig("longpollcomplete", apidat);
          recall(apidat);
@@ -516,6 +542,123 @@ LongPoller.prototype.Repeater = function(lpdata)
    }); 
 };
 
+function WebSocketListener(api, signalHandler, log, dataHandler)
+{
+   this.api = api;
+   this.signal = signalHandler || ((n,d) => console.log("Ignoring signal " + name));
+   this.log = log || ((msg, msg2, msg3) => console.log(msg, msg2, msg3));
+   this.dataHandler = dataHandler;
+   this.errortime = 3000; //Amount of time to wait before restarting websocket on failure
+
+   this.socket = null;
+}
+
+WebSocketListener.prototype.TryAbortAll = function()
+{
+   //Aborting is ACTUALLY closing the websocket, if it exists. 
+   if(this.socket)
+   {
+      var socket = this.socket;
+      this.socket = null;
+      this.log("Closing previous websocket; any outstanding requests will be lost");
+      try{ socket.close(); }
+      catch(ex) { this.log("Error closing websocket: ", ex); }
+   }
+   else
+   {
+      this.log("There are no running websockets to abort!");
+   }
+};
+
+WebSocketListener.prototype.RefreshAuth = function(oncomplete)
+{
+   this.api.Get("read/wsauth", null, data => oncomplete(data.data));
+};
+
+WebSocketListener.prototype.Update = function (lastId, statuses)
+{
+   var me = this;
+   var senddata = new ListenerData(lastId, statuses);
+   var beginNewListen = (s) =>
+   {
+      me.RefreshAuth(d => 
+      { 
+         var sendreq = senddata.ToRequest();
+         sendreq.auth = d; 
+         s.send(JSON.stringify(sendreq));
+      });
+   };
+   var sigdata = (message) => ({
+      lpdata : senddata,
+      request : {
+         status : "WEBSOCKET",
+         statusText : message
+      }
+   });
+   var redo = () => setTimeout(() => { 
+      me.TryAbortAll();
+      me.Update(senddata.lastId, senddata.statuses); 
+   }, me.errortime);
+
+   if(!this.socket)
+   {
+      this.log("Creating new websocket, then sending update data down");
+      var socket = new WebSocket(apiroot.replace("http", "ws") + "/read/wslisten");
+      socket.onopen = function(event)
+      {
+         beginNewListen(socket);
+      };
+      //Immediately start the request to get a new auth
+      socket.onclose = function(event)
+      {
+         if(me.socket != null) //this was an unexpected close
+         {
+            me.signal("longpollerror", sigdata("Unknown error during close"));
+            me.log("Websocket closed unexpectedly, retrying in " + me.errortime + " ms");
+            redo();
+         }
+         else
+         {
+            me.log("Websocket closing on request");
+         }
+      };
+      socket.onerror = function(event)
+      {
+         me.signal("longpollerror", sigdata("Unknown error"));
+         me.log("Websocket failed, retrying in " + me.errortime + " ms");
+         redo();
+      };
+      socket.onmessage = function(event)
+      {
+         console.log("onmessage: " , event);
+         var data = event.data ? JSON.parse(event.data) : null;
+
+         if(data.lastId) senddata.lastId = data.lastId;
+         if(data.listeners) senddata.lastListeners = data.listeners;
+
+         me.signal("longpollalways", sigdata("onmessage"));
+         me.signal("longpollsuccess", sigdata("onmessage"));
+
+         me.dataHandler(data, senddata);
+      };
+      this.socket = socket;
+   }
+   else
+   {
+      this.log("Updating websocket listener, using existing websocket");
+      beginNewListen(this.socket);
+   }
+};
+
+function GetGenericListener(api, signalHandler, log, dataHandler)
+{
+   //Return one or the other based on if websockets is supported
+   if(Utilities.HasWebSockets())
+      return new WebSocketListener(api, signalHandler, log, dataHandler);
+      //return new LongPoller(api, signalHandler, log, dataHandler);
+   else
+      return new LongPoller(api, signalHandler, log, dataHandler);
+}
 
 // *******************
 // --- DATA FORMAT ---

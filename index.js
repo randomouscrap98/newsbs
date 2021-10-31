@@ -1,4 +1,5 @@
-var apiroot = "https://newdev.smilebasicsource.com/api";
+var apiroot = "https://localhost:5001/api";
+//"https://newdev.smilebasicsource.com/api";
 //var discordBots = [ ];
 
 var actiontext = {
@@ -132,9 +133,9 @@ window.onload = function()
    globals.api.getToken = getToken;
    globals.api.getUserId = getUserId;
 
-   globals.longpoller = new LongPoller(globals.api, signaller, (m, c) => logConditional(m, c, "loglongpoll"));
+   globals.longpoller = GetGenericListener(globals.api, signaller, 
+      (m, c) => logConditional(m, c, "loglongpoll"), handleLongpollData);
    globals.longpoller.errortime = getLocalOption("longpollerrorrestart");
-   globals.longpoller.instantComplete = handleLongpollData;
    interruptSmoothScroll();
 
    globals.pendingModuleMessages = [];
@@ -546,7 +547,7 @@ function setupSignalProcessors()
    signals.Attach("longpollfatal", data =>
    {
       writeDom(() => setConnectionState("error"));
-      UIkit.modal.confirm("Live updates recover from error. " +
+      UIkit.modal.confirm("Live updates cannot recover from error. " +
          "This can happen when the page gets unloaded for a long time, and is normal. " +
          "Press OK to reload page.\n\nIf you " +
          "CANCEL, the website will not function properly!").then(x =>
@@ -1911,14 +1912,13 @@ function handleAlerts(comments, users)
    }
 }
 
-function handleLongpollData(lpdata)
+function handleLongpollData(data, lpdata)
 {
-   var data = lpdata.data;
-
    if(data)
    {
       var users = idMap(data.chains.user);
       var watchlastids = getWatchLastIds();
+      var clearNotifications = lpdata.GetClearNotifications();
       writeDom(() => updatePulse(data.chains));
 
       //This already happens in a writedom
@@ -1930,23 +1930,22 @@ function handleLongpollData(lpdata)
          //the room. This should be done automatically somewhere else... mmm
          data.chains.commentaggregate = DataFormat.CommentsToAggregate(
             data.chains.comment.filter(x => x.id > watchlastids[x.parentId]));
-         lpdata.clearNotifications.forEach(x => 
+         clearNotifications.forEach(x => 
             data.chains.commentaggregate.forEach(y => 
             {
                if(y.id == x)
                   y.count = 0;
             })
          );
-            //&& lpdata.clearNotifications.indexOf(x.parentId) < 0));
          handleAlerts(data.chains.comment, users);
-         writeDom(() => easyComments(data.chains.comment)); //users));
+         writeDom(() => easyComments(data.chains.comment));
       }
 
       if(data.chains.activity)
       {
          data.chains.activityaggregate = DataFormat.ActivityToAggregate(
             data.chains.activity.filter(x => watchlastids[x.contentId] < x.id &&
-               lpdata.clearNotifications.indexOf(x.contentId) < 0));
+               clearNotifications.indexOf(x.contentId) < 0));
       }
 
       log.Datalog("see devlog for watchlastids", watchlastids);
@@ -2975,13 +2974,7 @@ function tryUpdateLongPoll(newStatuses)
       globals.longpoller.Update(globals.lastsystemid, globals.statuses);
 
       //TODO: move this to a signal perhaps?
-      writeDom(() =>
-      {
-         Object.keys(globals.statuses).forEach(x =>
-         {
-            clearWatchVisual(x);
-         });
-      });
+      writeDom(() => { Object.keys(globals.statuses).forEach(x => clearWatchVisual(x)); });
    }
 }
 
