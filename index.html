@@ -19,22 +19,22 @@ if (location.protocol !== "https:") {
 }
 </script>
       <!-- LOC:UIFRAMEWORK -->
-      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1635732275" />
-      <script src="uikit-3.5.5/js/uikit.min.js?v=1635732275"></script>
-      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1635732275"></script>
+      <link rel="stylesheet" href="uikit-3.5.5/css/uikit.min.css?v=1635734155" />
+      <script src="uikit-3.5.5/js/uikit.min.js?v=1635734155"></script>
+      <script src="uikit-3.5.5/js/uikit-icons.min.js?v=1635734155"></script>
       <!-- LOC:SCRIPT -->
-      <script src="libbo.js?v=1635732275"></script>
-      <script src="templates.js?v=1635732275"></script>
-      <script src="dom.js?v=1635732275"></script>
-      <script src="api.js?v=1635732275"></script>
-      <script src="commands.js?v=1635732275"></script>
-      <script src="index.js?v=1635732275"></script>
-      <script src="routing.js?v=1635732275"></script>
-      <script src="sbs2-markup/highlight.js?v=1635732275"></script>
-      <script src="sbs2-markup/parse.js?v=1635732275"></script>
-      <script src="sbs2-markup/render.js?v=1635732275"></script>
+      <script src="libbo.js?v=1635734155"></script>
+      <script src="templates.js?v=1635734155"></script>
+      <script src="dom.js?v=1635734155"></script>
+      <script src="api.js?v=1635734155"></script>
+      <script src="commands.js?v=1635734155"></script>
+      <script src="index.js?v=1635734155"></script>
+      <script src="routing.js?v=1635734155"></script>
+      <script src="sbs2-markup/highlight.js?v=1635734155"></script>
+      <script src="sbs2-markup/parse.js?v=1635734155"></script>
+      <script src="sbs2-markup/render.js?v=1635734155"></script>
       <!-- LOC:STYLE -->
-      <link rel="stylesheet" href="index.css?v=1635732275" />
+      <link rel="stylesheet" href="index.css?v=1635734155" />
       <style id="sitecss"></style>
       <script>
 (function() {
@@ -565,7 +565,7 @@ function leftpaneclick(event)
                   <h3 class="uk-heading-divider"><span>Technical Info</span></h3>
    <dl id="technicalinfo" data-template="technicalinfo" class="uk-description-list uk-text-break">
       <dt>Frontend Release:</dt>
-      <dd data-frontendrelease>00104 (2021-11-01T02:04:35Z)</dd>
+      <dd data-frontendrelease>00105 (2021-11-01T02:35:55Z)</dd>
       <dt>API Version:</dt>
       <dd data-apiversion=".textContent"></dd>
       <dt>EntitySystem Version:</dt>
@@ -628,25 +628,29 @@ function leftpaneclick(event)
                      </div>
                   </div>
                   <progress id="fileuploadprogress" class="uk-progress" value="0" max="100" hidden></progress>
-                  <span class="uk-text-meta uk-display-block">After upload, image appears below</span>
+                  <div class="uk-flex uk-flex-top">
+                     <span class="uk-width-expand uk-text-meta uk-display-block">After upload, image appears below</span>
+                     <button id="fileuploadselect" class="uk-button uk-button-primary uk-flex-none"
+                        uk-toggle="#fileupload">Select</button>
+                  </div>
                   <h3 class="uk-heading-divider uk-flex uk-flex-bottom">
-                     <span class="uk-width-expand">Select</span>
-                     <label class="uk-text-small uk-flex-none">
-                        <input id="fileuploadsearchall" 
-                           class="uk-checkbox uk-margin-large-left uk-margin-small-right" 
-                           type="checkbox">Search All
-                     </label>
+                     <!--<span class="uk-width-expand">Select</span>-->
+                     <!--<button id="fileuploadselect" class="uk-button uk-button-primary uk-flex-none"
+                        uk-toggle="#fileupload">Select</button>-->
                   </h3>
                   <div id="fileuploadslideshow" uk-slideshow uk-margin>
                      <ul id="fileuploaditems" class="uk-slideshow-items"></ul>
                      <div><ul id="fileuploadthumbnails" class="uk-thumbnav uk-flex-center" 
                            uk-margin></ul></div>
-                     <div uk-margin>
-                        <a id="fileuploadnewer" href="#" hidden>Newer</a>
-                        <a id="fileuploadolder" class="uk-align-right" href="#" hidden>Older</a>
+                     <div uk-margin class="uk-flex uk-flex-middle">
+                        <a id="fileuploadnewer" class="uk-flex-none" href="#" hidden>Newer</a>
+                        <label class="uk-text-small uk-text-center uk-width-expand uk-margin-left uk-margin-right">
+                           <input id="fileuploadsearchall" 
+                              class="uk-checkbox uk-margin-small-right" 
+                              type="checkbox">Search All
+                        </label>
+                        <a id="fileuploadolder" class="uk-flex-none" href="#" hidden>Older</a>
                      </div>
-                     <button id="fileuploadselect" class="uk-button uk-button-primary"
-                        uk-toggle="#fileupload">Select</button>
                   </div>
                </div>
             </div>
