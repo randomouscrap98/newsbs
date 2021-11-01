@@ -6050,11 +6050,16 @@ var LocalChatDraw = (function() {
       //Set up the color picker
       colorPicker.id = colorPickerID;
       colorPicker.setAttribute("type", "color");
-      colorPicker.style.position = "absolute";
-      colorPicker.style.left = "-10000px";
-      colorPicker.style.top = "-10000px";
+      //colorPicker.style.position = "absolute";
+      //colorPicker.style.left = "-10000px";
+      //colorPicker.style.top = "-10000px";
       colorPicker.style.width = "0";
       colorPicker.style.height = "0";
+      colorPicker.style.padding = "0";
+      colorPicker.style.margin = "0";
+      //colorPicker.style.display = "none";
+      colorPicker.style.border = "none";
+      colorPicker.style.visibility = "hidden";
       colorPicker.addEventListener("change", function(event)
       {
          var frame = animateFrames.GetFrame(); //GetSelectedFrame();
@@ -6135,6 +6140,7 @@ var LocalChatDraw = (function() {
 
       buttonArea.appendChild(sendButton);
 
+      buttonArea2.appendChild(colorPicker);
       buttonArea2.appendChild(moveButton);
       buttonArea2.appendChild(clearButton);
       buttonArea2.appendChild(widthButton);
@@ -6147,7 +6153,6 @@ var LocalChatDraw = (function() {
       drawArea.appendChild(canvasContainer);
       drawArea.appendChild(buttonArea);
       drawArea.appendChild(buttonArea2);
-      drawArea.appendChild(colorPicker);
 
       //Before we finish entirely, set up the animation area.
       var animateArea = document.createElement("animate-area");
@@ -6576,6 +6581,7 @@ var LocalChatDraw = (function() {
       if(alreadySelected)
       {
          var colorPicker = document.getElementById(colorPickerID);
+         colorButton.appendChild(colorPicker);
          colorPicker.associatedButton = colorButton;
          colorPicker.value = rgbToHex(fillStyleToRgb(colorButton.style.color));
          colorPicker.focus();

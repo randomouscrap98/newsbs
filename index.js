@@ -224,6 +224,10 @@ window.onload = function()
    };
    StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
 
+   LocalChatDraw.setupInterface(oldsbschatdraw, true);
+   chatdraw.style.bottom = 0;
+   chatdraw.style.right = "10px";
+
    signals.Add("onloadcomplete", null);
 };
 
@@ -1576,6 +1580,9 @@ function finishDiscussion(content, comments, initload)
    showDiscussion(content.id);
    easyComments(comments, initload);
    formatRememberedDiscussion(content.id, true, content.type);
+
+   //setHidden(chatdraw, !(getToken() && content.type == "chat"));
+
    signals.Add("finishdiscussion", { content: content, comments: comments, initload: initload});
 }
 

@@ -36,6 +36,7 @@ if (location.protocol !== "https:") {
       <script src="sbs2-markup/render.js?v=1635801307"></script>
       <!-- LOC:STYLE -->
       <link rel="stylesheet" href="index.css?v=1635801307" />
+      <link rel="stylesheet" href="oldsbsstyle.css?v=1635801307" />
       <style id="sitecss"></style>
       <script>
 (function() {
@@ -249,6 +250,8 @@ function leftpaneclick(event)
                <div id="discussionscontainer" data-hide2 class="uk-flex-1 uk-flex uk-flex-column">
                   <div id="discussions" class="uk-flex-1" uk-overflow-auto> 
                      <!-- Swap the discussions in and out of here -->
+                  </div>
+                  <div id="oldsbschatdraw" class="oldsbs" data-loginonly>
                   </div>
                   <div id="postarea" class="uk-inline" data-loginonly>
                      <textarea id="postdiscussiontext" 

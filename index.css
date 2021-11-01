@@ -394,6 +394,10 @@ ruby { white-space: normal; }
 }
 #discussions {
    overflow-anchor: none;
+   overflow-y: scroll;
+}
+#oldsbschatdraw {
+   position: relative;
 }
 [data-template="messageframe"] {
    padding: 0.3em 0;

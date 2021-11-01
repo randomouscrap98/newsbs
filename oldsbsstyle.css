@@ -1,0 +1,1080 @@
+.oldsbs {
+  /* -------- main.css ------------- */
+  /* --------------- chatdraw.css ----------------- */
+}
+.oldsbs user-badges, .oldsbs user-badges badge-info, .oldsbs user-badges spoiler-section {
+  vertical-align: top;
+  display: inline-block;
+}
+.oldsbs #deleteForm, .oldsbs .commentad, .oldsbs .footerad, .oldsbs .headerad, .oldsbs login-reminder {
+  text-align: center;
+}
+.oldsbs #sign-in, .oldsbs footer, .oldsbs nav {
+  clear: both;
+}
+.oldsbs #deleteForm button, .oldsbs #highCompatibilityForm, .oldsbs #sign-in label[for=keep], .oldsbs header nav li, .oldsbs header-top span, .oldsbs page-list > a, .oldsbs user-area h3, .oldsbs user-area user-nav, .oldsbs user-area user-nav a, .oldsbs user-badges, .oldsbs user-badges badge-info, .oldsbs user-badges spoiler-content, .oldsbs user-badges spoiler-section {
+  display: inline-block;
+}
+.oldsbs textarea, .oldsbs user-area, .oldsbs user-badges badge-info {
+  box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(33, 53, 73, 0.5);
+}
+.oldsbs a, .oldsbs footer a, .oldsbs nav li a, .oldsbs notification-area a, .oldsbs ol.searchbarResults li a {
+  text-decoration: none;
+}
+@mediamin-width30rem {
+  .oldsbs .likesection, .oldsbs section {
+    width: 95%;
+    margin-left: 2.5%;
+  }
+}
+@mediamin-width40rem {
+  .oldsbs .likesection, .oldsbs section {
+    width: 90%;
+    margin-left: 5%;
+  }
+}
+@mediamin-width50rem {
+  .oldsbs .likesection, .oldsbs section {
+    width: 85%;
+    margin-left: 7.5%;
+  }
+}
+.oldsbs user-rank::before {
+  content: "[";
+}
+.oldsbs user-rank::after {
+  content: "]";
+}
+.oldsbs user-rank[data-level="2"] {
+  color: #00779d;
+}
+.oldsbs user-rank[data-level="3"] {
+  color: #128409;
+}
+.oldsbs user-rank[data-level="4"] {
+  color: #6f6aac;
+}
+.oldsbs user-rank[data-level="5"] {
+  color: #dd6e86;
+}
+.oldsbs user-rank[data-level="6"] {
+  color: #db8d10;
+}
+.oldsbs user-rank[data-level="7"] {
+  color: #5c257c;
+}
+.oldsbs user-badges {
+  font-size: 0;
+}
+.oldsbs user-badges [data-spoiler] {
+  cursor: pointer;
+}
+.oldsbs user-badges .badgegraphic[data-show] {
+  background-color: #e6eff3;
+}
+.oldsbs user-badges .badgegraphic {
+  width: 20px;
+  height: 20px;
+  border-radius: 8px;
+  image-rendering: crisp-edges;
+  margin: 0;
+  padding: 4px;
+}
+.oldsbs user-badges.large .badgegraphic {
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+}
+.oldsbs header-title, .oldsbs header-top img {
+  height: 1.4rem;
+}
+.oldsbs user-badges spoiler-content {
+  position: relative;
+  overflow: visible;
+  background: 0 0;
+  border: none;
+  width: 100%;
+}
+.oldsbs user-badges badge-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15em;
+  z-index: 3;
+  max-height: 30em;
+  font-size: 0.8rem;
+  white-space: normal;
+  overflow: hidden;
+  border: 1px solid rgba(74, 99, 110, 0.45);
+  color: #111;
+  background-color: rgba(245, 252, 255, 0.8);
+  margin: 0;
+  padding: 0.4em 0.5em;
+}
+.oldsbs user-badges badge-name {
+  font-weight: 700;
+  display: block;
+}
+.oldsbs user-badges badge-description {
+  display: block;
+  margin: 0.3em;
+}
+.oldsbs user-badges badge-group {
+  display: block;
+  font-style: italic;
+  color: #666;
+}
+.oldsbs user-badges badge-info badge-control {
+  margin-top: 0.3em;
+  display: block;
+}
+.oldsbs li {
+  overflow-y: hidden;
+}
+.oldsbs .likebutton, .oldsbs button, .oldsbs input {
+  min-height: 1.5em;
+  vertical-align: middle;
+  text-decoration: none;
+  font-size: 0.8rem;
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+}
+.oldsbs header-top img, .oldsbs subscribe-area {
+  vertical-align: top;
+}
+.oldsbs .likebutton, .oldsbs button, .oldsbs input, .oldsbs select {
+  border-radius: 0.3em;
+  max-width: 100%;
+  background-color: #eee;
+  border: 0.2em solid #777;
+  color: #111;
+}
+.oldsbs .likebutton, .oldsbs button {
+  cursor: pointer;
+  padding: 0.2em 0.4em;
+}
+.oldsbs .likebutton:link, .oldsbs .likebutton:visited {
+  text-align: center;
+  color: #111;
+}
+.oldsbs footer, .oldsbs footer a:link, .oldsbs footer a:visited, .oldsbs header-top {
+  color: #efefef;
+}
+.oldsbs input.wide {
+  width: 20rem;
+}
+.oldsbs header-top, .oldsbs nav li a {
+  width: 100%;
+  display: block;
+  overflow: hidden;
+}
+.oldsbs .likebutton:active, .oldsbs button:active, .oldsbs input[type=submit]:active {
+  transform: translateY(0.5px);
+  outline: 0;
+  border-style: inset;
+}
+.oldsbs .likebutton:active, .oldsbs button:focus, .oldsbs input[type=submit]:focus {
+  outline: dotted 0.1rem;
+}
+.oldsbs .likebutton:active, .oldsbs button:focus:active, .oldsbs input[type=submit]:focus:active {
+  outline: 0;
+}
+.oldsbs input[type=file] {
+  min-height: 0;
+}
+.oldsbs input[type=checkbox]::before {
+  background-color: #f7f7f7;
+  background-image: none;
+  border: 2px solid #1a1a1a;
+}
+.oldsbs input[type=checkbox]:checked::before {
+  background-image: url(/styles/themes/smile/images/Sb-check.png);
+}
+.oldsbs a {
+  transition: color 0.5s ease;
+}
+.oldsbs a:hover {
+  color: #2f89cf;
+}
+.oldsbs header-top {
+  height: 1.7rem;
+  box-sizing: border-box;
+  background-color: #294969;
+  padding: 0.15rem;
+}
+.oldsbs header-title {
+  float: left;
+  width: calc(100% - 7rem);
+  line-height: 1.4rem;
+}
+.oldsbs nav {
+  font-size: 0;
+}
+.oldsbs header-top span {
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(100% - 1.8rem);
+  font-size: 1.1rem;
+  line-height: normal;
+}
+.oldsbs header nav ul {
+  font-size: 0;
+}
+.oldsbs header nav li {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  box-sizing: border-box;
+  margin-right: 0.3rem;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0;
+  width: calc(20% - 0.3rem);
+  background-color: #8dbfdd;
+  padding: 0.2rem 0.3rem;
+}
+.oldsbs header nav li.active {
+  font-weight: 700;
+  background-color: #9dcfed;
+}
+.oldsbs nav li a {
+  text-overflow: ellipsis;
+  font-size: 1rem;
+}
+.oldsbs nav li a:link, .oldsbs nav li a:visited {
+  color: #000;
+}
+.oldsbs h1, .oldsbs h2, .oldsbs h3, .oldsbs h4 {
+  font-family: noto sans, sans-serif !important;
+  font-weight: 700;
+  color: #111;
+}
+.oldsbs h1 {
+  margin-left: 1%;
+  font-size: 1.8em;
+}
+.oldsbs h2 {
+  margin-left: 1.5%;
+}
+.oldsbs h3 {
+  margin-left: 2%;
+}
+.oldsbs h4 {
+  margin-left: 2.5%;
+}
+.oldsbs p {
+  margin-left: 3%;
+  margin-right: 3%;
+}
+.oldsbs p.bigger {
+  font-size: 1.1rem;
+}
+.oldsbs p.smaller, .oldsbs user-area {
+  font-size: 0.8rem;
+}
+.oldsbs :lang(ja) h1, .oldsbs :lang(ja) h2, .oldsbs :lang(ja) h3 {
+  font-family: noto sans jp, sans-serif;
+}
+.oldsbs ::-webkit-scrollbar {
+  background-color: #f8f8f8;
+}
+.oldsbs label[for=sign-in-toggle] {
+  display: none;
+}
+.oldsbs ol.searchbarResults {
+  position: absolute;
+  list-style-type: none;
+  border-radius: 0.1rem;
+  box-sizing: border-box;
+  z-index: 98;
+  background-color: #eee;
+  border: 0.1rem solid #777;
+  margin: 0;
+  padding: 0;
+}
+.oldsbs ol.searchbarResults li {
+  position: relative;
+  transition: background-color 0.2s ease;
+  overflow: hidden;
+  padding: 0.2rem;
+}
+.oldsbs ol.searchbarResults li:not(:first-of-type) {
+  border-top: 1px solid #ccc;
+}
+.oldsbs ol.searchbarResults li a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: calc(24px + 0.1rem);
+  color: #111;
+}
+.oldsbs ol.searchbarResults li img {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+}
+.oldsbs ol.searchbarResults li a[type*=categories] {
+  background: url(/styles/themes/smile/images/SB-category.png) 0 center no-repeat;
+}
+.oldsbs ol.searchbarResults li a[type*=users] {
+  background: url(/styles/themes/smile/images/SB-user.png) 0 center no-repeat;
+}
+.oldsbs ol.searchbarResults li a[type*=pages] {
+  background: url(/styles/themes/smile/images/SB-page.png) 0 center no-repeat;
+}
+.oldsbs ol.searchbarResults li a[type*=threads] {
+  background: url(/styles/themes/smile/images/SB-thread.png) 0 center no-repeat;
+}
+.oldsbs vote-meter {
+  display: inline-block;
+  position: relative;
+  height: 1rem;
+  background-color: #d5d5d5;
+}
+.oldsbs vote-meter[data-hasvotes] {
+  background-color: rgba(253, 200, 200, 0.8);
+}
+.oldsbs vote-meter up-votes {
+  display: block;
+  height: 1rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #8ea;
+  margin: 0;
+  padding: 0;
+}
+.oldsbs user-area {
+  visibility: hidden;
+  z-index: 99;
+  display: block;
+  position: fixed;
+  bottom: 1.2rem;
+  width: 18em;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 2px outset #777;
+  background-image: url(/styles/themes/smile/images/christmas/Sb-bg-tile_christmas3.png);
+  padding: 1em;
+}
+.oldsbs #top-nav-toggle:checked ~ user-area, .oldsbs .topnavtoggled, .oldsbs notification-area {
+  visibility: visible;
+}
+.oldsbs [data-loggedin] user-area {
+  width: 26em;
+}
+.oldsbs user-area h3 {
+  font-weight: 400;
+  font-size: 1.5em;
+  float: left;
+  margin: 0;
+}
+.oldsbs user-area #openUserHome {
+  display: block;
+  font-size: 1.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.oldsbs user-area img {
+  float: left;
+  border: 2px solid #222;
+  width: 8em;
+  height: 8em;
+  display: block;
+  background-color: #fff;
+  margin: 0 0.5em 0 0;
+}
+.oldsbs user-area .likebutton, .oldsbs user-area button {
+  font-size: 1em;
+  font-weight: 700;
+  width: 6em;
+}
+.oldsbs user-area #anonLanguageForm {
+  float: left;
+  clear: left;
+}
+.oldsbs user-area #openPasswordReset {
+  font-size: 1em;
+  display: block;
+  float: right;
+  clear: right;
+}
+.oldsbs user-area user-alerts a {
+  margin-top: 0.5em;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.oldsbs user-area user-nav {
+  vertical-align: bottom;
+  font-size: 0;
+  padding: 0.5rem 0;
+}
+.oldsbs user-area user-nav a {
+  image-rendering: pixelated;
+  width: 2rem;
+  height: 2rem;
+  background-size: 100% 100%;
+  transition: margin 0.2s ease, width 0.2s ease, height 0.2s ease;
+  margin: 0.2rem;
+}
+.oldsbs user-area user-nav a:hover {
+  width: 2.4rem;
+  height: 2.4rem;
+  margin: 0;
+}
+.oldsbs user-area user-nav #notificationLink {
+  background-image: url(/styles/themes/smile/images/notificationiconbig.png);
+}
+.oldsbs user-area user-nav #messageboxLink {
+  background-image: url(/styles/themes/smile/images/messageiconbig.png);
+}
+.oldsbs user-area user-nav #userLink {
+  background-image: url(/styles/themes/smile/images/userpageiconbig.png);
+}
+.oldsbs user-area user-nav #sign-out {
+  cursor: pointer;
+  background-image: url(/styles/themes/smile/images/logouticonbig.png);
+}
+.oldsbs notification-area {
+  position: fixed;
+  display: block;
+  bottom: 0.6rem;
+  left: 3.4rem;
+  border-radius: 3rem;
+  transition: background-color 0.5s ease;
+  background-color: #b22222;
+}
+.oldsbs notification-area:hover {
+  background-color: #f23434;
+}
+.oldsbs notification-area a {
+  font-size: 1em;
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.25em 0.5em;
+}
+.oldsbs notification-area a:link, .oldsbs notification-area a:visited {
+  color: #fff7f0;
+}
+.oldsbs label[for=top-nav-toggle] {
+  background-image: url(/styles/themes/smile/images/Sb-button-user-3.png);
+  background-position: left bottom;
+  background-repeat: no-repeat;
+  background-size: 4rem auto;
+  bottom: 0;
+  height: 1.2rem;
+  left: 0;
+  position: fixed;
+  width: 4rem;
+  z-index: 64;
+}
+.oldsbs [data-loggedin] label[for=top-nav-toggle] {
+  background-image: url(/styles/themes/smile/images/Sb-button-user-2.png);
+}
+.oldsbs #top-nav-toggle:checked + label[for=top-nav-toggle] {
+  background-image: url(/styles/themes/smile/images/Sb-button-user-1.png);
+  cursor: default;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(44, 54, 64, 0.4);
+}
+.oldsbs #top-nav-toggle:checked ~ user-area notification-area, .oldsbs user-area.topnavtoggled notification-area {
+  visibility: hidden;
+}
+.oldsbs login-reminder {
+  display: block;
+  font-size: 0.8rem;
+  color: #840000;
+  margin: -0.5rem 0.25rem 0.25rem;
+}
+.oldsbs #password, .oldsbs #username {
+  display: block;
+  font-size: 1.1em;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 0.5em;
+  padding: 0.2em;
+}
+.oldsbs #sign-in {
+  display: block;
+  float: left;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 1em 0;
+}
+.oldsbs #sign-in label[for=keep] {
+  font-weight: 700;
+  vertical-align: middle;
+  color: #111;
+}
+.oldsbs form[action^="/search"] {
+  position: absolute;
+  top: 0.1rem;
+  right: 0;
+  margin-right: 0.2rem;
+  width: 85%;
+  height: 1.5rem !important;
+  min-width: 5rem;
+  max-width: 25rem;
+  box-sizing: border-box;
+}
+.oldsbs form[action^="/search"] input[type=search] {
+  font-size: 1em;
+  width: 5rem;
+  box-sizing: border-box;
+  height: 100%;
+  transition: all 0.2s;
+  border-width: 0.1rem;
+  margin: 0 0 0 calc(100% - 5rem);
+}
+.oldsbs form[action^="/search"] input[type=search]:focus {
+  width: 100%;
+  margin-left: 0;
+}
+.oldsbs form[action^="/search"] input[type=submit] {
+  background-image: url(/styles/themes/smile/images/Sb-search-icon.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 1.8rem;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+}
+.oldsbs main {
+  min-height: calc(100vh - 5.5rem);
+  overflow: hidden;
+}
+.oldsbs select, .oldsbs textarea {
+  resize: none;
+  font-size: 0.8rem;
+  background-color: #fff;
+  color: #111;
+}
+.oldsbs user-area #openRegister {
+  float: right;
+  font-size: 1.25em;
+  margin-top: 0.25em;
+}
+.oldsbs textarea {
+  resize: vertical;
+  min-height: 7em;
+  border-radius: 2px;
+  border: 2px solid #00c8b4;
+}
+.oldsbs textarea:focus:invalid {
+  box-shadow: none;
+  border-color: red;
+}
+.oldsbs [data-status=ERROR] {
+  background-color: #f1bbca;
+}
+.oldsbs [data-status=RUNNING] {
+  background-color: #01b;
+  animation: colorPulse 0.5s infinite alternate;
+}
+.oldsbs [data-status=SUCCESS] {
+  background-color: #afb;
+}
+.oldsbs .headerad {
+  margin-top: 0.5rem;
+}
+.oldsbs .footerad {
+  margin-top: 1rem;
+  padding-bottom: 0.5rem;
+}
+.oldsbs footer {
+  display: block;
+  width: 100%;
+  margin-top: 3rem;
+  height: auto;
+  line-height: 1.25rem;
+  box-sizing: border-box;
+  float: left;
+  margin-bottom: 0;
+  background-color: #294969;
+  padding: 0.15rem 0.15rem 0.15rem 8.35rem;
+}
+.oldsbs footer a {
+  font-size: 1rem;
+}
+.oldsbs footer a:hover {
+  text-decoration: underline;
+}
+.oldsbs footer span {
+  font-size: 0.8rem;
+  line-height: 1.3rem;
+}
+.oldsbs footer toggle-area {
+  border-radius: 0.5em;
+}
+.oldsbs footer dark-toggle {
+  cursor: pointer;
+  color: #ffd337;
+  margin: 0 0.5rem;
+}
+.oldsbs footer special-links {
+  float: right;
+}
+.oldsbs footer special-links a {
+  font-size: 1.25rem;
+  margin: 0.5em;
+}
+.oldsbs #highCompatibilityForm input {
+  border: none;
+  background-color: transparent;
+  color: #efefef;
+}
+.oldsbs form[action*=search] {
+  z-index: 3;
+}
+.oldsbs .alerthover {
+  color: #840000;
+}
+.oldsbs a.alerthover:link, .oldsbs a.alerthover:visited {
+  text-decoration: none;
+  transition: color 0.5s ease;
+  color: #840000;
+}
+.oldsbs a.alerthover:hover {
+  color: #ef2640;
+}
+.oldsbs .userhover, .oldsbs .userhover:link, .oldsbs .userhover:visited {
+  color: #0046aa;
+}
+.oldsbs .userhover:hover {
+  color: #1a6ee7;
+}
+.oldsbs .smallavatar {
+  border: 1px solid #777;
+  background-color: #fff;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+.oldsbs copy-right {
+  font-size: 0.75rem;
+}
+.oldsbs page-list > a {
+  font-size: 1.4rem;
+  margin-left: 0.5rem;
+  transition: transform 0.2s ease;
+}
+.oldsbs #subscribeForm, .oldsbs #subscribeForm button, .oldsbs subscribe-area {
+  display: inline;
+}
+.oldsbs page-list > a:hover {
+  -webkit-transform: rotateX(40deg);
+  transform: rotateX(40deg);
+}
+.oldsbs page-list > a.current:hover {
+  transform: none;
+}
+.oldsbs #subscribeForm {
+  margin-left: 0;
+}
+.oldsbs #subscribeForm span {
+  line-height: 0;
+}
+.oldsbs #deleteForm {
+  border: 2px outset;
+  box-shadow: 1px 2px 4px 2px #717171;
+  display: block;
+  height: auto;
+  width: 60%;
+  left: 20%;
+  top: 35%;
+  max-width: 25rem;
+  position: fixed;
+  z-index: 98;
+  background-image: url(/styles/themes/smile/images/christmas/Sb-bg-tile_christmas3.png);
+}
+.oldsbs #deleteForm h3 {
+  width: 100%;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  margin: 0;
+  padding: 0.7rem 0.5rem;
+}
+.oldsbs #deleteForm input[type=text] {
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+  box-sizing: border-box;
+}
+.oldsbs #deleteForm button {
+  margin: 0.5rem 5%;
+}
+.oldsbs .likeheader, .oldsbs simple-block, .oldsbs simple-header {
+  display: block;
+  background-color: rgba(240, 247, 255, 0.8);
+  box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(33, 53, 73, 0.5);
+}
+.oldsbs simple-block {
+  margin-bottom: 1rem;
+  border: 1px solid rgba(74, 99, 110, 0.45);
+  padding: 0.5rem 1rem;
+}
+.oldsbs simple-block form {
+  margin-left: 1rem;
+}
+.oldsbs .likeheader, .oldsbs simple-header {
+  overflow: hidden;
+  border: none;
+  margin: 1rem 0 0.5rem;
+  padding: 0.5rem;
+}
+.oldsbs .likeheader h1, .oldsbs .likeheader h2, .oldsbs .likeheader h3, .oldsbs simple-header h1, .oldsbs simple-header h2, .oldsbs simple-header h3 {
+  vertical-align: middle;
+  display: inline-block;
+  margin: 0.1em 0.2em;
+}
+.oldsbs .datatable td {
+  padding: 0.1em 0.5em;
+}
+.oldsbs .datatable td:first-child {
+  font-weight: 700;
+  text-align: right;
+  max-width: 20rem;
+}
+.oldsbs .datatable tr:nth-child(2n) {
+  background-color: rgba(245, 252, 255, 0.8);
+}
+.oldsbs .horizontalselect, .oldsbs .horizontalselect a {
+  overflow: hidden;
+  background-color: rgba(240, 247, 255, 0.8);
+  border: 1px solid rgba(74, 99, 110, 0.45);
+  box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(33, 53, 73, 0.5);
+}
+.oldsbs .about about-list {
+  display: block;
+  padding: 0 0.5rem;
+}
+.oldsbs .horizontalselect {
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.oldsbs .horizontalselect a {
+  font-weight: 400;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  -webkit-flex-basis: 7em;
+  flex-basis: 7em;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+  -webkit-flex-grow: 1;
+  flex-grow: 1;
+  margin: 0;
+  padding: 0.5em;
+}
+.oldsbs .horizontalselect a:hover {
+  background-color: rgba(41, 51, 71, 0.1);
+}
+.oldsbs .horizontalselect a[data-current~="1"] {
+  background-color: #e6eff3;
+  box-shadow: 0 0.1rem 0.2rem rgba(33, 53, 73, 0.5) inset;
+}
+.oldsbs user-rank[data-level="-1"], .oldsbs user-rank[data-level="1"] {
+  color: #666;
+}
+.oldsbs a:link, .oldsbs a:visited, .oldsbs page-list > a:link, .oldsbs page-list > a:visited {
+  color: #3077ae;
+}
+.oldsbs ::-webkit-scrollbar-thumb, .oldsbs ol.searchbarResults li[selected] {
+  background-color: #ccc;
+}
+.oldsbs .horizontalselect a:link, .oldsbs .horizontalselect a:visited, .oldsbs page-list > a.current:link, .oldsbs page-list > a.current:visited {
+  color: #111;
+}
+.oldsbs .datatable tr:nth-child(2n) td[colspan="2"], .oldsbs .datatable tr:nth-child(2n) tr:nth-child(2n) {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+@mediamin-height10rem {
+  .oldsbs label[for=top-nav-toggle] {
+    background-size: 8rem auto;
+    width: 8rem;
+    height: 2.4rem;
+  }
+  .oldsbs user-area {
+    bottom: 2.4rem;
+    font-size: 1rem;
+  }
+  .oldsbs notification-area {
+    bottom: 1.6rem;
+    left: 7.2rem;
+  }
+}
+@mediamin-width70rem {
+  .oldsbs form[action^="/search"] input[type=search] {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+@mediamin-width416rem {
+  .oldsbs #deleteForm {
+    left: calc(50% - 12.5rem);
+  }
+}
+.oldsbs #chatdraw, .oldsbs #chatdraw animate-area {
+  background-color: #f8f8f8;
+  position: absolute;
+}
+.oldsbs #sendpane {
+  position: relative;
+}
+.oldsbs #chatdraw {
+  display: block;
+  z-index: 10;
+  bottom: 1px;
+  right: 1px;
+}
+.oldsbs #chatdraw[data-fixedsize] {
+  font-size: 0;
+  height: 80vh;
+  box-sizing: border-box;
+  border: 1px solid #bbb;
+  width: calc(100% - 3.25rem - 3.25rem);
+}
+.oldsbs #chatdraw[data-docked] {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 75%;
+}
+.oldsbs #chatdraw[data-fixedsize] iframe {
+  border: none;
+  width: 100%;
+  height: calc(100% - 50px);
+  margin: 0;
+  padding: 0;
+}
+.oldsbs #chatdraw :focus, .oldsbs #chatdraw:focus {
+  outline: 0;
+}
+.oldsbs #chatdraw canvas, .oldsbs #messagepane canvas {
+  display: inline-block;
+  vertical-align: bottom;
+  image-rendering: pixelated;
+  border: 1px solid #bbb;
+  margin: 0;
+  padding: 0;
+}
+.oldsbs #chatdraw canvas.lightbox {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.oldsbs #chatdraw .overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.oldsbs #chatdraw canvas {
+  cursor: crosshair;
+}
+.oldsbs #chatdraw[data-hidden] {
+  width: unset;
+  height: unset;
+}
+.oldsbs #chatdraw[data-hidden] :not([data-keep]) {
+  display: none !important;
+}
+.oldsbs #chatdraw button-area {
+  display: block;
+  font-size: 0;
+  background-color: #eee;
+}
+.oldsbs #chatdraw:not([data-hidden]) > button-area {
+  text-align: right;
+  border-left: 1px solid #bbb;
+  border-right: 1px solid #bbb;
+}
+.oldsbs #chatdraw button-area button {
+  display: inline-block;
+  border: none;
+  border-radius: unset;
+  height: 25px;
+  width: 25px;
+  font-size: 14px;
+  outline: 0;
+}
+.oldsbs #chatdraw button-area button:hover {
+  background-color: #ddd;
+}
+.oldsbs #chatdraw button-area button:active {
+  transform: none !important;
+}
+.oldsbs #chatdraw button-area button:disabled {
+  color: #bbb;
+  background-color: #ddd;
+}
+.oldsbs #chatdraw button-area button[data-selected] {
+  background-color: #888;
+  color: #eee;
+}
+.oldsbs chatdraw-controlcontainer {
+  width: 1.1rem;
+  display: inline-block;
+}
+.oldsbs chatdraw-controlcontainer > a {
+  text-decoration: none !important;
+  display: inline-block;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0 0.2em;
+}
+.oldsbs chatdraw-controlcontainer .chatdrawplay {
+  font-size: 1rem;
+}
+.oldsbs #chatdraw animate-area {
+  left: -201px;
+  top: 0;
+  width: 200px;
+  height: 150px;
+  display: block;
+  border-left: 1px solid #bbb;
+  border-top: 1px solid #bbb;
+  border-bottom: 1px solid #bbb;
+}
+.oldsbs #chatdraw animate-area > * {
+  width: 100%;
+}
+.oldsbs #chatdraw animate-area animate-scroller {
+  display: block;
+  height: -webkit-calc(100% - 50px);
+  height: calc(100% - 50px);
+  overflow-y: scroll;
+}
+.oldsbs #chatdraw animate-area animate-frames {
+  display: block;
+}
+.oldsbs #chatdraw animate-area animate-frame {
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 2px 7px;
+}
+.oldsbs #chatdraw animate-area animate-frame[data-selected] {
+  background-color: #666;
+}
+.oldsbs #chatdraw animate-area animate-frames canvas {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  cursor: pointer;
+}
+.oldsbs #chatdraw animate-area animate-frame frame-controls {
+  position: absolute;
+  left: 9px;
+  bottom: 4px;
+  display: block;
+  width: -webkit-calc(100% - 18px);
+  width: calc(100% - 18px);
+  vertical-align: bottom;
+}
+.oldsbs #chatdraw animate-area animate-frame frame-controls > * {
+  height: 11px;
+  font-size: 9px;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+.oldsbs #chatdraw animate-area animate-frame frame-controls button {
+  border: none;
+  background-color: transparent;
+  float: right;
+  margin: 0 0 0 2px;
+  padding: 0;
+}
+.oldsbs #chatdraw animate-area animate-frame frame-controls input {
+  width: 30px;
+  box-sizing: border-box;
+  border: 1px solid #bbb;
+  background-color: #eee;
+}
+.oldsbs #chatdraw animate-area animate-frame frame-controls .left {
+  float: left;
+  margin-left: 0;
+  margin-right: 2px;
+}
+.oldsbs #chatdraw animate-area button-area input {
+  height: 25px;
+  box-sizing: border-box;
+  border-radius: 0;
+  border: 1px solid #bbb;
+  background-color: #eee;
+}
+.oldsbs #chatdraw animate-area button-area input[type=number] {
+  width: 50px;
+}
+.oldsbs #chatdraw animate-area button-area input[name=name] {
+  width: 125px;
+}
+.oldsbs #chatdraw[data-scale="2"] canvas {
+  width: 400px;
+}
+.oldsbs #chatdraw[data-scale="2"] animate-area {
+  height: 300px;
+}
+.oldsbs #chatdraw[data-scale="2"]:not([data-hidden]) > button-area button {
+  height: 50px;
+  width: 50px;
+  font-size: 28px;
+}
+.oldsbs #chatdraw[data-scale="3"] canvas {
+  width: 600px;
+}
+.oldsbs #chatdraw[data-scale="3"] animate-area {
+  height: 450px;
+}
+.oldsbs #chatdraw[data-scale="3"]:not([data-hidden]) > button-area button {
+  height: 75px;
+  width: 75px;
+  font-size: 42px;
+}
+.oldsbs #chatdraw[data-scale="4"] canvas {
+  width: 800px;
+}
+.oldsbs #chatdraw[data-scale="4"] animate-area {
+  height: 600px;
+}
+.oldsbs #chatdraw[data-scale="4"]:not([data-hidden]) > button-area button {
+  height: 100px;
+  width: 100px;
+  font-size: 56px;
+}
+.oldsbs #chatdraw[data-scale="5"] canvas {
+  width: 1000px;
+}
+.oldsbs #chatdraw[data-scale="5"] animate-area {
+  height: 750px;
+}
+.oldsbs #chatdraw[data-scale="5"]:not([data-hidden]) > button-area button {
+  height: 125px;
+  width: 125px;
+  font-size: 70px;
+}
+
+/*# sourceMappingURL=oldsbsstyle.css.map */
