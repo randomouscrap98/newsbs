@@ -551,35 +551,44 @@ function WebSocketListener(api, signalHandler, log, dataHandler)
    this.errortime = 3000; //Amount of time to wait before restarting websocket on failure
    this.lasterror = performance.now();
 
+   //Need this captured inside the object so we can update it on the fly
+   this.lpdata = null;
+
    this.nextId = 1;
    this.forceclosed = [];
    this.socket = null;
 }
 
-WebSocketListener.prototype.UnregisterWebsocket = function()
+//Remove the current websocket listener from the flow, so it looks like the
+//current system is ready to start a new websocket. Can tell the system not
+//to close the websocket (for instance, if it's already closed)
+WebSocketListener.prototype.UnregisterWebsocket = function(shouldClose)
 {
+   shouldClose = (shouldClose == undefined) ? true : shouldClose;
+   var me = this;
    var socket = this.socket;
-   this.forceclosed.push(socket.myId);
-   this.socket = null;
+   me.forceclosed.push(socket.myId);
+   me.socket = null;
+   if(shouldClose)
+   {
+      me.log(`Closing websocket ${socket.myId}; any outstanding requests will be lost`);
+      try{ socket.close(); }
+      catch(ex) { me.log(`Error closing websocket ${socket.myId}: ${ex}`); }
+   }
    return socket;
 };
 
+//This function should stop all websocket activity and reset the state
+//so it's ready to accept new data.
 WebSocketListener.prototype.TryAbortAll = function()
 {
    //Aborting is ACTUALLY closing the websocket, if it exists. 
-   if(this.socket)
-   {
-      var socket = this.UnregisterWebsocket(); 
-      this.log(`Closing websocket ${socket.myId}; any outstanding requests will be lost`);
-      try{ socket.close(); }
-      catch(ex) { this.log(`Error closing websocket ${socket.myId}: ${ex}`); }
-   }
-   else
-   {
-      this.log("There are no running websockets to abort!");
-   }
+   if(this.socket) { this.UnregisterWebsocket(); }
+   else { this.log("There are no running websockets to abort!"); }
 };
 
+//Go out and get an updated temp token (auth), or keep trying if it fails. Will
+//try INDEFINITELY, and on success, will eventually call oncomplete
 WebSocketListener.prototype.RefreshAuth = function(oncomplete)
 {
    var me = this;
@@ -591,42 +600,58 @@ WebSocketListener.prototype.RefreshAuth = function(oncomplete)
       });
 };
 
-WebSocketListener.prototype.Update = function (lastId, statuses)
+//Return the data signals expect to receive (from longpoller, anyway, which
+//this emulates)
+WebSocketListener.prototype.MakeSignalData = function(message)
 {
    var me = this;
-   var senddata = new ListenerData(lastId, statuses);
-   var sigdata = (message) => ({
-      lpdata : senddata,
+   return {
+      lpdata : me.lpdata,
       request : {
          status : "WEBSOCKET",
          statusText : message
       }
-   });
-   var beginNewListen = (s) =>
-   {
-      me.RefreshAuth(d => 
-      { 
-         var sendreq = senddata.ToRequest();
-         sendreq.auth = d; 
-         s.send(JSON.stringify(sendreq));
-         me.signal("longpollstart", sigdata("auth success"));
-      });
    };
+};
 
-   if(!this.socket)
+//Begin a new 'configuration' using whatever preconfigured stuff there is
+//inside our object.
+WebSocketListener.prototype.BeginNewListen = function()
+{
+   var me = this;
+   me.RefreshAuth(d => 
+   { 
+      var sendreq = me.lpdata.ToRequest();
+      sendreq.auth = d; 
+      me.socket.send(JSON.stringify(sendreq));
+      me.signal("longpollstart", me.MakeSignalData("auth success"));
+   });
+}
+
+//The function outsiders call to configure a new listening session. Will either
+//create a new websocket or use an existing one depending on whether there's
+//one available or not.
+WebSocketListener.prototype.Update = function (lastId, statuses)
+{
+   var me = this;
+
+   //Always update the internal settings data thing
+   me.lpdata = new ListenerData(lastId, statuses);
+
+   //Oops, need to set up a new socket!
+   if(!me.socket)
    {
-      this.log(`Creating new websocket [${me.nextId}], then sending update data down`);
-      var socket = new WebSocket(apiroot.replace("http", "ws") + "/read/wslisten");
-      this.socket = socket;
-      socket.myId = me.nextId++;
-      socket.onopen = function(event)
-      {
-         beginNewListen(socket);
-      };
+      me.log(`Creating new websocket [${me.nextId}], then sending update data down`);
+      me.socket = new WebSocket(apiroot.replace("http", "ws") + "/read/wslisten");
+      me.socket.myId = me.nextId++;
+      //When the socket is open, THEN we can begin doing the configuration
+      //crap. This is SLIGHTLY non-optimal, since we could request the auth and
+      //wait for websocket open at the same time, but whatever.
+      me.socket.onopen = function(event) { me.BeginNewListen(); };
       //Immediately start the request to get a new auth
-      socket.onclose = function(event)
+      me.socket.onclose = function(event)
       {
-         if(me.forceclosed.indexOf(socket.myId) < 0) //this was an unexpected close
+         if(me.forceclosed.indexOf(me.socket.myId) < 0) //this was an unexpected close
          {
             //Parenthesis in the performance now calc unnecessary, but shows
             //that the amount of time to wait is reduced by the amount of time
@@ -634,50 +659,50 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
             //forced wait.
             var retryms = Math.max(0, me.errortime - (performance.now() - me.lasterror));
             me.lasterror = performance.now();
-            me.signal("longpollerror", 
-               sigdata(`Unknown error during websocket [${socket.myId}] close, retry in ${retryms} ms`));
-            me.UnregisterWebsocket();
-            setTimeout(() => me.Update(senddata.lastId, senddata.statuses), retryms);
+            me.signal("longpollerror", me.MakeSignalData(
+               `Unknown error during websocket [${me.socket.myId}] close, retry in ${retryms} ms`));
+            me.UnregisterWebsocket(false); //It's already closing, no need to close it again (false)
+            setTimeout(() => me.Update(me.lpdata.lastId, me.lpdata.statuses), retryms);
          }
          else
          {
-            me.log(`Websocket ${socket.myId} closing on request`);
+            me.log(`Websocket ${me.socket.myId} closing on request`);
          }
       };
-      socket.onerror = function(event)
+      me.socket.onerror = function(event)
       {
-         me.log(`Websocket ${socket.myId} encountered an error, it will probably disconnect`);
+         me.log(`Websocket ${me.socket.myId} encountered an error, it will probably disconnect`);
       };
-      socket.onmessage = function(event)
+      me.socket.onmessage = function(event)
       {
          if(event.data)
          {
             if(event.data.indexOf("accepted:") == 0)
             {
                //The server is just acknowledging the receipt
-               me.log(`Successfully updated configuration for websocket ${socket.myId}`);
+               me.log(`Successfully updated configuration for websocket ${me.socket.myId}`);
             }
             else
             {
                var data = JSON.parse(event.data);
 
-               if(data.lastId) senddata.lastId = data.lastId;
-               if(data.listeners) senddata.lastListeners = data.listeners;
+               if(data.lastId) me.lpdata.lastId = data.lastId;
+               if(data.listeners) me.lpdata.lastListeners = data.listeners;
                if(data) me.api.AutoLink(data.chains);
             }
          }
 
          //Technically, if you ever get a message, your connection is clearly stable
-         me.signal("longpollstart", sigdata("onmessage"));
-         me.signal("longpollalways", sigdata("onmessage"));
+         me.signal("longpollstart", me.MakeSignalData("onmessage"));
+         me.signal("longpollalways", me.MakeSignalData("onmessage"));
 
-         me.dataHandler(data, senddata);
+         me.dataHandler(data, me.lpdata);
       };
    }
    else
    {
-      this.log(`Updating existing websocket listener [${this.socket.myId}]`);
-      beginNewListen(this.socket);
+      me.log(`Updating existing websocket listener [${me.socket.myId}]`);
+      me.BeginNewListen();
    }
 };
 

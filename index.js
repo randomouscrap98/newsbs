@@ -270,8 +270,10 @@ function refreshCycle()
 
    var ctime = getLocalOption("signalcleanup");
    var now = performance.now();
+   var constate = getConnectionState();
 
-   if(getConnectionState() == "error" && !globals.showingConnectionError)
+   //Only perform the error updates if we're not currently showing the error
+   if(constate == "error" && !globals.showingConnectionError)
    {
       if(globals.lastConnectionError && (now - globals.lastConnectionError) > 10000)
       {
@@ -288,9 +290,11 @@ function refreshCycle()
 
       globals.lastConnectionError = now;
    }
-   else
+   if(constate == "connected")
    {
+      //Reset everything to do with errors
       globals.lastConnectionError = 0;
+      globals.showingConnectionError = false;
    }
 
    if(getLocalOption("logperiodicdata"))
@@ -2181,14 +2185,14 @@ function setupSession()
 
       var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
       var searchStr = JSON.stringify(search);
-      var watchsearch = {"ContentLimit":{"Watches":true}};
+      var watchsearch = {"ContentLimit":{"Watches":true}}; //,maxId:0};
       params.append("requests", "systemaggregate"); //1 (0 is category)
       params.append("requests", "comment-" + searchStr);   //2
       params.append("requests", "activity-" + searchStr);  //3
       params.append("requests", "watch");    //4
       params.append("requests", "modulemessage-" + JSON.stringify({maxId:0}));//searchStr); //5 (DISABLED)
-      params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //6
-      params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //7
+      params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //6 (DISABLED)
+      params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //7 (DISABLED)
       params.append("requests", "content.3contentId.2parentId.4contentId"); //8
       params.append("requests", "user.3userId.2createUserId.5usersInMessage.5sendUserId.6userIds.7userIds.8createUserId"); //9
       params.set("comment","id,parentId,createUserId,createDate");
@@ -2259,7 +2263,11 @@ function updateDiscussionUserlist(listeners, users)
    //discussion with it. Perhaps not? That seems to sometimes happen, and
    //allowing them to pass through causes errors. So, I ignore them. I think
    //that might cause problems, TODO: please see if ignoring causes problems
-   if(!list) return;
+   if(!list) 
+   {
+      log.Warn("Received listener data that didn't have the room you're in! This is probably an error!");
+      return;
+   }
 
    for(key in list)
    {
