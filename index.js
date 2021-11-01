@@ -60,6 +60,7 @@ var options = {
    discussionavatarsize : { def: 60 },
    showsidebarminrem : { def: 60 },
    refreshcycle : { def: 10000 },
+   connecterroralert : { def: 15000 },
    longpollerrorrestart : {def: 5000 },
    minisearchtimebuffer : {def:200},
    signalcleanup : {def: 10000 },
@@ -272,10 +273,16 @@ function refreshCycle()
    var now = performance.now();
    var constate = getConnectionState();
 
-   //Only perform the error updates if we're not currently showing the error
-   if(constate == "error" && !globals.showingConnectionError)
+   //If the constate is error, record when the last connection error was.
+   if(constate == "error")
    {
-      if(globals.lastConnectionError && (now - globals.lastConnectionError) > 10000)
+      //ONLY display the error message if there IS a current connection error,
+      //we're NOT currently showing the connection error, the time since the
+      //first connection error is greater than our configuration, and the
+      //document has focus.
+      if(globals.firstConnectionError && !globals.showingConnectionError &&
+         (now - globals.firstConnectionError) > getLocalOption("connecterroralert") && 
+         document.hasFocus())
       {
          globals.showingConnectionError = true;
          UIkit.modal.confirm("There seems to be an error in your live updates connection. " +
@@ -288,12 +295,15 @@ function refreshCycle()
          });
       }
 
-      globals.lastConnectionError = now;
+      //Only update the connection error if it's empty, that way the timer works
+      if(!globals.firstConnectionError)
+         globals.firstConnectionError = now;
    }
+
+   //if the constate is connected, assume everything is ok and reset all
    if(constate == "connected")
    {
-      //Reset everything to do with errors
-      globals.lastConnectionError = 0;
+      globals.firstConnectionError = 0;
       globals.showingConnectionError = false;
    }
 
