@@ -607,6 +607,7 @@ WebSocketListener.prototype.MakeSignalData = function(message)
    var me = this;
    return {
       lpdata : me.lpdata,
+      getErrorState : () => !me.socket || me.socket.ReadyState !== WebSocket.OPEN,
       request : {
          status : "WEBSOCKET",
          statusText : message

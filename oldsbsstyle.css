@@ -1,132 +1,8 @@
-.oldsbs {
-  /* -------- main.css ------------- */
-  /* --------------- chatdraw.css ----------------- */
-}
-.oldsbs user-badges, .oldsbs user-badges badge-info, .oldsbs user-badges spoiler-section {
-  vertical-align: top;
-  display: inline-block;
-}
-.oldsbs #deleteForm, .oldsbs .commentad, .oldsbs .footerad, .oldsbs .headerad, .oldsbs login-reminder {
-  text-align: center;
-}
-.oldsbs #sign-in, .oldsbs footer, .oldsbs nav {
-  clear: both;
-}
-.oldsbs #deleteForm button, .oldsbs #highCompatibilityForm, .oldsbs #sign-in label[for=keep], .oldsbs header nav li, .oldsbs header-top span, .oldsbs page-list > a, .oldsbs user-area h3, .oldsbs user-area user-nav, .oldsbs user-area user-nav a, .oldsbs user-badges, .oldsbs user-badges badge-info, .oldsbs user-badges spoiler-content, .oldsbs user-badges spoiler-section {
-  display: inline-block;
-}
-.oldsbs textarea, .oldsbs user-area, .oldsbs user-badges badge-info {
-  box-shadow: 0.1rem 0.2rem 0.3rem -0.2rem rgba(33, 53, 73, 0.5);
-}
 .oldsbs a, .oldsbs footer a, .oldsbs nav li a, .oldsbs notification-area a, .oldsbs ol.searchbarResults li a {
   text-decoration: none;
 }
-@mediamin-width30rem {
-  .oldsbs .likesection, .oldsbs section {
-    width: 95%;
-    margin-left: 2.5%;
-  }
-}
-@mediamin-width40rem {
-  .oldsbs .likesection, .oldsbs section {
-    width: 90%;
-    margin-left: 5%;
-  }
-}
-@mediamin-width50rem {
-  .oldsbs .likesection, .oldsbs section {
-    width: 85%;
-    margin-left: 7.5%;
-  }
-}
-.oldsbs user-rank::before {
-  content: "[";
-}
-.oldsbs user-rank::after {
-  content: "]";
-}
-.oldsbs user-rank[data-level="2"] {
-  color: #00779d;
-}
-.oldsbs user-rank[data-level="3"] {
-  color: #128409;
-}
-.oldsbs user-rank[data-level="4"] {
-  color: #6f6aac;
-}
-.oldsbs user-rank[data-level="5"] {
-  color: #dd6e86;
-}
-.oldsbs user-rank[data-level="6"] {
-  color: #db8d10;
-}
-.oldsbs user-rank[data-level="7"] {
-  color: #5c257c;
-}
-.oldsbs user-badges {
-  font-size: 0;
-}
-.oldsbs user-badges [data-spoiler] {
-  cursor: pointer;
-}
-.oldsbs user-badges .badgegraphic[data-show] {
-  background-color: #e6eff3;
-}
-.oldsbs user-badges .badgegraphic {
-  width: 20px;
-  height: 20px;
-  border-radius: 8px;
-  image-rendering: crisp-edges;
-  margin: 0;
-  padding: 4px;
-}
-.oldsbs user-badges.large .badgegraphic {
-  width: 30px;
-  height: 30px;
-  padding: 6px;
-}
 .oldsbs header-title, .oldsbs header-top img {
   height: 1.4rem;
-}
-.oldsbs user-badges spoiler-content {
-  position: relative;
-  overflow: visible;
-  background: 0 0;
-  border: none;
-  width: 100%;
-}
-.oldsbs user-badges badge-info {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 15em;
-  z-index: 3;
-  max-height: 30em;
-  font-size: 0.8rem;
-  white-space: normal;
-  overflow: hidden;
-  border: 1px solid rgba(74, 99, 110, 0.45);
-  color: #111;
-  background-color: rgba(245, 252, 255, 0.8);
-  margin: 0;
-  padding: 0.4em 0.5em;
-}
-.oldsbs user-badges badge-name {
-  font-weight: 700;
-  display: block;
-}
-.oldsbs user-badges badge-description {
-  display: block;
-  margin: 0.3em;
-}
-.oldsbs user-badges badge-group {
-  display: block;
-  font-style: italic;
-  color: #666;
-}
-.oldsbs user-badges badge-info badge-control {
-  margin-top: 0.3em;
-  display: block;
 }
 .oldsbs li {
   overflow-y: hidden;
@@ -279,243 +155,6 @@
 .oldsbs ::-webkit-scrollbar {
   background-color: #f8f8f8;
 }
-.oldsbs label[for=sign-in-toggle] {
-  display: none;
-}
-.oldsbs ol.searchbarResults {
-  position: absolute;
-  list-style-type: none;
-  border-radius: 0.1rem;
-  box-sizing: border-box;
-  z-index: 98;
-  background-color: #eee;
-  border: 0.1rem solid #777;
-  margin: 0;
-  padding: 0;
-}
-.oldsbs ol.searchbarResults li {
-  position: relative;
-  transition: background-color 0.2s ease;
-  overflow: hidden;
-  padding: 0.2rem;
-}
-.oldsbs ol.searchbarResults li:not(:first-of-type) {
-  border-top: 1px solid #ccc;
-}
-.oldsbs ol.searchbarResults li a {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding-left: calc(24px + 0.1rem);
-  color: #111;
-}
-.oldsbs ol.searchbarResults li img {
-  position: absolute;
-  top: 0.2rem;
-  left: 0.2rem;
-  width: 24px;
-  height: 24px;
-  box-sizing: border-box;
-}
-.oldsbs ol.searchbarResults li a[type*=categories] {
-  background: url(/styles/themes/smile/images/SB-category.png) 0 center no-repeat;
-}
-.oldsbs ol.searchbarResults li a[type*=users] {
-  background: url(/styles/themes/smile/images/SB-user.png) 0 center no-repeat;
-}
-.oldsbs ol.searchbarResults li a[type*=pages] {
-  background: url(/styles/themes/smile/images/SB-page.png) 0 center no-repeat;
-}
-.oldsbs ol.searchbarResults li a[type*=threads] {
-  background: url(/styles/themes/smile/images/SB-thread.png) 0 center no-repeat;
-}
-.oldsbs vote-meter {
-  display: inline-block;
-  position: relative;
-  height: 1rem;
-  background-color: #d5d5d5;
-}
-.oldsbs vote-meter[data-hasvotes] {
-  background-color: rgba(253, 200, 200, 0.8);
-}
-.oldsbs vote-meter up-votes {
-  display: block;
-  height: 1rem;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #8ea;
-  margin: 0;
-  padding: 0;
-}
-.oldsbs user-area {
-  visibility: hidden;
-  z-index: 99;
-  display: block;
-  position: fixed;
-  bottom: 1.2rem;
-  width: 18em;
-  max-width: 100%;
-  box-sizing: border-box;
-  border: 2px outset #777;
-  background-image: url(/styles/themes/smile/images/christmas/Sb-bg-tile_christmas3.png);
-  padding: 1em;
-}
-.oldsbs #top-nav-toggle:checked ~ user-area, .oldsbs .topnavtoggled, .oldsbs notification-area {
-  visibility: visible;
-}
-.oldsbs [data-loggedin] user-area {
-  width: 26em;
-}
-.oldsbs user-area h3 {
-  font-weight: 400;
-  font-size: 1.5em;
-  float: left;
-  margin: 0;
-}
-.oldsbs user-area #openUserHome {
-  display: block;
-  font-size: 1.4em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.oldsbs user-area img {
-  float: left;
-  border: 2px solid #222;
-  width: 8em;
-  height: 8em;
-  display: block;
-  background-color: #fff;
-  margin: 0 0.5em 0 0;
-}
-.oldsbs user-area .likebutton, .oldsbs user-area button {
-  font-size: 1em;
-  font-weight: 700;
-  width: 6em;
-}
-.oldsbs user-area #anonLanguageForm {
-  float: left;
-  clear: left;
-}
-.oldsbs user-area #openPasswordReset {
-  font-size: 1em;
-  display: block;
-  float: right;
-  clear: right;
-}
-.oldsbs user-area user-alerts a {
-  margin-top: 0.5em;
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.oldsbs user-area user-nav {
-  vertical-align: bottom;
-  font-size: 0;
-  padding: 0.5rem 0;
-}
-.oldsbs user-area user-nav a {
-  image-rendering: pixelated;
-  width: 2rem;
-  height: 2rem;
-  background-size: 100% 100%;
-  transition: margin 0.2s ease, width 0.2s ease, height 0.2s ease;
-  margin: 0.2rem;
-}
-.oldsbs user-area user-nav a:hover {
-  width: 2.4rem;
-  height: 2.4rem;
-  margin: 0;
-}
-.oldsbs user-area user-nav #notificationLink {
-  background-image: url(/styles/themes/smile/images/notificationiconbig.png);
-}
-.oldsbs user-area user-nav #messageboxLink {
-  background-image: url(/styles/themes/smile/images/messageiconbig.png);
-}
-.oldsbs user-area user-nav #userLink {
-  background-image: url(/styles/themes/smile/images/userpageiconbig.png);
-}
-.oldsbs user-area user-nav #sign-out {
-  cursor: pointer;
-  background-image: url(/styles/themes/smile/images/logouticonbig.png);
-}
-.oldsbs notification-area {
-  position: fixed;
-  display: block;
-  bottom: 0.6rem;
-  left: 3.4rem;
-  border-radius: 3rem;
-  transition: background-color 0.5s ease;
-  background-color: #b22222;
-}
-.oldsbs notification-area:hover {
-  background-color: #f23434;
-}
-.oldsbs notification-area a {
-  font-size: 1em;
-  display: block;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 0.25em 0.5em;
-}
-.oldsbs notification-area a:link, .oldsbs notification-area a:visited {
-  color: #fff7f0;
-}
-.oldsbs label[for=top-nav-toggle] {
-  background-image: url(/styles/themes/smile/images/Sb-button-user-3.png);
-  background-position: left bottom;
-  background-repeat: no-repeat;
-  background-size: 4rem auto;
-  bottom: 0;
-  height: 1.2rem;
-  left: 0;
-  position: fixed;
-  width: 4rem;
-  z-index: 64;
-}
-.oldsbs [data-loggedin] label[for=top-nav-toggle] {
-  background-image: url(/styles/themes/smile/images/Sb-button-user-2.png);
-}
-.oldsbs #top-nav-toggle:checked + label[for=top-nav-toggle] {
-  background-image: url(/styles/themes/smile/images/Sb-button-user-1.png);
-  cursor: default;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(44, 54, 64, 0.4);
-}
-.oldsbs #top-nav-toggle:checked ~ user-area notification-area, .oldsbs user-area.topnavtoggled notification-area {
-  visibility: hidden;
-}
-.oldsbs login-reminder {
-  display: block;
-  font-size: 0.8rem;
-  color: #840000;
-  margin: -0.5rem 0.25rem 0.25rem;
-}
-.oldsbs #password, .oldsbs #username {
-  display: block;
-  font-size: 1.1em;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 0 0 0.5em;
-  padding: 0.2em;
-}
-.oldsbs #sign-in {
-  display: block;
-  float: left;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 1em 0;
-}
-.oldsbs #sign-in label[for=keep] {
-  font-weight: 700;
-  vertical-align: middle;
-  color: #111;
-}
 .oldsbs form[action^="/search"] {
   position: absolute;
   top: 0.1rem;
@@ -579,23 +218,9 @@
   box-shadow: none;
   border-color: red;
 }
-.oldsbs [data-status=ERROR] {
-  background-color: #f1bbca;
-}
-.oldsbs [data-status=RUNNING] {
-  background-color: #01b;
-  animation: colorPulse 0.5s infinite alternate;
-}
-.oldsbs [data-status=SUCCESS] {
-  background-color: #afb;
-}
-.oldsbs .headerad {
-  margin-top: 0.5rem;
-}
-.oldsbs .footerad {
-  margin-top: 1rem;
-  padding-bottom: 0.5rem;
-}
+.oldsbs [data-status=ERROR] { background-color: #f1bbca; }
+.oldsbs [data-status=RUNNING] { background-color: #01b; animation: colorPulse 0.5s infinite alternate; }
+.oldsbs [data-status=SUCCESS] { background-color: #afb; }
 .oldsbs footer {
   display: block;
   width: 100%;
@@ -633,11 +258,6 @@
   font-size: 1.25rem;
   margin: 0.5em;
 }
-.oldsbs #highCompatibilityForm input {
-  border: none;
-  background-color: transparent;
-  color: #efefef;
-}
 .oldsbs form[action*=search] {
   z-index: 3;
 }
@@ -666,56 +286,6 @@
 }
 .oldsbs copy-right {
   font-size: 0.75rem;
-}
-.oldsbs page-list > a {
-  font-size: 1.4rem;
-  margin-left: 0.5rem;
-  transition: transform 0.2s ease;
-}
-.oldsbs #subscribeForm, .oldsbs #subscribeForm button, .oldsbs subscribe-area {
-  display: inline;
-}
-.oldsbs page-list > a:hover {
-  -webkit-transform: rotateX(40deg);
-  transform: rotateX(40deg);
-}
-.oldsbs page-list > a.current:hover {
-  transform: none;
-}
-.oldsbs #subscribeForm {
-  margin-left: 0;
-}
-.oldsbs #subscribeForm span {
-  line-height: 0;
-}
-.oldsbs #deleteForm {
-  border: 2px outset;
-  box-shadow: 1px 2px 4px 2px #717171;
-  display: block;
-  height: auto;
-  width: 60%;
-  left: 20%;
-  top: 35%;
-  max-width: 25rem;
-  position: fixed;
-  z-index: 98;
-  background-image: url(/styles/themes/smile/images/christmas/Sb-bg-tile_christmas3.png);
-}
-.oldsbs #deleteForm h3 {
-  width: 100%;
-  box-sizing: border-box;
-  white-space: pre-wrap;
-  margin: 0;
-  padding: 0.7rem 0.5rem;
-}
-.oldsbs #deleteForm input[type=text] {
-  width: 90%;
-  margin-left: 5%;
-  margin-right: 5%;
-  box-sizing: border-box;
-}
-.oldsbs #deleteForm button {
-  margin: 0.5rem 5%;
 }
 .oldsbs .likeheader, .oldsbs simple-block, .oldsbs simple-header {
   display: block;
@@ -796,9 +366,6 @@
   background-color: #e6eff3;
   box-shadow: 0 0.1rem 0.2rem rgba(33, 53, 73, 0.5) inset;
 }
-.oldsbs user-rank[data-level="-1"], .oldsbs user-rank[data-level="1"] {
-  color: #666;
-}
 .oldsbs a:link, .oldsbs a:visited, .oldsbs page-list > a:link, .oldsbs page-list > a:visited {
   color: #3077ae;
 }
@@ -810,32 +377,6 @@
 }
 .oldsbs .datatable tr:nth-child(2n) td[colspan="2"], .oldsbs .datatable tr:nth-child(2n) tr:nth-child(2n) {
   background-color: rgba(255, 255, 255, 0.8);
-}
-@mediamin-height10rem {
-  .oldsbs label[for=top-nav-toggle] {
-    background-size: 8rem auto;
-    width: 8rem;
-    height: 2.4rem;
-  }
-  .oldsbs user-area {
-    bottom: 2.4rem;
-    font-size: 1rem;
-  }
-  .oldsbs notification-area {
-    bottom: 1.6rem;
-    left: 7.2rem;
-  }
-}
-@mediamin-width70rem {
-  .oldsbs form[action^="/search"] input[type=search] {
-    width: 100%;
-    margin-left: 0;
-  }
-}
-@mediamin-width416rem {
-  .oldsbs #deleteForm {
-    left: calc(50% - 12.5rem);
-  }
 }
 .oldsbs #chatdraw, .oldsbs #chatdraw animate-area {
   background-color: #f8f8f8;
@@ -1076,5 +617,3 @@
   width: 125px;
   font-size: 70px;
 }
-
-/*# sourceMappingURL=oldsbsstyle.css.map */
