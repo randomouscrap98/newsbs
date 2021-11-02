@@ -595,6 +595,8 @@ WebSocketListener.prototype.RefreshAuth = function(oncomplete)
    this.api.Get("read/wsauth", null, 
       data => oncomplete(data.data),
       error => {
+         me.signal("longpollerror", me.MakeSignalData(
+            `Error during websocket auth, trying again in ${me.errortime}`));
          me.log(`Error while retrieving websocket auth, trying again in ${me.errortime} ms`);
          setTimeout(() => me.RefreshAuth(oncomplete), me.errortime);
       });
@@ -607,7 +609,11 @@ WebSocketListener.prototype.MakeSignalData = function(message)
    var me = this;
    return {
       lpdata : me.lpdata,
-      getErrorState : () => !me.socket || me.socket.ReadyState !== WebSocket.OPEN,
+      //getErrorState : () => {
+      //   var res = !me.socket || me.socket.ReadyState !== WebSocket.OPEN
+      //   //console.log("Checking error state... it's " + res);
+      //   return res;
+      //},
       request : {
          status : "WEBSOCKET",
          statusText : message
@@ -660,8 +666,7 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
             //forced wait.
             var retryms = Math.max(0, me.errortime - (performance.now() - me.lasterror));
             me.lasterror = performance.now();
-            me.signal("longpollerror", me.MakeSignalData(
-               `Unknown error during websocket [${me.socket.myId}] close, retry in ${retryms} ms`));
+            me.log(`Websocket ${me.socket.myId} closed unexpectedly, retrying in ${retryms} ms`);
             me.UnregisterWebsocket(false); //It's already closing, no need to close it again (false)
             setTimeout(() => me.Update(me.lpdata.lastId, me.lpdata.statuses), retryms);
          }
@@ -672,7 +677,7 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
       };
       me.socket.onerror = function(event)
       {
-         me.log(`Websocket ${me.socket.myId} encountered an error, it will probably disconnect`);
+         me.signal("longpollfatal", me.MakeSignalData(`Unknown error during websocket [${me.socket.myId}]`));
       };
       me.socket.onmessage = function(event)
       {

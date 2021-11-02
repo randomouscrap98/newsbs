@@ -251,6 +251,7 @@ var HTMLUtilities =
    {
       var button = document.createElement('button');
       button.setAttribute("type", "button");
+      button.setAttribute("data-nouikit", "");
       if(text) button.innerHTML = text;
       return button;
    },
