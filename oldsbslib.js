@@ -5960,7 +5960,7 @@ var LocalChatDraw = (function() {
       sendButton.dataset.button = "sendDrawing";
       sendButton.addEventListener("click", function() 
       {
-         animateFrames().GetFrame().canvas.toBlob(blob =>
+         animateFrames.GetFrame().canvas.toBlob(blob =>
          {
             LocalChatDrawLegacyInterface.UploadFunction(blob, false,
                l => LocalChatDrawLegacyInterface.SendFunction(l),

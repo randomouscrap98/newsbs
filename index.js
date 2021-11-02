@@ -224,6 +224,10 @@ window.onload = function()
    };
    StolenUtils.AttachResize(rightpane, rightpanefootername, true, -1, "halfe-sidebar");
 
+   LocalChatDrawLegacyInterface.SendFunction = l =>
+   {
+      sendDiscussionMessage("!" + l, "12y", error => notifyError("Couldn't send uploaded link in chat!"));
+   };
    LocalChatDraw.setupInterface(oldsbschatdraw, true);
    chatdraw.style.bottom = 0;
    chatdraw.style.right = "10px";
