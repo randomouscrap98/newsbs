@@ -416,6 +416,7 @@ ruby { white-space: normal; }
    width: 20px;
    height: 20px;
    margin: 0.2em 0.15em;
+   z-index: 100; /* So it goes over certain floating elements in chat */
 
    border-radius: 5em;
    text-align: center;
@@ -777,6 +778,22 @@ pre .constant { color: var(--codeconstant); }
    [data-template="messageframe"]:not([data-condensed]) .avatar { width: 60px; height: 60px; }
 }
 
+
+/* This stuff is weird overrides for hacky (old) features */
+.oldsbs #chatdraw canvas { border: 1px solid var(--outlinecolor) !important; }
+.oldsbs #chatdraw { background-color : var(--mainbgcolor) !important; }
+.oldsbs #chatdraw:not([data-hidden]) > button-area { 
+   border-left: 1px solid var(--outlinecolor) !important;
+   border-right: 1px solid var(--outlinecolor) !important;
+}
+.oldsbs #chatdraw button-area, .oldsbs button { background-color : var(--lightblockbgcolor) !important; }
+.oldsbs #chatdraw button:not(.colorChange) { color: var(--maintxtcolor) !important; }
+.oldsbs #chatdraw button-area button:hover { background-color : var(--blockbgcolor) !important; }
+.oldsbs #chatdraw button-area button[data-selected] { background-color : var(--scrollblockcolor) !important; }
+.oldsbs #chatdraw button-area button[data-selected]:not(.colorChange) { color: var(--mainbgcolor) !important; }
+.oldsbs #chatdraw button-area button:disabled { color: var(--outlinecolor) !important; }
+
+
 /* Dark mode? */
 [data-theme="dark"] {
    --mainbgcolor: #222; 
@@ -912,3 +929,5 @@ pre .constant { color: var(--codeconstant); }
 [data-theme="oldschool"] .lightblock {
    border: 1px solid #AAA;
 }
+
+
