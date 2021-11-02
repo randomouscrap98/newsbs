@@ -5632,32 +5632,34 @@ if(!window.LogSystem)
    window.LogSystem = {RootLogger : {log : function(message, level){}}};
 
 var LocalChatDrawLegacyInterface = {
-   //Default to kland, should take image data and
+   //Default to kland, should take image data as a blob, or an animation
+   //in the default animation format
+   ExportBucket : function() { return "newSBSchatDraw"; },
+   AllowAnimation : false,
+   GenericError : function(message, data)
+   {
+      alert("ERROR: " + message);
+   },
    UploadFunction : function(imageRaw, isAnimation, success, fail)
    {
       var uploadData = new FormData();
+      if(isAnimation) uploadData.append("animation", JSON.stringify(animation));
+      else uploadData.append("image", imageRaw, "rawimage.png");
+      uploadData.append("bucket", LocalChatDrawLegacyInterface.ExportBucket());
 
-      if(isAnimation)
-         uploadData.append("animation", JSON.stringify(animation));
-      else
-         uploadData.append("image", imageRaw, "rawimage.png");
-      uploadData.append("bucket", ChatDrawUtilities.ExportBucket());
       RequestUtilities.XHRSimple("https://kland.smilebasicsource.com/uploadimage",
          function(response)
          {
             if(response.startsWith("http"))
             {
                success(response);
-               //window.open(response, "_blank");
             }
             else
             {
                console.log(response);
                if(fail) fail(response);
-               //UXUtilities.Toast("The animation failed to upload! " + response);
             }
          }, uploadData);
-
    },
    SendFunction : function(link)
    {
@@ -5695,7 +5697,6 @@ var LocalChatDraw = (function() {
    var saveInput = false;
 
    var animationTag = "_chdran";
-   var allowAnimation = true;
 
    var copyDrawing = function(string)
    {
@@ -5957,7 +5958,15 @@ var LocalChatDraw = (function() {
       widthButton.addEventListener("click", widthToggle.callBind(widthButton));
       sendButton.innerHTML = "➥";
       sendButton.dataset.button = "sendDrawing";
-      sendButton.addEventListener("click", function() {sendDrawing();});
+      sendButton.addEventListener("click", function() 
+      {
+         animateFrames().GetFrame().canvas.toBlob(blob =>
+         {
+            LocalChatDrawLegacyInterface.UploadFunction(blob, false,
+               l => LocalChatDrawLegacyInterface.SendFunction(l),
+               e => LocalChatDrawLegacyInterface.GenericError("Upload failed!", e));
+         });
+      });
       toggleButton.innerHTML = "✎";
       toggleButton.addEventListener("click", toggleInterface);
       cSizeButton.innerHTML = "◲";
@@ -6217,7 +6226,7 @@ var LocalChatDraw = (function() {
                var animation = animationPlayer.ToStorageObject(true);
                var uploadData = new FormData();
                uploadData.append("animation", JSON.stringify(animation));
-               uploadData.append("bucket", ChatDrawUtilities.ExportBucket()); //"chatDrawAnimations");
+               uploadData.append("bucket", LocalChatDrawLegacyInterface.ExportBucket());
                RequestUtilities.XHRSimple(location.protocol + "//kland.smilebasicsource.com/uploadimage",
                   function(response)
                   {
@@ -6307,7 +6316,7 @@ var LocalChatDraw = (function() {
       animateArea.appendChild(animateScroller);
       animateArea.appendChild(animateSave);
 
-      if(allowAnimation) drawArea.appendChild(animateArea);
+      if(LocalChatDrawLegacyInterface.AllowAnimation) drawArea.appendChild(animateArea);
 
       messagePane.appendChild(drawArea);
 
@@ -6504,9 +6513,8 @@ var LocalChatDraw = (function() {
    };
    return {
       "getColorButtons" : getColorButtons,
-      "checkMessageForDrawing" : checkMessageForDrawing,
+      //"checkMessageForDrawing" : checkMessageForDrawing,
       "setupInterface" : setupInterface,
-      "setupAdvancedInterface" : setupInterface2,
       "getButtonColors" : getButtonColors,
       "drawingWidth" : chatDrawCanvasWidth,
       "drawingHeight" : chatDrawCanvasHeight,
@@ -6518,66 +6526,6 @@ var LocalChatDraw = (function() {
    };
    
 })();
-
-(function() {
-
-   window.addEventListener("load", onLoad);
-
-   function onLoad(event)
-   {
-      try
-      {
-         if(window.addMessageEvent)
-         {
-            if(addBindEvent)
-            {
-               addBindEvent(function(first, modules) 
-               { 
-                  if(!first)
-                  {
-                     LogSystem.RootLogger.log("Not first bind; skipping chatdraw setup");
-                     return;
-                  }
-                  if(modules.indexOf("draw") >= 0)
-                  {
-                     LogSystem.RootLogger.log("Chat has drawing module; setting up the drawing interface");
-
-                     if(advancedChatDraw)
-                        LocalChatDraw.setupAdvancedInterface();
-                     else
-                        LocalChatDraw.setupInterface();
-                  }
-                  else
-                  {
-                     LogSystem.RootLogger.log("There's no drawing module, so we're not setting up the interface");
-                  }
-               });
-            }
-            else
-            {
-               LogSystem.RootLogger.log("Chatdraw doesn't appear to be running in chat.");
-            }
-
-            //Oh, we also need to intercept messages that are encoded as a drawing.
-            addMessageEvent(LocalChatDraw.checkMessageForDrawing);
-         }
-         else
-         {
-            LogSystem.RootLogger.log("ChatDraw isn't running in native chat. Will not perform native setup");
-         }
-      }
-      catch(ex)
-      {
-         LogSystem.RootLogger.log("An error occurred while loading chatdraw: " + ex);
-      }
-   }
-})();
-
-//The legacy fixed palette, if you need it.
-var legacyPalette = [[255,255,255], 
-                     [0,0,0],
-                     [255,0,0],
-                     [0,0,255]];
 
 //Convert a 3 channel palette color into a fill style
 function rgbToFillStyle(channels)
@@ -7025,17 +6973,11 @@ AnimationPlayer.prototype.ToStorageObject = function(pngs)
    return baseData;
 };
 
-//AnimationPlayer.prototype.To
-
 var ChatDrawUtilities = 
 {
    DefaultWidth : 200,
    DefaultHeight : 100,
    ClipboardKey : "chatdrawClipboard",
-   ExportBucket : function()
-   {
-      return "newSBSchatDraw";
-   },
    BaseColors : [
       new Color(255,255,255),
       new Color(0, 0, 0),
@@ -7200,7 +7142,7 @@ var ChatDrawUtilities =
       //palette encoded within them.
       var width = ChatDrawUtilities.DefaultWidth;
       var height = ChatDrawUtilities.DefaultHeight;
-      var palette = ChatDrawUtilities.LegacyColors; //ChatDrawUtilities.BaseColors; //legacyPalette.slice();
+      var palette = ChatDrawUtilities.LegacyColors; 
       var realData = LZString.decompressFromBase64(string);
       var i, j, k;
 
