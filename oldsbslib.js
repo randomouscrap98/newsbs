@@ -5631,6 +5631,48 @@ var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length
 if(!window.LogSystem)
    window.LogSystem = {RootLogger : {log : function(message, level){}}};
 
+var LocalChatDrawLegacyInterface = {
+   //Default to kland, should take image data and
+   UploadFunction : function(imageRaw, isAnimation, success, fail)
+   {
+      var uploadData = new FormData();
+
+      if(isAnimation)
+         uploadData.append("animation", JSON.stringify(animation));
+      else
+         uploadData.append("image", imageRaw, "rawimage.png");
+      uploadData.append("bucket", ChatDrawUtilities.ExportBucket());
+      RequestUtilities.XHRSimple("https://kland.smilebasicsource.com/uploadimage",
+         function(response)
+         {
+            if(response.startsWith("http"))
+            {
+               success(response);
+               //window.open(response, "_blank");
+            }
+            else
+            {
+               console.log(response);
+               if(fail) fail(response);
+               //UXUtilities.Toast("The animation failed to upload! " + response);
+            }
+         }, uploadData);
+
+   },
+   SendFunction : function(link)
+   {
+      console.log("IGNORING CHATDRAW SEND: " + link);
+   },
+   GetAnimations : function(callback, element)
+   {
+
+   },
+   LoadAnimation : function(storeObject)
+   {
+
+   }
+};
+
 var LocalChatDraw = (function() {
 
    //The chatdraw canvas's expected width and height
@@ -5666,134 +5708,12 @@ var LocalChatDraw = (function() {
       return StorageUtilities.ReadLocal(ChatDrawUtilities.ClipboardKey);
    };
 
-   var checkMessageForDrawing = function(messageElement)
-   {
-      try
-      {
-         var content = messageElement.querySelector('[data-encoding="draw"]');
-
-         if(content)
-         {
-            LogSystem.RootLogger.log("Converting drawing encoding to canvas image");
-
-            var originalString = content.innerHTML;
-            var parts = originalString.split(")");
-            var drawingString = "";
-            var animationLink = false;
-
-            if(parts.length === 2)
-            {
-               drawingString = parts[1];
-               animationLink = parts[0].slice(1);
-            }
-            else
-            {
-               drawingString = originalString;
-            }
-
-            var canvas = ChatDrawUtilities.ChatDrawToFrame(drawingString).canvas; 
-            content.innerHTML = "";
-            content.appendChild(canvas);
-            var date = new Date();
-            var controlContainer = document.createElement("chatdraw-controlcontainer");
-
-            if(allowAnimation && animationLink && animationLink.match("^https?://kland.smilebasicsource.com"))
-            {
-               var playButton = document.createElement("a");
-               playButton.innerHTML = "►";
-               playButton.className = "chatdrawplay";
-               var animator = new AnimationPlayer(canvas, false);
-               animator.OnPlay = function(player)
-               {
-                  if(player.frames === false)
-                  {
-                     playButton.disabled = false;
-                     playButton.innerHTML = "⌛"; 
-                     RequestUtilities.XHRSimple(animationLink, function(response)
-                     {
-                        animator.FromStorageObject(JSON.parse(response));
-                        animator.Play();
-                     });
-                     return false;
-                  }
-
-                  playButton.disabled = false;
-                  playButton.innerHTML = "◼";
-               };
-               animator.OnStop = function(player)
-               {
-                  playButton.innerHTML = "►";
-               };
-               playButton.addEventListener("click", function()
-               {
-                  if(animator.IsPlaying())
-                     animator.Stop();
-                  else
-                  {
-                     if(animator.GetRepeat())
-                        animator.Play(animator._currentFrame);
-                     else
-                        animator.Play();
-                  }
-               });
-               var copyAnimation = document.createElement("a"); 
-               copyAnimation.innerHTML = "📋";
-               copyAnimation.setAttribute("title", "Copy whole animation");
-               copyAnimation.addEventListener("click", function()
-               {
-                  UXUtilities.Confirm("Copying this animation will OVERWRITE " +
-                     "your current animation. Make sure you save your work first! " +
-                     "Are you sure you want to copy this animation?", function(confirmed)
-                  {
-                     if(!confirmed) return; 
-                     RequestUtilities.XHRSimple(animationLink, function(response)
-                     {
-                        //Since we downloaded it anyway we might as well also
-                        //load up the animator.
-                        var storeObject = JSON.parse(response);
-                        animator.FromStorageObject(storeObject);
-                        loadAnimation(storeObject);
-                        saveInput.value = "";
-                     });
-                  });
-               });
-               controlContainer.appendChild(copyAnimation);
-               controlContainer.appendChild(playButton);
-            }
-            else
-            {
-               var downloadLink = document.createElement("a");
-               downloadLink.href = canvas.toDataURL("image/png");
-               downloadLink.download = "chatDraw_" + Date.now() + ".png";
-               downloadLink.innerHTML = "💾";
-               downloadLink.className = "chatdrawdownload";
-               var copyLink = document.createElement("a");
-               copyLink.innerHTML = "📋";
-               copyLink.className = "chatdrawcopy";
-               copyLink.addEventListener("click", function(ev)
-               {
-                  copyDrawing(originalString);
-               });
-               if(allowAnimation) controlContainer.appendChild(copyLink);
-               controlContainer.appendChild(downloadLink);
-            }
-            content.appendChild(controlContainer);
-         }
-      }
-      catch(ex)
-      {
-         LogSystem.RootLogger.log("Error while converting drawing message to canvas: " + ex);
-      }
-   };
-
    var createToolButton = function(displayCharacters, toolNames)
    {
       if(!TypeUtilities.IsArray(displayCharacters)) displayCharacters= [displayCharacters];
       if(!TypeUtilities.IsArray(toolNames)) toolNames = [toolNames];
       var nextTool = 0;
       var tButton = HTMLUtilities.CreateUnsubmittableButton(displayCharacters[nextTool]); 
-      //makeUnsubmittableButton();
-      //tButton.innerHTML = displayCharacters[nextTool];
       tButton.className = "toolButton";
       tButton.addEventListener('click', function()
       {
@@ -5814,68 +5734,6 @@ var LocalChatDraw = (function() {
          drawer.currentTool = toolNames[nextTool];
       });
       return tButton;
-   };
-
-   var setupInterface2 = function()
-   {
-      try
-      {
-         var messagePane = document.querySelector("#sendpane");
-
-         var drawArea = document.createElement("draw-area");
-         var buttonArea = document.createElement("button-area");
-         drawIframe = document.createElement("iframe");
-         var toggleButton = HTMLUtilities.CreateUnsubmittableButton(); //makeUnsubmittableButton(); 
-         var sendButton = HTMLUtilities.CreateUnsubmittableButton(); //makeUnsubmittableButton(); 
-         var positionButton = HTMLUtilities.CreateUnsubmittableButton(); //makeUnsubmittableButton(); 
-
-         //These are the only elements that will be displayed if the drawing area
-         //goes hidden. CSS doesn't have to look at these, ofc.
-         buttonArea.setAttribute("data-keep", "true");
-         toggleButton.setAttribute("data-keep", "true");
-         toggleButton.innerHTML = "✎";
-         toggleButton.addEventListener("click", toggleInterface);
-         sendButton.innerHTML = "➥";
-         sendButton.addEventListener("click", sendDrawing2);
-         positionButton.innerHTML = "◲";
-         positionButton.className = "position";
-         positionButton.addEventListener("click", function(e)
-         {
-            dockInterface(!drawArea.hasAttribute("data-docked"));
-         });
-
-         drawIframe.src = window.location.protocol + "//draw.smilebasicsource.com?nocache=1&nobg=1";
-         drawArea.id = drawAreaID;
-         drawArea.setAttribute("data-fixedsize", "true");
-         drawArea.setAttribute("data-scale", "2");
-         drawArea.appendChild(drawIframe);
-         buttonArea.appendChild(positionButton);
-         buttonArea.appendChild(sendButton);
-         buttonArea.appendChild(toggleButton);
-         drawArea.appendChild(buttonArea);
-         messagePane.appendChild(drawArea);
-
-         //Make sure the interface is hidden, since we create it exposed.
-         toggleInterface({target : toggleButton}, false);
-         if(readStorage("chatDrawDocked")) dockInterface(true, drawArea);
-
-         //Now set up the overall document events.
-         document.querySelector("#sendpane textarea").addEventListener("keyup", onKeyUp);
-         window.addEventListener("message", function(e)
-         {
-            if(e.data.type === "uploadImage")
-            {
-               if(e.data.link.indexOf("http://") === 0)
-                  sendMessage("/img " + e.data.link);
-               else
-                  alert("Something went wrong: " + e.data.link);
-            }
-         });
-      }
-      catch(ex)
-      {
-         LogSystem.RootLogger.log("Error while setting up drawing interface: " + ex);
-      }
    };
 
    var selectNextRadio = function()
@@ -5930,7 +5788,7 @@ var LocalChatDraw = (function() {
       {
          if(i < buttons.length)
          {
-            buttons[i].style.color = palette[i].ToRGBString(); //colors[i];
+            buttons[i].style.color = palette[i].ToRGBString();
 
             if(buttons[i].hasAttribute("data-selected"))
                drawer.color = buttons[i].style.color;
@@ -5991,14 +5849,14 @@ var LocalChatDraw = (function() {
       var canvasContainer = document.createElement("canvas-container");
       var buttonArea = document.createElement("button-area");
       var buttonArea2 = document.createElement("button-area");
-      var toggleButton = HTMLUtilities.CreateUnsubmittableButton(); //makeUnsubmittableButton(); 
-      var sendButton = HTMLUtilities.CreateUnsubmittableButton();// makeUnsubmittableButton();
-      var widthButton = HTMLUtilities.CreateUnsubmittableButton();// makeUnsubmittableButton();
-      var cSizeButton = HTMLUtilities.CreateUnsubmittableButton();// makeUnsubmittableButton();
-      var undoButton = HTMLUtilities.CreateUnsubmittableButton();// makeUnsubmittableButton();
-      var redoButton = HTMLUtilities.CreateUnsubmittableButton();// makeUnsubmittableButton();
-      var clearButton = HTMLUtilities.CreateUnsubmittableButton();// makeUnsubmittableButton();
-      var freehandButton = createToolButton(["✏","✒","⚟"], ["freehand","slow","spray"]); //["✏","✒"], 
+      var toggleButton = HTMLUtilities.CreateUnsubmittableButton(); 
+      var sendButton = HTMLUtilities.CreateUnsubmittableButton();
+      var widthButton = HTMLUtilities.CreateUnsubmittableButton();
+      var cSizeButton = HTMLUtilities.CreateUnsubmittableButton();
+      var undoButton = HTMLUtilities.CreateUnsubmittableButton();
+      var redoButton = HTMLUtilities.CreateUnsubmittableButton();
+      var clearButton = HTMLUtilities.CreateUnsubmittableButton();
+      var freehandButton = createToolButton(["✏","✒","⚟"], ["freehand","slow","spray"]);
       var lineButton = createToolButton(["▬","◻"], ["line", "square"]);
       var fillButton = createToolButton(["◘","◼"], ["fill","clear"]);
       var moveButton = createToolButton(["↭"], ["mover"]);
@@ -6050,19 +5908,15 @@ var LocalChatDraw = (function() {
       //Set up the color picker
       colorPicker.id = colorPickerID;
       colorPicker.setAttribute("type", "color");
-      //colorPicker.style.position = "absolute";
-      //colorPicker.style.left = "-10000px";
-      //colorPicker.style.top = "-10000px";
       colorPicker.style.width = "0";
       colorPicker.style.height = "0";
       colorPicker.style.padding = "0";
       colorPicker.style.margin = "0";
-      //colorPicker.style.display = "none";
       colorPicker.style.border = "none";
       colorPicker.style.visibility = "hidden";
       colorPicker.addEventListener("change", function(event)
       {
-         var frame = animateFrames.GetFrame(); //GetSelectedFrame();
+         var frame = animateFrames.GetFrame();
          var newColor = StyleUtilities.GetColor(event.target.value);
          CanvasUtilities.SwapColor(frame.canvas.getContext("2d"), 
             StyleUtilities.GetColor(event.target.associatedButton.style.color), newColor, 0);
@@ -6593,26 +6447,6 @@ var LocalChatDraw = (function() {
       }
    };
 
-   //Send the current drawing to the chat.
-   var sendDrawing = function(animationLink)
-   {
-      try
-      {
-         var message = animateFrames.GetFrame().ToString();
-         if(animationLink) message = "(" + animationLink + ")" + message;
-         sendMessage("/drawsubmit " + message, false);
-      }
-      catch(ex)
-      {
-         LogSystem.RootLogger.log("Error while sending drawing: " + ex);
-      }
-   };
-
-   var sendDrawing2 = function()
-   {
-      drawIframe.contentWindow.postMessage({uploadImage:true}, "*");
-   };
-
    //Get the colors from the drawing area buttons
    var getButtonColors = function()
    {
@@ -6668,7 +6502,6 @@ var LocalChatDraw = (function() {
          LogSystem.RootLogger.log("Couldn't hide or unhide drawing toggle: " + ex);
       }
    };
-
    return {
       "getColorButtons" : getColorButtons,
       "checkMessageForDrawing" : checkMessageForDrawing,
@@ -7201,9 +7034,8 @@ var ChatDrawUtilities =
    ClipboardKey : "chatdrawClipboard",
    ExportBucket : function()
    {
-      return "chatDrawAnimations";
+      return "newSBSchatDraw";
    },
-
    BaseColors : [
       new Color(255,255,255),
       new Color(0, 0, 0),
