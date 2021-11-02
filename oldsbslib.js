@@ -3198,36 +3198,17 @@ CanvasDrawer.prototype.DrawIntoCanvas = function(bounding, canvas)
    if(!bounding) bounding = [0,0,canvas.width,canvas.height];
    bounding[0] = MathUtilities.MinMax(Math.floor(bounding[0]), 0, canvas.width - 1);
    bounding[1] = MathUtilities.MinMax(Math.floor(bounding[1]), 0, canvas.height - 1);
-   //bounding[2] = MathUtilities.MinMax(Math.ceil(bounding[2]), 0, canvas.width - 1);
-   //bounding[3] = MathUtilities.MinMax(Math.ceil(bounding[3]), 0, canvas.height - 1);
    bounding[2] = Math.ceil(bounding[2]);
    bounding[3] = Math.ceil(bounding[3]);
    if(bounding[0] + bounding[2] > canvas.width)
       bounding[2] = canvas.width - bounding[0];
    if(bounding[1] + bounding[3] > canvas.height)
       bounding[3] = canvas.height - bounding[1];
-      //alert("new version");
-   //alert("new version");
-   //console.debug(bounding);
-   //This stuff may be unnecessary, but apparently some canvases don't like
-   //weird or undoable crops
-   /*if(bounding[0] < 0)
-   {
-      bounding[2] += bounding[0];
-      bounding[0] = 0;
-   }
-   if(bounding[0] + bounding[2] >= this._canvas.width) 
-      bounding[2] = */
-   //context.clearRect(bounding[0] + offsetX, bounding[1] + offsetY, bounding[2] * zoom, bounding[3] * zoom);
    context.clearRect(bounding[0], bounding[1], bounding[2], bounding[3]);
    if(this.overlay.active) this.buffers.splice(this.CurrentLayerIndex() + 1, 0, this.overlay);
    for(var i = 0; i < this.buffers.length; i++)
    {
       context.globalAlpha = this.buffers[i].opacity;
-      //context.drawImage(this.buffers[i].canvas, 
-      //   bounding[0], bounding[1], bounding[2], bounding[3],
-      //   bounding[0] + offsetX, bounding[1] + offsetY, bounding[2] * zoom, bounding[3] * zoom);
-      //CanvasUtilities.OptimizedDrawImage(context, this.buffers[i].canvas, bounding[0], bounding[1]);
       //This is... optimized??? IDK
       context.drawImage(this.buffers[i].canvas, 
          bounding[0], bounding[1], bounding[2], bounding[3],
@@ -3546,12 +3527,20 @@ CanvasDrawer.MoveTool = function(data, context, drawer)
    }
    else if(data.action & CursorActions.End)
    {
-      CanvasUtilities.OptimizedDrawImage(context, drawer.moveToolLayer, 
+      //Sometimes, a crusor end doesn't have an associated start.
+      if(drawer.moveToolLayer)
+      {
+         CanvasUtilities.OptimizedDrawImage(context, drawer.moveToolLayer, 
          drawer.moveToolOffset[0], drawer.moveToolOffset[1]);
-      drawer.moveToolLayer = false;
-      return true; //just redraw everything. No point optimizing.
+         drawer.moveToolLayer = false;
+         return true; //just redraw everything. No point optimizing.
+      }
+      else
+      {
+         return false;
+      }
    }
-   else
+   else if(drawer.moveToolLayer)
    {
       drawer.moveToolOffset[0] += (data.x - data.oldX);
       drawer.moveToolOffset[1] += (data.y - data.oldY);
@@ -3561,7 +3550,7 @@ CanvasDrawer.MoveTool = function(data, context, drawer)
 
 CanvasDrawer.MoveOverlay = function(data, context, drawer)
 {
-   if((data.action & CursorActions.End) === 0)
+   if((data.action & CursorActions.End) === 0 && drawer.moveToolLayer)
    {
       CanvasUtilities.OptimizedDrawImage(context, drawer.moveToolLayer, 
          drawer.moveToolOffset[0], drawer.moveToolOffset[1]);
@@ -3575,72 +3564,18 @@ CanvasDrawer.MoveOverlay = function(data, context, drawer)
 
 CanvasDrawer.MoveInterrupt = function(data, context, drawer)
 {
-   //UXUtilities.Toast("Fixing move for interrupt");
    //Just put the layer back.
-   CanvasUtilities.OptimizedDrawImage(context, drawer.moveToolLayer);
-   return true;
+   if(drawer.moveToolLayer)
+   {
+      CanvasUtilities.OptimizedDrawImage(context, drawer.moveToolLayer);
+      return true;
+   }
+   else
+   {
+      return false;
+   }
 };
 
-//CanvasDrawer.MoveTool = function(data, context, drawer)
-//{
-//   if(!drawer.moveToolStage) drawer.moveToolStage = 0;
-//   if(!drawer.moveToolLocation) drawer.moveToolLocation = [0, 0];
-//
-//   switch(drawer.moveToolStage)
-//   {
-//      case 0: //Selecting
-//         if(data.action & CursorActions.End && data.onTarget) 
-//         {
-//            var s = MathUtilities.GetSquare(data.startX, data.startY, data.x, data.y);
-//            drawer.moveToolSelectData = CanvasUtilities.CreateCopy(context.canvas, true,
-//               s[0], s[1], s[2], s[3]); 
-//            drawer.moveToolLocation = [s[0], s[1]];
-//            context.clearRect(s[0], s[1], s[2], s[3]);
-//            drawer.moveToolStage = 1;
-//            drawer.moveToolIsSelected = 0;
-//            console.debug("Moving to stage 1 of MoveTool. Selected area: " + s.join(","));
-//         }
-//         break;
-//      case 1: //Moving
-//         if(drawer.moveToolIsSelected && (data.action & CursorActions.Start) === 0)
-//         {
-//            //Only actually move if this isn't the first data and the area is
-//            //actually selected.
-//            drawer.moveToolLocation[0] += (data.x - data.oldX);
-//            drawer.moveToolLocation[1] += (data.y - data.oldY);
-//         }
-//         else if(!drawer.moveToolIsSelected && (data.action & CursorActions.End))
-//         {
-//            drawer.moveToolStage = 0;
-//            console.debug("Returning to stage 0 of MoveTool.");
-//            return CanvasUtilities.OptimizedDrawImage(context, 
-//               drawer.moveToolSelectData, drawer.moveToolLocation[0], 
-//            drawer.moveToolLocation[1]);
-//         }
-//         if(data.action & CursorActions.Start) 
-//         {
-//            var point = [data.x, data.y];
-//            var square = [drawer.moveToolLocation[0], drawer.moveToolLocation[1], 
-//               drawer.moveToolSelectData.width, drawer.moveToolSelectData.height];
-//            if(!MathUtilities.IsPointInSquare(point, square)) drawer.moveToolIsSelected = 1;
-//         }
-//         break;
-//   }
-//};
-//
-//CanvasDrawer.MoveOverlay = function(data, context, drawer)
-//{
-//   switch(drawer.moveToolStage)
-//   {
-//      case 0:
-//         return CanvasUtilities.DrawHollowRectangle(context, 
-//            data.startX, data.startY, data.x, data.y, 1);
-//      case 1:
-//         return CanvasUtilities.OptimizedDrawImage(context, 
-//            drawer.moveToolSelectData, drawer.moveToolLocation[0], 
-//            drawer.moveToolLocation[1]);
-//   }
-//};
 
 //Slow tool (courtesy of 12me21)
 CanvasDrawer.SlowTool = function(data,context,drawer)
