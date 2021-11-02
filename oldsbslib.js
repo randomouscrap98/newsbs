@@ -11,9 +11,7 @@
 // * StyleUtilities
 // * CanvasUtilities
 // * EventUtilities
-// * ScreenUtilities
 // * MathUtilities
-// * DateUtilities
 // * ArrayUtilities
 
 // --- Shims ---
@@ -1240,11 +1238,6 @@ var CanvasUtilities =
    {
       return new Color(data[i], data[i+1], data[i+2], data[i+3]/255);
    },
-   //PutColorInData : function(color, data, i)
-   //{
-   //   var array = color.ToArray(true);
-   //   for(var i = 0; i < 
-   //},
    //Convert x and y into an ImageDataCoordinate. Returns -1 if the coordinate
    //falls outside the canvas.
    ImageDataCoordinate : function(context, x, y)
@@ -1387,61 +1380,16 @@ var EventUtilities =
    }
 };
 
-// --- Screen Utilities ---
-// Functions to help with setting up or altering the screen (such as fullscreen
-// elements and whatever)
-
-var ScreenUtilities = 
-{
-   LaunchIntoFullscreen : function(element) 
-   {
-      if(element.requestFullscreen)
-         element.requestFullscreen();
-      else if(element.mozRequestFullScreen)
-         element.mozRequestFullScreen();
-      else if(element.webkitRequestFullscreen)
-         element.webkitRequestFullscreen();
-      else if(element.msRequestFullscreen)
-         element.msRequestFullscreen();
-
-      //Keep the UXUtilities INSIDE the fullscreen thingy.
-      element.appendChild(UXUtilities.UtilitiesContainer);
-   },
-   ExitFullscreen : function() 
-   {
-      if(document.exitFullscreen)
-         document.exitFullscreen();
-      else if(document.mozCancelFullScreen)
-         document.mozCancelFullScreen();
-      else if(document.webkitExitFullscreen)
-         document.webkitExitFullscreen();
-         
-      //Replace the utilities back into the body.
-      document.body.appendChild(UXUtilities.UtilitiesContainer);
-   },
-   IsFullscreen : function()
-   {
-      if(document.fullscreenElement || document.mozFullScreenElement ||
-         document.webkitFullscreenElement)
-         return true;
-
-      return false;
-   }
-};
-
 // --- Math Utilities ---
 // Functions which provide extra math functionality.
 
 var MathUtilities =
 {
-   Distance : function(x1, y1, x2, y2)
-   {
-      return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-   },
-   Midpoint : function(x1, y1, x2, y2)
-   {
-      return [x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2];
-   },
+   Distance : (x1, y1, x2, y2) => Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)),
+   Midpoint : (x1, y1, x2, y2) => [x1 + (x2 - x1) / 2, y1 + (y2 - y1) / 2],
+   SlopeAngle : (x,y) => Math.atan(y/(x===0?0.0001:x))+(x<0?Math.PI:0),
+   LinearInterpolate : (y1, y2, mu) => y1 + mu * (y2 - y1),
+   GetSquare : (x, y, x2, y2) => [Math.min(x, x2), Math.min(y, y2), Math.abs(x - x2), Math.abs(y - y2)],
    MinMax : function(value, min, max)
    {
       if(min > max)
@@ -1452,13 +1400,9 @@ var MathUtilities =
       }
       return  Math.max(Math.min(value, max), min);
    },
-   SlopeAngle : function(x,y) 
-   { 
-      return Math.atan(y/(x===0?0.0001:x))+(x<0?Math.PI:0); 
-   },
    IntRandom : function(max, min)
    {
-      min = min || 0; //getOrDefault(min, 0);
+      min = min || 0;
 
       if(min > max)
       {
@@ -1468,10 +1412,6 @@ var MathUtilities =
       }
 
       return Math.floor((Math.random() * (max - min)) + min);
-   },
-   LinearInterpolate : function(y1, y2, mu)
-   {
-      return y1 + mu * (y2 - y1);
    },
    CosInterpolate : function (y1, y2, mu)
    {
@@ -1485,10 +1425,6 @@ var MathUtilities =
          return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
       });
    },
-   GetSquare : function(x, y, x2, y2)
-   {
-      return [Math.min(x, x2), Math.min(y, y2), Math.abs(x - x2), Math.abs(y - y2)];
-   },
    IsPointInSquare : function(point, square)
    {
       return point[0] >= square[0] && point[0] <= square[0] + square[2] &&
@@ -1496,82 +1432,23 @@ var MathUtilities =
    },
    Color : 
    {
-      SetGray : function(f, arr)
-      {
-         arr[0] = f;
-         arr[1] = f;
-         arr[2] = f;
-      },
+      SetGray : (f, arr) => { arr[0] = f; arr[1] = f; arr[2] = f; },
       SetRGB : function(f, arr)
       {
          //Duplicate code but fewer branches
-         if(f < 0.5)
-         {
-            arr[0] = 1 - 2 * f;
-            arr[2] = 0;
-         }
-         else
-         {
-            arr[0] = 0;
-            arr[2] = 2 * f - 1;
-         }
+         if(f < 0.5) { arr[0] = 1 - 2 * f; arr[2] = 0; }
+         else { arr[0] = 0; arr[2] = 2 * f - 1; }
          arr[1] = 1 - Math.abs(f * 2 - 1);
       },
       SetHue : function(f, arr)
       {
-         if(f < 1 / 6)
-         {
-            arr[0] = 1;
-            arr[1] = f * 6;
-            arr[2] = 0;
-         }
-         else if(f < 2 / 6)
-         {
-            arr[0] = 1 - (f - 1 / 6) * 6;
-            arr[1] = 1;
-            arr[2] = 0;
-         }
-         else if(f < 0.5)
-         {
-            arr[0] = 0;
-            arr[1] = 1;
-            arr[2] = (f - 2 / 6) * 6;
-         }
-         else if(f < 4 / 6)
-         {
-            arr[0] = 0;
-            arr[1] = 1 - (f - 0.5) * 6;
-            arr[2] = 1;
-         }
-         else if(f < 5 / 6)
-         {
-            arr[0] = (f - 4 / 6) * 6;
-            arr[1] = 0;
-            arr[2] = 1;
-         }
-         else
-         {
-            arr[0] = 1;
-            arr[1] = 0;
-            arr[2] = 1 - (f - 5 / 6) * 6;
-         }
+         if(f < 1 / 6) { arr[0] = 1; arr[1] = f * 6; arr[2] = 0; }
+         else if(f < 2 / 6) { arr[0] = 1 - (f - 1 / 6) * 6; arr[1] = 1; arr[2] = 0; }
+         else if(f < 0.5) { arr[0] = 0; arr[1] = 1; arr[2] = (f - 2 / 6) * 6; }
+         else if(f < 4 / 6) { arr[0] = 0; arr[1] = 1 - (f - 0.5) * 6; arr[2] = 1; }
+         else if(f < 5 / 6) { arr[0] = (f - 4 / 6) * 6; arr[1] = 0; arr[2] = 1; }
+         else { arr[0] = 1; arr[1] = 0; arr[2] = 1 - (f - 5 / 6) * 6; }
       }
-   }
-};
-
-// --- Date Utilities ---
-// Functions for working with and converting dates
-
-var DateUtilities = 
-{
-   LocaleDateString : function(separator, date)
-   {
-      date = date || new Date();
-
-      if(separator) 
-         return date.toLocaleDateString().replace(/\//g, separator);
-      else
-         return date.toLocaleDateString();
    }
 };
 
@@ -1659,230 +1536,6 @@ UndoBuffer.prototype.ClearRedos = function()
 {
    this.redoBuffer = [];
 };
-
-// --- CodeTester ---
-// An easy way to run unit tests. Just create this object then fire away the
-// RunAll function!
-
-function CodeTester(element, tests)
-{
-   this.element = element;
-   this.tests = tests;
-   this.stopOnFailure = false;
-}
-
-CodeTester.prototype.Test = function(test, expectedValue)
-{
-   var testElement = document.createElement("p");
-   var testCode = document.createElement("span");
-   var result = document.createElement("span");
-   var extra = document.createElement("span");
-   testCode.className = "testcode";
-   testCode.innerHTML = test;
-   result.className = "result";
-   extra.className = "extra";
-
-   try
-   {
-      /* jshint ignore: start */
-      var testResult = eval(test);
-      var success = false;
-
-      if(expectedValue !== undefined)
-      {
-         testCode.innerHTML += " === " + expectedValue;   
-         success = testResult === eval(expectedValue);
-      }
-      else
-      {
-         success = testResult;
-      }
-      /* jshint ignore : end */
-
-      if(success)
-      {
-         result.innerHTML = "[OK]";
-         result.className += " success";
-      }
-      else
-      {
-         throw "returned " + testResult;
-      }
-   }
-   catch(ex)
-   {
-      result.innerHTML = "[FAIL]";
-      result.className += " failure";
-      extra.innerHTML = "(" + ex + ")";
-   }
-
-   testElement.appendChild(testCode);
-   testElement.appendChild(result);
-   testElement.appendChild(extra);
-
-   return testElement;
-};
-
-CodeTester.prototype.RunAll = function(fillElement, tests, stopOnFailure)
-{
-   var failures = 0;
-   fillElement = fillElement || this.element;
-   tests= tests || this.tests;
-   stopOnFailure = stopOnFailure || this.stopOnFailure;
-
-   for(var i = 0; i < tests.length; i++)
-   {
-      var resultElement;
-
-      if(tests[i].indexOf("/") === 0)
-      {
-         resultElement = this.Test(tests[i].slice(1), tests[i + 1]);
-         i++;
-      }
-      else
-      {
-         resultElement = this.Test(tests[i]);
-      }
-
-      fillElement.appendChild(resultElement);
-      if(resultElement.querySelector(".failure"))
-      {
-         failures++;
-         if(stopOnFailure) return;
-      }
-   }
-
-   return failures;
-};
-
-// --- ConsoleEmulator ---
-// Allows you to create a console-like system that performs output and input.
-// You can attach logging to it to allow console logs to be seen on systems
-// without dev tools or inspection.
-
-function ConsoleEmulator()
-{
-   this.OnRead = false;
-   this.OnReadChar = false;
-   this.rawConsole = false;
-   this.inputBuffer = false;
-   this.cursor = false;
-   var me = this;
-
-   this.keyPress = function(e)
-   {
-      if(!e.key || e.key.length > 1) return;
-
-      me.inputBuffer.textContent += e.key;
-      if(me.OnReadChar) me.OnReadChar(e.key);
-      me.FixFloatingObjects();
-   };
-   this.keyDown = function(e)
-   {
-      if(e.keyCode === 8 && me.inputBuffer.textContent.length > 0)
-      {
-         me.inputBuffer.textContent = me.inputBuffer.textContent.substring(0, 
-            me.inputBuffer.textContent.length - 1);
-      }
-      else if(e.keyCode === 13 && me.inputBuffer.textContent.length > 0)
-      {
-         if(me.OnRead) me.OnRead(me.inputBuffer.textContent);
-         me.WriteLine(me.inputBuffer.textContent);
-         me.inputBuffer.textContent = "";
-      }
-   };
-}
-
-ConsoleEmulator.ClassName = "consoleEmulator";
-ConsoleEmulator.CursorClassName = "cursor";
-ConsoleEmulator.StyleID = HTMLUtilities.GetUniqueID("consoleEmulatorStyle");
-
-ConsoleEmulator.prototype.TrySetDefaultStyles = function()
-{
-   if(document.getElementById(ConsoleEmulator.StyleID))
-      return;
-
-   console.log("Setting up ConsoleEmulator default styles for the first time");
-
-   var style = document.createElement("style");
-   style.appendChild(document.createTextNode(""));
-   style.id = ConsoleEmulator.StyleID;
-   document.head.insertBefore(style, document.head.firstChild);
-   style.sheet.insertRule(".consoleEmulator { font-family: monospace; " +
-      "font-size: 12px; height: 30em; width: 45.5em; background-color: #222; " +
-      "color: #CCC; display: block; word-wrap: break-word; overflow: hidden; " +
-      "white-space: pre-wrap; padding: 1px; overflow-y: scroll; }", 0);
-   style.sheet.insertRule(".consoleEmulator .cursor { color: limegreen; " +
-      "/*animation: 1s blink step-end infinite;*/ } ", 1);
-   style.sheet.insertRule(".consoleEmulator .input { color: #EEE; }", 2);
-   style.sheet.insertRule(".consoleEmulator .red { color: red; }", 3);
-   style.sheet.insertRule(".consoleEmulator .blue { color: blue; }", 4);
-   style.sheet.insertRule(".consoleEmulator .green { color: green; }", 5);
-   style.sheet.insertRule(".consoleEmulator .yellow { color: yellow; }", 6);
-   style.sheet.insertRule(".consoleEmulator .purple { color: purple; }", 7);
-};
-
-ConsoleEmulator.prototype.FixFloatingObjects = function()
-{
-   HTMLUtilities.MoveToEnd(this.inputBuffer);
-   HTMLUtilities.MoveToEnd(this.cursor);
-};
-
-ConsoleEmulator.prototype.Write = function(output, color)
-{
-   var outputWrapper = document.createElement("span");
-   outputWrapper.innerHTML = output;
-   if(color) outputWrapper.className = color;
-   this.rawConsole.appendChild(outputWrapper);
-   this.FixFloatingObjects();
-};
-
-ConsoleEmulator.prototype.WriteLine = function(output, color)
-{
-   this.Write(output + "\n", color);
-};
-
-ConsoleEmulator.prototype.Generate = function()
-{
-   this.inputBuffer = document.createElement("span");
-   this.inputBuffer.className = "input";
-
-   this.cursor = document.createElement("span");
-   this.cursor.className = ConsoleEmulator.CursorClassName;
-   this.cursor.innerHTML = "█";
-
-   this.rawConsole = document.createElement("div");
-   this.rawConsole.className = ConsoleEmulator.ClassName;
-   this.rawConsole.addEventListener("keypress", this.keyPress);
-   this.rawConsole.addEventListener("keydown", this.keyDown);
-   this.rawConsole.setAttribute("tabindex", "-1");
-
-   this.rawConsole.appendChild(this.inputBuffer);
-   this.rawConsole.appendChild(this.cursor);
-
-   this.TrySetDefaultStyles();
-
-   return this.rawConsole;
-};
-
-//WARNING: this captures the ConsoleEmulator object and elements. It cannot be
-//detached or undone. Sorry!
-ConsoleEmulator.prototype.SetAsConsoleLog = function(colored)
-{
-   var log = console.log;
-   var debug = console.debug;
-   var trace = console.trace;
-   var me = this;
-
-   console.log = function(object) { log(object); me.WriteLine(object);};
-   console.debug = function(object) { debug(object); me.WriteLine(object, colored ? "green": false);};
-   console.trace = function(object) { trace(object); me.WriteLine(object, colored ? "blue": false);};
-   console.debug("Attached console to ConsoleEmulator");
-};
-
-// --- ColorPicker ---
-// A purely javascript color picker (so people on bad devices don't get stuck
-// without a color picker).
 
 //This is the Base64 library just copied directly into my script lol.
 (function(global) {
@@ -2341,490 +1994,12 @@ CanvasPerformer.prototype.Perform = function(e, cursorData, canvas)
    cursorData.x = (cursorData.x - (clientRect.left + parseFloat(clientStyle.borderLeftWidth))) / scalingX;
    cursorData.y = (cursorData.y - (clientRect.top + parseFloat(clientStyle.borderTopWidth))) / scalingY;
 
-   //console.log(scalingX + ", " + scalingY + ", " + cursorData.x + ", " + cursorData.y);
    cursorData.targetElement = canvas;
    cursorData.onTarget = (e.target === canvas);
-   //console.log("onTarget: " + cursorData.onTarget);
-   //cursorData.onTarget = (cursorData.x >= 0 && cursorData.y >= 0 &&
-   //   cursorData.x < canvas.width && cursorData.y < canvas.height);
    cursorData.time = Date.now();
 
-   if(e && this.ShouldCapture(cursorData)) 
-   {
-      e.preventDefault();
-      //e.preventDefault();
-      //e.stopPropagation();
-      //console.log("STOP PROP: " + cursorData.Action);
-      //canvas.focus();
-      //if(cursorData.action & CursorActions.End) 
-      //{
-      //   document.body.focus();
-      //   //canvas.parentNode.focus();
-      //   console.log("FUCUSING");
-      //}
-   }
-
+   if(e && this.ShouldCapture(cursorData)) { e.preventDefault(); }
    if(this.OnAction) this.OnAction(cursorData, context);
-};
-
-// --- CanvasZoomer ---
-// An extension to CanvasPerformer that tracks zoom. Position is also tracked,
-// but panning is not implemented.
-
-function CanvasZoomer()
-{
-   CanvasPerformer.call(this);
-
-   this.x = 0;          //You SHOULD be able to set these whenever you want.
-   this.y = 0;
-   this.zoom = 0;       //Zoom works on powers. Negative is zoom out, positive is zoom in
-   this.minZoom = -5;   //Lowest value for zoom. You may need to adapt this to your image
-   this.maxZoom = 5;    //Highest zoom. Set to 0 for no zoom in ability.
-
-   this.Width = function() { return 1;};      //Inheritors or users will need to set these
-   this.Height = function() { return 1;};
-}
-
-CanvasZoomer.prototype = Object.create(CanvasPerformer.prototype); 
-
-CanvasZoomer.prototype.Scale = function()
-{
-   return Math.pow(2, this.zoom);
-};
-
-//Get the size of the image for the current zoom.
-CanvasZoomer.prototype.ZoomDimensions = function()
-{
-   return [ this.Width() * this.Scale(), this.Height() * this.Scale() ];
-};
-
-//Perform a zoom for the given zoom amount (if possible)
-CanvasZoomer.prototype.DoZoom = function(zoomAmount, cx, cy)
-{
-   var newZoom = this.zoom + zoomAmount;
-
-   if(newZoom >= this.minZoom && newZoom <= this.maxZoom)
-   {
-      var oldDim = this.ZoomDimensions();
-      this.zoom = newZoom;
-      var newDim = this.ZoomDimensions();
-      this.x = (newDim[0] / oldDim[0]) * (this.x - cx) + cx;
-      this.y = (newDim[1] / oldDim[1]) * (this.y - cy) + cy;
-   }
-};
-
-//Fix cursor data so the X and Y position is relative to the actual thing and
-//not the given canvas. The 'actual thing' being the thing at this.x, this.y
-CanvasZoomer.prototype.GetFixedCursorData = function(data)
-{
-   data.x = (data.x - this.x) / this.Scale();
-   data.y = (data.y - this.y) / this.Scale();
-   data.onImage = data.x >= 0 && data.y >= 0 && data.x < this.Width() && data.y < this.Height();
-   return data;
-};
-
-// --- CanvasImageViewer ---
-// Allows images to be panned/zoomed/etc in a canvas.
-
-function CanvasImageViewer(image)
-{
-   //CanvasPerformer.call(this);
-   CanvasZoomer.call(this);
-
-   this.image = image;  //User may not supply this. That's fine.
-   this.vx = 0;         //Velocity of image. Will drift if no mouse input
-   this.vy = 0;
-   this.vDecay = 1.08;  //This is division of velocity per frame
-   this.vStop = 0.15;   //This is the speed at which the sliding will stop.
-   this.edgeBumper = 10;//How many pixels to leave on screen when at edge.
-   this.forceRefreshNextFrame = false;
-
-   //"Private" variables
-   this._oldX = -1;
-   this._oldY = -1;
-   this._oldZoom = this.zoom;
-   this._held = false;
-   this._lastFrame = 0;
-
-   //Event handlers (that can be removed, so they are members)
-   var viewer = this;
-   var actionStarted = false;
-   var lastAction;
-
-   this.OnAction = function(data, context)
-   {
-      if((data.action & CursorActions.Start) && data.onTarget)
-         actionStarted = true;
-
-      //Do NOT perform the initial drag action. Both dragging and panning
-      //can cause a direct position update.
-      viewer._held = actionStarted && !(data.action & (CursorActions.Start | CursorActions.End)) &&   
-                     (data.action & (CursorActions.Drag | CursorActions.Pan));
-
-      if(viewer._held)
-      {
-         viewer.UpdatePosition(1, data.x - lastAction.x, data.y - lastAction.y);
-      }
-
-      //Only perform actions if they have started WITHIN the canvas.
-      if(actionStarted)
-      {
-         if(data.action & CursorActions.Zoom)
-            viewer.DoZoom(data.zoomDelta, data.x, data.y);
-      }
-
-      if(data.action & CursorActions.End)
-         actionStarted = false;
-
-      lastAction = data;
-   };
-
-   this.ShouldCapture = function(data)
-   {
-      return data.onTarget && !(data.action & (CursorActions.Start | CursorActions.End));
-      //(data.action & (CursorActions.Pan | CursorActions.Move)) &&;//actionStarted;
-   };
-
-   this._evResize = function() {viewer.Refresh();};
-}
-
-//Inherit from CanvasPerformer
-//CanvasImageViewer.prototype = Object.create(CanvasPerformer.prototype); 
-CanvasImageViewer.prototype = Object.create(CanvasZoomer.prototype); 
-
-//Refresh ONLY the graphics (not any values)
-CanvasImageViewer.prototype.Refresh = function()
-{
-   var ctx = this._canvas.getContext("2d");
-   CanvasUtilities.AutoSize(this._canvas);
-   var imageDim = this.ZoomDimensions();
-   ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-   ctx.drawImage(this.image, this.x, this.y, imageDim[0], imageDim[1]);
-};
-
-//What to do each animation frame. Basically: only refresh the image if
-//something changed, otherwise just keep track of changes and do the next frame.
-CanvasImageViewer.prototype.DoFrame = function()
-{
-   if(this._canvas && this.image)
-   { 
-      var timePass = 60 * (performance.now() - this._lastFrame) / 1000;
-      this._lastFrame = performance.now();
-      requestAnimationFrame(this.DoFrame.bind(this));
-
-      if(this._held)
-      {
-         this.vx = this.x - this._oldX;
-         this.vy = this.y - this._oldY;
-      }
-      else
-      {
-         this.UpdatePosition(timePass);
-      }
-
-      if(this._oldX !== this.x || this._oldY !== this.y || this._oldZoom !== this.zoom || 
-         this.forceRefreshNextFrame)
-      {
-         this.Refresh();
-      }
-
-      this.forceRefreshNextFrame = false;
-      this._oldX = this.x;
-      this._oldY = this.y;
-      this._oldZoom = this.zoom;
-   }
-};
-
-//Update the position based on the given passage of time. In our case, this is
-//the fraction of frames that have passed.
-CanvasImageViewer.prototype.UpdatePosition = function(timePass, vx, vy)
-{
-   if(vx === undefined) vx = this.vx;
-   if(vy === undefined) vy = this.vy;
-
-   this.x += vx * timePass;
-   this.y += vy * timePass;
-
-   var dims = this.ZoomDimensions();
-
-   //Choose the other side if moving that way.
-   if (this.x > 0) dims[0] = this._canvas.width;
-   if (this.y > 0) dims[1] = this._canvas.height;
-
-   dims[0] -= this.edgeBumper; dims[1] -= this.edgeBumper;
-
-   //Edge cutoffs
-   if(Math.abs(this.x) > dims[0]) { this.x = dims[0] * Math.sign(this.x); this.vx = 0; }
-   if(Math.abs(this.y) > dims[1]) { this.y = dims[1] * Math.sign(this.y); this.vy = 0; }
-
-   var decay = this.vDecay * timePass;
-
-   this.vx = this.vx / decay; 
-   this.vy = this.vy / decay;
-
-   //Halt the sliding if we get below the cutoff so we don't slide forever.
-   if(Math.sqrt(this.vy * this.vy + this.vx * this.vx) < this.vStop) { this.vy = 0; this.vx = 0; }
-};
-
-//Sets up the image viewer in the given canvas and "attaches" all our events
-//and whatever to it.
-CanvasImageViewer.prototype.Attach = function(canvas, image)
-{
-   CanvasZoomer.prototype.Attach.apply(this, [canvas]);
-
-   if(image) this.image = image;
-   if(!this.image) throw "No image supplied!";
-   this.Width = function() {return this.image.width;};
-   this.Height = function() {return this.image.height;};
-
-   requestAnimationFrame(this.DoFrame.bind(this));
-   window.addEventListener("resize", this._evResize); 
-};
-
-CanvasImageViewer.prototype.Detach = function()
-{
-   CanvasZoomer.prototype.Detach.apply(this, [canvas]);
-   window.removeEventListener("resize", this._evResize); 
-};
-
-// --- CanvasMultiImageViewer ---
-// Allows multiple images to be panned/zoomed/etc in a canvas (each with their
-// own opacities). All images are assumed to have the same dimensions as the
-// first image supplied!
-
-function CanvasMultiImageViewer(images)
-{
-   CanvasImageViewer.call(this);
-   this.images = images;
-   this.blendMode = "source-over";
-}
-
-//Inherit from CanvasImageViewer
-CanvasMultiImageViewer.prototype = Object.create(CanvasImageViewer.prototype); 
-
-//Our own attach function just applies and checks the "images" array 
-//(which is unique to us)
-CanvasMultiImageViewer.prototype.Attach = function(canvas, images)
-{
-   if(this._canvas)
-      throw "This CanvasMultiImageViewer is already attached to a canvas!";
-
-   if(images) this.images = images;
-
-   if(!this.images)
-      throw "No images supplied! Must be CanvasMultiImage objects";
-
-   CanvasImageViewer.prototype.Attach.apply(this, [canvas, this.images[0].image]);
-};
-
-//Refresh ONLY the graphics (not any values)
-CanvasMultiImageViewer.prototype.Refresh = function()
-{
-   var ctx = this._canvas.getContext("2d");
-   var imageDim = this.ZoomDimensions();
-   CanvasUtilities.AutoSize(this._canvas);
-   ctx.globalAlpha = 1.0;
-   ctx.globalCompositeOperation = this.blendMode;
-   ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-   for(var i = 0; i < this.images.length; i++)
-   {
-      if(this.images[i].draw)
-      {
-         ctx.globalAlpha = this.images[i].opacity;
-         CanvasUtilities.OptimizedDrawImage(ctx, this.images[i].image, this.x, this.y, imageDim[0], imageDim[1]);
-      }
-   }
-};
-
-//The image objects used in CanvasMultiImageViewer
-function CanvasMultiImage(image, opacity)
-{
-   this.image = image;
-   this.opacity = opacity || 1.0;
-   this.draw = true;
-}
-
-// --- MultiImageBlender ---
-// Blends a series of images with a slider to pick which images to blend and
-// how much. Useful for progressions (like controllable timelapses)
-
-function MultiImageBlender()
-{
-   this.blendGranularity = 16;
-
-   this._imageViewer = new CanvasMultiImageViewer();
-   this._imageViewer.blendMode = "lighter";
-
-   this._div = false;
-   this._canvas = false;
-   this._slider = false;
-
-   var blender = this;
-   this._evResize = function() {blender.Refresh();};
-}
-
-MultiImageBlender.StyleID = HTMLUtilities.GetUniqueID("multiImageBlenderStyle");
-
-MultiImageBlender.prototype.TrySetDefaultStyles = function()
-{
-   if(document.getElementById(MultiImageBlender.StyleID))
-      return;
-
-   console.log("Setting up MultiImageBlender default styles for the first time");
-   var mStyle = document.createElement("style");
-   mStyle.appendChild(document.createTextNode(""));
-   mStyle.id = MultiImageBlender.StyleID;
-   document.head.insertBefore(mStyle, document.head.firstChild);
-   mStyle.sheet.insertRule(".imageBlenderLoadBar { height: 1.0rem; " +
-      "margin: 0; padding: 0; position: absolute; top: 0; left: 0; " +
-      "background-color: #4286f4}", 0);
-   mStyle.sheet.insertRule(".imageBlenderLoadText { font-size: 0.7rem; " +
-      "font-family: sans-serif; color: #CCC; padding: 0.1rem; " +
-      "position: absolute; top: 0; left: 0; margin: 0; display: block;}", 1);
-   mStyle.sheet.insertRule(".imageBlenderSlider { display: block; " +
-      "padding: 0; margin: 0; width: 100%; }", 2);
-   mStyle.sheet.insertRule(".imageBlenderCanvas { display: block; " +
-      "padding: 0; margin: 0; width: 100%; }", 3);
-};
-
-//Changing the size of the div should fix the height of the canvas. The reason
-//we do this is to make sure the canvas fills the div the user gave us.
-MultiImageBlender.prototype.Refresh = function()
-{
-   this._canvas.style.height = "calc(" + this._div.clientHeight + "px - 0.0rem - " +
-      this._slider.clientHeight + "px)"; 
-};
-
-//Attach the MultiImageBlender to the given div and fill it with relevant
-//elements. NOTE: the div should have a well defined height! The elements we
-//add (such as canvas, etc.) will fill the entire div.
-MultiImageBlender.prototype.Attach = function(div)
-{
-   if(this._canvas)
-      throw "This MultiImageBlender is already attached!";
-
-   var blender = this;
-   var slider = document.createElement("input");
-   slider.setAttribute("type", "range");
-   slider.className = "imageBlenderSlider";
-   slider.addEventListener("input", function(){blender.UpdateImages();});
-
-   var canvas = document.createElement("canvas");
-   canvas.className = "imageBlenderCanvas";
-
-   div.style.position = "relative";
-   div.style.overflow = "hidden";
-   div.appendChild(canvas);
-   div.appendChild(slider);
-
-   this._div = div;
-   this._canvas = canvas;
-   this._slider = slider;
-
-   this._imageViewer.Attach(this._canvas, [new CanvasMultiImage(new Image())]);
-   window.addEventListener("resize", this._evResize); 
-   this.Refresh();
-};
-
-//Remove the MultiImageBlender from the div it is attached to. This SHOULD
-//leave it in the state it was in before attaching, but.... we'll see.
-MultiImageBlender.prototype.Detach = function()
-{
-   if(!this._div)
-      throw "This MultiImageBlender is not attached!";
-
-   this._imageViewer.Detach();
-
-   this._div.removeChild(this._canvas);
-   this._div.removeChild(this._slider);
-   this._div.style = "";
-
-   this._div = false;
-   window.removeEventListener("resize", this._evResize); 
-};
-
-//Update image data in the ImageViewer based on the slider position.
-MultiImageBlender.prototype.UpdateImages = function()
-{
-   var i = Math.floor(this._slider.value / this.blendGranularity);
-   var j = i + 1; 
-   var d = this._slider.value - i * this.blendGranularity;
-
-   for(var k = 0; k < this._imageViewer.images.length; k++)
-   {
-      this._imageViewer.images[k].draw = false;
-      if(k == i)
-      {
-         this._imageViewer.images[k].opacity = 1 - d / this.blendGranularity;
-         this._imageViewer.images[k].draw = true;
-      }
-      if(k == j)
-      {
-         this._imageViewer.images[k].opacity = d / this.blendGranularity;
-         this._imageViewer.images[k].draw = true;
-      }
-   }
-
-   this._imageViewer.forceRefreshNextFrame = true;
-};
-
-//Create/setup the loading bar element and return it. 
-MultiImageBlender.prototype.CreateLoadBar = function()
-{
-   this.TrySetDefaultStyles();
-   var progress = document.createElement("span");
-   progress.className = "imageBlenderLoadBar";
-   return progress;
-};
-
-//Create/setup the load text element and return it.
-MultiImageBlender.prototype.CreateLoadText = function()
-{
-   this.TrySetDefaultStyles();
-   var loadText = document.createElement("span");
-   loadText.className = "imageBlenderLoadText";
-   return loadText;
-};
-
-//imageList is a list of string sources. This function will load them all, YO
-MultiImageBlender.prototype.LoadImages = function(imageList)
-{
-   this._imageViewer.images = [];
-   var i;
-   var loaded = 0;
-   var blender = this;
-   var progress = this.CreateLoadBar();
-   var loadText = this.CreateLoadText();
-   loadText.innerHTML = "Loading " + imageList.length + " images...";
-   this._div.appendChild(progress);
-   this._div.appendChild(loadText);
-
-   var imageLoad = function()
-   {
-      loaded++;
-      progress.style.width = (blender._div.clientWidth * loaded / imageList.length) + "px";
-      if(loaded === imageList.length)
-      {
-         blender._div.removeChild(progress);
-         blender._div.removeChild(loadText);
-         blender._slider.value = 0;
-         blender._slider.min = 0;
-         blender._slider.max = (imageList.length - 1) * blender.blendGranularity;
-         blender._imageViewer.image = blender._imageViewer.images[0].image;
-         var dims = blender._imageViewer.ZoomDimensions();
-         blender._imageViewer.x = -(dims[0] - blender._canvas.width) / 2;
-         blender._imageViewer.y = -(dims[1] - blender._canvas.height) / 2;
-         blender.UpdateImages();
-      }
-   };
-
-   for(i = 0; i < imageList.length; i++)
-   {
-      var image = new Image();
-      image.addEventListener("load", imageLoad);
-      image.src = imageList[i];
-      this._imageViewer.images.push(new CanvasMultiImage(image));
-   }
 };
 
 // --- CanvasDrawer ---
@@ -3544,16 +2719,10 @@ CanvasDrawer.SprayTool = function(data,context,drawer)
    {
       var x,y,radius=data.lineWidth*drawer.spraySpread;
       var count = data.lineWidth * drawer.sprayRate;
-      //Math.max(MathUtilities.Distance(data.x,data.y,data.oldX,data.oldY), 1) * 
-         //data.lineWidth * drawer.sprayRate;
       for(var i=0;i<count;i+=0.1)
       {
          if(MathUtilities.IntRandom(10)) continue;
-         do 
-         {
-            x=(Math.random()*2-1)*radius;
-            y=(Math.random()*2-1)*radius;
-         } while (x*x+y*y>radius*radius);
+         do { x=(Math.random()*2-1)*radius; y=(Math.random()*2-1)*radius; } while (x*x+y*y>radius*radius);
          CanvasUtilities.DrawSolidCenteredRectangle(context, data.x+x, data.y+y, 1, 1);
       }
    }
