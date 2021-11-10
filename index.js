@@ -922,26 +922,11 @@ function setupFileUpload()
       var fuparams = new URLSearchParams();
       if(fileuploadbucket.value) 
          fuparams.append("bucket", fileuploadbucket.value);
+      if(fileuploadquantize.value) 
+         fuparams.append("quantize", fileuploadquantize.value);
       return fuparams.toString();
    };
 
-   //Set the last used bucket
-   if(getToken())
-   {
-      globals.api.Get(`variable/multi/`, "keys=lastUsedBucket", apidata => {
-         if(apidata.data.lastUsedBucket)
-         {
-            log.Debug("Previous bucket found, setting bucket to " + apidata.data.lastUsedBucket);
-            fileuploadbucket.value = apidata.data.lastUsedBucket;
-         }
-         else
-         {
-            log.Debug("No previous bucket found, clearing bucket");
-            fileuploadbucket.value = "";
-         }
-      });
-   }
-   
    var baseFUuikitObject =
    {
       multiple: false,
@@ -955,10 +940,14 @@ function setupFileUpload()
       fail: generalError,
       completeAll: function () {
          log.Info("Upload complete");
-         if(fileuploadbucket.value) {
-            globals.api.Post(`variable/lastUsedBucket`, fileuploadbucket.value, apidata => 
-               log.Info("Saved last used bucket as " + fileuploadbucket.value));
+         var doStoreValue = function(field, element, type) {
+            if(element.value) {
+               globals.api.Post(`variable/${field}`, element.value, apidata => 
+                  log.Info(`Saved last used ${type} as ${element.value}`));
+            }
          }
+         doStoreValue("lastUsedBucket", fileuploadbucket, "bucket");
+         doStoreValue("lastFileQuantize", fileuploadquantize, "quantize");
          writeDom(() => 
          {
             addFileUploadImage(JSON.parse(arguments[0].responseText), fileuploaditems.childElementCount);
@@ -979,9 +968,30 @@ function setupFileUpload()
 
    resetUpload();
 
-   UIkit.util.on('#fileupload', 'beforeshow', resetFileUploadList);
+   //Set the last used bucket
+   if(getToken())
+   {
+      globals.api.Get(`variable/multi/`, "keys=lastUsedBucket&keys=lastFileQuantize", apidata => {
+         var doRestore = function(field, element, type)
+         {
+            if(apidata.data[field]) {
+               log.Debug(`Previous ${type} found, setting ${type} to ${apidata.data[field]}`);
+               element.value = apidata.data[field];
+            } else {
+               log.Debug(`No previous ${type} found, clearing ${type}`);
+               element.value = "";
+            }
+         };
+         doRestore("lastUsedBucket", fileuploadbucket, "bucket");
+         doRestore("lastFileQuantize", fileuploadquantize, "quantize");
+         resetUpload();
+      });
+   }
+   
+   UIkit.util.on('#fileupload', 'beforeshow', () => { resetFileUploadList(); });
    fileuploadsearchall.addEventListener("change", resetFileUploadList);
    fileuploadbucket.addEventListener("input", () => { resetFileUploadList(); resetUpload(); });
+   fileuploadquantize.addEventListener("input", () => { resetUpload(); });
 
    //this is the "dynamic loading" to save data: only load big images when
    //users click on them
@@ -1001,7 +1011,6 @@ function setupFileUpload()
          globals.fileselectcallback = false;
       }
    });
-
 
    fileupload.addEventListener('paste', function(event) {
       var data = event.clipboardData;
