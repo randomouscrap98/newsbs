@@ -646,6 +646,7 @@ var Templates = Object.create(null); with (Templates) (function($) { Object.assi
       tobj.SetFields({
          createdate : v.createDate,
          editdate : v.editDate,
+         edited : v.editDate && v.editDate != v.createDate,
          content : v.content,
          messageid : v.id
       });

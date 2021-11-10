@@ -1578,9 +1578,6 @@ function formatRememberedDiscussion(cid, show, type)
 
    if(type==="chat")
       fmt = "discussion";
-   // if(type==="documentation" || type==="program" || type==="tutorial"
-   //    || type ==="resource")
-   //    fmt = "content";
 
    formatDiscussions(show, getRememberedFormat(cid) || fmt);
 }
@@ -1591,8 +1588,6 @@ function finishDiscussion(content, comments, initload)
    showDiscussion(content.id);
    easyComments(comments, initload);
    formatRememberedDiscussion(content.id, true, content.type);
-
-   //setHidden(chatdraw, !(getToken() && content.type == "chat"));
 
    signals.Add("finishdiscussion", { content: content, comments: comments, initload: initload});
 }
@@ -2903,6 +2898,11 @@ function easyComments(comments, expected)
    }
 }
 
+//This is a repeat function, what do we do with this?
+function commentIsEdited(comment) {
+   return comment.editDate && comment.createDate != comment.editDate;
+}
+
 function easyComment(comment)
 {
    //First, find existing comment. If it's there, just update information?
@@ -2922,10 +2922,18 @@ function easyComment(comment)
             Utilities.RemoveElement(getFragmentFrame(prnt));
          }
       }
-      else
+      else if(commentIsEdited(comment))
       {
+         //Small optimization: yes, if a comment is edited and repeated in
+         //easyComment, it will still go through. But the vast majority of them
+         //will be ignored, which is good!
          log.Debug("Editing comment " + comment.id)
          existing.template.SetFields({ message : comment });
+      }
+      else
+      {
+         //Do we need to log completely ignored EasyComment? eeeehh maybe
+         log.Trace(`Ignoring easyComment ${comment.id}, repeat`);
       }
    }
    else

@@ -458,6 +458,11 @@ ruby { white-space: normal; }
 [data-template="messagefragment"] .content [data-contentimage] img[data-expand] {
    max-height: 55vh;
 }
+[data-template="messagefragment"] [data-edited] {
+   font-size: 0.5em;
+   vertical-align: middle;
+   margin-left: 0.5em;
+}
 .spoilerButton {
    margin: 0.3em 0;
    display: block;
