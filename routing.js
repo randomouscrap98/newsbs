@@ -115,7 +115,12 @@ function routehome_load(spadat)
          templ.template.fields.pages = data.content;
       });
       var homehistory = templ.querySelector("[data-homehistory]");
-      homehistory.appendChild(makeActivity());
+      homehistory.appendChild(makeActivity(s =>
+      {
+         s.NotContentTypes = ['userpage'];
+         s.NotActivityTypes = ['module'];
+         return s;
+      }));
    }); 
 }
 
