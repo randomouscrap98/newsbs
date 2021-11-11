@@ -2232,7 +2232,9 @@ function setupSession()
       params.set("watch","id,contentId,lastNotificationId");
 
       //Setup longpolling/realtime updates (whatever it's using)
-      globals.lastsystemid = -100;  //there's no way 100 events happened while the page was loading
+      //there's little chance of 30 events happening while the page was
+      //loading, let alone however many comments we usually pull (60?)
+      globals.lastsystemid = -Math.max(getLocalOption("initialloadcomments"), 30);  
 
       if(getLocalOption("forcediscussionoutofdate"))
          globals.lastsystemid -= 2000;
@@ -2355,12 +2357,10 @@ function formSetupSubmit(form, endpoint, success, validate, baseData)
       }
 
       var func = globals.api.Post.bind(globals.api);
-      //var data = formData;
 
       if(baseData)
       {
          func = globals.api.Put.bind(globals.api);
-         //data = Utilities.MergeInto(baseData, formData);
          endpoint += "/" + baseData.id;
       }
 
@@ -2448,7 +2448,7 @@ function updatePWContent(pulsedata, c)
 function thumbType(page, element)
 {
    var th = getContentThumbnailLink(page, 20, true);
-   var swap = { "type" : false, "image" : false, "private" : false }; //{ "type" : null };
+   var swap = { "type" : false, "image" : false, "private" : false };
    if (th) 
       swap.image = th;
    else
@@ -2560,7 +2560,6 @@ function refreshPulseUserDisplay(userElem)
       }
    }
    Utilities.SortElements(parent, 
-   //specialSort(parent, 
       x => x.getAttribute("data-lastdate") || x.getAttribute("data-firstdate") || "0", 
       true);
 }
@@ -2598,7 +2597,6 @@ function applyPulseCatalogue(aggregate)
          //in the list)
          var pulseuserlist = getPWUserlist(aggregate[key].pulse);
          Utilities.SortElements(pulseuserlist,
-         //specialSort(pulseuserlist,
             x => x.getAttribute(attr.pulsedate) || "0", true);
 
          //Now update the maxdate on overall content
@@ -2687,7 +2685,6 @@ function updatePulse(data, fullReset)
    applyPulseCatalogue(aggregate);
 
    Utilities.SortElements(pulse,
-   //specialSort(pulse,
       x => x.getAttribute(attr.pulsedate) || "0", true);
 
    refreshPWDates(pulse);
