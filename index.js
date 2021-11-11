@@ -1,4 +1,5 @@
 var apiroot = "https://newdev.smilebasicsource.com/api";
+//var apiroot = "https://smilebasicsource.com/api";
 //var apiroot = "https://localhost:5001/api";
 
 var actiontext = {
@@ -2217,20 +2218,26 @@ function setupSession()
 
       var search = {"reverse":true,"createstart":Utilities.SubHours(getLocalOption("pulsepasthours")).toISOString()};
       var searchStr = JSON.stringify(search);
-      var watchsearch = {"ContentLimit":{"Watches":true}}; //,maxId:0};
-      params.append("requests", "systemaggregate"); //1 (0 is category)
-      params.append("requests", "comment-" + searchStr);   //2
-      params.append("requests", "activity-" + searchStr);  //3
-      params.append("requests", "watch");    //4
-      params.append("requests", "modulemessage-" + JSON.stringify({maxId:0}));//searchStr); //5 (DISABLED)
-      params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //6 (DISABLED)
-      params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //7 (DISABLED)
-      params.append("requests", "content.3contentId.2parentId.4contentId"); //8
-      params.append("requests", "user.3userId.2createUserId.5usersInMessage.5sendUserId.6userIds.7userIds.8createUserId"); //9
+      var watchsearch = {"ContentLimit":{"Watches":true}};//,maxId:0};
+      params.append("requests", "comment-" + searchStr);   //1
+      params.append("requests", "activity-" + searchStr);  //2
+      params.append("requests", "watch");    //3
+      params.append("requests", "commentaggregate-" + JSON.stringify(watchsearch)); //4 (DISABLED)
+      params.append("requests", "activityaggregate-" + JSON.stringify(watchsearch)); //5 (DISABLED)
+      params.append("requests", "content.2contentId.1parentId.3contentId"); //6
+      params.append("requests", "user.1createUserId.2userId.4userIds.5userIds.6createUserId"); //7
       params.set("comment","id,parentId,createUserId,createDate");
       params.set("content","id,name,type,values,createUserId,permissions");
       params.set("user","id,username,avatar,super,createDate");
       params.set("watch","id,contentId,lastNotificationId");
+
+      //Setup longpolling/realtime updates (whatever it's using)
+      globals.lastsystemid = -100;  //there's no way 100 events happened while the page was loading
+
+      if(getLocalOption("forcediscussionoutofdate"))
+         globals.lastsystemid -= 2000;
+
+      tryUpdateLongPoll();
    }
 
    globals.api.Chain(params, apidata =>
@@ -2239,20 +2246,6 @@ function setupSession()
 
       if(loggedIn)
       {
-         data.systemaggregate.forEach(x => 
-         {
-            if(x.type === "actionMax")
-            {
-               log.Info("Last system id: " + x.id);
-               globals.lastsystemid = x.id;
-
-               if(getLocalOption("forcediscussionoutofdate"))
-                  globals.lastsystemid -= 2000;
-
-               tryUpdateLongPoll();
-            }
-         });
-
          writeDom(() => 
          {
             hide(rightpaneactivityloading);
