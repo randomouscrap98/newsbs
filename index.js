@@ -583,15 +583,15 @@ function setupSignalProcessors()
    signals.Attach("longpollabort", data => writeDom(() => setConnectionState("aborted")));
    signals.Attach("longpollerror", data => 
    {
-      //if(data.getErrorState && data.getErrorState())
-      //{
+      if(data.getErrorState && data.getErrorState())
+      {
          log.Error("Can't connect to live updates: " + data.request.status + " - " + data.request.statusText);
          writeDom(() =>setConnectionState("error"));
-      //}
-      //else
-      //{
+      }
+      else
+      {
          log.Warn("longpollerror signalled, but error state is no longer in error");
-      //}
+      }
    });
    signals.Attach("longpollalways", data => { globals.lastsystemid = data.lpdata.lastId });
    signals.Attach("longpollfatal", data =>

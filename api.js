@@ -609,11 +609,12 @@ WebSocketListener.prototype.MakeSignalData = function(message)
    var me = this;
    return {
       lpdata : me.lpdata,
-      //getErrorState : () => {
-      //   var res = !me.socket || me.socket.ReadyState !== WebSocket.OPEN
-      //   //console.log("Checking error state... it's " + res);
-      //   return res;
-      //},
+      getErrorState : () => {
+         var res = !me.socket || (me.socket.ReadyState !== WebSocket.OPEN && 
+            me.socket.ReadyState !== WebSocket.CONNECTING)
+         console.log("Checking error state... it's " + res);
+         return res;
+      },
       request : {
          status : "WEBSOCKET",
          statusText : message
@@ -691,6 +692,7 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
             }
             else if(event.data.indexOf("error:") == 0)
             {
+               me.log("WEBSOCKET INTERNAL ERROR: " + event.data);
                me.signal("longpollfatal", me.MakeSignalData(
                   `Unexpected error during websocket [${me.socket.myId}]: ${event.data}`));
             }
