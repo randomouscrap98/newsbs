@@ -677,7 +677,8 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
       };
       me.socket.onerror = function(event)
       {
-         me.signal("longpollfatal", me.MakeSignalData(`Unknown error during websocket [${me.socket.myId}]`));
+         me.log(`Websocket ${me.socket.myId} threw an error; we assume everything is OK though.`);
+         me.signal("longpollerror", me.MakeSignalData(`Unknown error during websocket [${me.socket.myId}]`));
       };
       me.socket.onmessage = function(event)
       {
@@ -687,6 +688,11 @@ WebSocketListener.prototype.Update = function (lastId, statuses)
             {
                //The server is just acknowledging the receipt
                me.log(`Successfully updated configuration for websocket ${me.socket.myId}`);
+            }
+            else if(event.data.indexOf("error:") == 0)
+            {
+               me.signal("longpollfatal", me.MakeSignalData(
+                  `Unexpected error during websocket [${me.socket.myId}]: ${event.data}`));
             }
             else
             {
