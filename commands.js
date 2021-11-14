@@ -24,36 +24,56 @@ var CommandSystem = {
 };
 
 var Commands = { 
-   hide : new Command("Disappear from chat userlists", cmd =>
+   hide : new Command("Disappear from all chat userlists (Use '/hide here' to hide from the current room instead)", cmd =>
    {
+      var targetpage;
+      if (cmd.includes("here"))
+      {
+         targetpage = getActiveDiscussionId();
+      }
+      else
+      {
+         targetpage = 0
+      }
+      if (targetpage == null) return;
       CommandSystem.print("Contacting server to hide...");
       CommandSystem.api.Get("user/me", "", apidat =>
       {
          var hidelist = apidat.data.hidelist;
-         if(hidelist.indexOf(0) >= 0)
+         if(hidelist.indexOf(targetpage) >= 0)
          {
             CommandSystem.print("Already hiding");
             return;
          }
-         hidelist.push(0);
+         hidelist.push(targetpage);
          CommandSystem.api.Put("user/basic", {hidelist:hidelist}, apidat =>
          {
             CommandSystem.print("Now hiding, it may take a few seconds for you to disappear from the userlist");
          });
       });
    }),
-   unhide : new Command("Show up as normal in chat userlists", cmd =>
+   unhide : new Command("Show up as normal in all chat userlists (Use '/hide here' to hide from the current room instead)", cmd =>
    {
+      var targetpage;
+      if (cmd.includes("here"))
+      {
+         targetpage = getActiveDiscussionId();
+      }
+      else
+      {
+         targetpage = 0
+      }
+      if (targetpage == null) return;
       CommandSystem.print("Contacting server to unhide...");
       CommandSystem.api.Get("user/me", "", apidat =>
       {
          var hidelist = apidat.data.hidelist;
-         if(hidelist.indexOf(0) < 0)
+         if(hidelist.indexOf(targetpage) < 0)
          {
             CommandSystem.print("Already visible");
             return;
          }
-         CommandSystem.api.Put("user/basic", {hidelist:hidelist.filter(x => x != 0)}, apidat =>
+         CommandSystem.api.Put("user/basic", {hidelist:hidelist.filter(x => x != targetpage)}, apidat =>
          {
             CommandSystem.print("Now visible");
          });
